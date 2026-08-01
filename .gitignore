@@ -46,3 +46,10 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+.vercel
+.env*
+
+.neon
+.vercel
+
