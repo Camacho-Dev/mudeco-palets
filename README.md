@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mudeco Palets — Control de empresa
 
-## Getting Started
+Sistema para mueblería: venta, fabricación, facturación, inventario, cobros, cotizaciones y área privada con auditoría.
 
-First, run the development server:
+## Arranque
 
 ```bash
+npm install
+npx prisma migrate dev
+npm run db:seed
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Usuario | Clave | Rol |
+|---------|-------|-----|
+| `admin@empresa.com` | `admin123` | Admin |
+| `vendedor@empresa.com` | `vendedor123` | Empleado |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Operación (sin clave extra)
 
-## Learn More
+Generar factura · Facturas · Cotizaciones · Clientes · Catálogo
 
-To learn more about Next.js, take a look at the following resources:
+## Privado (clave de admin)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Panel · Finanzas (con aging CxC) · Inventario/Kardex · Cobros · Proveedores · Compras · Notas de crédito · Fabricación · Usuarios · Exportar CSV · Respaldo JSON · Empresa/NCF · Historial
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Seguridad
 
-## Deploy on Vercel
+- Roles: solo admin anula facturas, elimina clientes/pagos, ajusta stock, gestiona usuarios/compras
+- Área privada con cookie firmada (~45 min)
+- Auditoría de acciones + rate limit en login/desbloqueo
+- Respaldo JSON desde menú privado
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Fiscal / stock
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Series NCF (B01/B02…) en Empresa; auto al facturar
+- Stock atómico + kardex; sin sobreventa
+- Anular factura repone stock y borra pagos
+
+## Tests / CI
+
+```bash
+npm run test
+```
+
+GitHub Actions en `.github/workflows/ci.yml`
+
+## Postgres (opcional)
+
+```bash
+docker compose up -d
+# Luego DATABASE_URL="postgresql://mudeco:mudeco@localhost:5432/mudeco"
+# y cambia provider a postgresql en prisma/schema.prisma
+```

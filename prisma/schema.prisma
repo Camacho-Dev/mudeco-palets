@@ -1,0 +1,311 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String
+  passwordHash   String
+  role           String    @default("ADMIN")
+  active         Boolean   @default(true)
+  commissionRate Float     @default(0)
+  createdAt      DateTime  @default(now())
+  invoices       Invoice[]
+  quotes         Quote[]
+  creditNotes    CreditNote[]
+  workOrders     WorkOrder[]
+}
+
+model Customer {
+  id          String       @id @default(cuid())
+  name        String
+  taxId       String?
+  email       String?
+  phone       String?
+  address     String?
+  creditLimit Float        @default(0)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  invoices    Invoice[]
+  quotes      Quote[]
+  creditNotes CreditNote[]
+}
+
+model Product {
+  id            String          @id @default(cuid())
+  sku           String?
+  name          String
+  description   String?
+  /** FINISHED = mueble a la venta · MATERIAL = almacén de insumos */
+  kind          String          @default("FINISHED")
+  category      String          @default("Muebles")
+  price         Float
+  cost          Float           @default(0)
+  taxRate       Float           @default(0.18)
+  unit          String          @default("UND")
+  stock         Float           @default(0)
+  minStock      Float           @default(2)
+  active        Boolean         @default(true)
+  imageUrl      String?
+  widthCm       Float?
+  heightCm      Float?
+  depthCm       Float?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  items         InvoiceItem[]
+  quoteItems    QuoteItem[]
+  stockMoves    StockMovement[]
+  purchaseItems PurchaseItem[]
+  creditItems   CreditNoteItem[]
+  workOrders    WorkOrder[]
+  bomAsFinished BomItem[]       @relation("FinishedProduct")
+  bomAsMaterial BomItem[]       @relation("MaterialProduct")
+  workOrderMats WorkOrderItem[]
+}
+
+model Invoice {
+  id          String        @id @default(cuid())
+  number      String        @unique
+  ncf         String?
+  status      String        @default("DRAFT")
+  issueDate   DateTime      @default(now())
+  dueDate     DateTime?
+  notes       String?
+  delivery    Boolean      @default(false)
+  deliveryFee Float        @default(0)
+  applyTax    Boolean      @default(true)
+  subtotal    Float
+  tax         Float
+  total       Float
+  customerId  String
+  customer    Customer      @relation(fields: [customerId], references: [id])
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  quoteId     String?
+  quote       Quote?        @relation(fields: [quoteId], references: [id])
+  items       InvoiceItem[]
+  payments    Payment[]
+  creditNotes CreditNote[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model InvoiceItem {
+  id          String   @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id])
+  description String
+  quantity    Float
+  unitPrice   Float
+  taxRate     Float
+  lineTotal   Float
+}
+
+model Payment {
+  id        String   @id @default(cuid())
+  invoiceId String
+  invoice   Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  amount    Float
+  method    String   @default("CASH")
+  paidAt    DateTime @default(now())
+  notes     String?
+  createdAt DateTime @default(now())
+}
+
+model CompanySettings {
+  id      String  @id @default("default")
+  name    String  @default("Mudeco Palets")
+  slogan  String  @default("Muebles a la medida")
+  taxId   String?
+  address String?
+  phone   String?
+  email   String?
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  userEmail String?
+  userName  String?
+  action    String
+  entity    String
+  entityId  String?
+  summary   String
+  details   String?
+  createdAt DateTime @default(now())
+}
+
+model InvoiceCounter {
+  id   String @id
+  last Int    @default(0)
+}
+
+model NcfSeries {
+  id        String    @id @default(cuid())
+  type      String
+  name      String
+  prefix    String
+  nextSeq   Int       @default(1)
+  maxSeq    Int       @default(99999999)
+  expiresAt DateTime?
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+}
+
+model StockMovement {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  qty       Float
+  balance   Float
+  reason    String
+  refType   String?
+  refId     String?
+  note      String?
+  userId    String?
+  createdAt DateTime @default(now())
+}
+
+model Quote {
+  id         String      @id @default(cuid())
+  number     String      @unique
+  status     String      @default("DRAFT")
+  issueDate  DateTime    @default(now())
+  validUntil DateTime?
+  notes      String?
+  subtotal   Float
+  tax        Float
+  total      Float
+  customerId String
+  customer   Customer    @relation(fields: [customerId], references: [id])
+  userId     String
+  user       User        @relation(fields: [userId], references: [id])
+  items      QuoteItem[]
+  invoices   Invoice[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model QuoteItem {
+  id          String   @id @default(cuid())
+  quoteId     String
+  quote       Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id])
+  description String
+  quantity    Float
+  unitPrice   Float
+  taxRate     Float
+  lineTotal   Float
+}
+
+model CreditNote {
+  id         String           @id @default(cuid())
+  number     String           @unique
+  reason     String
+  status     String           @default("ISSUED")
+  issueDate  DateTime         @default(now())
+  subtotal   Float
+  tax        Float
+  total      Float
+  invoiceId  String
+  invoice    Invoice          @relation(fields: [invoiceId], references: [id])
+  customerId String
+  customer   Customer         @relation(fields: [customerId], references: [id])
+  userId     String
+  user       User             @relation(fields: [userId], references: [id])
+  items      CreditNoteItem[]
+  createdAt  DateTime         @default(now())
+}
+
+model CreditNoteItem {
+  id           String     @id @default(cuid())
+  creditNoteId String
+  creditNote   CreditNote @relation(fields: [creditNoteId], references: [id], onDelete: Cascade)
+  productId    String?
+  product      Product?   @relation(fields: [productId], references: [id])
+  description  String
+  quantity     Float
+  unitPrice    Float
+  taxRate      Float
+  lineTotal    Float
+}
+
+model Supplier {
+  id        String     @id @default(cuid())
+  name      String
+  taxId     String?
+  email     String?
+  phone     String?
+  address   String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  purchases Purchase[]
+}
+
+model Purchase {
+  id         String         @id @default(cuid())
+  number     String         @unique
+  status     String         @default("DRAFT")
+  notes      String?
+  total      Float          @default(0)
+  orderedAt  DateTime       @default(now())
+  receivedAt DateTime?
+  supplierId String
+  supplier   Supplier       @relation(fields: [supplierId], references: [id])
+  items      PurchaseItem[]
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+}
+
+model PurchaseItem {
+  id         String   @id @default(cuid())
+  purchaseId String
+  purchase   Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  quantity   Float
+  unitCost   Float
+  lineTotal  Float
+}
+
+model BomItem {
+  id                String  @id @default(cuid())
+  finishedProductId String
+  finishedProduct   Product @relation("FinishedProduct", fields: [finishedProductId], references: [id])
+  materialId        String
+  material          Product @relation("MaterialProduct", fields: [materialId], references: [id])
+  quantity          Float
+}
+
+model WorkOrder {
+  id         String          @id @default(cuid())
+  number     String          @unique
+  status     String          @default("PENDING")
+  quantity   Float           @default(1)
+  notes      String?
+  productId  String
+  product    Product         @relation(fields: [productId], references: [id])
+  userId     String?
+  user       User?           @relation(fields: [userId], references: [id])
+  items      WorkOrderItem[]
+  createdAt  DateTime        @default(now())
+  completedAt DateTime?
+}
+
+model WorkOrderItem {
+  id          String    @id @default(cuid())
+  workOrderId String
+  workOrder   WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id])
+  quantity    Float
+}

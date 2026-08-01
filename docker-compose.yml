@@ -1,0 +1,15 @@
+# Opcional: Postgres local para producción
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: mudeco
+      POSTGRES_PASSWORD: mudeco
+      POSTGRES_DB: mudeco
+    ports:
+      - "5432:5432"
+    volumes:
+      - mudeco_pg:/var/lib/postgresql/data
+
+volumes:
+  mudeco_pg:

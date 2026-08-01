@@ -1,0 +1,138 @@
+import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+
+export type StockReason =
+  | "SALE"
+  | "VOID"
+  | "PURCHASE"
+  | "ADJUST"
+  | "MANUFACTURE_IN"
+  | "MANUFACTURE_OUT"
+  | "CREDIT_NOTE";
+
+function skipsStock(sku: string | null | undefined) {
+  return sku === "CUS-001";
+}
+
+async function currentUserId() {
+  try {
+    const session = await auth();
+    return session?.user?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Verifica stock antes de emitir. Agrupa cantidades por producto. */
+export async function assertStockAvailable(
+  lines: { productId?: string | null; quantity: number }[],
+) {
+  const needed = new Map<string, number>();
+  for (const line of lines) {
+    if (!line.productId) continue;
+    needed.set(
+      line.productId,
+      (needed.get(line.productId) || 0) + line.quantity,
+    );
+  }
+
+  for (const [productId, qty] of needed) {
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+    if (!product) {
+      throw new Error("Hay un producto que ya no existe en el catálogo");
+    }
+    if (skipsStock(product.sku)) continue;
+    if (product.stock <= 0) {
+      throw new Error(
+        `No hay stock de “${product.name}”. No se puede guardar la factura.`,
+      );
+    }
+    if (product.stock + 0.0001 < qty) {
+      throw new Error(
+        `Stock insuficiente de “${product.name}”: pediste ${qty}, hay ${product.stock}.`,
+      );
+    }
+  }
+}
+
+export async function applyStockChange(input: {
+  productId: string;
+  qtyDelta: number;
+  reason: StockReason;
+  refType?: string;
+  refId?: string;
+  note?: string;
+  allowNegative?: boolean;
+}) {
+  const product = await prisma.product.findUnique({
+    where: { id: input.productId },
+  });
+  if (!product) throw new Error("Producto no encontrado");
+  if (skipsStock(product.sku)) return product.stock;
+
+  const next = product.stock + input.qtyDelta;
+  if (!input.allowNegative && next < -0.0001) {
+    throw new Error(
+      `Stock insuficiente: ${product.name} (disponible ${product.stock})`,
+    );
+  }
+  const balance = Math.max(0, next);
+  const userId = await currentUserId();
+
+  await prisma.$transaction([
+    prisma.product.update({
+      where: { id: input.productId },
+      data: { stock: balance },
+    }),
+    prisma.stockMovement.create({
+      data: {
+        productId: input.productId,
+        qty: input.qtyDelta,
+        balance,
+        reason: input.reason,
+        refType: input.refType,
+        refId: input.refId,
+        note: input.note,
+        userId,
+      },
+    }),
+  ]);
+
+  return balance;
+}
+
+export async function deductStock(
+  lines: { productId?: string | null; quantity: number }[],
+  ref?: { refType: string; refId: string },
+) {
+  await assertStockAvailable(lines);
+  for (const line of lines) {
+    if (!line.productId) continue;
+    await applyStockChange({
+      productId: line.productId,
+      qtyDelta: -line.quantity,
+      reason: "SALE",
+      refType: ref?.refType,
+      refId: ref?.refId,
+    });
+  }
+}
+
+export async function restoreStock(
+  lines: { productId?: string | null; quantity: number }[],
+  ref?: { refType: string; refId: string },
+) {
+  for (const line of lines) {
+    if (!line.productId) continue;
+    await applyStockChange({
+      productId: line.productId,
+      qtyDelta: line.quantity,
+      reason: "VOID",
+      refType: ref?.refType,
+      refId: ref?.refId,
+      allowNegative: true,
+    });
+  }
+}

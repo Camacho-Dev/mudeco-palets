@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 72" fill="none">
+  <g fill="#3d2a1f">
+    <rect x="4" y="8" width="40" height="6" rx="1.2"/>
+    <rect x="4" y="17" width="11" height="9" rx="1.2"/>
+    <rect x="20" y="17" width="8" height="9" rx="1.2"/>
+    <rect x="33" y="17" width="11" height="9" rx="1.2"/>
+    <rect x="4" y="30" width="40" height="6" rx="1.2"/>
+    <rect x="4" y="39" width="11" height="9" rx="1.2"/>
+    <rect x="20" y="39" width="8" height="9" rx="1.2"/>
+    <rect x="33" y="39" width="11" height="9" rx="1.2"/>
+  </g>
+  <text x="58" y="42" fill="#3d2a1f" font-family="Arial Black, Arial, sans-serif" font-size="28" font-weight="800" letter-spacing="1">MUDECO</text>
+  <text x="178" y="42" fill="#3d2a1f" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="300" letter-spacing="4">PALETS</text>
+</svg>
