@@ -14,9 +14,9 @@ const libreBaskerville = Libre_Baskerville({
 });
 
 export const metadata: Metadata = {
-  title: "Mudeco Palets — Control de empresa",
+  title: "Mudeco Palets — Muebles de madera recuperada",
   description:
-    "Facturación, inventario y control operativo para mueblería Mudeco Palets",
+    "Diseño, creatividad y sostenibilidad. Muebles únicos hechos con madera recuperada en República Dominicana.",
 };
 
 export default function RootLayout({

@@ -1,11 +1,15 @@
 "use client";
 
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useState } from "react";
 import { Eye, EyeOff, Lock, User } from "lucide-react";
 import { BrandLogo } from "@/components/logo";
 import "./login.css";
+
+function homeForRole(role?: string | null) {
+  return role === "ADMIN" ? "/panel" : "/vender";
+}
 
 function LoginForm() {
   const router = useRouter();
@@ -26,14 +30,31 @@ function LoginForm() {
       redirect: false,
     });
 
-    setLoading(false);
-
     if (result?.error) {
+      setLoading(false);
       setError("Datos incorrectos");
       return;
     }
 
-    router.push(params.get("callbackUrl") || "/vender");
+    const session = await getSession();
+    const callback = params.get("callbackUrl");
+    const role = session?.user?.role;
+    const safeCallback =
+      callback &&
+      callback.startsWith("/") &&
+      !callback.startsWith("//") &&
+      callback !== "/login"
+        ? callback
+        : null;
+
+    // Don't send vendors to admin-only callback paths
+    const dest =
+      safeCallback &&
+      !(role !== "ADMIN" && (safeCallback === "/panel" || safeCallback.startsWith("/panel/")))
+        ? safeCallback
+        : homeForRole(role);
+
+    router.push(dest);
     router.refresh();
   }
 

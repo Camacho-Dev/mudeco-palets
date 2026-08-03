@@ -42,6 +42,8 @@ export async function updateCompany(fd: FormData) {
 
   revalidatePath("/configuracion");
   revalidatePath("/");
+  revalidatePath("/contacto");
+  revalidatePath("/panel");
   redirect("/configuracion");
 }
 

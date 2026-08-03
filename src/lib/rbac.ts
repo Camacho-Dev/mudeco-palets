@@ -61,3 +61,7 @@ export function canExportBackup(role?: string | null) {
 export function canAccessAdminArea(role?: string | null) {
   return isAdmin(role);
 }
+
+export function homeForRole(role?: string | null) {
+  return isAdmin(role) ? "/panel" : "/vender";
+}

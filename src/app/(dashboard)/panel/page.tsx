@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { requireSession } from "@/lib/session";
+import { requireAdmin } from "@/lib/session";
 import { getBusinessAnalytics } from "@/lib/analytics";
 import { buildDateRange } from "@/lib/date-range";
 import { DashboardView } from "@/components/dashboard-view";
@@ -15,7 +15,7 @@ export default async function DashboardPage({
     to?: string;
   }>;
 }) {
-  await requireSession();
+  await requireAdmin();
   const params = await searchParams;
   const range = buildDateRange(params);
   const data = await getBusinessAnalytics(range);

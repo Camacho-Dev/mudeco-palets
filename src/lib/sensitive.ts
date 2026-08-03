@@ -1,5 +1,6 @@
 /** Rutas solo para rol ADMIN */
 export const ADMIN_PREFIXES = [
+  "/panel",
   "/finanzas",
   "/inventario",
   "/pagos",
@@ -16,10 +17,24 @@ export const ADMIN_PREFIXES = [
   "/desbloquear",
 ] as const;
 
+/** Rutas de la tienda pública (sin sesión) */
+export const PUBLIC_PREFIXES = [
+  "/",
+  "/catalogo",
+  "/producto",
+  "/contacto",
+] as const;
+
 export function isAdminPath(pathname: string) {
-  if (pathname === "/") return true;
   return ADMIN_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+}
+
+export function isPublicPath(pathname: string) {
+  if (pathname === "/") return true;
+  return PUBLIC_PREFIXES.some(
+    (p) => p !== "/" && (pathname === p || pathname.startsWith(`${p}/`)),
   );
 }
 

@@ -118,7 +118,7 @@ export function FinanzasView({ data }: { data: BusinessAnalytics }) {
     <div className="pb-10">
       <FadeIn>
         <Link
-          href="/"
+          href="/panel"
           className="mb-4 inline-flex items-center gap-1 text-sm text-[var(--muted)] hover:text-[var(--wood-800)]"
         >
           <ArrowLeft className="h-4 w-4" />

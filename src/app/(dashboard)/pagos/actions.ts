@@ -21,6 +21,7 @@ function revalidatePay(invoiceId: string) {
   revalidatePath("/facturas");
   revalidatePath("/pagos");
   revalidatePath("/");
+  revalidatePath("/panel");
   revalidatePath("/finanzas");
 }
 

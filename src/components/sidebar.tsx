@@ -35,7 +35,7 @@ const openNav = [
 ];
 
 const adminNav = [
-  { href: "/", label: "Panel", icon: LayoutDashboard },
+  { href: "/panel", label: "Panel", icon: LayoutDashboard },
   { href: "/finanzas", label: "Finanzas", icon: Calculator },
   { href: "/inventario", label: "Inventario", icon: Warehouse },
   { href: "/materiales", label: "Materiales", icon: Boxes },

@@ -49,6 +49,8 @@ function parseLines(fd: FormData) {
 function revalidateSales(invoiceId?: string) {
   revalidatePath("/facturas");
   revalidatePath("/");
+  revalidatePath("/panel");
+  revalidatePath("/catalogo");
   revalidatePath("/vender");
   revalidatePath("/inventario");
   revalidatePath("/productos");
