@@ -1,10 +1,7 @@
 import type { NextAuthConfig } from "next-auth";
 import { NextResponse } from "next/server";
-import {
-  isSensitivePath,
-  verifySensitiveToken,
-  SENSITIVE_COOKIE,
-} from "@/lib/sensitive";
+import { isAdminPath } from "@/lib/sensitive";
+import { ROLES } from "@/lib/rbac";
 
 /** Config Edge-compatible (sin Prisma/bcrypt) para middleware */
 export const authConfig = {
@@ -33,7 +30,9 @@ export const authConfig = {
       const pathname = request.nextUrl.pathname;
       const isLoggedIn = !!auth;
       const isLogin = pathname.startsWith("/login");
-      const isUnlock = pathname.startsWith("/desbloquear");
+      const role =
+        (auth?.user as { role?: string } | undefined)?.role ||
+        (auth as { role?: string } | null)?.role;
 
       if (!isLoggedIn && !isLogin) {
         const url = new URL("/login", request.nextUrl.origin);
@@ -42,16 +41,15 @@ export const authConfig = {
       }
 
       if (isLoggedIn && isLogin) {
-        return NextResponse.redirect(new URL("/vender", request.nextUrl.origin));
+        return NextResponse.redirect(
+          new URL("/vender", request.nextUrl.origin),
+        );
       }
 
-      if (isLoggedIn && isSensitivePath(pathname) && !isUnlock) {
-        const token = request.cookies.get(SENSITIVE_COOKIE)?.value;
-        if (!(await verifySensitiveToken(token))) {
-          const url = new URL("/desbloquear", request.nextUrl.origin);
-          url.searchParams.set("next", pathname);
-          return NextResponse.redirect(url);
-        }
+      if (isLoggedIn && isAdminPath(pathname) && role !== ROLES.ADMIN) {
+        return NextResponse.redirect(
+          new URL("/vender?error=sin-permiso", request.nextUrl.origin),
+        );
       }
 
       return true;

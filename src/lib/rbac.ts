@@ -56,3 +56,8 @@ export function canManageFabrication(role?: string | null) {
 export function canExportBackup(role?: string | null) {
   return isAdmin(role);
 }
+
+/** Acceso a panel, finanzas, inventario y resto de administración */
+export function canAccessAdminArea(role?: string | null) {
+  return isAdmin(role);
+}
