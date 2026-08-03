@@ -1,0 +1,80 @@
+"use client";
+
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
+
+export function Reveal({
+  children,
+  className = "",
+  delay = 0,
+  y = 28,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+  y?: number;
+}) {
+  const reduce = useReducedMotion();
+  return (
+    <motion.div
+      className={className}
+      initial={reduce ? false : { opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-8% 0px" }}
+      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export function HeroParallax({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end start"],
+  });
+  const y = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [0, 120]);
+  const opacity = useTransform(
+    scrollYProgress,
+    [0, 0.7],
+    reduce ? [1, 1] : [1, 0.35],
+  );
+
+  return (
+    <div ref={ref} className={className}>
+      <motion.div style={{ y, opacity }} className="will-change-transform">
+        {children}
+      </motion.div>
+    </div>
+  );
+}
+
+export function ScaleIn({
+  children,
+  className = "",
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  const reduce = useReducedMotion();
+  return (
+    <motion.div
+      className={className}
+      initial={reduce ? false : { opacity: 0, scale: 0.94 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.85, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}

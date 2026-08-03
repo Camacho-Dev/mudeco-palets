@@ -14,46 +14,48 @@ export function StoreFooter({
   };
 }) {
   return (
-    <footer className="mt-auto border-t border-[var(--border)] bg-[#3d2a1f] text-[#faf6f1]">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3">
+    <footer className="mt-auto bg-[#2f2018] text-[#faf6f1]">
+      <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:px-6 md:grid-cols-[1.2fr_1fr_1fr]">
         <div>
-          <BrandLogo width={120} height={150} className="mb-4 h-16 w-auto" />
-          <p className="font-display text-lg">{company.name}</p>
-          <p className="mt-1 text-sm text-white/60">{company.slogan}</p>
+          <BrandLogo width={100} height={125} className="mb-5 h-14 w-auto" />
+          <p className="font-display text-2xl">{company.name}</p>
+          <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/55">
+            {company.slogan}. Diseño sostenible con madera recuperada.
+          </p>
         </div>
         <div>
-          <p className="mb-3 text-xs font-semibold tracking-[0.14em] text-white/40 uppercase">
-            Explorar
+          <p className="mb-4 text-[0.65rem] font-semibold tracking-[0.18em] text-white/40 uppercase">
+            Navegación
           </p>
-          <ul className="space-y-2 text-sm text-white/75">
+          <ul className="space-y-3 text-sm text-white/70">
             <li>
-              <Link href="/" className="hover:text-white">
+              <Link href="/" className="transition hover:text-white">
                 Inicio
               </Link>
             </li>
             <li>
-              <Link href="/catalogo" className="hover:text-white">
+              <Link href="/catalogo" className="transition hover:text-white">
                 Catálogo
               </Link>
             </li>
             <li>
-              <Link href="/contacto" className="hover:text-white">
+              <Link href="/contacto" className="transition hover:text-white">
                 Contacto
               </Link>
             </li>
           </ul>
         </div>
         <div>
-          <p className="mb-3 text-xs font-semibold tracking-[0.14em] text-white/40 uppercase">
+          <p className="mb-4 text-[0.65rem] font-semibold tracking-[0.18em] text-white/40 uppercase">
             Contacto
           </p>
-          <ul className="space-y-2 text-sm text-white/75">
+          <ul className="space-y-3 text-sm text-white/70">
             <li>
               <a
                 href={whatsappLink(company.phone)}
                 target="_blank"
                 rel="noreferrer"
-                className="hover:text-white"
+                className="transition hover:text-white"
               >
                 {company.phone}
               </a>
@@ -61,18 +63,17 @@ export function StoreFooter({
             <li>
               <a
                 href={`mailto:${company.email}`}
-                className="hover:text-white"
+                className="transition hover:text-white"
               >
                 {company.email}
               </a>
             </li>
-            <li className="text-white/55">{company.address}</li>
+            <li className="leading-relaxed text-white/50">{company.address}</li>
           </ul>
         </div>
       </div>
-      <div className="border-t border-white/10 px-4 py-4 text-center text-xs text-white/40">
-        © {new Date().getFullYear()} {company.name}. Todos los derechos
-        reservados.
+      <div className="border-t border-white/10 px-4 py-5 text-center text-[0.7rem] tracking-wide text-white/35">
+        © {new Date().getFullYear()} {company.name} · República Dominicana
       </div>
     </footer>
   );

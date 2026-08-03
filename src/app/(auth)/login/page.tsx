@@ -7,10 +7,6 @@ import { Eye, EyeOff, Lock, User } from "lucide-react";
 import { BrandLogo } from "@/components/logo";
 import "./login.css";
 
-function homeForRole(role?: string | null) {
-  return role === "ADMIN" ? "/panel" : "/vender";
-}
-
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
@@ -37,8 +33,16 @@ function LoginForm() {
     }
 
     const session = await getSession();
-    const callback = params.get("callbackUrl");
     const role = session?.user?.role;
+
+    // Admin siempre al panel de una vez
+    if (role === "ADMIN") {
+      router.push("/panel");
+      router.refresh();
+      return;
+    }
+
+    const callback = params.get("callbackUrl");
     const safeCallback =
       callback &&
       callback.startsWith("/") &&
@@ -47,14 +51,7 @@ function LoginForm() {
         ? callback
         : null;
 
-    // Don't send vendors to admin-only callback paths
-    const dest =
-      safeCallback &&
-      !(role !== "ADMIN" && (safeCallback === "/panel" || safeCallback.startsWith("/panel/")))
-        ? safeCallback
-        : homeForRole(role);
-
-    router.push(dest);
+    router.push(safeCallback || "/vender");
     router.refresh();
   }
 

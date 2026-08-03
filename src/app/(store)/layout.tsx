@@ -3,6 +3,9 @@ import { StoreHeader } from "@/components/store/store-header";
 import { StoreFooter } from "@/components/store/store-footer";
 import { StoreProviders } from "@/components/store/store-providers";
 import { getStoreCompany } from "@/lib/store";
+import "@/components/store/store.css";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: {
@@ -22,7 +25,7 @@ export default async function StoreLayout({
 
   return (
     <StoreProviders>
-      <div className="flex min-h-screen flex-col bg-[#f7f2eb]">
+      <div className="store-shell flex min-h-screen flex-col">
         <StoreHeader />
         <main className="flex-1">{children}</main>
         <StoreFooter company={company} />

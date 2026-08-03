@@ -1,45 +1,38 @@
 import Link from "next/link";
 import { formatCurrency } from "@/lib/format";
-import type { StoreProduct } from "@/lib/store";
+import { productImage, type StoreProduct } from "@/lib/store";
 
 export function ProductCard({ product }: { product: StoreProduct }) {
+  const src = productImage(product);
+
   return (
-    <Link
-      href={`/producto/${product.id}`}
-      className="group block overflow-hidden rounded-2xl border border-[var(--border)] bg-white transition hover:-translate-y-0.5 hover:shadow-md"
-    >
-      <div className="relative aspect-[4/3] overflow-hidden bg-[#efe6dc]">
-        {product.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={product.imageUrl}
-            alt={product.name}
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
-          />
-        ) : (
-          <div
-            className="flex h-full w-full items-end p-4"
-            style={{
-              background:
-                "linear-gradient(145deg, #5c4334 0%, #3d2a1f 45%, #b0894f 140%)",
-            }}
-          >
-            <p className="font-display text-lg text-white/90">{product.name}</p>
-          </div>
-        )}
+    <Link href={`/producto/${product.id}`} className="store-product-card group">
+      <div className="relative aspect-[4/5] overflow-hidden bg-[#ebe2d6]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={src}
+          alt={product.name}
+          className="h-full w-full object-cover"
+          loading="lazy"
+        />
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#2f2018]/70 to-transparent p-4 pt-16 opacity-0 transition group-hover:opacity-100">
+          <p className="text-[0.65rem] tracking-[0.14em] text-white/80 uppercase">
+            Ver detalle
+          </p>
+        </div>
       </div>
-      <div className="space-y-1 p-4">
-        <p className="text-[0.65rem] font-semibold tracking-[0.12em] text-[var(--muted)] uppercase">
+      <div className="space-y-1.5 px-4 py-4">
+        <p className="text-[0.65rem] font-semibold tracking-[0.16em] text-[var(--muted)] uppercase">
           {product.category}
         </p>
-        <h3 className="font-medium text-[var(--wood-950)] group-hover:text-[var(--wood-800)]">
+        <h3 className="font-display text-xl leading-snug text-[var(--wood-950)]">
           {product.name}
         </h3>
-        <div className="flex items-baseline justify-between gap-2 pt-1">
-          <p className="font-display text-lg text-[var(--wood-950)]">
+        <div className="flex items-baseline justify-between gap-3 pt-1">
+          <p className="text-sm font-semibold tracking-wide text-[var(--wood-800)]">
             {formatCurrency(product.price)}
           </p>
-          <p className="text-xs text-[var(--muted)]">
+          <p className="text-[0.7rem] text-[var(--muted)]">
             {product.stock > 0 ? "Disponible" : "Bajo pedido"}
           </p>
         </div>

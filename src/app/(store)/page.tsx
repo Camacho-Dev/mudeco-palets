@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { FadeIn, Stagger, StaggerItem } from "@/components/motion";
+import { Reveal, HeroParallax, ScaleIn } from "@/components/store/store-motion";
 import { ProductCard } from "@/components/store/product-card";
 import { BrandLogo } from "@/components/logo";
 import { getStoreCompany, whatsappLink } from "@/lib/store";
@@ -12,51 +13,53 @@ export default async function StoreHomePage() {
     orderBy: [{ category: "asc" }, { name: "asc" }],
     take: 6,
   });
+  const categories = await prisma.product.findMany({
+    where: { active: true, kind: "FINISHED" },
+    select: { category: true },
+    distinct: ["category"],
+    orderBy: { category: "asc" },
+    take: 8,
+  });
 
   return (
     <div>
-      <section className="relative min-h-[88vh] overflow-hidden bg-[#3d2a1f] text-[#faf6f1]">
-        <div
-          className="absolute inset-0 opacity-40"
-          style={{
-            backgroundImage:
-              "radial-gradient(ellipse 80% 60% at 70% 40%, rgba(176,137,79,0.35), transparent 55%), linear-gradient(120deg, #2a1c14 0%, #3d2a1f 40%, #5c4334 100%)",
-          }}
-        />
-        <div
-          className="absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")",
-          }}
-        />
+      {/* HERO — composición única, brand first, full-bleed */}
+      <section className="relative isolate min-h-[100svh] overflow-hidden bg-[#2f2018] text-[#faf6f1]">
+        <HeroParallax className="absolute inset-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/brand/store-hero.jpg"
+            alt=""
+            className="h-[120%] w-full object-cover"
+            fetchPriority="high"
+          />
+        </HeroParallax>
+        <div className="absolute inset-0 bg-gradient-to-r from-[#2f2018]/92 via-[#2f2018]/72 to-[#2f2018]/25" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#2f2018]/80 via-transparent to-[#2f2018]/35" />
 
-        <div className="relative mx-auto flex min-h-[88vh] max-w-6xl flex-col justify-end px-4 pb-16 pt-24 sm:px-6 md:justify-center md:pb-24">
-          <FadeIn>
+        <div className="relative mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-end px-4 pb-20 pt-28 sm:px-6 md:justify-center md:pb-28">
+          <ScaleIn>
             <BrandLogo
-              width={220}
-              height={275}
-              className="mb-8 h-28 w-auto md:h-36"
+              width={180}
+              height={225}
+              className="mb-8 h-[4.5rem] w-auto md:h-[5.5rem]"
               priority
             />
-          </FadeIn>
-          <FadeIn delay={0.12}>
-            <h1 className="font-display max-w-xl text-4xl leading-tight md:text-6xl">
+          </ScaleIn>
+          <FadeIn delay={0.15}>
+            <h1 className="font-display max-w-2xl text-[2.75rem] leading-[1.05] tracking-tight md:text-6xl lg:text-7xl">
               {company.name}
             </h1>
           </FadeIn>
-          <FadeIn delay={0.22}>
-            <p className="mt-4 max-w-md text-base text-white/70 md:text-lg">
-              {company.slogan}. Piezas únicas de madera recuperada para espacios
-              con carácter.
+          <FadeIn delay={0.28}>
+            <p className="mt-5 max-w-md text-base leading-relaxed text-white/75 md:text-lg">
+              {company.slogan}. Madera recuperada convertida en piezas únicas
+              para vivir.
             </p>
           </FadeIn>
-          <FadeIn delay={0.32}>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/catalogo"
-                className="rounded-lg bg-[#b0894f] px-6 py-3 text-sm font-semibold text-[#3d2a1f] transition hover:bg-[#c49a5c]"
-              >
+          <FadeIn delay={0.4}>
+            <div className="mt-10 flex flex-wrap gap-3">
+              <Link href="/catalogo" className="store-cta store-cta-primary">
                 Ver catálogo
               </Link>
               <a
@@ -66,30 +69,46 @@ export default async function StoreHomePage() {
                 )}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-lg border border-white/30 px-6 py-3 text-sm text-white transition hover:bg-white/10"
+                className="store-cta store-cta-ghost"
               >
-                Escribir por WhatsApp
+                WhatsApp
               </a>
             </div>
           </FadeIn>
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <FadeIn>
-          <p className="text-xs font-semibold tracking-[0.14em] text-[var(--muted)] uppercase">
-            Selección
+      {/* Categorías — una sola fila limpia */}
+      <section className="border-b border-[var(--border)] bg-[#fffdfb]">
+        <div className="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 py-5 sm:px-6">
+          {categories.map((c) => (
+            <Link
+              key={c.category}
+              href={`/catalogo?cat=${encodeURIComponent(c.category)}`}
+              className="shrink-0 rounded-full border border-[var(--border)] px-4 py-1.5 text-[0.7rem] tracking-[0.08em] text-[var(--muted)] uppercase transition hover:border-[var(--wood-700)] hover:text-[var(--wood-950)]"
+            >
+              {c.category}
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Destacados */}
+      <section className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
+        <Reveal>
+          <p className="text-[0.7rem] font-semibold tracking-[0.2em] text-[var(--muted)] uppercase">
+            Colección
           </p>
-          <h2 className="font-display mt-2 text-3xl text-[var(--wood-950)]">
+          <h2 className="font-display mt-3 text-4xl text-[var(--wood-950)] md:text-5xl">
             Piezas destacadas
           </h2>
-          <p className="mt-2 max-w-lg text-[var(--muted)]">
-            Del taller a tu espacio. Explora el catálogo completo de muebles
-            disponibles.
+          <p className="mt-3 max-w-lg text-[var(--muted)]">
+            Selección del taller. Cada mueble cuenta una historia de
+            transformación.
           </p>
-        </FadeIn>
+        </Reveal>
 
-        <Stagger className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <Stagger className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {featured.map((p) => (
             <StaggerItem key={p.id}>
               <ProductCard product={p} />
@@ -97,46 +116,72 @@ export default async function StoreHomePage() {
           ))}
         </Stagger>
 
-        <div className="mt-10 text-center">
+        <Reveal className="mt-14 text-center" delay={0.1}>
           <Link
             href="/catalogo"
-            className="inline-flex rounded-lg border border-[var(--border)] bg-white px-5 py-2.5 text-sm font-medium text-[var(--wood-950)] transition hover:border-[var(--wood-700)]"
+            className="inline-flex border border-[var(--wood-800)] px-8 py-3 text-[0.75rem] font-semibold tracking-[0.14em] text-[var(--wood-950)] uppercase transition hover:bg-[var(--wood-950)] hover:text-white"
           >
-            Ver todo el catálogo
+            Explorar catálogo completo
           </Link>
+        </Reveal>
+      </section>
+
+      {/* Craft — imagen real + copy */}
+      <section className="bg-[#2f2018] text-[#faf6f1]">
+        <div className="mx-auto grid max-w-6xl md:grid-cols-2">
+          <div className="relative min-h-[420px] overflow-hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/brand/store-craft.jpg"
+              alt="Detalle de madera recuperada"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </div>
+          <div className="flex flex-col justify-center px-6 py-16 sm:px-12">
+            <Reveal>
+              <p className="text-[0.7rem] font-semibold tracking-[0.2em] text-[#b0894f] uppercase">
+                Oficio
+              </p>
+              <h2 className="font-display mt-3 text-4xl leading-tight md:text-5xl">
+                Madera con historia
+              </h2>
+              <p className="mt-5 max-w-md text-base leading-relaxed text-white/65">
+                Transformamos materiales recuperados en mobiliario funcional y
+                estético. Autenticidad artesanal, innovación circular y calidad
+                que perdura.
+              </p>
+              <Link
+                href="/contacto"
+                className="store-cta store-cta-primary mt-8 w-fit"
+              >
+                Conocer más
+              </Link>
+            </Reveal>
+          </div>
         </div>
       </section>
 
-      <section className="border-y border-[var(--border)] bg-[#efe6dc]/60">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 md:grid md:grid-cols-2 md:gap-12 md:items-center">
-          <FadeIn>
-            <h2 className="font-display text-3xl text-[var(--wood-950)]">
-              Madera con historia
-            </h2>
-            <p className="mt-4 text-[var(--muted)] leading-relaxed">
-              Transformamos materiales recuperados en muebles funcionales y
-              estéticamente atractivos. Cada pieza es única, con carácter
-              artesanal y conciencia ecológica.
-            </p>
-          </FadeIn>
-          <FadeIn delay={0.15}>
-            <div className="mt-8 space-y-4 md:mt-0">
-              <div className="border-l-2 border-[#b0894f] pl-4">
-                <p className="font-medium text-[var(--wood-950)]">Misión</p>
-                <p className="mt-1 text-sm text-[var(--muted)]">
-                  Soluciones de diseño sostenible que reducen el impacto
-                  ambiental.
-                </p>
-              </div>
-              <div className="border-l-2 border-[#b0894f] pl-4">
-                <p className="font-medium text-[var(--wood-950)]">Visión</p>
-                <p className="mt-1 text-sm text-[var(--muted)]">
-                  Liderar la transformación de madera recuperada en el Caribe.
-                </p>
-              </div>
-            </div>
-          </FadeIn>
-        </div>
+      {/* CTA final */}
+      <section className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6">
+        <Reveal>
+          <h2 className="font-display text-3xl text-[var(--wood-950)] md:text-4xl">
+            ¿Listo para tu próximo mueble?
+          </h2>
+          <p className="mx-auto mt-3 max-w-md text-[var(--muted)]">
+            Escríbenos y te ayudamos a elegir la pieza ideal para tu espacio.
+          </p>
+          <a
+            href={whatsappLink(
+              company.phone,
+              `Hola ${company.name}, quiero asesoría para elegir un mueble.`,
+            )}
+            target="_blank"
+            rel="noreferrer"
+            className="store-cta store-cta-primary mt-8"
+          >
+            Hablar por WhatsApp
+          </a>
+        </Reveal>
       </section>
     </div>
   );

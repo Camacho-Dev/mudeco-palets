@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/store/product-card";
-import { FadeIn } from "@/components/motion";
+import { Reveal } from "@/components/store/store-motion";
 import Link from "next/link";
 
 export const metadata = {
@@ -43,71 +43,85 @@ export default async function CatalogoPage({
   });
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      <FadeIn>
-        <p className="text-xs font-semibold tracking-[0.14em] text-[var(--muted)] uppercase">
-          Tienda
-        </p>
-        <h1 className="font-display mt-2 text-4xl text-[var(--wood-950)]">
-          Catálogo
-        </h1>
-        <p className="mt-2 max-w-xl text-[var(--muted)]">
-          Explora muebles disponibles. Filtra por categoría o busca por nombre.
-        </p>
-      </FadeIn>
-
-      <form className="mt-8 flex flex-col gap-3 sm:flex-row" method="get">
-        <input
-          name="q"
-          defaultValue={query}
-          placeholder="Buscar mueble…"
-          className="input flex-1"
+    <div>
+      <div className="relative overflow-hidden bg-[#2f2018] text-[#faf6f1]">
+        <div
+          className="absolute inset-0 opacity-30"
+          style={{
+            backgroundImage: "url(/brand/store-craft.jpg)",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
         />
-        {category ? <input type="hidden" name="cat" value={category} /> : null}
-        <button type="submit" className="btn btn-primary">
-          Buscar
-        </button>
-      </form>
+        <div className="absolute inset-0 bg-[#2f2018]/75" />
+        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6">
+          <Reveal>
+            <p className="text-[0.7rem] font-semibold tracking-[0.2em] text-[#b0894f] uppercase">
+              Tienda
+            </p>
+            <h1 className="font-display mt-3 text-4xl md:text-5xl">Catálogo</h1>
+            <p className="mt-3 max-w-lg text-white/65">
+              Explora muebles hechos con madera recuperada. Filtra por categoría
+              o busca por nombre.
+            </p>
+          </Reveal>
+        </div>
+      </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
-        <Link
-          href="/catalogo"
-          className={`rounded-full border px-3 py-1 text-xs transition ${
-            !category
-              ? "border-[var(--wood-800)] bg-[var(--wood-800)] text-white"
-              : "border-[var(--border)] bg-white text-[var(--muted)] hover:border-[var(--wood-700)]"
-          }`}
-        >
-          Todas
-        </Link>
-        {categories.map((c) => (
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+        <form className="flex flex-col gap-3 sm:flex-row" method="get">
+          <input
+            name="q"
+            defaultValue={query}
+            placeholder="Buscar mueble…"
+            className="input flex-1"
+          />
+          {category ? <input type="hidden" name="cat" value={category} /> : null}
+          <button type="submit" className="btn btn-primary">
+            Buscar
+          </button>
+        </form>
+
+        <div className="mt-5 flex flex-wrap gap-2">
           <Link
-            key={c.category}
-            href={`/catalogo?cat=${encodeURIComponent(c.category)}${
-              query ? `&q=${encodeURIComponent(query)}` : ""
-            }`}
-            className={`rounded-full border px-3 py-1 text-xs transition ${
-              category === c.category
+            href="/catalogo"
+            className={`rounded-full border px-3.5 py-1.5 text-[0.7rem] tracking-wide uppercase transition ${
+              !category
                 ? "border-[var(--wood-800)] bg-[var(--wood-800)] text-white"
                 : "border-[var(--border)] bg-white text-[var(--muted)] hover:border-[var(--wood-700)]"
             }`}
           >
-            {c.category}
+            Todas
           </Link>
-        ))}
-      </div>
-
-      {products.length === 0 ? (
-        <p className="mt-12 text-center text-[var(--muted)]">
-          No hay productos que coincidan con la búsqueda.
-        </p>
-      ) : (
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((p) => (
-            <ProductCard key={p.id} product={p} />
+          {categories.map((c) => (
+            <Link
+              key={c.category}
+              href={`/catalogo?cat=${encodeURIComponent(c.category)}${
+                query ? `&q=${encodeURIComponent(query)}` : ""
+              }`}
+              className={`rounded-full border px-3.5 py-1.5 text-[0.7rem] tracking-wide uppercase transition ${
+                category === c.category
+                  ? "border-[var(--wood-800)] bg-[var(--wood-800)] text-white"
+                  : "border-[var(--border)] bg-white text-[var(--muted)] hover:border-[var(--wood-700)]"
+              }`}
+            >
+              {c.category}
+            </Link>
           ))}
         </div>
-      )}
+
+        {products.length === 0 ? (
+          <p className="mt-16 text-center text-[var(--muted)]">
+            No hay productos que coincidan con la búsqueda.
+          </p>
+        ) : (
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {products.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
