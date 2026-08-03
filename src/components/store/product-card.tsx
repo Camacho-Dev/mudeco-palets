@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { formatCurrency } from "@/lib/format";
-import { formatCurrency } from "@/lib/format";
 import { productImage } from "@/lib/product-image";
 import type { StoreProduct } from "@/lib/store";
 
