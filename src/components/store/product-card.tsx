@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { formatCurrency } from "@/lib/format";
-import { productImage, type StoreProduct } from "@/lib/store";
+import { formatCurrency } from "@/lib/format";
+import { productImage } from "@/lib/product-image";
+import type { StoreProduct } from "@/lib/store";
 
 export function ProductCard({ product }: { product: StoreProduct }) {
   const src = productImage(product);

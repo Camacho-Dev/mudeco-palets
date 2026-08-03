@@ -21,6 +21,7 @@ import {
   Download,
   DatabaseBackup,
   ClipboardList,
+  Globe,
 } from "lucide-react";
 import { BrandLogo } from "@/components/logo";
 import { isAdmin } from "@/lib/rbac";
@@ -30,6 +31,7 @@ const openNav = [
   { href: "/vender", label: "Generar factura", icon: Zap, accent: true },
   { href: "/facturas", label: "Facturas", icon: FileText },
   { href: "/cotizaciones", label: "Cotizaciones", icon: ClipboardList },
+  { href: "/pedidos-web", label: "Pedidos web", icon: Globe },
   { href: "/clientes", label: "Clientes", icon: Users },
   { href: "/productos", label: "Catálogo", icon: Package },
 ];

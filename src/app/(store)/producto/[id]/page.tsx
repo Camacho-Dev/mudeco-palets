@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
 import { Reveal } from "@/components/store/store-motion";
 import { getStoreCompany, productImage, whatsappLink } from "@/lib/store";
+import { AddToCartButton } from "@/components/store/add-to-cart-button";
 
 export async function generateMetadata({
   params,
@@ -105,8 +106,9 @@ export default async function ProductoPage({
           ) : null}
 
           <div className="mt-10 flex flex-wrap gap-3">
-            <a href={wa} target="_blank" rel="noreferrer" className="store-cta store-cta-primary">
-              Consultar por WhatsApp
+            <AddToCartButton product={product} />
+            <a href={wa} target="_blank" rel="noreferrer" className="inline-flex items-center border border-[var(--border)] bg-white px-5 py-3 text-[0.75rem] font-semibold tracking-[0.1em] text-[var(--wood-950)] uppercase transition hover:border-[var(--wood-700)]">
+              WhatsApp
             </a>
             <Link
               href="/contacto"

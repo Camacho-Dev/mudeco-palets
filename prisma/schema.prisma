@@ -35,6 +35,7 @@ model Customer {
   invoices    Invoice[]
   quotes      Quote[]
   creditNotes CreditNote[]
+  webOrders   WebOrder[]
 }
 
 model Product {
@@ -77,6 +78,7 @@ model Invoice {
   issueDate   DateTime      @default(now())
   dueDate     DateTime?
   notes       String?
+  source      String        @default("POS") // POS | WEB
   delivery    Boolean      @default(false)
   deliveryFee Float        @default(0)
   applyTax    Boolean      @default(true)
@@ -92,6 +94,7 @@ model Invoice {
   items       InvoiceItem[]
   payments    Payment[]
   creditNotes CreditNote[]
+  webOrders   WebOrder[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 }
@@ -181,6 +184,7 @@ model Quote {
   issueDate  DateTime    @default(now())
   validUntil DateTime?
   notes      String?
+  source     String      @default("POS") // POS | WEB
   subtotal   Float
   tax        Float
   total      Float
@@ -190,6 +194,7 @@ model Quote {
   user       User        @relation(fields: [userId], references: [id])
   items      QuoteItem[]
   invoices   Invoice[]
+  webOrders  WebOrder[]
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
 }
@@ -200,6 +205,48 @@ model QuoteItem {
   quote       Quote    @relation(fields: [quoteId], references: [id], onDelete: Cascade)
   productId   String?
   product     Product? @relation(fields: [productId], references: [id])
+  description String
+  quantity    Float
+  unitPrice   Float
+  taxRate     Float
+  lineTotal   Float
+}
+
+model WebOrder {
+  id               String         @id @default(cuid())
+  number           String         @unique
+  /** SALE | QUOTE */
+  type             String
+  /** LOCAL | ONLINE | null si es cotización */
+  paymentMode      String?
+  /** PENDING | AWAITING_PAYMENT | PAID | QUOTED | CANCELLED */
+  status           String         @default("PENDING")
+  customerName     String
+  customerEmail    String
+  customerPhone    String?
+  customerTaxId    String?
+  customerAddress  String?
+  subtotal         Float
+  tax              Float
+  total            Float
+  notes            String?
+  stripeSessionId  String?
+  customerId       String?
+  customer         Customer?      @relation(fields: [customerId], references: [id])
+  invoiceId        String?
+  invoice          Invoice?       @relation(fields: [invoiceId], references: [id])
+  quoteId          String?
+  quote            Quote?         @relation(fields: [quoteId], references: [id])
+  items            WebOrderItem[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+model WebOrderItem {
+  id          String   @id @default(cuid())
+  webOrderId  String
+  webOrder    WebOrder @relation(fields: [webOrderId], references: [id], onDelete: Cascade)
+  productId   String?
   description String
   quantity    Float
   unitPrice   Float

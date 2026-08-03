@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/logo";
 import { HeaderAuth } from "@/components/store/header-auth";
+import { CartLink } from "@/components/store/cart-link";
 import { auth } from "@/lib/auth";
 
 const nav = [
@@ -51,6 +52,7 @@ export async function StoreHeader() {
               </Link>
             ))}
           </nav>
+          <CartLink />
           <HeaderAuth initialUser={user} />
         </div>
       </div>

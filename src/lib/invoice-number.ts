@@ -76,3 +76,30 @@ export async function nextPurchaseNumber() {
 export async function nextWorkOrderNumber() {
   return nextNumber(`OF-${new Date().getFullYear()}`, "workOrder");
 }
+
+export async function nextWebOrderNumber() {
+  const prefix = `WEB-${new Date().getFullYear()}`;
+  const id = prefix;
+  const row = await prisma.$transaction(async (tx) => {
+    const rows = await tx.webOrder.findMany({
+      where: { number: { startsWith: `${prefix}-` } },
+      select: { number: true },
+    });
+    let dbMax = 0;
+    for (const r of rows) {
+      const part = r.number.split("-").pop();
+      const n = Number(part);
+      if (!Number.isNaN(n) && n > dbMax) dbMax = n;
+    }
+    const existing = await tx.invoiceCounter.findUnique({ where: { id } });
+    if (!existing) {
+      return tx.invoiceCounter.create({ data: { id, last: dbMax + 1 } });
+    }
+    const next = Math.max(existing.last, dbMax) + 1;
+    return tx.invoiceCounter.update({
+      where: { id },
+      data: { last: next },
+    });
+  });
+  return `${id}-${String(row.last).padStart(5, "0")}`;
+}

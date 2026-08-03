@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { StoreHeader } from "@/components/store/store-header";
 import { StoreFooter } from "@/components/store/store-footer";
 import { StoreProviders } from "@/components/store/store-providers";
+import { CartProvider } from "@/components/store/cart-context";
 import { getStoreCompany } from "@/lib/store";
 import "@/components/store/store.css";
 
@@ -25,11 +26,13 @@ export default async function StoreLayout({
 
   return (
     <StoreProviders>
-      <div className="store-shell flex min-h-screen flex-col">
-        <StoreHeader />
-        <main className="flex-1">{children}</main>
-        <StoreFooter company={company} />
-      </div>
+      <CartProvider>
+        <div className="store-shell flex min-h-screen flex-col">
+          <StoreHeader />
+          <main className="flex-1">{children}</main>
+          <StoreFooter company={company} />
+        </div>
+      </CartProvider>
     </StoreProviders>
   );
 }

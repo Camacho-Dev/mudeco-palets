@@ -23,6 +23,9 @@ export const PUBLIC_PREFIXES = [
   "/catalogo",
   "/producto",
   "/contacto",
+  "/carrito",
+  "/checkout",
+  "/pedido",
 ] as const;
 
 export function isAdminPath(pathname: string) {

@@ -34,9 +34,12 @@ export const authConfig = {
       const pathname = request.nextUrl.pathname;
       const isLoggedIn = !!auth;
       const isLogin = pathname.startsWith("/login");
+      const isStripeWebhook = pathname.startsWith("/api/stripe/webhook");
       const role =
         (auth?.user as { role?: string } | undefined)?.role ||
         (auth as { role?: string } | null)?.role;
+
+      if (isStripeWebhook) return true;
 
       if (isPublicPath(pathname) || isLogin) {
         if (isLoggedIn && isLogin) {
