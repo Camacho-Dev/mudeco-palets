@@ -300,7 +300,7 @@ export function QuickSale({
       </div>
 
       <div className="lg:col-span-2">
-        <div className="card sticky top-6 overflow-hidden">
+        <div className="card sticky top-6 overflow-visible">
           <div className="border-b border-[var(--border)] bg-[var(--wood-950)] px-5 py-4 text-[#faf6f1]">
             <p className="text-xs tracking-wide text-white/50 uppercase">
               Factura automática

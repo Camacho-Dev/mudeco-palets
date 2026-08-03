@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ChevronsUpDown, Search, X } from "lucide-react";
 
 export type CustomerOption = {
@@ -17,6 +18,8 @@ function matches(c: CustomerOption, q: string) {
   const hay = `${c.name} ${c.taxId || ""}`.toLowerCase();
   return hay.includes(q);
 }
+
+type MenuPos = { top: number; left: number; width: number; openUp: boolean };
 
 export function CustomerSearchSelect({
   customers,
@@ -41,16 +44,21 @@ export function CustomerSearchSelect({
   const inputId = id || autoId;
   const listId = `${inputId}-list`;
   const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const menuRef = useRef<HTMLUListElement>(null);
 
   const controlled = value !== undefined;
   const [internalId, setInternalId] = useState(defaultValue);
   const selectedId = controlled ? value : internalId;
-
   const selected = customers.find((c) => c.id === selectedId) || null;
 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [pos, setPos] = useState<MenuPos | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -58,9 +66,41 @@ export function CustomerSearchSelect({
     return customers.filter((c) => matches(c, q));
   }, [customers, query]);
 
-  function select(id: string) {
-    if (!controlled) setInternalId(id);
-    onChange?.(id);
+  function updatePos() {
+    const el = triggerRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const maxH = 224;
+    const spaceBelow = window.innerHeight - r.bottom - 8;
+    const openUp = spaceBelow < Math.min(maxH, 160) && r.top > spaceBelow;
+    setPos({
+      top: openUp ? r.top - 4 : r.bottom + 4,
+      left: r.left,
+      width: r.width,
+      openUp,
+    });
+  }
+
+  useLayoutEffect(() => {
+    if (!open) {
+      setPos(null);
+      return;
+    }
+    updatePos();
+    function onWin() {
+      updatePos();
+    }
+    window.addEventListener("resize", onWin);
+    window.addEventListener("scroll", onWin, true);
+    return () => {
+      window.removeEventListener("resize", onWin);
+      window.removeEventListener("scroll", onWin, true);
+    };
+  }, [open, filtered.length, query]);
+
+  function select(nextId: string) {
+    if (!controlled) setInternalId(nextId);
+    onChange?.(nextId);
     setQuery("");
     setOpen(false);
   }
@@ -70,129 +110,161 @@ export function CustomerSearchSelect({
     onChange?.("");
     setQuery("");
     setOpen(true);
-    inputRef.current?.focus();
+    requestAnimationFrame(() => inputRef.current?.focus());
+  }
+
+  function openMenu() {
+    setOpen(true);
+    setQuery("");
+    requestAnimationFrame(() => inputRef.current?.focus());
   }
 
   useEffect(() => {
+    if (!open) return;
     function onDoc(e: MouseEvent) {
-      if (!rootRef.current?.contains(e.target as Node)) {
+      const t = e.target as Node;
+      if (rootRef.current?.contains(t)) return;
+      if (menuRef.current?.contains(t)) return;
+      setOpen(false);
+      setQuery("");
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") {
         setOpen(false);
         setQuery("");
       }
     }
     document.addEventListener("mousedown", onDoc);
-    return () => document.removeEventListener("mousedown", onDoc);
-  }, []);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const menu =
+    mounted && open && pos
+      ? createPortal(
+          <ul
+            ref={menuRef}
+            id={listId}
+            role="listbox"
+            style={{
+              position: "fixed",
+              top: pos.top,
+              left: pos.left,
+              width: pos.width,
+              maxHeight: 224,
+              transform: pos.openUp ? "translateY(-100%)" : undefined,
+              zIndex: 80,
+            }}
+            className="overflow-auto rounded-lg border border-[var(--border)] bg-white py-1 shadow-xl"
+          >
+            {filtered.length === 0 ? (
+              <li className="px-3 py-2.5 text-sm text-[var(--muted)]">
+                Sin coincidencias
+              </li>
+            ) : (
+              filtered.map((c) => (
+                <li
+                  key={c.id}
+                  role="option"
+                  aria-selected={c.id === selectedId}
+                >
+                  <button
+                    type="button"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => select(c.id)}
+                    className={`flex w-full flex-col px-3 py-2 text-left text-sm hover:bg-[#fbf7f2] ${
+                      c.id === selectedId ? "bg-[#f3ebe3]" : ""
+                    }`}
+                  >
+                    <span className="truncate font-medium text-slate-800">
+                      {c.name}
+                    </span>
+                    {c.taxId ? (
+                      <span className="truncate text-xs text-[var(--muted)]">
+                        {c.taxId}
+                      </span>
+                    ) : null}
+                  </button>
+                </li>
+              ))
+            )}
+          </ul>,
+          document.body,
+        )
+      : null;
 
   return (
     <div ref={rootRef} className="relative">
       <input type="hidden" name={name} value={selectedId} />
 
-      {selected && !open ? (
-        <div className="input flex items-center gap-2 py-0 pr-1">
-          <button
-            type="button"
-            id={inputId}
-            onClick={() => {
-              setOpen(true);
-              setQuery("");
-              requestAnimationFrame(() => inputRef.current?.focus());
-            }}
-            className="flex min-w-0 flex-1 items-center justify-between gap-2 py-2.5 text-left"
-            aria-haspopup="listbox"
-            aria-expanded={open}
-          >
-            <span className="truncate">
-              {labelOf(selected)}
-            </span>
-            <ChevronsUpDown
-              className="h-4 w-4 shrink-0 text-[var(--muted)]"
-              strokeWidth={2}
-            />
-          </button>
-          <button
-            type="button"
-            onClick={clear}
-            className="rounded-md p-2 text-[var(--muted)] hover:bg-[#f3ebe3] hover:text-slate-800"
-            aria-label="Quitar cliente"
-          >
-            <X className="h-4 w-4" strokeWidth={2.25} />
-          </button>
-        </div>
-      ) : (
-        <div className="relative">
+      <div ref={triggerRef} className="input flex items-center gap-1 py-0 pr-1 pl-0">
+        <div className="relative min-w-0 flex-1">
           <Search
-            className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-[#7a6a5c]"
+            className="pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2 text-[#7a6a5c]"
             strokeWidth={2.25}
           />
           <input
             ref={inputRef}
             id={inputId}
-            type="search"
+            type="text"
             autoComplete="off"
             role="combobox"
             aria-expanded={open}
             aria-controls={listId}
             aria-autocomplete="list"
-            value={query}
+            value={open ? query : selected ? labelOf(selected) : ""}
+            readOnly={!open}
             onChange={(e) => {
               setQuery(e.target.value);
               setOpen(true);
             }}
-            onFocus={() => setOpen(true)}
+            onFocus={() => {
+              if (!open) openMenu();
+            }}
+            onClick={() => {
+              if (!open) openMenu();
+            }}
             onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                setOpen(false);
-                setQuery("");
-              }
-              if (e.key === "Enter" && filtered.length === 1) {
+              if (e.key === "Enter" && open && filtered.length === 1) {
                 e.preventDefault();
                 select(filtered[0].id);
               }
+              if (e.key === "ArrowDown" && !open) {
+                e.preventDefault();
+                openMenu();
+              }
             }}
-            className="input pl-10"
-            placeholder={
-              selected ? labelOf(selected) : placeholder
-            }
+            className="w-full border-0 bg-transparent py-2.5 pr-2 pl-10 text-sm outline-none"
+            placeholder={placeholder}
           />
         </div>
-      )}
+        {selected ? (
+          <button
+            type="button"
+            onClick={clear}
+            className="shrink-0 rounded-md p-2 text-[var(--muted)] hover:bg-[#f3ebe3] hover:text-slate-800"
+            aria-label="Quitar cliente"
+          >
+            <X className="h-4 w-4" strokeWidth={2.25} />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={openMenu}
+            className="shrink-0 rounded-md p-2 text-[var(--muted)] hover:bg-[#f3ebe3]"
+            aria-label="Abrir lista"
+          >
+            <ChevronsUpDown className="h-4 w-4" strokeWidth={2} />
+          </button>
+        )}
+      </div>
 
-      {open ? (
-        <ul
-          id={listId}
-          role="listbox"
-          className="absolute z-30 mt-1 max-h-56 w-full overflow-auto rounded-lg border border-[var(--border)] bg-white py-1 shadow-lg"
-        >
-          {filtered.length === 0 ? (
-            <li className="px-3 py-2.5 text-sm text-[var(--muted)]">
-              Sin coincidencias
-            </li>
-          ) : (
-            filtered.map((c) => (
-              <li key={c.id} role="option" aria-selected={c.id === selectedId}>
-                <button
-                  type="button"
-                  onClick={() => select(c.id)}
-                  className={`flex w-full flex-col px-3 py-2 text-left text-sm hover:bg-[#fbf7f2] ${
-                    c.id === selectedId ? "bg-[#f3ebe3]" : ""
-                  }`}
-                >
-                  <span className="font-medium text-slate-800">{c.name}</span>
-                  {c.taxId ? (
-                    <span className="text-xs text-[var(--muted)]">
-                      {c.taxId}
-                    </span>
-                  ) : null}
-                </button>
-              </li>
-            ))
-          )}
-        </ul>
-      ) : null}
+      {menu}
 
       {required && !selectedId ? (
-        // Native form validation fallback for browsers that ignore hidden required
         <input
           tabIndex={-1}
           aria-hidden
