@@ -4,7 +4,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useState } from "react";
 import { Eye, EyeOff, Lock, User } from "lucide-react";
-import { LogoMark } from "@/components/logo";
+import { BrandLogo } from "@/components/logo";
 import "./login.css";
 
 function LoginForm() {
@@ -90,9 +90,7 @@ export default function LoginPage() {
 
       <div className="login-card">
         <div className="login-brand">
-          <LogoMark className="login-mark" color="#c4a574" />
-          <p className="login-name">Mudeco</p>
-          <p className="login-sub">Palets</p>
+          <BrandLogo width={220} height={275} className="login-logo" priority />
         </div>
 
         <Suspense fallback={<p className="login-loading">…</p>}>

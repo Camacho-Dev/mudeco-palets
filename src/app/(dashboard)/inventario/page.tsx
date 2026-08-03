@@ -1,31 +1,63 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
+import { ListSearchBar } from "@/components/invoice-search";
 import { formatCurrency, formatDate } from "@/lib/format";
 
-export default async function InventarioPage() {
+export default async function InventarioPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
   await requireSession();
+  const { q } = await searchParams;
+  const query = (q || "").trim();
+
+  const searchFilter = query
+    ? {
+        OR: [
+          { id: { contains: query, mode: "insensitive" as const } },
+          { name: { contains: query, mode: "insensitive" as const } },
+          { sku: { contains: query, mode: "insensitive" as const } },
+          { category: { contains: query, mode: "insensitive" as const } },
+          { description: { contains: query, mode: "insensitive" as const } },
+        ],
+      }
+    : {};
+
   const products = await prisma.product.findMany({
-    where: { active: true, kind: "FINISHED" },
+    where: { active: true, kind: "FINISHED", ...searchFilter },
     orderBy: [{ category: "asc" }, { name: "asc" }],
   });
 
   const moves = await prisma.stockMovement.findMany({
-    where: { product: { kind: "FINISHED" } },
+    where: {
+      product: {
+        kind: "FINISHED",
+        ...(query ? searchFilter : {}),
+      },
+    },
     orderBy: { createdAt: "desc" },
     take: 30,
     include: { product: true },
   });
 
-  const low = products.filter((p) => p.stock <= p.minStock && p.sku !== "CUS-001");
+  const low = products.filter(
+    (p) => p.stock <= p.minStock && p.sku !== "CUS-001",
+  );
   const inventoryValue = products.reduce((s, p) => s + p.stock * p.cost, 0);
 
   return (
     <div>
       <PageHeader
         title="Inventario"
-        description="Stock de muebles terminados listos para venta"
+        description={
+          query
+            ? `Resultados para “${query}”`
+            : "Stock de muebles terminados listos para venta"
+        }
         action={
           <div className="flex flex-wrap gap-2">
             <Link href="/materiales" className="btn btn-secondary">
@@ -37,6 +69,17 @@ export default async function InventarioPage() {
           </div>
         }
       />
+
+      <Suspense
+        fallback={
+          <div className="mb-4 h-11 animate-pulse rounded-lg bg-white/60" />
+        }
+      >
+        <ListSearchBar
+          placeholder="Buscar por nombre, SKU, categoría…"
+          ariaLabel="Buscar en inventario"
+        />
+      </Suspense>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <div className="card p-5">
@@ -76,30 +119,40 @@ export default async function InventarioPage() {
             </tr>
           </thead>
           <tbody>
-            {products.map((p) => {
-              const alert = p.stock <= p.minStock && p.sku !== "CUS-001";
-              return (
-                <tr key={p.id}>
-                  <td className="font-mono text-xs">{p.sku || "—"}</td>
-                  <td className="font-medium">{p.name}</td>
-                  <td>{p.category}</td>
-                  <td className={alert ? "font-semibold text-amber-800" : ""}>
-                    {p.stock}
-                  </td>
-                  <td>{p.minStock}</td>
-                  <td>{formatCurrency(p.cost)}</td>
-                  <td>{formatCurrency(p.price)}</td>
-                  <td className="text-right">
-                    <Link
-                      href={`/productos/${p.id}`}
-                      className="text-sm font-medium text-[var(--wood-800)] hover:underline"
-                    >
-                      Ajustar
-                    </Link>
-                  </td>
-                </tr>
-              );
-            })}
+            {products.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="text-center text-[var(--muted)]">
+                  {query
+                    ? `No se encontraron ítems para “${query}”`
+                    : "No hay muebles en inventario"}
+                </td>
+              </tr>
+            ) : (
+              products.map((p) => {
+                const alert = p.stock <= p.minStock && p.sku !== "CUS-001";
+                return (
+                  <tr key={p.id}>
+                    <td className="font-mono text-xs">{p.sku || "—"}</td>
+                    <td className="font-medium">{p.name}</td>
+                    <td>{p.category}</td>
+                    <td className={alert ? "font-semibold text-amber-800" : ""}>
+                      {p.stock}
+                    </td>
+                    <td>{p.minStock}</td>
+                    <td>{formatCurrency(p.cost)}</td>
+                    <td>{formatCurrency(p.price)}</td>
+                    <td className="text-right">
+                      <Link
+                        href={`/productos/${p.id}`}
+                        className="text-sm font-medium text-[var(--wood-800)] hover:underline"
+                      >
+                        Ajustar
+                      </Link>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>
@@ -120,7 +173,7 @@ export default async function InventarioPage() {
             {moves.length === 0 ? (
               <tr>
                 <td colSpan={5} className="text-center text-[var(--muted)]">
-                  Sin movimientos aún
+                  {query ? "Sin movimientos para esta búsqueda" : "Sin movimientos aún"}
                 </td>
               </tr>
             ) : (

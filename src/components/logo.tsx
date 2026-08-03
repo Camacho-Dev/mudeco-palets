@@ -1,4 +1,33 @@
-/** Marca Mudeco Palets — SVG limpio sin fondo blanco */
+/** Logo oficial. onDark=blanco (sidebar/login), onLight=marrón (fondos claros) */
+export function BrandLogo({
+  className = "",
+  width = 160,
+  height = 200,
+  priority = false,
+  tone = "onDark",
+}: {
+  className?: string;
+  width?: number;
+  height?: number;
+  priority?: boolean;
+  tone?: "onDark" | "onLight";
+}) {
+  const src =
+    tone === "onLight" ? "/brand/logo-on-light.png" : "/brand/logo-clear.png";
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt="Mudeco Palets"
+      width={width}
+      height={height}
+      className={`object-contain ${className}`}
+      {...(priority ? { fetchPriority: "high" as const } : {})}
+    />
+  );
+}
+
+/** Marca Mudeco Palets — ícono de palet (SVG) */
 export function LogoMark({
   className = "h-10 w-10",
   color = "currentColor",
@@ -14,12 +43,10 @@ export function LogoMark({
       className={className}
       aria-hidden
     >
-      {/* Nivel superior — palet */}
       <rect x="6" y="6" width="52" height="8" rx="1.5" />
       <rect x="6" y="18" width="14" height="12" rx="1.5" />
       <rect x="27" y="18" width="10" height="12" rx="1.5" />
       <rect x="44" y="18" width="14" height="12" rx="1.5" />
-      {/* Nivel inferior — palet */}
       <rect x="6" y="34" width="52" height="8" rx="1.5" />
       <rect x="6" y="46" width="14" height="12" rx="1.5" />
       <rect x="27" y="46" width="10" height="12" rx="1.5" />
@@ -30,27 +57,18 @@ export function LogoMark({
 
 export function LogoStacked({
   className = "",
-  color = "#3d2a1f",
+  width = 140,
 }: {
   className?: string;
   color?: string;
+  width?: number;
 }) {
   return (
-    <div className={`flex flex-col items-center ${className}`}>
-      <LogoMark className="h-14 w-14" color={color} />
-      <p
-        className="mt-3 font-display text-3xl font-bold tracking-wide uppercase"
-        style={{ color }}
-      >
-        Mudeco
-      </p>
-      <p
-        className="mt-0.5 text-[0.7rem] font-light tracking-[0.45em] uppercase"
-        style={{ color }}
-      >
-        Palets
-      </p>
-    </div>
+    <BrandLogo
+      className={`rounded-xl ${className}`}
+      width={width}
+      height={Math.round(width * 1.25)}
+    />
   );
 }
 
@@ -84,7 +102,7 @@ export function LogoHorizontal({
   );
 }
 
-/** Contenedor blanco para logos sobre fondos oscuros */
+/** Contenedor de marca (sin caja negra) */
 export function LogoPlate({
   children,
   className = "",
@@ -92,11 +110,5 @@ export function LogoPlate({
   children: React.ReactNode;
   className?: string;
 }) {
-  return (
-    <div
-      className={`rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-black/5 ${className}`}
-    >
-      {children}
-    </div>
-  );
+  return <div className={`overflow-hidden ${className}`}>{children}</div>;
 }

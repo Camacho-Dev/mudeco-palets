@@ -1,19 +1,44 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
+import { ListSearchBar } from "@/components/invoice-search";
 import { formatCurrency, formatDate } from "@/lib/format";
 
-export default async function MaterialesPage() {
+export default async function MaterialesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
   await requireAdmin();
+  const { q } = await searchParams;
+  const query = (q || "").trim();
+
+  const searchFilter = query
+    ? {
+        OR: [
+          { id: { contains: query, mode: "insensitive" as const } },
+          { name: { contains: query, mode: "insensitive" as const } },
+          { sku: { contains: query, mode: "insensitive" as const } },
+          { category: { contains: query, mode: "insensitive" as const } },
+          { description: { contains: query, mode: "insensitive" as const } },
+        ],
+      }
+    : {};
 
   const [materials, moves] = await Promise.all([
     prisma.product.findMany({
-      where: { kind: "MATERIAL", active: true },
+      where: { kind: "MATERIAL", active: true, ...searchFilter },
       orderBy: [{ category: "asc" }, { name: "asc" }],
     }),
     prisma.stockMovement.findMany({
-      where: { product: { kind: "MATERIAL" } },
+      where: {
+        product: {
+          kind: "MATERIAL",
+          ...(query ? searchFilter : {}),
+        },
+      },
       orderBy: { createdAt: "desc" },
       take: 25,
       include: { product: true },
@@ -27,7 +52,11 @@ export default async function MaterialesPage() {
     <div>
       <PageHeader
         title="Almacén de materiales"
-        description="Madera, herrajes, pintura y todo lo que se usa para fabricar"
+        description={
+          query
+            ? `Resultados para “${query}”`
+            : "Madera, herrajes, pintura y todo lo que se usa para fabricar"
+        }
         action={
           <div className="flex flex-wrap gap-2">
             <Link href="/compras/nueva" className="btn btn-secondary">
@@ -39,6 +68,17 @@ export default async function MaterialesPage() {
           </div>
         }
       />
+
+      <Suspense
+        fallback={
+          <div className="mb-4 h-11 animate-pulse rounded-lg bg-white/60" />
+        }
+      >
+        <ListSearchBar
+          placeholder="Buscar por nombre, SKU, categoría…"
+          ariaLabel="Buscar materiales"
+        />
+      </Suspense>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <div className="card p-5">
@@ -79,7 +119,9 @@ export default async function MaterialesPage() {
             {materials.length === 0 ? (
               <tr>
                 <td colSpan={8} className="text-center text-[var(--muted)]">
-                  Aún no hay materiales. Crea madera, tornillos, barniz, etc.
+                  {query
+                    ? `No se encontraron materiales para “${query}”`
+                    : "Aún no hay materiales. Crea madera, tornillos, barniz, etc."}
                 </td>
               </tr>
             ) : (
@@ -129,7 +171,7 @@ export default async function MaterialesPage() {
             {moves.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center text-[var(--muted)]">
-                  Sin movimientos
+                  {query ? "Sin movimientos para esta búsqueda" : "Sin movimientos"}
                 </td>
               </tr>
             ) : (

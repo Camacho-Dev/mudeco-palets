@@ -5,6 +5,7 @@ import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
 import { DateFilterBar } from "@/components/date-filter";
+import { InvoiceSearchBar } from "@/components/invoice-search";
 import { buildDateRange } from "@/lib/date-range";
 import { formatCurrency, formatDate } from "@/lib/format";
 
@@ -17,18 +18,40 @@ export default async function FacturasPage({
     month?: string;
     from?: string;
     to?: string;
+    q?: string;
   }>;
 }) {
   await requireSession();
   const params = await searchParams;
   const { status } = params;
+  const query = (params.q || "").trim();
   const range = buildDateRange(params);
 
   const invoices = await prisma.invoice.findMany({
     where: {
       ...(status ? { status } : {}),
-      ...(range.from && range.to
+      // Con búsqueda, no limitamos por periodo para encontrar cualquier factura
+      ...(!query && range.from && range.to
         ? { issueDate: { gte: range.from, lte: range.to } }
+        : {}),
+      ...(query
+        ? {
+            OR: [
+              { id: { contains: query, mode: "insensitive" } },
+              { number: { contains: query, mode: "insensitive" } },
+              { ncf: { contains: query, mode: "insensitive" } },
+              { notes: { contains: query, mode: "insensitive" } },
+              {
+                customer: {
+                  OR: [
+                    { name: { contains: query, mode: "insensitive" } },
+                    { taxId: { contains: query, mode: "insensitive" } },
+                    { phone: { contains: query, mode: "insensitive" } },
+                  ],
+                },
+              },
+            ],
+          }
         : {}),
     },
     orderBy: { createdAt: "desc" },
@@ -36,6 +59,7 @@ export default async function FacturasPage({
       customer: true,
       payments: true,
     },
+    take: query ? 100 : undefined,
   });
 
   const filters = [
@@ -54,6 +78,7 @@ export default async function FacturasPage({
     if (params.month) q.set("month", params.month);
     if (params.from) q.set("from", params.from);
     if (params.to) q.set("to", params.to);
+    if (query) q.set("q", query);
     const s = q.toString();
     return s ? `/facturas?${s}` : "/facturas";
   }
@@ -62,12 +87,20 @@ export default async function FacturasPage({
     <div>
       <PageHeader
         title="Facturas"
-        description={`Historial guardado · ${range.label}`}
+        description={
+          query
+            ? `Resultados para “${query}”`
+            : `Historial guardado · ${range.label}`
+        }
         action={{ href: "/vender", label: "Generar factura" }}
       />
 
       <Suspense fallback={<div className="card mb-6 h-28 animate-pulse" />}>
         <DateFilterBar label="Periodo de facturas" />
+      </Suspense>
+
+      <Suspense fallback={<div className="mb-4 h-11 animate-pulse rounded-lg bg-white/60" />}>
+        <InvoiceSearchBar />
       </Suspense>
 
       <div className="mb-4 flex flex-wrap gap-2">
@@ -105,13 +138,20 @@ export default async function FacturasPage({
             {invoices.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center text-[var(--muted)]">
-                  No hay facturas en este periodo
+                  {query
+                    ? `No se encontraron facturas para “${query}”`
+                    : "No hay facturas en este periodo"}
                 </td>
               </tr>
             ) : (
               invoices.map((inv) => (
                 <tr key={inv.id}>
-                  <td className="font-medium">{inv.number}</td>
+                  <td className="font-medium">
+                    <div>{inv.number}</div>
+                    {inv.ncf ? (
+                      <div className="text-xs text-[var(--muted)]">{inv.ncf}</div>
+                    ) : null}
+                  </td>
                   <td>{inv.customer.name}</td>
                   <td>{formatDate(inv.issueDate)}</td>
                   <td>{formatCurrency(inv.total)}</td>

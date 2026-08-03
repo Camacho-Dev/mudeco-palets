@@ -25,7 +25,7 @@ import {
   DatabaseBackup,
   ClipboardList,
 } from "lucide-react";
-import { LogoMark, LogoPlate } from "@/components/logo";
+import { BrandLogo } from "@/components/logo";
 import { lockSensitiveArea } from "@/app/(dashboard)/desbloquear/actions";
 import {
   SENSITIVE_COOKIE,
@@ -160,18 +160,8 @@ export async function Sidebar() {
 
   return (
     <aside className="no-print sticky top-0 hidden h-screen w-64 shrink-0 flex-col overflow-y-auto bg-[#3d2a1f] text-[#faf6f1] md:flex">
-      <div className="border-b border-white/10 px-4 py-5">
-        <LogoPlate className="flex justify-center px-3 py-3">
-          <div className="flex flex-col items-center">
-            <LogoMark className="h-10 w-10" color="#3d2a1f" />
-            <p className="mt-2 text-sm font-bold tracking-[0.12em] text-[#3d2a1f] uppercase">
-              Mudeco
-            </p>
-            <p className="text-[0.65rem] font-light tracking-[0.35em] text-[#3d2a1f] uppercase">
-              Palets
-            </p>
-          </div>
-        </LogoPlate>
+      <div className="border-b border-white/10 px-4 py-4">
+        <BrandLogo width={200} height={250} className="mx-auto w-full max-w-[210px]" />
       </div>
 
       <NavLinks unlocked={unlocked} admin={admin} />

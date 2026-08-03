@@ -1,7 +1,9 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
+import { ListSearchBar } from "@/components/invoice-search";
 
 export default async function ClientesPage({
   searchParams,
@@ -10,14 +12,18 @@ export default async function ClientesPage({
 }) {
   await requireSession();
   const { q } = await searchParams;
+  const query = (q || "").trim();
 
   const customers = await prisma.customer.findMany({
-    where: q
+    where: query
       ? {
           OR: [
-            { name: { contains: q } },
-            { taxId: { contains: q } },
-            { email: { contains: q } },
+            { id: { contains: query, mode: "insensitive" } },
+            { name: { contains: query, mode: "insensitive" } },
+            { taxId: { contains: query, mode: "insensitive" } },
+            { email: { contains: query, mode: "insensitive" } },
+            { phone: { contains: query, mode: "insensitive" } },
+            { address: { contains: query, mode: "insensitive" } },
           ],
         }
       : undefined,
@@ -29,18 +35,24 @@ export default async function ClientesPage({
     <div>
       <PageHeader
         title="Clientes"
-        description="RNC/cédula, contacto y dirección"
+        description={
+          query
+            ? `Resultados para “${query}”`
+            : "RNC/cédula, contacto y dirección"
+        }
         action={{ href: "/clientes/nuevo", label: "Nuevo cliente" }}
       />
 
-      <form className="mb-4">
-        <input
-          name="q"
-          defaultValue={q}
-          placeholder="Buscar por nombre, RNC o email…"
-          className="input max-w-md"
+      <Suspense
+        fallback={
+          <div className="mb-4 h-11 animate-pulse rounded-lg bg-white/60" />
+        }
+      >
+        <ListSearchBar
+          placeholder="Buscar por nombre, RNC, email, teléfono…"
+          ariaLabel="Buscar clientes"
         />
-      </form>
+      </Suspense>
 
       <div className="table-wrap">
         <table className="data">
@@ -56,8 +68,10 @@ export default async function ClientesPage({
           <tbody>
             {customers.length === 0 ? (
               <tr>
-                <td colSpan={5} className="text-center text-slate-500">
-                  No hay clientes
+                <td colSpan={5} className="text-center text-[var(--muted)]">
+                  {query
+                    ? `No se encontraron clientes para “${query}”`
+                    : "No hay clientes"}
                 </td>
               </tr>
             ) : (
@@ -66,10 +80,10 @@ export default async function ClientesPage({
                   <td className="font-medium">{c.name}</td>
                   <td>{c.taxId || "—"}</td>
                   <td>
-                    <div className="text-slate-600">
+                    <div className="text-[var(--muted)]">
                       {c.email || "—"}
                       {c.phone ? (
-                        <div className="text-xs text-slate-400">{c.phone}</div>
+                        <div className="text-xs">{c.phone}</div>
                       ) : null}
                     </div>
                   </td>
@@ -77,7 +91,7 @@ export default async function ClientesPage({
                   <td className="text-right">
                     <Link
                       href={`/clientes/${c.id}`}
-                      className="text-sm font-medium text-[#1a4d40] hover:underline"
+                      className="text-sm font-medium text-[var(--wood-800)] hover:underline"
                     >
                       Editar
                     </Link>

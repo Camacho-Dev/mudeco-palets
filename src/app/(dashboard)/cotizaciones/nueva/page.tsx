@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
+import { CustomerSearchSelect } from "@/components/customer-search-select";
 import { createQuote } from "../actions";
 
 export default async function NuevaCotizacionPage() {
@@ -15,15 +16,15 @@ export default async function NuevaCotizacionPage() {
       <PageHeader title="Nueva cotización" />
       <form action={createQuote} className="card space-y-4 p-6">
         <div>
-          <label className="label">Cliente</label>
-          <select name="customerId" className="input" required>
-            <option value="">Seleccionar…</option>
-            {customers.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          <label className="label" htmlFor="customerId">
+            Cliente
+          </label>
+          <CustomerSearchSelect
+            id="customerId"
+            name="customerId"
+            customers={customers}
+            required
+          />
         </div>
         <div>
           <label className="label">Válida hasta</label>

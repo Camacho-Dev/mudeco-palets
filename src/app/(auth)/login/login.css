@@ -41,27 +41,15 @@
   text-align: center;
 }
 
+.login-logo {
+  width: 220px;
+  height: auto;
+  border-radius: 0.85rem;
+}
+
 .login-mark {
   width: 52px;
   height: 52px;
-}
-
-.login-name {
-  margin-top: 0.9rem;
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: #c4a574;
-}
-
-.login-sub {
-  margin-top: 0.25rem;
-  font-size: 0.7rem;
-  font-weight: 300;
-  letter-spacing: 0.42em;
-  text-transform: uppercase;
-  color: rgba(196, 165, 116, 0.85);
 }
 
 .login-form {

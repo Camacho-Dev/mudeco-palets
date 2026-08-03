@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { formatCurrency, roundMoney } from "@/lib/format";
 import { Printer, Plus, Trash2, Search } from "lucide-react";
 import { IconField } from "@/components/icon-field";
+import { CustomerSearchSelect } from "@/components/customer-search-select";
 
 type ProductOption = {
   id: string;
@@ -313,19 +314,13 @@ export function QuickSale({
               <label className="label" htmlFor="customerId">
                 Cliente
               </label>
-              <select
+              <CustomerSearchSelect
                 id="customerId"
+                customers={customers}
                 value={customerId}
-                onChange={(e) => setCustomerId(e.target.value)}
-                className="input"
-              >
-                {customers.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                    {c.taxId ? ` (${c.taxId})` : ""}
-                  </option>
-                ))}
-              </select>
+                onChange={setCustomerId}
+                required
+              />
             </div>
 
             <div className="space-y-2">

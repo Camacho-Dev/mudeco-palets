@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { DateFilterBar } from "@/components/date-filter";
+import { ListSearchBar } from "@/components/invoice-search";
 import { buildDateRange } from "@/lib/date-range";
 import {
   formatCurrency,
@@ -19,17 +20,48 @@ export default async function PagosPage({
     month?: string;
     from?: string;
     to?: string;
+    q?: string;
   }>;
 }) {
   await requireSession();
   const params = await searchParams;
+  const query = (params.q || "").trim();
   const range = buildDateRange(params);
 
+  const customerOr = query
+    ? {
+        OR: [
+          { name: { contains: query, mode: "insensitive" as const } },
+          { taxId: { contains: query, mode: "insensitive" as const } },
+          { phone: { contains: query, mode: "insensitive" as const } },
+        ],
+      }
+    : undefined;
+
   const payments = await prisma.payment.findMany({
-    where:
-      range.from && range.to
+    where: {
+      ...(!query && range.from && range.to
         ? { paidAt: { gte: range.from, lte: range.to } }
-        : undefined,
+        : {}),
+      ...(query
+        ? {
+            OR: [
+              { id: { contains: query, mode: "insensitive" } },
+              { notes: { contains: query, mode: "insensitive" } },
+              { method: { contains: query, mode: "insensitive" } },
+              {
+                invoice: {
+                  OR: [
+                    { number: { contains: query, mode: "insensitive" } },
+                    { ncf: { contains: query, mode: "insensitive" } },
+                    { customer: customerOr },
+                  ],
+                },
+              },
+            ],
+          }
+        : {}),
+    },
     orderBy: { paidAt: "desc" },
     take: 200,
     include: {
@@ -40,7 +72,19 @@ export default async function PagosPage({
   });
 
   const openInvoices = await prisma.invoice.findMany({
-    where: { status: { in: ["ISSUED", "PARTIAL"] } },
+    where: {
+      status: { in: ["ISSUED", "PARTIAL"] },
+      ...(query
+        ? {
+            OR: [
+              { id: { contains: query, mode: "insensitive" } },
+              { number: { contains: query, mode: "insensitive" } },
+              { ncf: { contains: query, mode: "insensitive" } },
+              { customer: customerOr },
+            ],
+          }
+        : {}),
+    },
     orderBy: { issueDate: "desc" },
     include: {
       customer: true,
@@ -54,16 +98,31 @@ export default async function PagosPage({
     <div>
       <PageHeader
         title="Pagos"
-        description={`Historial guardado · ${range.label}`}
+        description={
+          query
+            ? `Resultados para “${query}”`
+            : `Historial guardado · ${range.label}`
+        }
       />
 
       <Suspense fallback={<div className="card mb-6 h-28 animate-pulse" />}>
         <DateFilterBar label="Periodo de cobros" />
       </Suspense>
 
+      <Suspense
+        fallback={
+          <div className="mb-4 h-11 animate-pulse rounded-lg bg-white/60" />
+        }
+      >
+        <ListSearchBar
+          placeholder="Buscar por factura, cliente, RNC, método o notas…"
+          ariaLabel="Buscar pagos"
+        />
+      </Suspense>
+
       <div className="card mb-6 p-4">
         <p className="text-xs font-semibold tracking-wide text-[var(--muted)] uppercase">
-          Cobrado en el periodo
+          {query ? "Total encontrado" : "Cobrado en el periodo"}
         </p>
         <p className="font-display mt-1 text-2xl">{formatCurrency(periodTotal)}</p>
         <p className="text-xs text-[var(--muted)]">
@@ -90,7 +149,7 @@ export default async function PagosPage({
             {openInvoices.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center text-[var(--muted)]">
-                  Nada pendiente
+                  {query ? `Nada pendiente para “${query}”` : "Nada pendiente"}
                 </td>
               </tr>
             ) : (
@@ -123,7 +182,7 @@ export default async function PagosPage({
       </div>
 
       <h2 className="mb-3 text-sm font-semibold tracking-wide text-[var(--muted)] uppercase">
-        Historial del periodo
+        {query ? "Pagos encontrados" : "Historial del periodo"}
       </h2>
       <div className="table-wrap">
         <table className="data">
@@ -140,7 +199,9 @@ export default async function PagosPage({
             {payments.length === 0 ? (
               <tr>
                 <td colSpan={5} className="text-center text-[var(--muted)]">
-                  Sin pagos en este periodo
+                  {query
+                    ? `No se encontraron pagos para “${query}”`
+                    : "Sin pagos en este periodo"}
                 </td>
               </tr>
             ) : (

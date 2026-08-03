@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { formatCurrency, roundMoney } from "@/lib/format";
+import { CustomerSearchSelect } from "@/components/customer-search-select";
 
 type ProductOption = {
   id: string;
@@ -147,21 +148,13 @@ export function InvoiceForm({
           <label className="label" htmlFor="customerId">
             Cliente
           </label>
-          <select
+          <CustomerSearchSelect
             id="customerId"
             name="customerId"
-            required
+            customers={customers}
             defaultValue={initial?.customerId || ""}
-            className="input"
-          >
-            <option value="">Seleccionar…</option>
-            {customers.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-                {c.taxId ? ` (${c.taxId})` : ""}
-              </option>
-            ))}
-          </select>
+            required
+          />
         </div>
         <div>
           <label className="label" htmlFor="ncfType">

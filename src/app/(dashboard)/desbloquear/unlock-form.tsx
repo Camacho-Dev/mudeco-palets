@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Lock, Shield } from "lucide-react";
+import { Lock } from "lucide-react";
 import { unlockSensitiveArea } from "./actions";
-import { LogoMark } from "@/components/logo";
+import { BrandLogo } from "@/components/logo";
 import { IconField } from "@/components/icon-field";
 
 export function UnlockForm({ nextPath }: { nextPath: string }) {
@@ -24,10 +24,7 @@ export function UnlockForm({ nextPath }: { nextPath: string }) {
       <input type="hidden" name="next" value={nextPath} />
 
       <div className="flex flex-col items-center text-center">
-        <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-[#f3ebe3] text-[#3d2a1f]">
-          <Shield className="h-6 w-6" />
-        </div>
-        <LogoMark className="mb-3 h-10 w-10" color="#3d2a1f" />
+        <BrandLogo width={180} height={225} className="mb-4" tone="onLight" />
         <h1 className="font-display text-2xl text-[#3d2a1f]">Área privada</h1>
         <p className="mt-2 max-w-sm text-sm text-[#7a6a5c]">
           Finanzas, inventario, cobros, panel y configuración requieren la
