@@ -25,7 +25,9 @@ export default async function CatalogoPage({
     where: {
       active: true,
       kind: "FINISHED",
-      ...(category ? { category } : {}),
+      ...(category
+        ? { category: { equals: category, mode: "insensitive" } }
+        : {}),
       ...(query
         ? {
             OR: [

@@ -91,18 +91,14 @@ export async function applyStockChange(input: {
       data: { stock: { increment: input.qtyDelta } },
     });
 
-    // Asegurar que no quede negativo si no se permite
-    const balance = input.allowNegative
-      ? result.stock
-      : Math.max(0, result.stock);
-
-    // Corregir si quedó negativo y no se permite
+    // Evitar sobreventa en concurrencia: si quedó negativo y no se permite, abortar transacción
     if (!input.allowNegative && result.stock < 0) {
-      await tx.product.update({
-        where: { id: input.productId },
-        data: { stock: 0 },
-      });
+      throw new Error(
+        `Stock insuficiente durante la operación: ${product.name}`,
+      );
     }
+
+    const balance = result.stock;
 
     await tx.stockMovement.create({
       data: {

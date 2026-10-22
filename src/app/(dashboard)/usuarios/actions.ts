@@ -67,9 +67,26 @@ export async function setUserPassword(fd: FormData) {
 }
 
 export async function toggleUserActive(id: string) {
-  await requireAdmin();
+  const session = await requireAdmin();
+  if (session.user.id === id) {
+    throw new Error("No puedes desactivar tu propia cuenta administradora");
+  }
+
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) throw new Error("Usuario no encontrado");
+
+  // Proteger contra apagado del último admin activo
+  if (user.active && user.role === "ADMIN") {
+    const remainingAdmins = await prisma.user.count({
+      where: { role: "ADMIN", active: true, NOT: { id } },
+    });
+    if (remainingAdmins === 0) {
+      throw new Error(
+        "No puedes desactivar al único administrador activo del sistema",
+      );
+    }
+  }
+
   const updated = await prisma.user.update({
     where: { id },
     data: { active: !user.active },

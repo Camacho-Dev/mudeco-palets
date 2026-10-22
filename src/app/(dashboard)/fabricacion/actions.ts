@@ -57,31 +57,65 @@ export async function completeWorkOrder(id: string) {
   });
   if (!wo || wo.status === "DONE") throw new Error("No se puede completar");
 
+  // 1. Verificar disponibilidad de TODOS los materiales antes de modificar nada
   for (const item of wo.items) {
+    const mat = await prisma.product.findUnique({
+      where: { id: item.productId },
+    });
+    if (!mat) {
+      throw new Error("Hay un material en la orden que ya no existe");
+    }
+    if (mat.stock + 0.0001 < item.quantity) {
+      throw new Error(
+        `Stock insuficiente de "${mat.name}": se requieren ${item.quantity} ${mat.unit}, disponibles: ${mat.stock}`,
+      );
+    }
+  }
+
+  // 2. Descontar materiales con mecanismo de rollback si ocurre un error inesperado
+  const deducted: { productId: string; qty: number }[] = [];
+  try {
+    for (const item of wo.items) {
+      await applyStockChange({
+        productId: item.productId,
+        qtyDelta: -item.quantity,
+        reason: "MANUFACTURE_OUT",
+        refType: "WorkOrder",
+        refId: id,
+        note: wo.number,
+      });
+      deducted.push({ productId: item.productId, qty: item.quantity });
+    }
+
     await applyStockChange({
-      productId: item.productId,
-      qtyDelta: -item.quantity,
-      reason: "MANUFACTURE_OUT",
+      productId: wo.productId,
+      qtyDelta: wo.quantity,
+      reason: "MANUFACTURE_IN",
       refType: "WorkOrder",
       refId: id,
       note: wo.number,
+      allowNegative: true,
     });
+
+    await prisma.workOrder.update({
+      where: { id },
+      data: { status: "DONE", completedAt: new Date() },
+    });
+  } catch (err) {
+    // Rollback de cualquier insumo deducido
+    for (const d of deducted) {
+      await applyStockChange({
+        productId: d.productId,
+        qtyDelta: d.qty,
+        reason: "ADJUST",
+        refType: "WorkOrder",
+        refId: id,
+        note: `Reversión por error en orden ${wo.number}`,
+        allowNegative: true,
+      }).catch(() => undefined);
+    }
+    throw err;
   }
-
-  await applyStockChange({
-    productId: wo.productId,
-    qtyDelta: wo.quantity,
-    reason: "MANUFACTURE_IN",
-    refType: "WorkOrder",
-    refId: id,
-    note: wo.number,
-    allowNegative: true,
-  });
-
-  await prisma.workOrder.update({
-    where: { id },
-    data: { status: "DONE", completedAt: new Date() },
-  });
 
   await writeAudit({
     action: "COMPLETE",

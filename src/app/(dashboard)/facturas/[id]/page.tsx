@@ -9,7 +9,11 @@ import {
   formatDate,
   PAYMENT_METHOD_LABELS,
 } from "@/lib/format";
-import { paidAmount } from "@/lib/invoice-calc";
+import {
+  calcInvoiceBalance,
+  creditNotesAmount,
+  paidAmount,
+} from "@/lib/invoice-calc";
 import { issueInvoice, voidInvoice } from "../actions";
 import { PaymentForm } from "@/components/payment-form";
 import { createPayment, deletePayment } from "../../pagos/actions";
@@ -31,13 +35,19 @@ export default async function FacturaDetallePage({
       customer: true,
       items: true,
       payments: { orderBy: { paidAt: "desc" } },
+      creditNotes: { orderBy: { createdAt: "desc" } },
       user: true,
     },
   });
   if (!invoice) notFound();
 
   const paid = paidAmount(invoice.payments);
-  const balance = Math.round((invoice.total - paid) * 100) / 100;
+  const credited = creditNotesAmount(invoice.creditNotes);
+  const balance = calcInvoiceBalance(
+    invoice.total,
+    invoice.payments,
+    invoice.creditNotes,
+  );
   const canPay =
     ["ISSUED", "PARTIAL"].includes(invoice.status) && balance > 0;
 
@@ -166,12 +176,43 @@ export default async function FacturaDetallePage({
                 <dt>Pagado</dt>
                 <dd>{formatCurrency(paid)}</dd>
               </div>
+              {credited > 0 ? (
+                <div className="flex justify-between text-amber-700">
+                  <dt>Notas de crédito</dt>
+                  <dd>-{formatCurrency(credited)}</dd>
+                </div>
+              ) : null}
               <div className="flex justify-between font-semibold text-[#1a4d40]">
                 <dt>Saldo</dt>
                 <dd>{formatCurrency(balance)}</dd>
               </div>
             </dl>
           </div>
+
+          {invoice.creditNotes.length > 0 ? (
+            <div className="card p-6">
+              <h2 className="mb-3 font-medium text-slate-800">
+                Notas de crédito aplicadas ({invoice.creditNotes.length})
+              </h2>
+              <ul className="space-y-2">
+                {invoice.creditNotes.map((nc) => (
+                  <li
+                    key={nc.id}
+                    className="flex items-center justify-between border-b border-slate-100 pb-2 text-sm last:border-0"
+                  >
+                    <div>
+                      <div className="font-medium text-amber-900">
+                        {nc.number} · {formatCurrency(nc.total)}
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {formatDate(nc.createdAt)} · {nc.reason}
+                      </div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
 
           {invoice.notes ? (
             <div className="card p-6 text-sm text-slate-600">

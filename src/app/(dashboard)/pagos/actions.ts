@@ -2,7 +2,12 @@
 
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
-import { paidAmount, resolvePaymentStatus } from "@/lib/invoice-calc";
+import {
+  calcInvoiceBalance,
+  creditNotesAmount,
+  paidAmount,
+  resolveInvoiceStatusWithCredits,
+} from "@/lib/invoice-calc";
 import { writeAudit } from "@/lib/audit";
 import { canDeletePayment } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
@@ -37,15 +42,18 @@ export async function createPayment(invoiceId: string, fd: FormData) {
 
   const invoice = await prisma.invoice.findUnique({
     where: { id: invoiceId },
-    include: { payments: true },
+    include: { payments: true, creditNotes: true },
   });
   if (!invoice) throw new Error("Factura no encontrada");
   if (!["ISSUED", "PARTIAL"].includes(invoice.status)) {
     throw new Error("La factura no admite pagos");
   }
 
-  const alreadyPaid = paidAmount(invoice.payments);
-  const balance = Math.round((invoice.total - alreadyPaid) * 100) / 100;
+  const balance = calcInvoiceBalance(
+    invoice.total,
+    invoice.payments,
+    invoice.creditNotes,
+  );
   if (data.amount > balance + 0.001) {
     throw new Error("El monto supera el saldo pendiente");
   }
@@ -60,9 +68,18 @@ export async function createPayment(invoiceId: string, fd: FormData) {
     },
   });
 
-  const payments = await prisma.payment.findMany({ where: { invoiceId } });
+  const [payments, creditNotes] = await Promise.all([
+    prisma.payment.findMany({ where: { invoiceId } }),
+    prisma.creditNote.findMany({ where: { invoiceId } }),
+  ]);
   const paid = paidAmount(payments);
-  const status = resolvePaymentStatus(invoice.total, paid, invoice.status);
+  const credited = creditNotesAmount(creditNotes);
+  const status = resolveInvoiceStatusWithCredits(
+    invoice.total,
+    paid,
+    credited,
+    invoice.status,
+  );
 
   await prisma.invoice.update({
     where: { id: invoiceId },
@@ -89,7 +106,7 @@ export async function deletePayment(paymentId: string) {
 
   const payment = await prisma.payment.findUnique({
     where: { id: paymentId },
-    include: { invoice: { include: { payments: true } } },
+    include: { invoice: { include: { payments: true, creditNotes: true } } },
   });
   if (!payment) throw new Error("Pago no encontrado");
   if (payment.invoice.status === "VOIDED") {
@@ -98,13 +115,16 @@ export async function deletePayment(paymentId: string) {
 
   await prisma.payment.delete({ where: { id: paymentId } });
 
-  const payments = await prisma.payment.findMany({
-    where: { invoiceId: payment.invoiceId },
-  });
+  const [payments, creditNotes] = await Promise.all([
+    prisma.payment.findMany({ where: { invoiceId: payment.invoiceId } }),
+    prisma.creditNote.findMany({ where: { invoiceId: payment.invoiceId } }),
+  ]);
   const paid = paidAmount(payments);
-  const status = resolvePaymentStatus(
+  const credited = creditNotesAmount(creditNotes);
+  const status = resolveInvoiceStatusWithCredits(
     payment.invoice.total,
     paid,
+    credited,
     payment.invoice.status,
   );
   await prisma.invoice.update({

@@ -34,6 +34,7 @@ export async function getBusinessAnalytics(range?: DateRange) {
       include: {
         items: { include: { product: true } },
         payments: true,
+        creditNotes: true,
         customer: true,
       },
       orderBy: { issueDate: "asc" },
@@ -91,7 +92,8 @@ export async function getBusinessAnalytics(range?: DateRange) {
   const receivables = roundMoney(
     openInvoices.reduce((s, i) => {
       const paid = i.payments.reduce((a, p) => a + p.amount, 0);
-      return s + (i.total - paid);
+      const credited = (i.creditNotes || []).reduce((a, c) => a + c.total, 0);
+      return s + Math.max(0, i.total - paid - credited);
     }, 0),
   );
 

@@ -1,12 +1,16 @@
 import { CheckoutForm } from "@/components/store/checkout-form";
 import { Reveal } from "@/components/store/store-motion";
-import { DOMINICAN_BANKS } from "@/lib/store-info";
+import { getDominicanBanks } from "@/lib/store-info";
+import { getStoreCompany } from "@/lib/store";
 import { Building2, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
 export const metadata = { title: "Transferencia bancaria" };
 
-export default function CheckoutTransferenciaPage() {
+export default async function CheckoutTransferenciaPage() {
+  const company = await getStoreCompany();
+  const banks = getDominicanBanks(company);
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
       <Reveal>
@@ -23,7 +27,7 @@ export default function CheckoutTransferenciaPage() {
 
       {/* Tarjetas de Cuentas Bancarias */}
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
-        {DOMINICAN_BANKS.map((b) => (
+        {banks.map((b) => (
           <div
             key={b.bank}
             className="rounded-lg border border-[var(--border)] bg-white p-5 shadow-sm transition hover:shadow-md"

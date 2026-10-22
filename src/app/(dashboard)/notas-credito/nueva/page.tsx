@@ -31,9 +31,22 @@ export default async function NuevaNotaCreditoPage() {
           <label className="label">Motivo</label>
           <textarea name="reason" className="input" rows={3} required />
         </div>
+        <div>
+          <label className="label">Monto a acreditar (opcional si es parcial)</label>
+          <input
+            name="amount"
+            type="number"
+            step="0.01"
+            placeholder="Dejar vacío para el monto total de la factura"
+            className="input"
+          />
+          <p className="mt-1 text-xs text-slate-500">
+            Si deseas hacer un descuento o crédito parcial, especifica el monto aquí y desmarca la casilla inferior.
+          </p>
+        </div>
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" name="full" value="true" defaultChecked />
-          Devolver todas las líneas y reponer stock
+          Devolver todas las líneas de la factura y reponer stock
         </label>
         <button type="submit" className="btn btn-primary">
           Emitir NC

@@ -2,11 +2,20 @@ import { prisma } from "@/lib/prisma";
 
 async function nextNumber(
   prefix: string,
-  kind: "invoice" | "quote" | "creditNote" | "purchase" | "workOrder",
+  kind: "invoice" | "quote" | "creditNote" | "purchase" | "workOrder" | "webOrder",
 ) {
   const id = prefix;
 
   const row = await prisma.$transaction(async (tx) => {
+    const existing = await tx.invoiceCounter.findUnique({ where: { id } });
+    if (existing) {
+      return tx.invoiceCounter.update({
+        where: { id },
+        data: { last: { increment: 1 } },
+      });
+    }
+
+    // Inicialización la primera vez en el año determinando el valor máximo previo
     const rows =
       kind === "invoice"
         ? await tx.invoice.findMany({
@@ -28,10 +37,15 @@ async function nextNumber(
                   where: { number: { startsWith: `${prefix}-` } },
                   select: { number: true },
                 })
-              : await tx.workOrder.findMany({
-                  where: { number: { startsWith: `${prefix}-` } },
-                  select: { number: true },
-                });
+              : kind === "workOrder"
+                ? await tx.workOrder.findMany({
+                    where: { number: { startsWith: `${prefix}-` } },
+                    select: { number: true },
+                  })
+                : await tx.webOrder.findMany({
+                    where: { number: { startsWith: `${prefix}-` } },
+                    select: { number: true },
+                  });
 
     let dbMax = 0;
     for (const r of rows) {
@@ -40,17 +54,8 @@ async function nextNumber(
       if (!Number.isNaN(n) && n > dbMax) dbMax = n;
     }
 
-    const existing = await tx.invoiceCounter.findUnique({ where: { id } });
-    if (!existing) {
-      return tx.invoiceCounter.create({
-        data: { id, last: dbMax + 1 },
-      });
-    }
-
-    const next = Math.max(existing.last, dbMax) + 1;
-    return tx.invoiceCounter.update({
-      where: { id },
-      data: { last: next },
+    return tx.invoiceCounter.create({
+      data: { id, last: dbMax + 1 },
     });
   });
 
@@ -78,28 +83,5 @@ export async function nextWorkOrderNumber() {
 }
 
 export async function nextWebOrderNumber() {
-  const prefix = `WEB-${new Date().getFullYear()}`;
-  const id = prefix;
-  const row = await prisma.$transaction(async (tx) => {
-    const rows = await tx.webOrder.findMany({
-      where: { number: { startsWith: `${prefix}-` } },
-      select: { number: true },
-    });
-    let dbMax = 0;
-    for (const r of rows) {
-      const part = r.number.split("-").pop();
-      const n = Number(part);
-      if (!Number.isNaN(n) && n > dbMax) dbMax = n;
-    }
-    const existing = await tx.invoiceCounter.findUnique({ where: { id } });
-    if (!existing) {
-      return tx.invoiceCounter.create({ data: { id, last: dbMax + 1 } });
-    }
-    const next = Math.max(existing.last, dbMax) + 1;
-    return tx.invoiceCounter.update({
-      where: { id },
-      data: { last: next },
-    });
-  });
-  return `${id}-${String(row.last).padStart(5, "0")}`;
+  return nextNumber(`WEB-${new Date().getFullYear()}`, "webOrder");
 }

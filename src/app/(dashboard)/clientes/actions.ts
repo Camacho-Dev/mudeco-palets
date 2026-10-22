@@ -6,24 +6,35 @@ import { writeAudit } from "@/lib/audit";
 import { canDeleteCustomer } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { validateDominicanTaxId } from "@/lib/rnc-validator";
 import { z } from "zod";
 
 const customerSchema = z.object({
   name: z.string().min(1, "Nombre requerido"),
   taxId: z.string().optional(),
-  email: z.string().email().optional(),
+  email: z.string().email("Email inválido").optional(),
   phone: z.string().optional(),
   address: z.string().optional(),
   creditLimit: z.coerce.number().nonnegative().optional(),
 });
 
 function formDataToCustomer(fd: FormData) {
+  const rawTaxId = String(fd.get("taxId") || "").trim() || undefined;
+  if (rawTaxId) {
+    const taxCheck = validateDominicanTaxId(rawTaxId);
+    if (!taxCheck.valid && taxCheck.error) {
+      throw new Error(taxCheck.error);
+    }
+  }
+
+  const rawEmail = String(fd.get("email") || "").trim() || undefined;
+
   return customerSchema.parse({
-    name: String(fd.get("name") || ""),
-    taxId: String(fd.get("taxId") || "") || undefined,
-    email: String(fd.get("email") || "") || undefined,
-    phone: String(fd.get("phone") || "") || undefined,
-    address: String(fd.get("address") || "") || undefined,
+    name: String(fd.get("name") || "").trim(),
+    taxId: rawTaxId,
+    email: rawEmail,
+    phone: String(fd.get("phone") || "").trim() || undefined,
+    address: String(fd.get("address") || "").trim() || undefined,
     creditLimit: fd.get("creditLimit") || 0,
   });
 }

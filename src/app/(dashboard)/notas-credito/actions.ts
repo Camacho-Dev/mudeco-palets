@@ -4,7 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import { nextCreditNoteNumber } from "@/lib/invoice-number";
 import { applyStockChange } from "@/lib/stock";
-import { calcInvoiceTotals } from "@/lib/invoice-calc";
+import {
+  calcInvoiceTotals,
+  paidAmount,
+  creditNotesAmount,
+  resolveInvoiceStatusWithCredits,
+} from "@/lib/invoice-calc";
 import { writeAudit } from "@/lib/audit";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -24,18 +29,47 @@ export async function createCreditNote(fd: FormData) {
   }
 
   const useFull = fd.get("full") === "on" || fd.get("full") === "true";
-  const lines = useFull
-    ? invoice.items.map((it) => ({
-        productId: it.productId,
-        description: it.description,
-        quantity: it.quantity,
-        unitPrice: it.unitPrice,
-        taxRate: it.taxRate,
-        lineTotal: it.lineTotal,
-      }))
-    : [];
+  const customAmount = Number(fd.get("amount") || 0);
 
-  if (!lines.length) throw new Error("Marca 'devolver todo' por ahora");
+  let lines: {
+    productId: string | null;
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    taxRate: number;
+    lineTotal: number;
+  }[] = [];
+
+  if (useFull) {
+    lines = invoice.items.map((it) => ({
+      productId: it.productId,
+      description: it.description,
+      quantity: it.quantity,
+      unitPrice: it.unitPrice,
+      taxRate: it.taxRate,
+      lineTotal: it.lineTotal,
+    }));
+  } else if (customAmount > 0) {
+    if (customAmount > invoice.total) {
+      throw new Error(
+        "El monto de la nota de crédito no puede superar el total de la factura",
+      );
+    }
+    lines = [
+      {
+        productId: null,
+        description: `Ajuste parcial: ${reason}`,
+        quantity: 1,
+        unitPrice: customAmount,
+        taxRate: 0,
+        lineTotal: customAmount,
+      },
+    ];
+  } else {
+    throw new Error(
+      "Indica un monto a acreditar o marca 'Devolver todas las líneas'",
+    );
+  }
 
   const totals = calcInvoiceTotals(lines);
   const number = await nextCreditNoteNumber();
@@ -76,6 +110,24 @@ export async function createCreditNote(fd: FormData) {
     });
   }
 
+  const [allPayments, allCreditNotes] = await Promise.all([
+    prisma.payment.findMany({ where: { invoiceId } }),
+    prisma.creditNote.findMany({ where: { invoiceId } }),
+  ]);
+  const paid = paidAmount(allPayments);
+  const credited = creditNotesAmount(allCreditNotes);
+  const updatedStatus = resolveInvoiceStatusWithCredits(
+    invoice.total,
+    paid,
+    credited,
+    invoice.status,
+  );
+
+  await prisma.invoice.update({
+    where: { id: invoiceId },
+    data: { status: updatedStatus },
+  });
+
   await writeAudit({
     action: "CREDIT_NOTE",
     entity: "CreditNote",
@@ -85,6 +137,9 @@ export async function createCreditNote(fd: FormData) {
 
   revalidatePath("/notas-credito");
   revalidatePath("/inventario");
+  revalidatePath("/facturas");
+  revalidatePath("/finanzas");
+  revalidatePath("/panel");
   revalidatePath(`/facturas/${invoiceId}`);
   redirect("/notas-credito");
 }

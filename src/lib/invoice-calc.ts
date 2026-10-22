@@ -45,6 +45,35 @@ export function paidAmount(
   return roundMoney(payments.reduce((s, p) => s + p.amount, 0));
 }
 
+export function creditNotesAmount(
+  creditNotes: { total: number }[] = [],
+): number {
+  return roundMoney(creditNotes.reduce((s, c) => s + c.total, 0));
+}
+
+export function calcInvoiceBalance(
+  total: number,
+  payments: { amount: number }[] = [],
+  creditNotes: { total: number }[] = [],
+): number {
+  const paid = paidAmount(payments);
+  const credited = creditNotesAmount(creditNotes);
+  return roundMoney(Math.max(0, total - paid - credited));
+}
+
+export function resolveInvoiceStatusWithCredits(
+  total: number,
+  paid: number,
+  credited: number,
+  current: string,
+): string {
+  if (current === "VOIDED" || current === "DRAFT") return current;
+  const covered = paid + credited;
+  if (covered <= 0) return "ISSUED";
+  if (covered + 0.001 >= total) return "PAID";
+  return "PARTIAL";
+}
+
 export function resolvePaymentStatus(
   total: number,
   paid: number,

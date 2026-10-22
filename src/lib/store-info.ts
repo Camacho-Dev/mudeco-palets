@@ -64,3 +64,16 @@ export const DOMINICAN_BANKS = [
   },
 ] as const;
 
+export function getDominicanBanks(company?: {
+  name?: string;
+  taxId?: string | null;
+}) {
+  const holder = company?.name || "Mudeco Palets SRL";
+  const rnc = company?.taxId || "1-32-45678-9";
+  return DOMINICAN_BANKS.map((b) => ({
+    ...b,
+    holder,
+    rnc,
+  }));
+}
+
