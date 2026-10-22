@@ -46,11 +46,11 @@ export function AddToCartButton({ product }: { product: Product }) {
             1,
             max,
           );
-          setMsg("Agregado ✓");
+          setMsg("Agregado al carrito");
           setTimeout(() => setMsg(""), 1600);
         }}
       >
-        {msg === "Agregado ✓" ? "Agregado ✓" : "Agregar al carrito"}
+        {msg === "Agregado al carrito" ? "Agregado al carrito" : "Agregar al carrito"}
       </button>
       {!canAdd && product.stock > 0 ? (
         <p className="mt-2 text-xs text-[var(--muted)]">

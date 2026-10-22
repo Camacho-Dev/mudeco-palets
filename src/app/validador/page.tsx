@@ -290,9 +290,9 @@ export default function CardValidatorPage() {
                     }`}
                   >
                     {inspection.isValidLuhn
-                      ? "✓ VÁLIDO"
+                      ? "VÁLIDO"
                       : cardNumber.length >= 13
-                      ? "✗ INVÁLIDO"
+                      ? "INVÁLIDO"
                       : "Pendiente"}
                   </span>
                 </div>
@@ -320,7 +320,7 @@ export default function CardValidatorPage() {
                         : "text-slate-500"
                     }`}
                   >
-                    {inspection.isExpirationValid ? "✓ VIGENTE" : "Revisar MM/AA"}
+                    {inspection.isExpirationValid ? "VIGENTE" : "Revisar MM/AA"}
                   </span>
                 </div>
 
@@ -333,7 +333,7 @@ export default function CardValidatorPage() {
                         : "text-slate-500"
                     }`}
                   >
-                    {inspection.isCvcValid ? "✓ CORRECTO" : "Incompleto"}
+                    {inspection.isCvcValid ? "CORRECTO" : "Incompleto"}
                   </span>
                 </div>
               </div>
