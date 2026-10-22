@@ -90,6 +90,39 @@ export async function GET(
       paidAt: p.paidAt.toISOString(),
       notes: p.notes,
     }));
+  } else if (type === "pedidos-web") {
+    const data = await prisma.webOrder.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    rows = data.map((o) => ({
+      number: o.number,
+      type: o.type,
+      paymentMode: o.paymentMode || "",
+      status: o.status,
+      customerName: o.customerName,
+      customerEmail: o.customerEmail,
+      customerPhone: o.customerPhone || "",
+      subtotal: o.subtotal,
+      tax: o.tax,
+      total: o.total,
+      notes: o.notes || "",
+      createdAt: o.createdAt.toISOString(),
+    }));
+  } else if (type === "cotizaciones") {
+    const data = await prisma.quote.findMany({
+      include: { customer: true },
+      orderBy: { issueDate: "desc" },
+    });
+    rows = data.map((q) => ({
+      number: q.number,
+      status: q.status,
+      source: q.source,
+      customer: q.customer.name,
+      issueDate: q.issueDate.toISOString(),
+      subtotal: q.subtotal,
+      tax: q.tax,
+      total: q.total,
+    }));
   } else {
     return NextResponse.json({ error: "Tipo inválido" }, { status: 400 });
   }

@@ -79,9 +79,9 @@ export function CardPreview({
               }`}
             >
               {category === "DEBIT"
-                ? "💳 DÉBITO"
+                ? "DÉBITO"
                 : category === "CREDIT"
-                ? "👑 CRÉDITO"
+                ? "CRÉDITO"
                 : "TARJETA"}
             </div>
           </div>

@@ -4,15 +4,29 @@ import { buildInvoicePdf } from "@/lib/pdf/invoice-pdf";
 import { NextResponse } from "next/server";
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
+  const { id } = await params;
   const session = await auth();
-  if (!session?.user?.id) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+
+  let authorized = Boolean(session?.user?.id);
+
+  if (!authorized) {
+    const url = new URL(req.url);
+    const orderId = url.searchParams.get("orderId");
+    // Permitir descarga si el invoice pertenece a un pedido web o coincide con orderId
+    const webOrder = await prisma.webOrder.findFirst({
+      where: orderId ? { id: orderId, invoiceId: id } : { invoiceId: id },
+    });
+    if (webOrder) {
+      authorized = true;
+    }
   }
 
-  const { id } = await params;
+  if (!authorized) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
   const invoice = await prisma.invoice.findUnique({
     where: { id },
     include: { customer: true, items: true },

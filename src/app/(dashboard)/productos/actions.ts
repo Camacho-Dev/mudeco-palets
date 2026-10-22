@@ -49,10 +49,13 @@ function formDataToProduct(fd: FormData) {
   });
 }
 
-function revalidateProducts() {
+function revalidateProducts(productId?: string) {
   revalidatePath("/productos");
   revalidatePath("/inventario");
   revalidatePath("/vender");
+  revalidatePath("/");
+  revalidatePath("/catalogo");
+  if (productId) revalidatePath(`/producto/${productId}`);
 }
 
 export async function createProduct(fd: FormData) {
@@ -96,7 +99,7 @@ export async function createProduct(fd: FormData) {
     summary: `Mueble creado: ${product.name} (stock ${product.stock})`,
     details: { price: product.price, stock: product.stock, sku: product.sku },
   });
-  revalidateProducts();
+  revalidateProducts(product.id);
   redirect("/productos");
 }
 
@@ -159,7 +162,7 @@ export async function updateProduct(id: string, fd: FormData) {
     },
   });
 
-  revalidateProducts();
+  revalidateProducts(id);
   redirect("/productos");
 }
 
@@ -179,6 +182,6 @@ export async function deleteProduct(id: string) {
     summary: `Mueble desactivado/eliminado del catálogo: ${product.name}`,
     details: { stock: product.stock },
   });
-  revalidateProducts();
+  revalidateProducts(id);
   redirect("/productos");
 }

@@ -26,9 +26,9 @@ export default async function BuscarPage({
     prisma.customer.findMany({
       where: {
         OR: [
-          { name: { contains: query } },
-          { taxId: { contains: query } },
-          { phone: { contains: query } },
+          { name: { contains: query, mode: "insensitive" } },
+          { taxId: { contains: query, mode: "insensitive" } },
+          { phone: { contains: query, mode: "insensitive" } },
         ],
       },
       take: 20,
@@ -36,8 +36,8 @@ export default async function BuscarPage({
     prisma.product.findMany({
       where: {
         OR: [
-          { name: { contains: query } },
-          { sku: { contains: query } },
+          { name: { contains: query, mode: "insensitive" } },
+          { sku: { contains: query, mode: "insensitive" } },
         ],
       },
       take: 20,
@@ -45,8 +45,8 @@ export default async function BuscarPage({
     prisma.invoice.findMany({
       where: {
         OR: [
-          { number: { contains: query } },
-          { ncf: { contains: query } },
+          { number: { contains: query, mode: "insensitive" } },
+          { ncf: { contains: query, mode: "insensitive" } },
         ],
       },
       include: { customer: true },

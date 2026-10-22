@@ -3,6 +3,14 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import {
+  CreditCard,
+  Info,
+  FileEdit,
+  Activity,
+  ShieldCheck,
+  RotateCw,
+} from "lucide-react";
+import {
   inspectCard,
   formatCardNumber,
   type CardValidationResult,
@@ -83,25 +91,25 @@ export default function CardValidatorPage() {
         setSimulatedAuth({
           status: "FAILED",
           message:
-            "🔴 ESTRUCTURA INVÁLIDA: El número de tarjeta no supera el algoritmo de Luhn (error matemático de checksum). Ningún banco aceptará esta tarjeta.",
+            "ESTRUCTURA INVÁLIDA: El número de tarjeta no supera el algoritmo de Luhn (error matemático de checksum). Ningún banco aceptará esta tarjeta.",
         });
       } else if (!inspection.isExpirationValid) {
         setSimulatedAuth({
           status: "FAILED",
           message:
-            "🔴 TARJETA VENCIDA: La fecha ingresada es igual o anterior al mes/año actual.",
+            "TARJETA VENCIDA: La fecha ingresada es igual o anterior al mes/año actual.",
         });
       } else if (isTestCard) {
         setSimulatedAuth({
           status: "SUCCESS",
           message:
-            "🟢 TARJETA DE PRUEBA APROBADA (Sandbox Stripe): Esta es una tarjeta de test oficial de Stripe utilizada para desarrollo.",
+            "TARJETA DE PRUEBA APROBADA (Sandbox Stripe): Esta es una tarjeta de test oficial de Stripe utilizada para desarrollo.",
         });
       } else {
         setSimulatedAuth({
           status: "SUCCESS",
           message:
-            "🔹 ESTRUCTURA MATEMÁTICA CORRECTA: La tarjeta cumple con Luhn, la red Visa/Mastercard y el formato de CVC. Nota: Para confirmar si el plástico físico pertenece a una persona real y tiene fondos disponibles hoy, un sistema de pago real (Stripe/Azul/Bancario) realiza una autorización en vivo por $0.00 USD mediante API privada.",
+            "ESTRUCTURA MATEMÁTICA CORRECTA: La tarjeta cumple con Luhn, la red Visa/Mastercard y el formato de CVC. Nota: Para confirmar si el plástico físico pertenece a una persona real y tiene fondos disponibles hoy, un sistema de pago real (Stripe/Azul/Bancario) realiza una autorización en vivo por $0.00 USD mediante API privada.",
         });
       }
     }, 1000);
@@ -113,8 +121,8 @@ export default function CardValidatorPage() {
       <header className="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 font-bold text-lg shadow-lg shadow-amber-500/20">
-              💳
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 font-bold shadow-lg shadow-amber-500/20">
+              <CreditCard className="w-5 h-5 text-slate-950" />
             </div>
             <div>
               <h1 className="font-bold text-lg sm:text-xl tracking-tight text-white">
@@ -140,39 +148,39 @@ export default function CardValidatorPage() {
         {/* presets rápida */}
         <div className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl bg-slate-900/40 border border-slate-800">
           <span className="text-xs font-medium text-slate-400">
-            🧪 Cargar datos de prueba rápidos:
+            Cargar datos de prueba:
           </span>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => loadPreset("visa-credit")}
               className="text-xs font-medium px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/20 hover:bg-amber-500/20 transition"
             >
-              👑 Visa Crédito
+              Visa Crédito
             </button>
             <button
               onClick={() => loadPreset("debit")}
               className="text-xs font-medium px-3 py-1.5 rounded-lg bg-teal-500/10 text-teal-300 border border-teal-500/20 hover:bg-teal-500/20 transition"
             >
-              💳 Visa Débito
+              Visa Débito
             </button>
             <button
               onClick={() => loadPreset("amex")}
               className="text-xs font-medium px-3 py-1.5 rounded-lg bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 hover:bg-cyan-500/20 transition"
             >
-              💎 Amex Crédito
+              Amex Crédito
             </button>
             <button
               onClick={() => loadPreset("invalid")}
               className="text-xs font-medium px-3 py-1.5 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/20 hover:bg-rose-500/20 transition"
             >
-              ⚠️ Tarjeta Inválida
+              Tarjeta Inválida
             </button>
           </div>
         </div>
 
         {/* Nota informativa didáctica sobre privacidad y fecha de vencimiento */}
         <div className="p-4 rounded-xl bg-blue-950/40 border border-blue-800/60 text-xs text-blue-200 leading-relaxed flex items-start gap-3">
-          <span className="text-lg">💡</span>
+          <Info className="w-5 h-5 text-blue-300 shrink-0 mt-0.5" />
           <div>
             <p className="font-semibold text-blue-100 mb-0.5">
               ¿Por qué debes introducir la Fecha de Vencimiento manualmente?
@@ -201,7 +209,7 @@ export default function CardValidatorPage() {
                 isFlipped={isFlipped}
               />
               <p className="text-[11px] text-center text-slate-500 mt-4">
-                💡 Haz clic en el campo CVC para girar la tarjeta
+                Haz clic en el campo CVC para girar la tarjeta
               </p>
             </div>
 
@@ -336,7 +344,8 @@ export default function CardValidatorPage() {
           <div className="lg:col-span-7 space-y-6">
             <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl backdrop-blur-sm space-y-5">
               <h2 className="text-base font-bold text-white border-b border-slate-800 pb-3 flex items-center gap-2">
-                <span>📝 Formulario de Entrada de Datos</span>
+                <FileEdit className="w-4 h-4 text-amber-400" />
+                <span>Formulario de Entrada de Datos</span>
               </h2>
 
               <div className="space-y-4">
@@ -429,7 +438,8 @@ export default function CardValidatorPage() {
             <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                  <span>⚡ Simulador de Verificación Bancaria en Vivo</span>
+                  <Activity className="w-4 h-4 text-amber-400" />
+                  <span>Simulador de Verificación Bancaria en Vivo</span>
                 </h3>
                 <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded bg-slate-800 text-slate-400">
                   Modo Sandbox
@@ -451,12 +461,13 @@ export default function CardValidatorPage() {
               >
                 {simulatedAuth.status === "LOADING" ? (
                   <>
-                    <span className="animate-spin">⏳</span>
+                    <RotateCw className="w-4 h-4 animate-spin text-slate-950" />
                     <span>Conectando con Red Bancaria Visa/Mastercard...</span>
                   </>
                 ) : (
                   <>
-                    <span>🚀 Simular Verificación de Autorización Bancaria</span>
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Simular Verificación de Autorización Bancaria</span>
                   </>
                 )}
               </button>

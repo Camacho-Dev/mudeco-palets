@@ -3,6 +3,8 @@ import { PageHeader } from "@/components/page-header";
 
 const exports = [
   { type: "facturas", label: "Facturas CSV" },
+  { type: "cotizaciones", label: "Cotizaciones CSV" },
+  { type: "pedidos-web", label: "Pedidos web CSV" },
   { type: "clientes", label: "Clientes CSV" },
   { type: "productos", label: "Productos / inventario CSV" },
   { type: "auditoria", label: "Auditoría CSV" },

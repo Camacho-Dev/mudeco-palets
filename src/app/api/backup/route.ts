@@ -24,6 +24,7 @@ export async function GET() {
     ncfSeries,
     auditLog,
     stockMoves,
+    webOrders,
   ] = await Promise.all([
     prisma.user.findMany({
       select: {
@@ -49,6 +50,7 @@ export async function GET() {
     prisma.ncfSeries.findMany(),
     prisma.auditLog.findMany({ orderBy: { createdAt: "desc" }, take: 5000 }),
     prisma.stockMovement.findMany({ orderBy: { createdAt: "desc" }, take: 5000 }),
+    prisma.webOrder.findMany({ include: { items: true } }),
   ]);
 
   const payload = {
@@ -68,6 +70,7 @@ export async function GET() {
     ncfSeries,
     auditLog,
     stockMoves,
+    webOrders,
   };
 
   return new NextResponse(JSON.stringify(payload, null, 2), {

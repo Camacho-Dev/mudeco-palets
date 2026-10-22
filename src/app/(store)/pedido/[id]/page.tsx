@@ -8,7 +8,7 @@ import { sendInvoiceEmail } from "@/lib/mail";
 import { ClearCartOnSuccess } from "@/components/store/clear-cart";
 import { getStoreCompany } from "@/lib/store";
 import { DOMINICAN_BANKS, storeWhatsApp } from "@/lib/store-info";
-import { Building2, MessageCircle } from "lucide-react";
+import { Building2, MessageCircle, FileDown } from "lucide-react";
 
 export const metadata = { title: "Pedido" };
 
@@ -190,6 +190,17 @@ export default async function PedidoPage({
             className="store-cta store-cta-primary"
           >
             Enviar fotos por WhatsApp
+          </a>
+        ) : null}
+        {order.invoice ? (
+          <a
+            href={`/api/facturas/${order.invoice.id}/pdf?orderId=${order.id}`}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 border border-[var(--border)] bg-white px-5 py-3 text-sm font-semibold text-[var(--wood-950)] shadow-sm transition hover:bg-[#fbf7f2]"
+          >
+            <FileDown className="h-4 w-4 text-[#b0894f]" />
+            <span>Descargar Factura PDF ({order.invoice.number})</span>
           </a>
         ) : null}
         <Link

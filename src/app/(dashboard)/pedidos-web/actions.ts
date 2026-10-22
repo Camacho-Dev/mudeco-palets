@@ -6,6 +6,7 @@ import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { writeAudit } from "@/lib/audit";
 import { nextInvoiceNumber } from "@/lib/invoice-number";
+import { restoreStock } from "@/lib/stock";
 
 const ALLOWED = new Set([
   "PENDING",
@@ -91,6 +92,28 @@ export async function addWebOrderStaffNote(id: string, fd: FormData) {
 
 export async function cancelWebOrder(id: string) {
   const session = await requireSession();
+  const existing = await prisma.webOrder.findUnique({
+    where: { id },
+    include: {
+      invoice: {
+        include: { items: true },
+      },
+    },
+  });
+  if (!existing) throw new Error("Pedido no encontrado");
+
+  // Si tenía factura emitida y dedujo stock, anular la factura y devolver el inventario
+  if (existing.invoice && ["ISSUED", "PARTIAL"].includes(existing.invoice.status)) {
+    await restoreStock(existing.invoice.items, {
+      refType: "WebOrderCancel",
+      refId: id,
+    });
+    await prisma.invoice.update({
+      where: { id: existing.invoice.id },
+      data: { status: "VOIDED" },
+    });
+  }
+
   const order = await prisma.webOrder.update({
     where: { id },
     data: { status: "CANCELLED" },
@@ -100,7 +123,7 @@ export async function cancelWebOrder(id: string) {
     action: "WEB_ORDER_CANCEL",
     entity: "WebOrder",
     entityId: id,
-    summary: `Cancelado ${order.number}`,
+    summary: `Cancelado ${order.number}${existing.invoice ? ` (factura ${existing.invoice.number} anulada y stock restituido)` : ""}`,
     userId: session.user?.id,
     userEmail: session.user?.email,
     userName: session.user?.name,
@@ -109,6 +132,14 @@ export async function cancelWebOrder(id: string) {
   revalidatePath("/pedidos-web");
   revalidatePath(`/pedidos-web/${id}`);
   revalidatePath("/panel");
+  revalidatePath("/facturas");
+  revalidatePath("/inventario");
+  revalidatePath("/vender");
+  revalidatePath("/");
+  revalidatePath("/catalogo");
+  if (existing.invoiceId) {
+    revalidatePath(`/facturas/${existing.invoiceId}`);
+  }
 }
 
 export async function markWebOrderDone(id: string) {
