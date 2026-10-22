@@ -81,9 +81,16 @@ export async function deleteCustomer(id: string) {
   if (!canDeleteCustomer(session.user.role)) {
     throw new Error("Solo el administrador puede eliminar clientes");
   }
-  const invoices = await prisma.invoice.count({ where: { customerId: id } });
-  if (invoices > 0) {
-    throw new Error("No se puede eliminar: el cliente tiene facturas");
+  const [invoices, quotes, creditNotes, webOrders] = await Promise.all([
+    prisma.invoice.count({ where: { customerId: id } }),
+    prisma.quote.count({ where: { customerId: id } }),
+    prisma.creditNote.count({ where: { customerId: id } }),
+    prisma.webOrder.count({ where: { customerId: id } }),
+  ]);
+  if (invoices > 0 || quotes > 0 || creditNotes > 0 || webOrders > 0) {
+    throw new Error(
+      "No se puede eliminar: el cliente tiene facturas, cotizaciones o pedidos asociados",
+    );
   }
   const customer = await prisma.customer.delete({ where: { id } });
   await writeAudit({

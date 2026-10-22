@@ -31,11 +31,13 @@ export const authConfig = {
       const isLoggedIn = !!auth;
       const isLogin = pathname.startsWith("/login");
       const isStripeWebhook = pathname.startsWith("/api/stripe/webhook");
+      const isInvoicePdf =
+        pathname.startsWith("/api/facturas/") && pathname.endsWith("/pdf");
       const role =
         (auth?.user as { role?: string } | undefined)?.role ||
         (auth as { role?: string } | null)?.role;
 
-      if (isStripeWebhook) return true;
+      if (isStripeWebhook || isInvoicePdf) return true;
 
       if (isPublicPath(pathname) || isLogin) {
         if (isLoggedIn && isLogin) {

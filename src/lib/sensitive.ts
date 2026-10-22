@@ -30,6 +30,7 @@ export const PUBLIC_PREFIXES = [
   "/pedido",
   "/privacidad",
   "/terminos",
+  "/validador",
 ] as const;
 
 export function isAdminPath(pathname: string) {

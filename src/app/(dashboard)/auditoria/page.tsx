@@ -33,13 +33,13 @@ export default async function AuditoriaPage({
   const logs = await prisma.auditLog.findMany({
     where: {
       AND: [
-        sp.user ? { userEmail: { contains: sp.user } } : {},
+        sp.user ? { userEmail: { contains: sp.user, mode: "insensitive" } } : {},
         sp.action ? { action: sp.action } : {},
         sp.q
           ? {
               OR: [
-                { summary: { contains: sp.q } },
-                { entity: { contains: sp.q } },
+                { summary: { contains: sp.q, mode: "insensitive" } },
+                { entity: { contains: sp.q, mode: "insensitive" } },
               ],
             }
           : {},
