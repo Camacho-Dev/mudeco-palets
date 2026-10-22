@@ -7,36 +7,14 @@ import {
   Home,
   Table2,
   Tv,
-  BedDouble,
-  LayoutGrid,
-  Armchair,
-  Flower2,
   Wrench,
   Ruler,
   Star,
 } from "lucide-react";
 import { FadeUp, Reveal } from "@/components/store/store-motion";
-import { StoreHomeSearch } from "@/components/store/store-home-search";
 import { ProductShelf } from "@/components/store/product-shelf";
 import { prisma, withDbRetry } from "@/lib/prisma";
 import { STORE_SOCIAL } from "@/lib/store-brand";
-
-const FEATURED_CATS = [
-  { label: "Mesas", href: "/catalogo?cat=MESA%20DE%20CENTRO", icon: Table2 },
-  { label: "Centros TV", href: "/catalogo?cat=REPISA%20DE%20TV", icon: Tv },
-  { label: "Camas", href: "/catalogo?cat=BASE%20DE%20CAMA", icon: BedDouble },
-  {
-    label: "Estanterías",
-    href: "/catalogo?cat=REPISA%20DE%20ENTRADA",
-    icon: LayoutGrid,
-  },
-  {
-    label: "Comedores",
-    href: "/catalogo?cat=MESA%20DE%20COMEDOR",
-    icon: Armchair,
-  },
-  { label: "Decoración", href: "/catalogo?cat=VINERA", icon: Flower2 },
-] as const;
 
 const TRUST = [
   { icon: Leaf, t: "Madera recuperada" },
@@ -147,34 +125,8 @@ export default async function StoreHomePage() {
 
   return (
     <div className="bg-[#0a0a0a] text-white">
-      {/* —— Search + categorías (flow Amazon) —— */}
-      <div className="border-b border-white/[0.06] bg-[#0f0f0f]">
-        <div className="mx-auto max-w-7xl space-y-4 px-4 py-4 sm:px-6 lg:px-8">
-          <StoreHomeSearch />
-          <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {FEATURED_CATS.map((cat) => (
-              <Link
-                key={cat.label}
-                href={cat.href}
-                className="inline-flex shrink-0 items-center gap-2 border border-white/[0.08] bg-white/[0.02] px-3.5 py-2 text-[0.65rem] font-medium tracking-[0.12em] text-[#d7d7d7] uppercase transition duration-300 hover:border-[#c9a15a]/45 hover:text-white"
-              >
-                <cat.icon className="h-3.5 w-3.5 text-[#c9a15a]" strokeWidth={1.5} />
-                {cat.label}
-              </Link>
-            ))}
-            <Link
-              href="/catalogo"
-              className="inline-flex shrink-0 items-center gap-1 border border-[#c9a15a]/40 bg-[#c9a15a]/10 px-3.5 py-2 text-[0.65rem] font-semibold tracking-[0.12em] text-[#c9a15a] uppercase transition hover:bg-[#c9a15a]/20"
-            >
-              Todo el catálogo
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* —— Hero tipo banner Amazon (estilo Mudeco) —— */}
-      <section className="relative mx-auto max-w-7xl px-4 pt-4 sm:px-6 lg:px-8">
+      {/* —— Hero principal —— */}
+      <section className="relative mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
         <div className="relative isolate min-h-[220px] overflow-hidden sm:min-h-[280px] md:min-h-[320px]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

@@ -17,6 +17,7 @@ import {
   ShoppingBag,
   ChevronDown,
   Users,
+  Search,
 } from "lucide-react";
 
 const primaryNav = [
@@ -241,6 +242,14 @@ export function StoreHeaderClient({
           </nav>
 
           <div className="relative z-10 ml-auto flex items-center gap-2.5 sm:gap-3">
+            <Link
+              href="/catalogo"
+              className="inline-flex h-10 w-10 items-center justify-center border border-white/10 text-white/80 transition duration-300 hover:border-[#c9a15a]/50 hover:text-white"
+              aria-label="Buscar en el catálogo"
+              title="Buscar en el catálogo"
+            >
+              <Search className="h-4 w-4" strokeWidth={1.75} />
+            </Link>
             <CartLink />
             <div className="hidden sm:block">
               <HeaderAuth initialUser={user} />
@@ -261,8 +270,8 @@ export function StoreHeaderClient({
           </div>
         </div>
       </header>
-      {/* Spacer for fixed header (home hero goes under header) */}
-      {pathname !== "/" ? <div className="h-[90px]" aria-hidden /> : null}
+      {/* Spacer for fixed header */}
+      <div className="h-[90px]" aria-hidden />
       {drawer}
     </>
   );
