@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/logo";
-import { whatsappLink } from "@/lib/store";
+import { STORE_HOURS, storeWhatsApp } from "@/lib/store-info";
+import { STORE_CATEGORIES, STORE_SOCIAL } from "@/lib/store-brand";
 
 export function StoreFooter({
   company,
@@ -13,15 +14,47 @@ export function StoreFooter({
     address: string;
   };
 }) {
+  const wa = storeWhatsApp(company.phone);
+
   return (
-    <footer className="mt-auto bg-[#2f2018] text-[#faf6f1]">
-      <div className="mx-auto grid max-w-6xl gap-12 px-4 py-16 sm:px-6 md:grid-cols-[1.2fr_1fr_1fr]">
+    <footer className="mt-auto border-t border-white/[0.08] bg-[#0f0f0f] text-white">
+      <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 md:grid-cols-2 lg:grid-cols-4 lg:px-8">
         <div>
-          <BrandLogo width={100} height={125} className="mb-5 h-14 w-auto" />
-          <p className="font-display text-2xl">{company.name}</p>
+          <BrandLogo
+            width={160}
+            height={135}
+            className="mb-6 h-[5.5rem] w-auto"
+          />
           <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/55">
-            {company.slogan}. Diseño sostenible con madera recuperada.
+            {company.slogan}. Diseño, creatividad y sostenibilidad en cada
+            detalle.
           </p>
+          <div className="mt-5 flex flex-wrap gap-3 text-sm">
+            <a
+              href={STORE_SOCIAL.facebook}
+              target="_blank"
+              rel="noreferrer"
+              className="text-white/60 transition hover:text-white"
+            >
+              Facebook
+            </a>
+            <a
+              href={STORE_SOCIAL.instagram}
+              target="_blank"
+              rel="noreferrer"
+              className="text-white/60 transition hover:text-white"
+            >
+              Instagram
+            </a>
+            <a
+              href={STORE_SOCIAL.tiktok}
+              target="_blank"
+              rel="noreferrer"
+              className="text-white/60 transition hover:text-white"
+            >
+              TikTok
+            </a>
+          </div>
         </div>
         <div>
           <p className="mb-4 text-[0.65rem] font-semibold tracking-[0.18em] text-white/40 uppercase">
@@ -39,8 +72,46 @@ export function StoreFooter({
               </Link>
             </li>
             <li>
+              <Link
+                href="/reparaciones"
+                className="transition hover:text-white"
+              >
+                Reparaciones
+              </Link>
+            </li>
+            <li>
+              <Link href="/nosotros" className="transition hover:text-white">
+                Nosotros
+              </Link>
+            </li>
+            <li>
               <Link href="/contacto" className="transition hover:text-white">
-                Contacto
+                Contáctanos
+              </Link>
+            </li>
+          </ul>
+        </div>
+        <div>
+          <p className="mb-4 text-[0.65rem] font-semibold tracking-[0.18em] text-white/40 uppercase">
+            Categorías
+          </p>
+          <ul className="max-h-48 space-y-2 overflow-y-auto text-sm text-white/70">
+            {STORE_CATEGORIES.slice(0, 10).map((cat) => (
+              <li key={cat}>
+                <Link
+                  href={`/catalogo?cat=${encodeURIComponent(cat)}`}
+                  className="transition hover:text-white"
+                >
+                  {cat}
+                </Link>
+              </li>
+            ))}
+            <li>
+              <Link
+                href="/catalogo"
+                className="text-[#c9a15a] transition hover:text-white"
+              >
+                Ver todas →
               </Link>
             </li>
           </ul>
@@ -52,7 +123,7 @@ export function StoreFooter({
           <ul className="space-y-3 text-sm text-white/70">
             <li>
               <a
-                href={whatsappLink(company.phone)}
+                href={wa}
                 target="_blank"
                 rel="noreferrer"
                 className="transition hover:text-white"
@@ -70,10 +141,40 @@ export function StoreFooter({
             </li>
             <li className="leading-relaxed text-white/50">{company.address}</li>
           </ul>
+          <a
+            href={wa}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-6 inline-flex w-full items-center justify-center border border-[#c9a15a]/55 px-4 py-3.5 text-[0.68rem] font-semibold tracking-[0.14em] text-[#c9a15a] uppercase transition duration-300 hover:bg-[#c9a15a] hover:text-[#0a0a0a]"
+          >
+            Escríbenos por WhatsApp
+          </a>
+          <p className="mt-6 text-[0.65rem] font-semibold tracking-[0.18em] text-white/40 uppercase">
+            Horario
+          </p>
+          <ul className="mt-2 space-y-1 text-sm text-white/60">
+            {STORE_HOURS.map((h) => (
+              <li key={h.day}>
+                {h.day}: {h.hours}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
-      <div className="border-t border-white/10 px-4 py-5 text-center text-[0.7rem] tracking-wide text-white/35">
-        © {new Date().getFullYear()} {company.name} · República Dominicana
+      <div className="border-t border-white/[0.08] px-4 py-5 text-center text-[0.7rem] tracking-wide text-white/35">
+        © {new Date().getFullYear()} {company.name} · Todos los derechos
+        reservados ·{" "}
+        <Link href="/privacidad" className="hover:text-white">
+          Privacidad
+        </Link>{" "}
+        ·{" "}
+        <Link href="/terminos" className="hover:text-white">
+          Términos
+        </Link>{" "}
+        ·{" "}
+        <Link href="/validador" className="hover:text-white">
+          Validador de Tarjetas
+        </Link>
       </div>
     </footer>
   );

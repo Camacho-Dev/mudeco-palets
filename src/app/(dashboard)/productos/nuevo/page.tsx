@@ -129,9 +129,17 @@ export default async function NuevoProductoPage() {
         </div>
         <div>
           <label className="label" htmlFor="imageUrl">
-            URL de imagen
+            URL de imagen (foto real del mueble)
           </label>
-          <input id="imageUrl" name="imageUrl" className="input" placeholder="https://…" />
+          <input
+            id="imageUrl"
+            name="imageUrl"
+            className="input"
+            placeholder="https://…"
+          />
+          <p className="mt-1 text-xs text-[var(--muted)]">
+            Pega el link de una foto real. Sin ella se usa imagen de categoría.
+          </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
           <div>

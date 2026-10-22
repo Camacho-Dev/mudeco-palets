@@ -6,6 +6,7 @@ const CATEGORY_FALLBACK: Record<string, string> = {
   "mesa de comedor": "/brand/cat-mesa.jpg",
   "repisa de tv": "/brand/cat-tv.jpg",
   "repisa de entrada": "/brand/cat-tv.jpg",
+  "repisa de 3 gavetas": "/brand/cat-tv.jpg",
   muebles: "/brand/store-craft.jpg",
   vinera: "/brand/cat-vinera.jpg",
   dormitorio: "/brand/cat-noche.jpg",
@@ -16,6 +17,7 @@ const CATEGORY_FALLBACK: Record<string, string> = {
   butacas: "/brand/cat-banco.jpg",
   "silla haragana": "/brand/cat-banco.jpg",
   gaveteros: "/brand/cat-tv.jpg",
+  viuro: "/brand/store-craft.jpg",
   oficina: "/brand/store-craft.jpg",
   "a medida": "/brand/store-craft.jpg",
 };

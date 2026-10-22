@@ -72,6 +72,7 @@ export default async function CotizacionesPage({
             <tr>
               <th>Número</th>
               <th>Cliente</th>
+              <th>Origen</th>
               <th>Fecha</th>
               <th>Estado</th>
               <th>Total</th>
@@ -80,7 +81,7 @@ export default async function CotizacionesPage({
           <tbody>
             {quotes.length === 0 ? (
               <tr>
-                <td colSpan={5} className="text-center text-[var(--muted)]">
+                <td colSpan={6} className="text-center text-[var(--muted)]">
                   {query
                     ? `No se encontraron cotizaciones para “${query}”`
                     : "No hay cotizaciones todavía"}
@@ -98,6 +99,15 @@ export default async function CotizacionesPage({
                     </Link>
                   </td>
                   <td>{quote.customer.name}</td>
+                  <td>
+                    {quote.source === "WEB" ? (
+                      <span className="rounded-full bg-[#b0894f]/20 px-2 py-0.5 text-[0.65rem] font-semibold text-[var(--wood-800)] uppercase">
+                        Web
+                      </span>
+                    ) : (
+                      <span className="text-[var(--muted)]">POS</span>
+                    )}
+                  </td>
                   <td>{formatDate(quote.issueDate)}</td>
                   <td>{quote.status}</td>
                   <td>{formatCurrency(quote.total)}</td>

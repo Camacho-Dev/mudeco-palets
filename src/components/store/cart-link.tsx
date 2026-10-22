@@ -9,12 +9,12 @@ export function CartLink() {
   return (
     <Link
       href="/carrito"
-      className="relative inline-flex items-center justify-center rounded-sm border border-white/20 p-2 text-white/85 transition hover:bg-white/10 hover:text-white"
+      className="relative inline-flex h-10 w-10 items-center justify-center border border-[#c9a15a]/55 text-[#c9a15a] transition duration-300 hover:border-[#c9a15a] hover:bg-[#c9a15a]/10"
       aria-label="Carrito"
     >
-      <ShoppingBag className="h-4 w-4" strokeWidth={2.25} />
+      <ShoppingBag className="h-4 w-4" strokeWidth={1.75} />
       {count > 0 ? (
-        <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#b0894f] px-1 text-[0.6rem] font-bold text-[#3d2a1f]">
+        <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#c9a15a] px-1 text-[0.6rem] font-bold text-[#0f0f0f]">
           {count > 99 ? "99+" : count}
         </span>
       ) : null}

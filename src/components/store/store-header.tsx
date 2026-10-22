@@ -1,14 +1,7 @@
-import Link from "next/link";
-import { BrandLogo } from "@/components/logo";
-import { HeaderAuth } from "@/components/store/header-auth";
-import { CartLink } from "@/components/store/cart-link";
 import { auth } from "@/lib/auth";
-
-const nav = [
-  { href: "/", label: "Inicio" },
-  { href: "/catalogo", label: "Catálogo" },
-  { href: "/contacto", label: "Contacto" },
-];
+import { prisma, withDbRetry } from "@/lib/prisma";
+import { StoreHeaderClient } from "@/components/store/store-header-client";
+import { STORE_CATEGORIES } from "@/lib/store-brand";
 
 export async function StoreHeader() {
   const session = await auth();
@@ -20,42 +13,27 @@ export async function StoreHeader() {
       }
     : null;
 
-  return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#2f2018]/92 text-[#faf6f1] backdrop-blur-xl">
-      <div className="mx-auto flex h-[4.25rem] max-w-6xl items-center gap-6 px-4 sm:px-6">
-        <Link href="/" className="shrink-0 transition opacity-95 hover:opacity-100">
-          <BrandLogo
-            width={56}
-            height={70}
-            className="h-11 w-auto"
-            priority
-          />
-        </Link>
+  let fromDb: string[] = [];
+  try {
+    const dbCats = await withDbRetry(
+      () =>
+        prisma.product.findMany({
+          where: { active: true, kind: "FINISHED" },
+          select: { category: true },
+          distinct: ["category"],
+          orderBy: { category: "asc" },
+        }),
+      { fallback: [] as { category: string }[] },
+    );
+    fromDb = dbCats.map((c) => c.category).filter(Boolean);
+  } catch {
+    // Neon suspendido / sin red: usamos categorías estáticas
+  }
 
-        <nav className="hidden flex-1 items-center justify-center gap-8 md:flex">
-          {nav.map((item) => (
-            <Link key={item.href} href={item.href} className="store-nav-link">
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+  // Menú de categorías: las del sitio real + las que existan en el ERP
+  const categories = Array.from(
+    new Set([...STORE_CATEGORIES, ...fromDb]),
+  ).sort((a, b) => a.localeCompare(b, "es"));
 
-        <div className="ml-auto flex items-center gap-4">
-          <nav className="flex gap-4 md:hidden">
-            {nav.slice(1).map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="text-[0.65rem] tracking-[0.1em] text-white/70 uppercase"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-          <CartLink />
-          <HeaderAuth initialUser={user} />
-        </div>
-      </div>
-    </header>
-  );
+  return <StoreHeaderClient user={user} categories={categories} />;
 }

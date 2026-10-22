@@ -28,7 +28,7 @@ export async function getBusinessAnalytics(range?: DateRange) {
   const startOfYear = new Date(now.getFullYear(), 0, 1);
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
 
-  const [invoices, payments, products, customers] = await Promise.all([
+  const [invoices, payments, products, customers, webOrders] = await Promise.all([
     prisma.invoice.findMany({
       where: { status: { in: [...SOLD_STATUSES] } },
       include: {
@@ -43,6 +43,20 @@ export async function getBusinessAnalytics(range?: DateRange) {
     }),
     prisma.product.findMany({ where: { active: true, kind: "FINISHED" } }),
     prisma.customer.count(),
+    prisma.webOrder.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 200,
+      select: {
+        id: true,
+        number: true,
+        type: true,
+        status: true,
+        serviceKind: true,
+        total: true,
+        createdAt: true,
+        customerName: true,
+      },
+    }),
   ]);
 
   const periodInvoices = invoices.filter((i) => inRange(i.issueDate, period));
@@ -262,6 +276,13 @@ export async function getBusinessAnalytics(range?: DateRange) {
     customer: { name: inv.customer.name },
   }));
 
+  const webPending = webOrders.filter((o) =>
+    ["PENDING", "AWAITING_PAYMENT", "QUOTED", "IN_PROGRESS"].includes(o.status),
+  );
+  const webRepairs = webOrders.filter((o) => o.serviceKind === "REPAIR").length;
+  const webContacts = webOrders.filter((o) => o.serviceKind === "CONTACT").length;
+  const webSales = webOrders.filter((o) => o.type === "SALE").length;
+
   return {
     company: await prisma.companySettings.findUnique({
       where: { id: "default" },
@@ -298,6 +319,11 @@ export async function getBusinessAnalytics(range?: DateRange) {
       openCount: openInvoices.length,
       lowStockCount: lowStock.length,
       lowStockNames: lowStock.slice(0, 4).map((p) => p.name),
+      webPendingCount: webPending.length,
+      webRepairsCount: webRepairs,
+      webContactsCount: webContacts,
+      webSalesCount: webSales,
+      webOrdersTotal: webOrders.length,
     },
     monthlyTrend,
     topProducts,
@@ -307,6 +333,16 @@ export async function getBusinessAnalytics(range?: DateRange) {
     statusBreakdown,
     aging,
     recentInvoices,
+    recentWebOrders: webPending.slice(0, 6).map((o) => ({
+      id: o.id,
+      number: o.number,
+      type: o.type,
+      serviceKind: o.serviceKind,
+      status: o.status,
+      total: o.total,
+      customerName: o.customerName,
+      createdAt: o.createdAt.toISOString(),
+    })),
   };
 }
 

@@ -4,29 +4,41 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const passwordHash = await bcrypt.hash("admin123", 10);
+  const isProd = process.env.NODE_ENV === "production";
+  const adminPass = process.env.ADMIN_PASSWORD || (isProd ? "" : "admin123");
+  if (isProd && !adminPass) {
+    console.log(
+      "⚠️  En producción debes definir ADMIN_PASSWORD. Saltando seed de usuarios.",
+    );
+  }
+  const passwordHash = adminPass ? await bcrypt.hash(adminPass, 10) : "";
 
-  await prisma.user.upsert({
-    where: { email: "admin@empresa.com" },
-    update: {},
-    create: {
-      email: "admin@empresa.com",
-      name: "Administrador",
-      passwordHash,
-      role: "ADMIN",
-    },
-  });
+  if (passwordHash) {
+    await prisma.user.upsert({
+      where: { email: "admin@empresa.com" },
+      update: {},
+      create: {
+        email: "admin@empresa.com",
+        name: "Administrador",
+        passwordHash,
+        role: "ADMIN",
+      },
+    });
 
-  await prisma.user.upsert({
-    where: { email: "vendedor@empresa.com" },
-    update: {},
-    create: {
-      email: "vendedor@empresa.com",
-      name: "Vendedor",
-      passwordHash: await bcrypt.hash("vendedor123", 10),
-      role: "VENDEDOR",
-    },
-  });
+    const vendedorPass = process.env.VENDEDOR_PASSWORD || (isProd ? "" : "vendedor123");
+    if (vendedorPass) {
+      await prisma.user.upsert({
+        where: { email: "vendedor@empresa.com" },
+        update: {},
+        create: {
+          email: "vendedor@empresa.com",
+          name: "Vendedor",
+          passwordHash: await bcrypt.hash(vendedorPass, 10),
+          role: "VENDEDOR",
+        },
+      });
+    }
+  }
 
   await prisma.companySettings.upsert({
     where: { id: "default" },
@@ -84,88 +96,95 @@ async function main() {
     await prisma.product.createMany({
       data: [
         {
-          sku: "SOF-001",
-          name: "Sofá 3 plazas tela",
-          description: "Fabricación propia — tela antimancha",
-          category: "Sala",
-          price: 28500,
-          cost: 16000,
-          taxRate: 0.18,
-          unit: "UND",
-          stock: 8,
-          minStock: 2,
-        },
-        {
-          sku: "SOF-002",
-          name: "Sofá esquinero L",
-          description: "A medida — espuma alta densidad",
-          category: "Sala",
-          price: 42000,
-          cost: 24000,
-          taxRate: 0.18,
-          unit: "UND",
-          stock: 4,
-          minStock: 1,
-        },
-        {
-          sku: "CAM-001",
-          name: "Cama queen madera",
-          description: "Cabecero tapizado — pino tratado",
-          category: "Dormitorio",
-          price: 32000,
-          cost: 18000,
+          sku: "MESA-CENTRO-01",
+          name: "Mesa de centro rústica",
+          description: "Madera recuperada, acabado natural",
+          category: "MESA DE CENTRO",
+          price: 8500,
+          cost: 3800,
           taxRate: 0.18,
           unit: "UND",
           stock: 6,
           minStock: 2,
+          imageUrl: "/brand/cat-mesa.jpg",
         },
         {
-          sku: "CAM-002",
-          name: "Closet 6 puertas",
-          description: "Melamina / madera — a medida",
-          category: "Dormitorio",
-          price: 45000,
-          cost: 26000,
+          sku: "MESA-COMEDOR-01",
+          name: "Mesa de comedor palet",
+          description: "Comedor 6 puestos — madera recuperada",
+          category: "MESA DE COMEDOR",
+          price: 24500,
+          cost: 11000,
           taxRate: 0.18,
           unit: "UND",
           stock: 3,
           minStock: 1,
+          imageUrl: "/brand/cat-mesa.jpg",
         },
         {
-          sku: "COM-001",
-          name: "Mesa comedor 6 puestos",
-          description: "Tapa sólida — sillas aparte",
-          category: "Comedor",
-          price: 22000,
-          cost: 12000,
+          sku: "TV-01",
+          name: "Repisa de TV industrial",
+          description: "Mueble TV con almacenamiento",
+          category: "REPISA DE TV",
+          price: 12500,
+          cost: 5600,
           taxRate: 0.18,
           unit: "UND",
           stock: 5,
           minStock: 2,
+          imageUrl: "/brand/cat-tv.jpg",
         },
         {
-          sku: "COM-002",
-          name: "Silla comedor tapizada",
-          description: "Estructura madera — asiento tela",
-          category: "Comedor",
+          sku: "NOCHE-01",
+          name: "Mesa de noche",
+          description: "Compacta — madera recuperada",
+          category: "MESA DE NOCHE",
           price: 4500,
-          cost: 2200,
+          cost: 2000,
           taxRate: 0.18,
           unit: "UND",
-          stock: 24,
-          minStock: 6,
+          stock: 8,
+          minStock: 2,
+          imageUrl: "/brand/cat-noche.jpg",
         },
         {
-          sku: "OFI-001",
-          name: "Escritorio ejecutivo",
-          description: "Fabricación propia — 1.60 m",
-          category: "Oficina",
-          price: 18500,
-          cost: 9500,
+          sku: "BANCO-01",
+          name: "Banco de entrada",
+          description: "Banco robusto para recibidor",
+          category: "BANCO",
+          price: 6800,
+          cost: 3000,
           taxRate: 0.18,
           unit: "UND",
           stock: 7,
           minStock: 2,
+          imageUrl: "/brand/cat-banco.jpg",
+        },
+        {
+          sku: "VINERA-01",
+          name: "Vinera de pared",
+          description: "Para botellas y copas",
+          category: "VINERA",
+          price: 9200,
+          cost: 4100,
+          taxRate: 0.18,
+          unit: "UND",
+          stock: 4,
+          minStock: 1,
+          imageUrl: "/brand/cat-vinera.jpg",
+        },
+        {
+          sku: "CAMA-01",
+          name: "Base de cama queen",
+          description: "Estructura reforzada — madera recuperada",
+          category: "BASE DE CAMA",
+          price: 18500,
+          cost: 8500,
+          taxRate: 0.18,
+          unit: "UND",
+          stock: 2,
+          minStock: 1,
+          imageUrl: "/brand/cat-noche.jpg",
         },
         {
           sku: "CUS-001",

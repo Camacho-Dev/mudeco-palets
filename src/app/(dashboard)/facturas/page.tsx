@@ -128,6 +128,7 @@ export default async function FacturasPage({
             <tr>
               <th>Número</th>
               <th>Cliente</th>
+              <th>Origen</th>
               <th>Fecha</th>
               <th>Total</th>
               <th>Estado</th>
@@ -137,7 +138,7 @@ export default async function FacturasPage({
           <tbody>
             {invoices.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center text-[var(--muted)]">
+                <td colSpan={7} className="text-center text-[var(--muted)]">
                   {query
                     ? `No se encontraron facturas para “${query}”`
                     : "No hay facturas en este periodo"}
@@ -153,6 +154,15 @@ export default async function FacturasPage({
                     ) : null}
                   </td>
                   <td>{inv.customer.name}</td>
+                  <td>
+                    {inv.source === "WEB" ? (
+                      <span className="rounded-full bg-[#b0894f]/20 px-2 py-0.5 text-[0.65rem] font-semibold text-[var(--wood-800)] uppercase">
+                        Web
+                      </span>
+                    ) : (
+                      <span className="text-[var(--muted)]">POS</span>
+                    )}
+                  </td>
                   <td>{formatDate(inv.issueDate)}</td>
                   <td>{formatCurrency(inv.total)}</td>
                   <td>

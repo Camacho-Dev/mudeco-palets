@@ -4,12 +4,46 @@ import { useMemo, useState, useTransition } from "react";
 import { useCart } from "@/components/store/cart-context";
 import { formatCurrency } from "@/lib/format";
 import { submitWebCheckout } from "@/app/(store)/checkout/actions";
+import { STORE_LOGISTICS } from "@/lib/store-info";
 import Link from "next/link";
 
-export function CheckoutForm({ stripeReady }: { stripeReady: boolean }) {
+const MODE_COPY = {
+  transfer: {
+    title: "Transferencia bancaria",
+    submit: "Confirmar pedido por transferencia",
+    hint: "Te mostramos las cuentas del Popular, Banreservas y BHD para transferir y enviar el comprobante.",
+  },
+  online: {
+    title: "Pagar en línea",
+    submit: "Ir a pagar",
+    hint: "Te redirigimos a Stripe. Al completar, recibirás la factura por correo.",
+  },
+  local: {
+    title: "Pagar en el local",
+    submit: "Confirmar pedido",
+    hint: "Registramos tu factura pendiente. Pagas al retirar o al recibir la entrega.",
+  },
+  quote: {
+    title: "Pedir cotización",
+    submit: "Enviar cotización",
+    hint: "Sin compromiso. El equipo te contacta con la propuesta.",
+  },
+} as const;
+
+export function CheckoutForm({
+  mode,
+  stripeReady = true,
+}: {
+  mode: "online" | "local" | "quote" | "transfer";
+  stripeReady?: boolean;
+}) {
   const { items, clear } = useCart();
   const [error, setError] = useState("");
+  const [fulfillment, setFulfillment] = useState<"pickup" | "delivery">(
+    "pickup",
+  );
   const [pending, start] = useTransition();
+  const copy = MODE_COPY[mode];
 
   const totals = useMemo(() => {
     const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
@@ -24,22 +58,29 @@ export function CheckoutForm({ stripeReady }: { stripeReady: boolean }) {
     items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
   );
 
-  function run(mode: "quote" | "local" | "online", fd: FormData) {
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
     setError("");
+    if (mode === "online" && !stripeReady) {
+      setError("El pago online aún no está configurado.");
+      return;
+    }
+    const fd = new FormData(e.currentTarget);
     fd.set("mode", mode);
     fd.set("cartJson", cartJson);
+    fd.set("fulfillment", fulfillment);
     fd.set("origin", window.location.origin);
     start(async () => {
       try {
         await submitWebCheckout(fd);
         clear();
-      } catch (e) {
+      } catch (err) {
         const dig =
-          e && typeof e === "object" && "digest" in e
-            ? String((e as { digest?: string }).digest)
+          err && typeof err === "object" && "digest" in err
+            ? String((err as { digest?: string }).digest)
             : "";
         if (dig.startsWith("NEXT_REDIRECT")) return;
-        setError(e instanceof Error ? e.message : "No se pudo completar");
+        setError(err instanceof Error ? err.message : "No se pudo completar");
       }
     });
   }
@@ -56,14 +97,46 @@ export function CheckoutForm({ stripeReady }: { stripeReady: boolean }) {
   }
 
   return (
-    <form
-      className="grid gap-10 lg:grid-cols-2"
-      onSubmit={(e) => e.preventDefault()}
-    >
+    <form className="grid gap-10 lg:grid-cols-2" onSubmit={onSubmit}>
       <div className="space-y-4">
         <h2 className="font-display text-2xl text-[var(--wood-950)]">
-          Tus datos
+          {copy.title}
         </h2>
+        <p className="text-sm text-[var(--muted)]">{copy.hint}</p>
+
+        <div>
+          <p className="label">Entrega</p>
+          <div className="mt-1 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setFulfillment("pickup")}
+              className={`rounded-sm border px-3 py-2.5 text-left text-sm transition ${
+                fulfillment === "pickup"
+                  ? "border-[var(--wood-800)] bg-[var(--wood-800)] text-white"
+                  : "border-[var(--border)] bg-white"
+              }`}
+            >
+              Retiro en taller
+            </button>
+            <button
+              type="button"
+              onClick={() => setFulfillment("delivery")}
+              className={`rounded-sm border px-3 py-2.5 text-left text-sm transition ${
+                fulfillment === "delivery"
+                  ? "border-[var(--wood-800)] bg-[var(--wood-800)] text-white"
+                  : "border-[var(--border)] bg-white"
+              }`}
+            >
+              Entrega a domicilio
+            </button>
+          </div>
+          <p className="mt-2 text-xs text-[var(--muted)]">
+            {fulfillment === "pickup"
+              ? STORE_LOGISTICS.pickup
+              : STORE_LOGISTICS.delivery}
+          </p>
+        </div>
+
         <div>
           <label className="label" htmlFor="name">
             Nombre completo
@@ -85,9 +158,9 @@ export function CheckoutForm({ stripeReady }: { stripeReady: boolean }) {
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label" htmlFor="phone">
-              Teléfono
+              Teléfono *
             </label>
-            <input id="phone" name="phone" className="input" />
+            <input id="phone" name="phone" required className="input" />
           </div>
           <div>
             <label className="label" htmlFor="taxId">
@@ -98,9 +171,21 @@ export function CheckoutForm({ stripeReady }: { stripeReady: boolean }) {
         </div>
         <div>
           <label className="label" htmlFor="address">
-            Dirección
+            {fulfillment === "delivery"
+              ? "Dirección de entrega *"
+              : "Dirección (opcional)"}
           </label>
-          <input id="address" name="address" className="input" />
+          <input
+            id="address"
+            name="address"
+            required={fulfillment === "delivery"}
+            className="input"
+            placeholder={
+              fulfillment === "delivery"
+                ? "Sector, calle, referencia…"
+                : "Opcional"
+            }
+          />
         </div>
         <div>
           <label className="label" htmlFor="notes">
@@ -108,6 +193,10 @@ export function CheckoutForm({ stripeReady }: { stripeReady: boolean }) {
           </label>
           <textarea id="notes" name="notes" rows={3} className="input" />
         </div>
+
+        <p className="rounded-sm bg-[#f4ebe3] px-3 py-2 text-xs leading-relaxed text-[var(--wood-800)]">
+          {STORE_LOGISTICS.payments} {STORE_LOGISTICS.leadTime}
+        </p>
       </div>
 
       <div>
@@ -139,50 +228,19 @@ export function CheckoutForm({ stripeReady }: { stripeReady: boolean }) {
           </p>
         ) : null}
 
-        <div className="mt-6 space-y-3">
-          <button
-            type="button"
-            disabled={pending || !stripeReady}
-            className="store-cta store-cta-primary w-full disabled:opacity-60"
-            onClick={(e) => {
-              const form = e.currentTarget.form;
-              if (form) run("online", new FormData(form));
-            }}
-          >
-            {stripeReady
-              ? pending
-                ? "Procesando…"
-                : "Pagar ahora en línea"
-              : "Pago en línea (falta configurar Stripe)"}
-          </button>
-          <button
-            type="button"
-            disabled={pending}
-            className="w-full border border-[var(--wood-800)] px-5 py-3 text-[0.75rem] font-semibold tracking-[0.1em] text-[var(--wood-950)] uppercase transition hover:bg-[var(--wood-950)] hover:text-white disabled:opacity-60"
-            onClick={(e) => {
-              const form = e.currentTarget.form;
-              if (form) run("local", new FormData(form));
-            }}
-          >
-            Pagar en el local
-          </button>
-          <button
-            type="button"
-            disabled={pending}
-            className="w-full text-sm text-[var(--muted)] underline-offset-2 hover:underline disabled:opacity-60"
-            onClick={(e) => {
-              const form = e.currentTarget.form;
-              if (form) run("quote", new FormData(form));
-            }}
-          >
-            Solo pedir cotización
-          </button>
-        </div>
-        <p className="mt-4 text-xs leading-relaxed text-[var(--muted)]">
-          Si pagas en línea, te enviaremos la factura por correo. Si eliges
-          pagar en el local, el pedido queda registrado para el equipo de
-          ventas.
-        </p>
+        <button
+          type="submit"
+          disabled={pending || (mode === "online" && !stripeReady)}
+          className="store-cta store-cta-primary mt-6 w-full disabled:opacity-60"
+        >
+          {pending ? "Procesando…" : copy.submit}
+        </button>
+        <Link
+          href="/checkout"
+          className="mt-4 block text-center text-sm text-[var(--muted)] underline-offset-2 hover:underline"
+        >
+          ← Elegir otra opción
+        </Link>
       </div>
     </form>
   );

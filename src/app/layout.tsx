@@ -14,9 +14,20 @@ const libreBaskerville = Libre_Baskerville({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ||
+      process.env.AUTH_URL ||
+      "https://mudeco-palets.vercel.app",
+  ),
   title: "Mudeco Palets — Muebles de madera recuperada",
   description:
     "Diseño, creatividad y sostenibilidad. Muebles únicos hechos con madera recuperada en República Dominicana.",
+  openGraph: {
+    type: "website",
+    locale: "es_DO",
+    siteName: "Mudeco Palets",
+    images: [{ url: "/brand/store-hero.jpg", width: 1200, height: 630 }],
+  },
 };
 
 export default function RootLayout({

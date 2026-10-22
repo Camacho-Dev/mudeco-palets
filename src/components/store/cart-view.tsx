@@ -73,6 +73,7 @@ export function CartView() {
                 <button
                   type="button"
                   className="rounded border border-[var(--border)] p-1"
+                  aria-label="Quitar uno"
                   onClick={() => setQty(item.productId, item.quantity - 1)}
                 >
                   <Minus className="h-3.5 w-3.5" />
@@ -81,6 +82,7 @@ export function CartView() {
                 <button
                   type="button"
                   className="rounded border border-[var(--border)] p-1"
+                  aria-label="Agregar uno"
                   onClick={() => setQty(item.productId, item.quantity + 1)}
                 >
                   <Plus className="h-3.5 w-3.5" />

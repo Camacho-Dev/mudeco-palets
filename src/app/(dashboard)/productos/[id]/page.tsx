@@ -158,14 +158,19 @@ export default async function EditarProductoPage({
         </div>
         <div>
           <label className="label" htmlFor="imageUrl">
-            URL de imagen
+            URL de imagen (foto real del mueble)
           </label>
           <input
             id="imageUrl"
             name="imageUrl"
             defaultValue={product.imageUrl || ""}
             className="input"
+            placeholder="https://…"
           />
+          <p className="mt-1 text-xs text-[var(--muted)]">
+            Sube la foto a Imgur, Cloudinary o tu hosting y pega el link. Sin
+            foto se usa una imagen de categoría.
+          </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-3">
           <div>

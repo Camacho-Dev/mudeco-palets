@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { deleteCustomer, updateCustomer } from "../actions";
+import { formatCurrency, formatDate } from "@/lib/format";
+import { webOrderTypeLabel } from "@/lib/web-order-labels";
 
 export default async function EditarClientePage({
   params,
@@ -12,7 +14,30 @@ export default async function EditarClientePage({
 }) {
   await requireSession();
   const { id } = await params;
-  const customer = await prisma.customer.findUnique({ where: { id } });
+  const customer = await prisma.customer.findUnique({
+    where: { id },
+    include: {
+      webOrders: {
+        orderBy: { createdAt: "desc" },
+        take: 20,
+        select: {
+          id: true,
+          number: true,
+          type: true,
+          status: true,
+          serviceKind: true,
+          total: true,
+          createdAt: true,
+        },
+      },
+      quotes: {
+        where: { source: "WEB" },
+        orderBy: { createdAt: "desc" },
+        take: 10,
+        select: { id: true, number: true, status: true, total: true },
+      },
+    },
+  });
   if (!customer) notFound();
 
   const update = updateCustomer.bind(null, id);
@@ -109,6 +134,45 @@ export default async function EditarClientePage({
           Eliminar cliente
         </button>
       </form>
+
+      {customer.webOrders.length > 0 ? (
+        <div className="mt-10">
+          <h2 className="mb-3 text-lg font-semibold text-[var(--wood-950)]">
+            Pedidos desde la web
+          </h2>
+          <div className="table-wrap">
+            <table className="data">
+              <thead>
+                <tr>
+                  <th>Pedido</th>
+                  <th>Tipo</th>
+                  <th>Estado</th>
+                  <th>Total</th>
+                  <th>Fecha</th>
+                </tr>
+              </thead>
+              <tbody>
+                {customer.webOrders.map((o) => (
+                  <tr key={o.id}>
+                    <td>
+                      <Link
+                        href={`/pedidos-web/${o.id}`}
+                        className="font-medium underline"
+                      >
+                        {o.number}
+                      </Link>
+                    </td>
+                    <td>{webOrderTypeLabel(o)}</td>
+                    <td>{o.status}</td>
+                    <td>{formatCurrency(o.total)}</td>
+                    <td>{formatDate(o.createdAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

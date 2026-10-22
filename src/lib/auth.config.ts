@@ -1,11 +1,7 @@
 import type { NextAuthConfig } from "next-auth";
 import { NextResponse } from "next/server";
 import { isAdminPath, isPublicPath } from "@/lib/sensitive";
-import { ROLES } from "@/lib/rbac";
-
-function homeForRole(role?: string | null) {
-  return role === ROLES.ADMIN ? "/panel" : "/vender";
-}
+import { homeForRole, isAdmin } from "@/lib/rbac";
 
 /** Config Edge-compatible (sin Prisma/bcrypt) para middleware */
 export const authConfig = {
@@ -56,7 +52,7 @@ export const authConfig = {
         return NextResponse.redirect(url);
       }
 
-      if (isAdminPath(pathname) && role !== ROLES.ADMIN) {
+      if (isAdminPath(pathname) && !isAdmin(role)) {
         return NextResponse.redirect(
           new URL("/vender?error=sin-permiso", request.nextUrl.origin),
         );

@@ -26,6 +26,7 @@ import {
 import { BrandLogo } from "@/components/logo";
 import { isAdmin } from "@/lib/rbac";
 import { GlobalSearch } from "@/components/global-search";
+import { prisma } from "@/lib/prisma";
 
 const openNav = [
   { href: "/vender", label: "Generar factura", icon: Zap, accent: true },
@@ -34,6 +35,7 @@ const openNav = [
   { href: "/pedidos-web", label: "Pedidos web", icon: Globe },
   { href: "/clientes", label: "Clientes", icon: Users },
   { href: "/productos", label: "Catálogo", icon: Package },
+  { href: "/validador", label: "Validador tarjetas", icon: CreditCard },
 ];
 
 const adminNav = [
@@ -53,7 +55,13 @@ const adminNav = [
   { href: "/auditoria", label: "Historial", icon: ScrollText },
 ];
 
-function NavLinks({ admin }: { admin: boolean }) {
+function NavLinks({
+  admin,
+  webPending = 0,
+}: {
+  admin: boolean;
+  webPending?: number;
+}) {
   return (
     <nav className="flex flex-1 flex-col gap-4 p-3">
       <div className="px-1">
@@ -75,7 +83,12 @@ function NavLinks({ admin }: { admin: boolean }) {
               }`}
             >
               <item.icon className="h-4 w-4 shrink-0" />
-              {item.label}
+              <span className="flex-1">{item.label}</span>
+              {item.href === "/pedidos-web" && webPending > 0 ? (
+                <span className="rounded-full bg-[#b0894f] px-1.5 py-0.5 text-[0.65rem] font-bold text-[#3d2a1f]">
+                  {webPending > 99 ? "99+" : webPending}
+                </span>
+              ) : null}
             </Link>
           ))}
         </div>
@@ -107,18 +120,25 @@ function NavLinks({ admin }: { admin: boolean }) {
 export async function Sidebar() {
   const session = await auth();
   const admin = isAdmin(session?.user?.role);
+  const webPending = await prisma.webOrder.count({
+    where: {
+      status: {
+        in: ["PENDING", "AWAITING_PAYMENT", "QUOTED", "IN_PROGRESS"],
+      },
+    },
+  });
 
   return (
     <aside className="no-print sticky top-0 hidden h-screen w-64 shrink-0 flex-col overflow-y-auto bg-[#3d2a1f] text-[#faf6f1] md:flex">
       <div className="border-b border-white/10 px-4 py-4">
         <BrandLogo
           width={200}
-          height={250}
-          className="mx-auto w-full max-w-[210px]"
+          height={168}
+          className="mx-auto h-auto w-full max-w-[180px]"
         />
       </div>
 
-      <NavLinks admin={admin} />
+      <NavLinks admin={admin} webPending={webPending} />
 
       <div className="border-t border-white/10 p-4">
         <p className="truncate text-sm font-medium">{session?.user?.name}</p>
@@ -149,6 +169,13 @@ export async function Sidebar() {
 export async function SidebarMobilePanel() {
   const session = await auth();
   const admin = isAdmin(session?.user?.role);
+  const webPending = await prisma.webOrder.count({
+    where: {
+      status: {
+        in: ["PENDING", "AWAITING_PAYMENT", "QUOTED", "IN_PROGRESS"],
+      },
+    },
+  });
 
   return (
     <div className="flex h-full flex-col text-[#faf6f1]">
@@ -157,7 +184,7 @@ export async function SidebarMobilePanel() {
           Mudeco Palets
         </p>
       </div>
-      <NavLinks admin={admin} />
+      <NavLinks admin={admin} webPending={webPending} />
       <div className="border-t border-white/10 p-4 text-sm">
         <p>{session?.user?.name}</p>
         <p className="text-xs text-white/50">{session?.user?.email}</p>

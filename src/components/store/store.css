@@ -1,17 +1,37 @@
-/* Estilos exclusivos de la tienda pública */
+/* Tienda pública — look premium dark / luxury */
+
 .store-shell {
-  background:
-    radial-gradient(ellipse 60% 40% at 100% 0%, rgba(176, 137, 79, 0.08), transparent 50%),
-    linear-gradient(180deg, #faf7f2 0%, #f3ebe3 100%);
+  --store-bg: #0f0f0f;
+  --store-brown: #2c211c;
+  --store-gold: #c9a15a;
+  --store-gold-hover: #d4b06e;
+  --store-text: #ffffff;
+  --store-muted: #cfcfcf;
+  --store-border: rgba(255, 255, 255, 0.08);
+  --store-font-display: var(--font-store-display), "Cormorant Garamond", Georgia,
+    serif;
+  --store-font-body: var(--font-store-body), Inter, system-ui, sans-serif;
+
+  background: #faf7f2;
+  color: #2c211c;
+  font-family: var(--store-font-body);
 }
 
+.store-shell .font-display {
+  font-family: var(--store-font-display);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+/* —— Header nav —— */
 .store-nav-link {
   position: relative;
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(250, 246, 241, 0.72);
-  transition: color 0.2s ease;
+  color: rgba(255, 255, 255, 0.72);
+  transition: color 0.3s ease;
 }
 
 .store-nav-link:hover {
@@ -21,33 +41,43 @@
 .store-nav-link::after {
   content: "";
   position: absolute;
-  left: 0;
-  bottom: -6px;
+  left: 50%;
+  bottom: -8px;
   width: 100%;
   height: 1px;
-  background: #b0894f;
-  transform: scaleX(0);
-  transform-origin: left;
+  background: var(--store-gold);
+  transform: translateX(-50%) scaleX(0);
+  transform-origin: center;
   transition: transform 0.3s ease;
 }
 
-.store-nav-link:hover::after {
-  transform: scaleX(1);
+.store-nav-link:hover::after,
+.store-nav-link[aria-current="page"]::after {
+  transform: translateX(-50%) scaleX(1);
 }
 
+.store-nav-link[aria-current="page"] {
+  color: #fff;
+}
+
+/* —— CTAs —— */
 .store-cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  border-radius: 0.25rem;
-  padding: 0.95rem 1.6rem;
-  font-size: 0.8rem;
-  font-weight: 650;
-  letter-spacing: 0.08em;
+  gap: 0.55rem;
+  border-radius: 2px;
+  padding: 1rem 1.85rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease,
-    border-color 0.25s ease;
+  transition:
+    transform 0.3s ease,
+    background 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .store-cta:hover {
@@ -55,31 +85,61 @@
 }
 
 .store-cta-primary {
-  background: #b0894f;
-  color: #3d2a1f;
+  background: var(--store-gold);
+  color: #0f0f0f;
 }
 
 .store-cta-primary:hover {
-  background: #c49a5c;
+  background: var(--store-gold-hover);
+  box-shadow: 0 10px 30px rgba(201, 161, 90, 0.22);
 }
 
 .store-cta-ghost {
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: #faf6f1;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  color: #fff;
   background: transparent;
 }
 
 .store-cta-ghost:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(0, 0, 0, 0.45);
+  border-color: rgba(255, 255, 255, 0.85);
 }
 
+.store-cta-outline-dark {
+  border: 1px solid rgba(15, 15, 15, 0.2);
+  color: #0f0f0f;
+  background: transparent;
+}
+
+.store-cta-outline-dark:hover {
+  background: rgba(15, 15, 15, 0.06);
+}
+
+/* Benefit hover cards */
+.store-benefit {
+  transition:
+    background 0.3s ease,
+    transform 0.3s ease,
+    border-color 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.store-benefit:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: var(--store-border);
+  transform: translateY(-2px);
+}
+
+/* Product cards — light pages */
 .store-product-card {
   display: block;
   overflow: hidden;
   background: #fffdfb;
   border: 1px solid #e4d8cb;
-  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
 }
 
 .store-product-card:hover {
@@ -96,40 +156,204 @@
   transform: scale(1.05);
 }
 
+/* Product cards — dark home */
+.store-product-card-dark {
+  display: block;
+  overflow: hidden;
+  background: #161616;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.store-product-card-dark:hover {
+  transform: translateY(-4px);
+  border-color: rgba(201, 161, 90, 0.35);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45);
+}
+
+.store-product-card-dark img {
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.store-product-card-dark:hover img {
+  transform: scale(1.05);
+}
+
 .store-login-bar input {
   height: 2rem;
-  border-radius: 0.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.06);
   padding: 0 0.55rem;
   font-size: 0.7rem;
-  color: #faf6f1;
+  color: #fff;
   outline: none;
   width: 8.5rem;
 }
 
 .store-login-bar input::placeholder {
-  color: rgba(250, 246, 241, 0.45);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .store-login-bar input:focus {
-  border-color: #b0894f;
-  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--store-gold);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .store-login-bar button[type="submit"] {
   height: 2rem;
-  border-radius: 0.25rem;
-  background: #b0894f;
-  color: #3d2a1f;
+  border-radius: 2px;
+  background: var(--store-gold);
+  color: #0f0f0f;
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   padding: 0 0.75rem;
-  transition: background 0.2s ease;
+  transition: background 0.3s ease;
 }
 
 .store-login-bar button[type="submit"]:hover {
-  background: #c49a5c;
+  background: var(--store-gold-hover);
+}
+
+/* Benefit cards with gold border (reparaciones) */
+.store-benefit-gold {
+  border: 1px solid rgba(201, 161, 90, 0.35);
+  background: #111111;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    background 0.3s ease;
+}
+
+.store-benefit-gold:hover {
+  border-color: rgba(201, 161, 90, 0.75);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 24px rgba(201, 161, 90, 0.08);
+  background: #161616;
+}
+
+/* Floating form card */
+.store-form-card {
+  border-radius: 18px;
+  background: #fff;
+  box-shadow:
+    0 4px 6px rgba(59, 42, 34, 0.04),
+    0 24px 64px rgba(59, 42, 34, 0.1);
+  overflow: hidden;
+}
+
+.store-form-card .store-service-form {
+  border: none;
+  background: transparent;
+  padding: 1.75rem;
+}
+
+@media (min-width: 640px) {
+  .store-form-card .store-service-form {
+    padding: 2.25rem;
+  }
+}
+
+.store-service-form .label {
+  margin-bottom: 0.45rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: rgba(59, 42, 34, 0.55);
+}
+
+.store-service-form .input {
+  height: 52px;
+  border-radius: 8px;
+  border: 1px solid rgba(59, 42, 34, 0.12);
+  background: #fafaf9;
+  padding: 0.85rem 1rem;
+  font-size: 0.9rem;
+  color: #111111;
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    background 0.3s ease;
+}
+
+.store-service-form textarea.input {
+  height: auto;
+  min-height: 120px;
+  padding-top: 0.9rem;
+}
+
+.store-service-form .input:focus {
+  border-color: #c9a15a;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(201, 161, 90, 0.18);
+  outline: none;
+}
+
+.store-service-form .store-kind-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+  border-radius: 10px;
+  background: #f0ebe5;
+  padding: 0.3rem;
+}
+
+.store-service-form .store-kind-tab {
+  border-radius: 8px;
+  padding: 0.75rem 0.85rem;
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  transition:
+    background 0.3s ease,
+    color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.store-service-form .store-kind-tab-active {
+  background: #111111;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(17, 17, 17, 0.15);
+}
+
+.store-service-form .store-kind-tab-idle {
+  color: #3b2a22;
+}
+
+.store-service-form .store-kind-tab-idle:hover {
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.store-service-form .store-submit {
+  margin-top: 1.75rem;
+  width: 100%;
+  height: 54px;
+  border-radius: 8px;
+  background: #c9a15a;
+  color: #111111;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition:
+    background 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.store-service-form .store-submit:hover:not(:disabled) {
+  background: #3b2a22;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(59, 42, 34, 0.2);
+}
+
+.store-service-form .store-submit:disabled {
+  opacity: 0.6;
 }

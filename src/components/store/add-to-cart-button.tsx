@@ -15,26 +15,48 @@ type Product = {
 };
 
 export function AddToCartButton({ product }: { product: Product }) {
-  const { addItem } = useCart();
-  const [added, setAdded] = useState(false);
+  const { addItem, items } = useCart();
+  const [msg, setMsg] = useState("");
+
+  const inCart =
+    items.find((i) => i.productId === product.id)?.quantity ?? 0;
+  const max =
+    product.stock > 0 ? Math.max(1, Math.floor(product.stock)) : 20;
+  const canAdd = inCart < max;
 
   return (
-    <button
-      type="button"
-      className="store-cta store-cta-primary"
-      onClick={() => {
-        addItem({
-          productId: product.id,
-          name: product.name,
-          price: product.price,
-          taxRate: product.taxRate,
-          imageUrl: productImage(product),
-        });
-        setAdded(true);
-        setTimeout(() => setAdded(false), 1600);
-      }}
-    >
-      {added ? "Agregado ✓" : "Agregar al carrito"}
-    </button>
+    <div>
+      <button
+        type="button"
+        className="store-cta store-cta-primary disabled:opacity-50"
+        disabled={!canAdd}
+        onClick={() => {
+          if (!canAdd) {
+            setMsg("Cantidad máxima alcanzada");
+            return;
+          }
+          addItem(
+            {
+              productId: product.id,
+              name: product.name,
+              price: product.price,
+              taxRate: product.taxRate,
+              imageUrl: productImage(product),
+            },
+            1,
+            max,
+          );
+          setMsg("Agregado ✓");
+          setTimeout(() => setMsg(""), 1600);
+        }}
+      >
+        {msg === "Agregado ✓" ? "Agregado ✓" : "Agregar al carrito"}
+      </button>
+      {!canAdd && product.stock > 0 ? (
+        <p className="mt-2 text-xs text-[var(--muted)]">
+          Ya tienes el máximo disponible en el carrito.
+        </p>
+      ) : null}
+    </div>
   );
 }

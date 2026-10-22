@@ -15,15 +15,28 @@ import { prisma } from "@/lib/prisma";
 function parseCustomer(fd: FormData): CheckoutCustomer {
   const name = String(fd.get("name") || "").trim();
   const email = String(fd.get("email") || "").trim();
+  const phone = String(fd.get("phone") || "").trim();
+  const fulfillment = String(fd.get("fulfillment") || "pickup");
+  const address = String(fd.get("address") || "").trim();
   if (!name) throw new Error("Nombre requerido");
   if (!email || !email.includes("@")) throw new Error("Email válido requerido");
+  if (!phone) throw new Error("Teléfono requerido");
+  if (fulfillment === "delivery" && !address) {
+    throw new Error("Dirección de entrega requerida");
+  }
+  const fulfillmentLabel =
+    fulfillment === "delivery" ? "Entrega a domicilio" : "Retiro en taller";
+  const extraNotes = String(fd.get("notes") || "").trim();
+  const notes = [`[${fulfillmentLabel}]`, extraNotes || null]
+    .filter(Boolean)
+    .join("\n");
   return {
     name,
     email,
-    phone: String(fd.get("phone") || "").trim() || undefined,
+    phone,
     taxId: String(fd.get("taxId") || "").trim() || undefined,
-    address: String(fd.get("address") || "").trim() || undefined,
-    notes: String(fd.get("notes") || "").trim() || undefined,
+    address: address || undefined,
+    notes,
   };
 }
 
@@ -49,7 +62,25 @@ export async function submitWebCheckout(fd: FormData) {
     const { order } = await createWebQuote(customer, cart);
     revalidatePath("/pedidos-web");
     revalidatePath("/cotizaciones");
+    revalidatePath("/clientes");
+    revalidatePath("/panel");
     redirect(`/pedido/${order.id}?ok=cotizacion`);
+  }
+
+  if (mode === "transfer") {
+    const { order } = await createWebLocalSale(
+      {
+        ...customer,
+        notes: `[Pago: Transferencia bancaria]\n${customer.notes || ""}`.trim(),
+      },
+      cart,
+    );
+    revalidatePath("/pedidos-web");
+    revalidatePath("/facturas");
+    revalidatePath("/pagos");
+    revalidatePath("/clientes");
+    revalidatePath("/panel");
+    redirect(`/pedido/${order.id}?ok=transferencia`);
   }
 
   if (mode === "local") {
@@ -57,6 +88,8 @@ export async function submitWebCheckout(fd: FormData) {
     revalidatePath("/pedidos-web");
     revalidatePath("/facturas");
     revalidatePath("/pagos");
+    revalidatePath("/clientes");
+    revalidatePath("/panel");
     redirect(`/pedido/${order.id}?ok=local`);
   }
 

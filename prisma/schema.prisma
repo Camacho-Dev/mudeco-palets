@@ -68,6 +68,7 @@ model Product {
   bomAsFinished BomItem[]       @relation("FinishedProduct")
   bomAsMaterial BomItem[]       @relation("MaterialProduct")
   workOrderMats WorkOrderItem[]
+  webOrderItems WebOrderItem[]
 }
 
 model Invoice {
@@ -221,6 +222,8 @@ model WebOrder {
   paymentMode      String?
   /** PENDING | AWAITING_PAYMENT | PAID | QUOTED | CANCELLED */
   status           String         @default("PENDING")
+  /** REPAIR | CUSTOM_QUOTE | CONTACT | null (venta/cotización de carrito) */
+  serviceKind      String?
   customerName     String
   customerEmail    String
   customerPhone    String?
@@ -247,6 +250,7 @@ model WebOrderItem {
   webOrderId  String
   webOrder    WebOrder @relation(fields: [webOrderId], references: [id], onDelete: Cascade)
   productId   String?
+  product     Product? @relation(fields: [productId], references: [id])
   description String
   quantity    Float
   unitPrice   Float

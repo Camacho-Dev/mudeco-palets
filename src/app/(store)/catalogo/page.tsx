@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { ProductCard } from "@/components/store/product-card";
 import { Reveal } from "@/components/store/store-motion";
+import { getScoredProducts } from "@/lib/recommendations";
 import Link from "next/link";
 
 export const metadata = {
@@ -10,13 +11,17 @@ export const metadata = {
 export default async function CatalogoPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; cat?: string }>;
+  searchParams: Promise<{ q?: string; cat?: string; filter?: string }>;
 }) {
-  const { q, cat } = await searchParams;
+  const { q, cat, filter } = await searchParams;
   const query = (q || "").trim();
   const category = (cat || "").trim();
+  const isPopular = filter === "popular";
 
-  const products = await prisma.product.findMany({
+  const scoredProducts = await getScoredProducts();
+  const badgeMap = new Map(scoredProducts.map((s) => [s.id, s.badge]));
+
+  let products = await prisma.product.findMany({
     where: {
       active: true,
       kind: "FINISHED",
@@ -34,6 +39,11 @@ export default async function CatalogoPage({
     },
     orderBy: [{ category: "asc" }, { name: "asc" }],
   });
+
+  if (isPopular) {
+    const popularIds = new Set(scoredProducts.slice(0, 8).map((s) => s.id));
+    products = products.filter((p) => popularIds.has(p.id));
+  }
 
   const categories = await prisma.product.findMany({
     where: { active: true, kind: "FINISHED" },
@@ -86,12 +96,22 @@ export default async function CatalogoPage({
           <Link
             href="/catalogo"
             className={`rounded-full border px-3.5 py-1.5 text-[0.7rem] tracking-wide uppercase transition ${
-              !category
+              !category && !isPopular
                 ? "border-[var(--wood-800)] bg-[var(--wood-800)] text-white"
                 : "border-[var(--border)] bg-white text-[var(--muted)] hover:border-[var(--wood-700)]"
             }`}
           >
             Todas
+          </Link>
+          <Link
+            href="/catalogo?filter=popular"
+            className={`rounded-full border px-3.5 py-1.5 text-[0.7rem] font-bold tracking-wide uppercase transition ${
+              isPopular
+                ? "border-[#c9a15a] bg-[#c9a15a] text-[#1b140e] shadow-sm"
+                : "border-[#c9a15a]/40 bg-[#fbf7f2] text-[#8b6527] hover:border-[#c9a15a]"
+            }`}
+          >
+            🔥 Más pedidos / Top ventas
           </Link>
           {categories.map((c) => (
             <Link
@@ -111,13 +131,26 @@ export default async function CatalogoPage({
         </div>
 
         {products.length === 0 ? (
-          <p className="mt-16 text-center text-[var(--muted)]">
-            No hay productos que coincidan con la búsqueda.
-          </p>
+          <div className="mt-16 border border-[var(--border)] bg-white px-6 py-14 text-center">
+            <p className="text-[var(--muted)]">
+              No hay productos que coincidan con la búsqueda.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link href="/catalogo" className="store-cta store-cta-primary">
+                Ver todo
+              </Link>
+              <Link
+                href="/reparaciones"
+                className="inline-flex border border-[var(--border)] px-5 py-3 text-[0.75rem] font-semibold tracking-[0.1em] uppercase"
+              >
+                Cotizar a medida
+              </Link>
+            </div>
+          </div>
         ) : (
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {products.map((p) => (
-              <ProductCard key={p.id} product={p} />
+              <ProductCard key={p.id} product={p} badge={badgeMap.get(p.id)} />
             ))}
           </div>
         )}

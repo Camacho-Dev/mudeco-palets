@@ -22,8 +22,12 @@ type CartContextValue = {
   items: CartItem[];
   count: number;
   subtotal: number;
-  addItem: (item: Omit<CartItem, "quantity">, qty?: number) => void;
-  setQty: (productId: string, quantity: number) => void;
+  addItem: (
+    item: Omit<CartItem, "quantity">,
+    qty?: number,
+    maxQty?: number,
+  ) => void;
+  setQty: (productId: string, quantity: number, maxQty?: number) => void;
   removeItem: (productId: string) => void;
   clear: () => void;
 };
@@ -51,31 +55,43 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items, ready]);
 
   const addItem = useCallback(
-    (item: Omit<CartItem, "quantity">, qty = 1) => {
+    (item: Omit<CartItem, "quantity">, qty = 1, maxQty?: number) => {
       setItems((prev) => {
         const found = prev.find((p) => p.productId === item.productId);
         if (found) {
+          const next = found.quantity + qty;
+          const capped =
+            maxQty != null ? Math.min(next, maxQty) : next;
           return prev.map((p) =>
             p.productId === item.productId
-              ? { ...p, quantity: p.quantity + qty }
+              ? { ...p, quantity: capped }
               : p,
           );
         }
-        return [...prev, { ...item, quantity: qty }];
+        const start = maxQty != null ? Math.min(qty, maxQty) : qty;
+        return [...prev, { ...item, quantity: start }];
       });
     },
     [],
   );
 
-  const setQty = useCallback((productId: string, quantity: number) => {
-    setItems((prev) =>
-      prev
-        .map((p) =>
-          p.productId === productId ? { ...p, quantity } : p,
-        )
-        .filter((p) => p.quantity > 0),
-    );
-  }, []);
+  const setQty = useCallback(
+    (productId: string, quantity: number, maxQty?: number) => {
+      setItems((prev) =>
+        prev
+          .map((p) => {
+            if (p.productId !== productId) return p;
+            const q =
+              maxQty != null
+                ? Math.min(Math.max(0, quantity), maxQty)
+                : Math.max(0, quantity);
+            return { ...p, quantity: q };
+          })
+          .filter((p) => p.quantity > 0),
+      );
+    },
+    [],
+  );
 
   const removeItem = useCallback((productId: string) => {
     setItems((prev) => prev.filter((p) => p.productId !== productId));

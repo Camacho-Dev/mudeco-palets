@@ -56,7 +56,7 @@ function LoginForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="login-form">
+    <form onSubmit={onSubmit} method="POST" className="login-form">
       <div className="login-field">
         <User className="login-field-icon" size={18} strokeWidth={1.75} />
         <input
@@ -108,7 +108,7 @@ export default function LoginPage() {
 
       <div className="login-card">
         <div className="login-brand">
-          <BrandLogo width={220} height={275} className="login-logo" priority />
+          <BrandLogo width={200} height={168} className="login-logo" priority />
         </div>
 
         <Suspense fallback={<p className="login-loading">…</p>}>

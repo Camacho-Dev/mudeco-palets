@@ -179,6 +179,72 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
         </FadeIn>
       ) : null}
 
+      <FadeIn delay={0.06}>
+        <div className="mb-6 rounded-xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold tracking-[0.14em] text-[var(--brass)] uppercase">
+                Tienda web
+              </p>
+              <p className="mt-1 text-sm text-[var(--muted)]">
+                Lo que llega desde la web al panel
+              </p>
+            </div>
+            <Link href="/pedidos-web" className="btn btn-secondary text-sm">
+              Ver pedidos web
+              <ArrowUpRight className="h-4 w-4" />
+            </Link>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-lg bg-[#fbf7f2] px-4 py-3">
+              <p className="text-xs text-[var(--muted)]">Pendientes</p>
+              <p className="text-2xl font-semibold text-[var(--wood-950)]">
+                {kpis.webPendingCount}
+              </p>
+            </div>
+            <div className="rounded-lg bg-[#fbf7f2] px-4 py-3">
+              <p className="text-xs text-[var(--muted)]">Reparaciones</p>
+              <p className="text-2xl font-semibold text-[var(--wood-950)]">
+                {kpis.webRepairsCount}
+              </p>
+            </div>
+            <div className="rounded-lg bg-[#fbf7f2] px-4 py-3">
+              <p className="text-xs text-[var(--muted)]">Consultas</p>
+              <p className="text-2xl font-semibold text-[var(--wood-950)]">
+                {kpis.webContactsCount}
+              </p>
+            </div>
+            <div className="rounded-lg bg-[#fbf7f2] px-4 py-3">
+              <p className="text-xs text-[var(--muted)]">Ventas web</p>
+              <p className="text-2xl font-semibold text-[var(--wood-950)]">
+                {kpis.webSalesCount}
+              </p>
+            </div>
+          </div>
+          {data.recentWebOrders?.length ? (
+            <ul className="mt-4 divide-y divide-[var(--border)] border-t border-[var(--border)]">
+              {data.recentWebOrders.map((o) => (
+                <li
+                  key={o.id}
+                  className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm"
+                >
+                  <Link
+                    href={`/pedidos-web/${o.id}`}
+                    className="font-medium underline-offset-2 hover:underline"
+                  >
+                    {o.number}
+                  </Link>
+                  <span className="text-[var(--muted)]">{o.customerName}</span>
+                  <span className="text-[var(--muted)]">
+                    {formatCurrency(o.total)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      </FadeIn>
+
       <Stagger className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {moneyCards.map((c) => (
           <StaggerItem key={c.label}>

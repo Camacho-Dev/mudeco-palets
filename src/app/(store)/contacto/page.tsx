@@ -1,17 +1,23 @@
 import { Reveal } from "@/components/store/store-motion";
-import { getStoreCompany, whatsappLink } from "@/lib/store";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { getStoreCompany } from "@/lib/store";
+import { ContactForm } from "@/components/store/contact-form";
+import { STORE_HOURS, storeWhatsApp } from "@/lib/store-info";
+import { Clock, Mail, MapPin, Phone } from "lucide-react";
 
 export const metadata = {
   title: "Contacto",
+  description:
+    "Contacta a Mudeco Palets: teléfono, WhatsApp, email y formulario.",
 };
 
 export default async function ContactoPage() {
   const company = await getStoreCompany();
-  const wa = whatsappLink(
+  const phoneHref = `tel:${company.phone.replace(/[^\d+]/g, "")}`;
+  const wa = storeWhatsApp(
     company.phone,
     `Hola ${company.name}, me gustaría más información sobre sus muebles.`,
   );
+  const maps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(company.address)}`;
 
   return (
     <div>
@@ -32,13 +38,14 @@ export default async function ContactoPage() {
             </p>
             <h1 className="font-display mt-3 text-4xl md:text-5xl">Contacto</h1>
             <p className="mt-3 max-w-lg text-white/65">
-              Estamos para ayudarte a elegir la pieza ideal para tu espacio.
+              Estamos para ayudarte a elegir la pieza ideal o evaluar una
+              reparación.
             </p>
           </Reveal>
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-14 sm:px-6 lg:grid-cols-2">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-2">
         <Reveal>
           <div className="space-y-2 border border-[var(--border)] bg-white p-2">
             <a
@@ -49,9 +56,19 @@ export default async function ContactoPage() {
             >
               <Phone className="mt-0.5 h-5 w-5 text-[#b0894f]" />
               <div>
-                <p className="font-medium text-[var(--wood-950)]">
-                  WhatsApp / Teléfono
+                <p className="font-medium text-[var(--wood-950)]">WhatsApp</p>
+                <p className="mt-1 text-sm text-[var(--muted)]">
+                  {company.phone} · Escribir ahora
                 </p>
+              </div>
+            </a>
+            <a
+              href={phoneHref}
+              className="flex items-start gap-4 p-5 transition hover:bg-[#fbf7f2]"
+            >
+              <Phone className="mt-0.5 h-5 w-5 text-[#b0894f]" />
+              <div>
+                <p className="font-medium text-[var(--wood-950)]">Teléfono</p>
                 <p className="mt-1 text-sm text-[var(--muted)]">{company.phone}</p>
               </div>
             </a>
@@ -65,38 +82,40 @@ export default async function ContactoPage() {
                 <p className="mt-1 text-sm text-[var(--muted)]">{company.email}</p>
               </div>
             </a>
-            <div className="flex items-start gap-4 p-5">
+            <a
+              href={maps}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-start gap-4 p-5 transition hover:bg-[#fbf7f2]"
+            >
               <MapPin className="mt-0.5 h-5 w-5 text-[#b0894f]" />
               <div>
                 <p className="font-medium text-[var(--wood-950)]">Ubicación</p>
-                <p className="mt-1 text-sm text-[var(--muted)]">{company.address}</p>
+                <p className="mt-1 text-sm text-[var(--muted)]">
+                  {company.address}
+                </p>
+                <p className="mt-1 text-xs text-[#b0894f]">Abrir en Maps →</p>
+              </div>
+            </a>
+            <div className="flex items-start gap-4 p-5">
+              <Clock className="mt-0.5 h-5 w-5 text-[#b0894f]" />
+              <div>
+                <p className="font-medium text-[var(--wood-950)]">Horario</p>
+                <ul className="mt-2 space-y-1 text-sm text-[var(--muted)]">
+                  {STORE_HOURS.map((h) => (
+                    <li key={h.day} className="flex justify-between gap-4">
+                      <span>{h.day}</span>
+                      <span>{h.hours}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
           </div>
         </Reveal>
 
-        <Reveal delay={0.12}>
-          <div className="relative flex min-h-[320px] flex-col justify-end overflow-hidden p-8 text-white">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/brand/store-craft.jpg"
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#2f2018] via-[#2f2018]/55 to-transparent" />
-            <div className="relative">
-              <p className="font-display text-3xl">{company.name}</p>
-              <p className="mt-2 max-w-sm text-white/70">{company.slogan}</p>
-              <a
-                href={wa}
-                target="_blank"
-                rel="noreferrer"
-                className="store-cta store-cta-primary mt-8 w-fit"
-              >
-                Escribir ahora
-              </a>
-            </div>
-          </div>
+        <Reveal delay={0.1}>
+          <ContactForm />
         </Reveal>
       </div>
     </div>

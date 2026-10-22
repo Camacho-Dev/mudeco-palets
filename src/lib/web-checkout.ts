@@ -7,6 +7,9 @@ import {
 } from "@/lib/invoice-number";
 import { assertStockAvailable, deductStock } from "@/lib/stock";
 import { roundMoney } from "@/lib/format";
+import { serviceKindFromRequest } from "@/lib/web-order-labels";
+import { notifyStaffNewWebOrder } from "@/lib/mail";
+
 
 export type CartLineInput = {
   productId: string;
@@ -139,6 +142,121 @@ export async function createWebQuote(
     },
   });
 
+  await notifyStaffNewWebOrder(order.id).catch(() => undefined);
+  return { order, quote, customer };
+}
+
+export type ServiceRequestKind = "repair" | "quote" | "contact";
+
+/** Cotización sin carrito: reparación, proyecto a medida o consulta */
+export async function createWebServiceRequest(
+  customerData: CheckoutCustomer,
+  kind: ServiceRequestKind,
+  detail: {
+    piece?: string;
+    description: string;
+    photoNote?: string;
+  },
+) {
+  const description = detail.description.trim();
+  if (!description) throw new Error("Describe el trabajo que necesitas");
+
+  const label =
+    kind === "repair"
+      ? "Reparación"
+      : kind === "contact"
+        ? "Consulta"
+        : "Cotización a medida";
+  const piece = detail.piece?.trim();
+  const lineDesc = piece
+    ? `${label}: ${piece}`
+    : `${label} solicitada desde la web`;
+  const notes = [
+    `[${label.toUpperCase()}]`,
+    piece ? `Pieza/mueble: ${piece}` : null,
+    description,
+    detail.photoNote || null,
+    customerData.notes?.trim() || null,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const line = {
+    productId: null as string | null,
+    description: lineDesc,
+    quantity: 1,
+    unitPrice: 0,
+    taxRate: 0,
+    lineTotal: 0,
+  };
+
+  const customer = await upsertWebCustomer(customerData);
+  const userId = await webSalesUserId();
+  const [quoteNumber, webNumber] = await Promise.all([
+    nextQuoteNumber(),
+    nextWebOrderNumber(),
+  ]);
+
+  const quote = await prisma.quote.create({
+    data: {
+      number: quoteNumber,
+      status: "DRAFT",
+      source: "WEB",
+      notes,
+      subtotal: 0,
+      tax: 0,
+      total: 0,
+      customerId: customer.id,
+      userId,
+      items: {
+        create: [
+          {
+            productId: null,
+            description: lineDesc,
+            quantity: 1,
+            unitPrice: 0,
+            taxRate: 0,
+            lineTotal: 0,
+          },
+        ],
+      },
+    },
+  });
+
+  const order = await prisma.webOrder.create({
+    data: {
+      number: webNumber,
+      type: "QUOTE",
+      paymentMode: null,
+      status: "QUOTED",
+      serviceKind: serviceKindFromRequest(kind),
+      customerName: customerData.name.trim(),
+      customerEmail: customerData.email.trim().toLowerCase(),
+      customerPhone: customerData.phone?.trim() || null,
+      customerTaxId: customerData.taxId?.trim() || null,
+      customerAddress: customerData.address?.trim() || null,
+      notes,
+      subtotal: 0,
+      tax: 0,
+      total: 0,
+      customerId: customer.id,
+      quoteId: quote.id,
+      items: {
+        create: [
+          {
+            productId: null,
+            description: line.description,
+            quantity: line.quantity,
+            unitPrice: line.unitPrice,
+            taxRate: line.taxRate,
+            lineTotal: line.lineTotal,
+          },
+        ],
+      },
+    },
+  });
+
+  await notifyStaffNewWebOrder(order.id).catch(() => undefined);
   return { order, quote, customer };
 }
 
@@ -157,23 +275,59 @@ export async function createWebLocalSale(
     nextWebOrderNumber(),
   ]);
 
-  const invoice = await prisma.invoice.create({
-    data: {
-      number: invoiceNumber,
-      status: "ISSUED",
-      source: "WEB",
-      notes:
-        customerData.notes ||
-        "Pedido web — el cliente pagará en el local",
-      subtotal: totals.subtotal,
-      tax: totals.tax,
-      total: totals.total,
-      customerId: customer.id,
-      userId,
-      items: { create: lines },
-    },
+  // Factura + WebOrder en transacción atómica
+  const { invoice, order } = await prisma.$transaction(async (tx) => {
+    const inv = await tx.invoice.create({
+      data: {
+        number: invoiceNumber,
+        status: "ISSUED",
+        source: "WEB",
+        notes:
+          customerData.notes ||
+          "Pedido web — el cliente pagará en el local",
+        subtotal: totals.subtotal,
+        tax: totals.tax,
+        total: totals.total,
+        customerId: customer.id,
+        userId,
+        items: { create: lines },
+      },
+    });
+
+    const wo = await tx.webOrder.create({
+      data: {
+        number: webNumber,
+        type: "SALE",
+        paymentMode: "LOCAL",
+        status: "PENDING",
+        customerName: customerData.name.trim(),
+        customerEmail: customerData.email.trim().toLowerCase(),
+        customerPhone: customerData.phone?.trim() || null,
+        customerTaxId: customerData.taxId?.trim() || null,
+        customerAddress: customerData.address?.trim() || null,
+        notes: customerData.notes || null,
+        subtotal: totals.subtotal,
+        tax: totals.tax,
+        total: totals.total,
+        customerId: customer.id,
+        invoiceId: inv.id,
+        items: {
+          create: lines.map((l) => ({
+            productId: l.productId,
+            description: l.description,
+            quantity: l.quantity,
+            unitPrice: l.unitPrice,
+            taxRate: l.taxRate,
+            lineTotal: l.lineTotal,
+          })),
+        },
+      },
+    });
+
+    return { invoice: inv, order: wo };
   });
 
+  // Stock atómico (usa increment interno, seguro fuera de la transacción)
   await deductStock(
     lines.map((l) => ({
       productId: l.productId,
@@ -182,36 +336,7 @@ export async function createWebLocalSale(
     { refType: "INVOICE", refId: invoice.id },
   );
 
-  const order = await prisma.webOrder.create({
-    data: {
-      number: webNumber,
-      type: "SALE",
-      paymentMode: "LOCAL",
-      status: "PENDING",
-      customerName: customerData.name.trim(),
-      customerEmail: customerData.email.trim().toLowerCase(),
-      customerPhone: customerData.phone?.trim() || null,
-      customerTaxId: customerData.taxId?.trim() || null,
-      customerAddress: customerData.address?.trim() || null,
-      notes: customerData.notes || null,
-      subtotal: totals.subtotal,
-      tax: totals.tax,
-      total: totals.total,
-      customerId: customer.id,
-      invoiceId: invoice.id,
-      items: {
-        create: lines.map((l) => ({
-          productId: l.productId,
-          description: l.description,
-          quantity: l.quantity,
-          unitPrice: l.unitPrice,
-          taxRate: l.taxRate,
-          lineTotal: l.lineTotal,
-        })),
-      },
-    },
-  });
-
+  await notifyStaffNewWebOrder(order.id).catch(() => undefined);
   return { order, invoice, customer };
 }
 
@@ -230,51 +355,57 @@ export async function createWebOnlineSalePending(
     nextWebOrderNumber(),
   ]);
 
-  const invoice = await prisma.invoice.create({
-    data: {
-      number: invoiceNumber,
-      status: "DRAFT",
-      source: "WEB",
-      notes: customerData.notes || "Pedido web — pago online pendiente",
-      subtotal: totals.subtotal,
-      tax: totals.tax,
-      total: totals.total,
-      customerId: customer.id,
-      userId,
-      items: { create: lines },
-    },
-  });
-
-  const order = await prisma.webOrder.create({
-    data: {
-      number: webNumber,
-      type: "SALE",
-      paymentMode: "ONLINE",
-      status: "AWAITING_PAYMENT",
-      customerName: customerData.name.trim(),
-      customerEmail: customerData.email.trim().toLowerCase(),
-      customerPhone: customerData.phone?.trim() || null,
-      customerTaxId: customerData.taxId?.trim() || null,
-      customerAddress: customerData.address?.trim() || null,
-      notes: customerData.notes || null,
-      subtotal: totals.subtotal,
-      tax: totals.tax,
-      total: totals.total,
-      customerId: customer.id,
-      invoiceId: invoice.id,
-      items: {
-        create: lines.map((l) => ({
-          productId: l.productId,
-          description: l.description,
-          quantity: l.quantity,
-          unitPrice: l.unitPrice,
-          taxRate: l.taxRate,
-          lineTotal: l.lineTotal,
-        })),
+  // Factura + WebOrder en transacción atómica
+  const { invoice, order } = await prisma.$transaction(async (tx) => {
+    const inv = await tx.invoice.create({
+      data: {
+        number: invoiceNumber,
+        status: "DRAFT",
+        source: "WEB",
+        notes: customerData.notes || "Pedido web — pago online pendiente",
+        subtotal: totals.subtotal,
+        tax: totals.tax,
+        total: totals.total,
+        customerId: customer.id,
+        userId,
+        items: { create: lines },
       },
-    },
+    });
+
+    const wo = await tx.webOrder.create({
+      data: {
+        number: webNumber,
+        type: "SALE",
+        paymentMode: "ONLINE",
+        status: "AWAITING_PAYMENT",
+        customerName: customerData.name.trim(),
+        customerEmail: customerData.email.trim().toLowerCase(),
+        customerPhone: customerData.phone?.trim() || null,
+        customerTaxId: customerData.taxId?.trim() || null,
+        customerAddress: customerData.address?.trim() || null,
+        notes: customerData.notes || null,
+        subtotal: totals.subtotal,
+        tax: totals.tax,
+        total: totals.total,
+        customerId: customer.id,
+        invoiceId: inv.id,
+        items: {
+          create: lines.map((l) => ({
+            productId: l.productId,
+            description: l.description,
+            quantity: l.quantity,
+            unitPrice: l.unitPrice,
+            taxRate: l.taxRate,
+            lineTotal: l.lineTotal,
+          })),
+        },
+      },
+    });
+
+    return { invoice: inv, order: wo };
   });
 
+  await notifyStaffNewWebOrder(order.id).catch(() => undefined);
   return { order, invoice, customer, lines, totals };
 }
 
@@ -287,12 +418,49 @@ export async function finalizeOnlinePaidOrder(webOrderId: string) {
   if (order.status === "PAID") return order;
 
   const inv = order.invoice;
+
+  // Verificar y deducir stock si la factura estaba en borrador
   if (inv.status === "DRAFT") {
     await assertStockAvailable(inv.items);
-    await prisma.invoice.update({
-      where: { id: inv.id },
-      data: { status: "ISSUED" },
+  }
+
+  // Pago + status updates en transacción atómica
+  const result = await prisma.$transaction(async (tx) => {
+    if (inv.status === "DRAFT") {
+      await tx.invoice.update({
+        where: { id: inv.id },
+        data: { status: "ISSUED" },
+      });
+    }
+
+    const existingPay = await tx.payment.findFirst({
+      where: { invoiceId: inv.id, method: "CARD" },
     });
+    if (!existingPay) {
+      await tx.payment.create({
+        data: {
+          invoiceId: inv.id,
+          amount: inv.total,
+          method: "CARD",
+          notes: "Pago online (Stripe)",
+        },
+      });
+    }
+
+    await tx.invoice.update({
+      where: { id: inv.id },
+      data: { status: "PAID" },
+    });
+
+    return tx.webOrder.update({
+      where: { id: order.id },
+      data: { status: "PAID" },
+      include: { invoice: { include: { customer: true, items: true } } },
+    });
+  });
+
+  // Stock atómico fuera de la transacción DB (usa increment interno)
+  if (inv.status === "DRAFT") {
     await deductStock(
       inv.items.map((l) => ({
         productId: l.productId,
@@ -302,28 +470,5 @@ export async function finalizeOnlinePaidOrder(webOrderId: string) {
     );
   }
 
-  const existingPay = await prisma.payment.findFirst({
-    where: { invoiceId: inv.id, method: "CARD" },
-  });
-  if (!existingPay) {
-    await prisma.payment.create({
-      data: {
-        invoiceId: inv.id,
-        amount: inv.total,
-        method: "CARD",
-        notes: "Pago online (Stripe)",
-      },
-    });
-  }
-
-  await prisma.invoice.update({
-    where: { id: inv.id },
-    data: { status: "PAID" },
-  });
-
-  return prisma.webOrder.update({
-    where: { id: order.id },
-    data: { status: "PAID" },
-    include: { invoice: { include: { customer: true, items: true } } },
-  });
+  return result;
 }

@@ -72,21 +72,39 @@ export async function applyStockChange(input: {
   if (!product) throw new Error("Producto no encontrado");
   if (skipsStock(product.sku)) return product.stock;
 
-  const next = product.stock + input.qtyDelta;
-  if (!input.allowNegative && next < -0.0001) {
-    throw new Error(
-      `Stock insuficiente: ${product.name} (disponible ${product.stock})`,
-    );
+  // Verificar stock antes si no se permite negativo
+  if (!input.allowNegative && input.qtyDelta < 0) {
+    const needed = Math.abs(input.qtyDelta);
+    if (product.stock + 0.0001 < needed) {
+      throw new Error(
+        `Stock insuficiente: ${product.name} (disponible ${product.stock})`,
+      );
+    }
   }
-  const balance = Math.max(0, next);
+
   const userId = await currentUserId();
 
-  await prisma.$transaction([
-    prisma.product.update({
+  // Usar increment atómico para evitar race conditions
+  const updated = await prisma.$transaction(async (tx) => {
+    const result = await tx.product.update({
       where: { id: input.productId },
-      data: { stock: balance },
-    }),
-    prisma.stockMovement.create({
+      data: { stock: { increment: input.qtyDelta } },
+    });
+
+    // Asegurar que no quede negativo si no se permite
+    const balance = input.allowNegative
+      ? result.stock
+      : Math.max(0, result.stock);
+
+    // Corregir si quedó negativo y no se permite
+    if (!input.allowNegative && result.stock < 0) {
+      await tx.product.update({
+        where: { id: input.productId },
+        data: { stock: 0 },
+      });
+    }
+
+    await tx.stockMovement.create({
       data: {
         productId: input.productId,
         qty: input.qtyDelta,
@@ -97,10 +115,12 @@ export async function applyStockChange(input: {
         note: input.note,
         userId,
       },
-    }),
-  ]);
+    });
 
-  return balance;
+    return balance;
+  });
+
+  return updated;
 }
 
 export async function deductStock(
