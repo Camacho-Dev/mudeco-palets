@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import { StoreHeader } from "@/components/store/store-header";
 import { StoreFooter } from "@/components/store/store-footer";
+import { WhatsappFloating } from "@/components/store/whatsapp-floating";
 import { StoreProviders } from "@/components/store/store-providers";
 import { CartProvider } from "@/components/store/cart-context";
 import { getStoreCompany } from "@/lib/store";
@@ -73,6 +74,7 @@ export default async function StoreLayout({
           <StoreHeader />
           <main className="flex-1">{children}</main>
           <StoreFooter company={company} />
+          <WhatsappFloating phone={company.phone} />
         </div>
       </CartProvider>
     </StoreProviders>

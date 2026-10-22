@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
-import { ChevronLeft, ChevronRight, Star, ShoppingBag } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight, Star, ShoppingBag, Check } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 import { productImage } from "@/lib/product-image";
 import { useCart } from "@/components/store/cart-context";
+import { motion } from "framer-motion";
 
 export type ShelfProduct = {
   id: string;
@@ -34,21 +35,38 @@ function Stars() {
 
 function ShelfCard({ product }: { product: ShelfProduct }) {
   const { addItem, items } = useCart();
-  const inCart =
-    items.find((i) => i.productId === product.id)?.quantity ?? 0;
+  const [added, setAdded] = useState(false);
+  const inCart = items.find((i) => i.productId === product.id)?.quantity ?? 0;
   const max = product.stock > 0 ? Math.max(1, Math.floor(product.stock)) : 20;
   const canAdd = inCart < max;
   const src = productImage(product);
 
+  const handleAdd = () => {
+    if (!canAdd) return;
+    addItem(
+      {
+        productId: product.id,
+        name: product.name,
+        price: product.price,
+        taxRate: product.taxRate,
+        imageUrl: src,
+      },
+      1,
+      max,
+    );
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1400);
+  };
+
   return (
-    <article className="group w-[168px] shrink-0 snap-start sm:w-[200px]">
-      <div className="overflow-hidden border border-white/[0.08] bg-[#141414] transition duration-300 hover:border-[#c9a15a]/40">
+    <article className="group w-[172px] shrink-0 snap-start sm:w-[210px]">
+      <div className="overflow-hidden border border-white/[0.08] bg-[#141414] transition-all duration-300 hover:border-[#c9a15a]/50 hover:shadow-[0_12px_28px_rgba(201,161,90,0.12)] hover:-translate-y-1">
         <Link
           href={`/producto/${product.id}`}
           className="relative block aspect-square overflow-hidden bg-[#1a1a1a]"
         >
           {product.badge ? (
-            <span className="absolute top-2 left-2 z-10 rounded-sm bg-black/90 px-2 py-0.5 text-[0.58rem] font-bold tracking-widest text-[#d4af37] border border-[#d4af37]/40 uppercase shadow-sm">
+            <span className="absolute top-2 left-2 z-10 rounded bg-gradient-to-r from-black/95 to-black/85 px-2 py-0.5 text-[0.58rem] font-bold tracking-widest text-[#d4af37] border border-[#d4af37]/40 uppercase shadow-md backdrop-blur-md">
               {product.badge}
             </span>
           ) : null}
@@ -56,46 +74,42 @@ function ShelfCard({ product }: { product: ShelfProduct }) {
           <img
             src={src}
             alt={product.name}
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
             loading="lazy"
           />
         </Link>
-        <div className="space-y-2 p-3">
-          <p className="text-[0.55rem] font-medium tracking-[0.12em] text-[#c9a15a]/80 uppercase">
+        <div className="space-y-2 p-3.5">
+          <p className="text-[0.58rem] font-medium tracking-[0.14em] text-[#c9a15a]/85 uppercase">
             {product.category}
           </p>
           <Link href={`/producto/${product.id}`}>
-            <h3 className="line-clamp-2 min-h-[2.5rem] text-sm leading-snug text-white transition group-hover:text-[#c9a15a]">
+            <h3 className="line-clamp-2 min-h-[2.5rem] text-sm leading-snug text-white transition-colors duration-200 group-hover:text-[#c9a15a]">
               {product.name}
             </h3>
           </Link>
           <Stars />
-          <div className="flex items-center justify-between gap-2 pt-0.5">
+          <div className="flex items-center justify-between gap-2 pt-1 border-t border-white/[0.05]">
             <p className="text-sm font-semibold text-[#c9a15a]">
               {formatCurrency(product.price)}
             </p>
-            <button
+            <motion.button
               type="button"
               disabled={!canAdd}
+              whileTap={{ scale: 0.88 }}
               aria-label="Agregar al carrito"
-              onClick={() => {
-                if (!canAdd) return;
-                addItem(
-                  {
-                    productId: product.id,
-                    name: product.name,
-                    price: product.price,
-                    taxRate: product.taxRate,
-                    imageUrl: src,
-                  },
-                  1,
-                  max,
-                );
-              }}
-              className="inline-flex h-8 w-8 items-center justify-center border border-[#c9a15a]/45 text-[#c9a15a] transition duration-300 hover:bg-[#c9a15a] hover:text-[#0a0a0a] disabled:opacity-40"
+              onClick={handleAdd}
+              className={`inline-flex h-8 w-8 items-center justify-center border transition-all duration-300 disabled:opacity-40 ${
+                added
+                  ? "border-emerald-500/70 bg-emerald-500/20 text-emerald-400"
+                  : "border-[#c9a15a]/45 text-[#c9a15a] hover:bg-[#c9a15a] hover:text-[#0a0a0a]"
+              }`}
             >
-              <ShoppingBag className="h-3.5 w-3.5" strokeWidth={1.75} />
-            </button>
+              {added ? (
+                <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+              ) : (
+                <ShoppingBag className="h-3.5 w-3.5" strokeWidth={1.75} />
+              )}
+            </motion.button>
           </div>
         </div>
       </div>
@@ -115,6 +129,22 @@ export function ProductShelf({
   products: ShelfProduct[];
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  const updateProgress = () => {
+    const el = ref.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    setScrollProgress(max > 0 ? (el.scrollLeft / max) * 100 : 0);
+  };
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.addEventListener("scroll", updateProgress, { passive: true });
+    return () => el.removeEventListener("scroll", updateProgress);
+  }, []);
+
   if (!products.length) return null;
 
   function scroll(dir: -1 | 1) {
@@ -161,13 +191,22 @@ export function ProductShelf({
           </button>
         </div>
       </div>
+
       <div
         ref={ref}
-        className="flex gap-3 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
+        className="flex gap-3 overflow-x-auto pb-3 [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
       >
         {products.map((p) => (
           <ShelfCard key={p.id} product={p} />
         ))}
+      </div>
+
+      {/* Indicador de desplazamiento sutil */}
+      <div className="mt-2 h-0.5 w-full bg-white/[0.05] rounded-full overflow-hidden">
+        <div
+          className="h-full bg-[#c9a15a]/60 transition-all duration-150"
+          style={{ width: `${Math.max(12, scrollProgress)}%` }}
+        />
       </div>
     </section>
   );

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { motion, useScroll, useSpring } from "framer-motion";
 import { BrandLogo } from "@/components/logo";
 import { HeaderAuth } from "@/components/store/header-auth";
 import { CartLink } from "@/components/store/cart-link";
@@ -44,6 +45,8 @@ export function StoreHeaderClient({
   const [catsOpen, setCatsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 220, damping: 32, restDelta: 0.001 });
 
   useEffect(() => setMounted(true), []);
   useEffect(() => {
@@ -269,6 +272,11 @@ export function StoreHeaderClient({
             </button>
           </div>
         </div>
+        {/* Barra de progreso de lectura premium */}
+        <motion.div
+          style={{ scaleX }}
+          className="absolute bottom-0 left-0 right-0 h-[2px] origin-left bg-gradient-to-r from-[#c9a15a]/30 via-[#c9a15a] to-[#f3d289] shadow-[0_0_10px_rgba(201,161,90,0.7)]"
+        />
       </header>
       {/* Spacer for fixed header */}
       <div className="h-[90px]" aria-hidden />
