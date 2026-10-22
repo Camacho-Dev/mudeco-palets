@@ -26,7 +26,7 @@ export function ProductCard({
         }`}
       >
         {badge ? (
-          <span className="absolute top-2.5 left-2.5 z-10 rounded-full bg-[#1b140e]/90 backdrop-blur-sm px-2.5 py-1 text-[0.68rem] font-semibold tracking-wide text-[#e8c182] shadow-md border border-[#e8c182]/30">
+          <span className="absolute top-2.5 left-2.5 z-10 rounded-sm bg-black/90 px-2.5 py-0.5 text-[0.6rem] font-bold tracking-widest text-[#d4af37] border border-[#d4af37]/40 uppercase shadow-sm">
             {badge}
           </span>
         ) : null}

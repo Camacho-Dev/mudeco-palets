@@ -111,7 +111,7 @@ export default async function CatalogoPage({
                 : "border-[#c9a15a]/40 bg-[#fbf7f2] text-[#8b6527] hover:border-[#c9a15a]"
             }`}
           >
-            🔥 Más pedidos / Top ventas
+            Más vendidos
           </Link>
           {categories.map((c) => (
             <Link

@@ -281,8 +281,8 @@ export default async function StoreHomePage() {
         </section>
 
         <ProductShelf
-          title="🔥 Lo más pedido y comprado"
-          subtitle="Top de tendencias según compras y cotizaciones de clientes"
+          title="Los más vendidos"
+          subtitle="Piezas con mayor volumen de ventas y pedidos confirmados"
           href="/catalogo"
           products={topRecommended.map((p) => ({
             id: p.id,

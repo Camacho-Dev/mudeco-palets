@@ -465,7 +465,7 @@ export function QuickSale({
                   : "border-[var(--brass)] bg-[#fbf7f2] text-[var(--wood-950)] hover:bg-[var(--brass)] hover:text-white"
               }`}
             >
-              ⭐ Más pedidos
+              Más pedidos
             </button>
             {categories.map((c) => (
               <button

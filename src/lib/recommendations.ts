@@ -5,15 +5,16 @@ export type ProductWithRecommendation = Product & {
   score: number;
   totalSold: number;
   totalWebOrdered: number;
-  badge?: "🔥 Más vendido" | "⭐ Más pedido" | "💎 Recomendado";
+  timesSold: number;
+  badge?: "MÁS VENDIDO" | "MÁS PEDIDO" | "EN TENDENCIA";
 };
 
 /**
- * Algoritmo de recomendación y tendencias de Mudeco Palets:
- * Calcula un puntaje de popularidad combinando:
- * 1. Ventas reales confirmadas en facturación (InvoiceItem) -> Peso x 3
- * 2. Pedidos y solicitudes web (WebOrderItem) -> Peso x 2
- * 3. Disponibilidad de stock -> Favorece productos con existencias listas
+ * Algoritmo real de métricas y recomendaciones de Mudeco Palets:
+ * Basado 100% en transacciones y pedidos registrados en la base de datos:
+ * - Ventas confirmadas (InvoiceItem en facturas ISSUED, PAID, PARTIAL)
+ * - Pedidos web confirmados (WebOrderItem en WebOrders no cancelados)
+ * Sin boosts artificiales ni datos ficticios.
  */
 export async function getScoredProducts(): Promise<ProductWithRecommendation[]> {
   const [products, invoiceItems, webItems] = await Promise.all([
@@ -49,7 +50,7 @@ export async function getScoredProducts(): Promise<ProductWithRecommendation[]> 
   for (const item of invoiceItems) {
     if (item.productId) {
       salesMap.set(item.productId, {
-        qty: item._sum?.quantity || 0,
+        qty: Math.round((item._sum?.quantity || 0) * 100) / 100,
         times: item._count?.id || 0,
       });
     }
@@ -59,53 +60,50 @@ export async function getScoredProducts(): Promise<ProductWithRecommendation[]> 
   for (const item of webItems) {
     if (item.productId) {
       webMap.set(item.productId, {
-        qty: item._sum?.quantity || 0,
+        qty: Math.round((item._sum?.quantity || 0) * 100) / 100,
         times: item._count?.id || 0,
       });
     }
   }
 
-  // Si la tienda es nueva y aún hay pocas ventas, damos un boost inicial
-  // a categorías clave de muebles para que la recomendación siempre sea atractiva
-  const scored = products.map((p) => {
+  // Puntuación 100% matemática real
+  const scored: ProductWithRecommendation[] = products.map((p) => {
     const sale = salesMap.get(p.id) || { qty: 0, times: 0 };
     const web = webMap.get(p.id) || { qty: 0, times: 0 };
 
-    let baseScore =
-      sale.qty * 3 +
-      sale.times * 2 +
-      web.qty * 2.5 +
-      web.times * 1.5;
-
-    // Boost si tiene stock inmediato disponible
-    if (p.stock > 0) baseScore += 2;
-
-    // Boost de categoría para arranque (comedores, repisas y mesas tienen alta demanda natural)
-    const catLower = p.category.toLowerCase();
-    if (catLower.includes("comedor") || catLower.includes("tv") || catLower.includes("mesa")) {
-      baseScore += 3;
-    }
+    const score = sale.qty * 3 + sale.times * 2 + web.qty * 3 + web.times * 2;
 
     return {
       ...p,
-      score: baseScore,
+      score,
       totalSold: sale.qty,
       totalWebOrdered: web.qty,
+      timesSold: sale.times,
     };
   });
 
-  // Ordenar de mayor a menor puntuación
-  scored.sort((a, b) => b.score - a.score);
+  // Ordenar estrictamente de mayor a menor según actividad real
+  scored.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    if (b.totalSold !== a.totalSold) return b.totalSold - a.totalSold;
+    return b.totalWebOrdered - a.totalWebOrdered;
+  });
 
-  // Asignar insignias de recomendación dinámica a los líderes
-  return scored.map((item, index) => {
-    let badge: ProductWithRecommendation["badge"];
-    if (index === 0 || (item.totalSold >= 2 && index < 3)) {
-      badge = "🔥 Más vendido";
-    } else if (item.totalWebOrdered >= 1 || index < 4) {
-      badge = "⭐ Más pedido";
-    } else if (item.score >= 4 && index < 7) {
-      badge = "💎 Recomendado";
+  // Asignar insignias ÚNICAMENTE a los productos que tienen ventas o pedidos reales
+  return scored.map((item) => {
+    let badge: ProductWithRecommendation["badge"] = undefined;
+
+    const hasRealSales = item.totalSold > 0;
+    const hasRealWebOrders = item.totalWebOrdered > 0;
+
+    if (hasRealSales && hasRealWebOrders) {
+      badge = "EN TENDENCIA";
+    } else if (hasRealSales && item.totalSold >= 2) {
+      badge = "MÁS VENDIDO";
+    } else if (hasRealWebOrders) {
+      badge = "MÁS PEDIDO";
+    } else if (hasRealSales) {
+      badge = "MÁS VENDIDO";
     }
 
     return {
@@ -116,16 +114,23 @@ export async function getScoredProducts(): Promise<ProductWithRecommendation[]> 
 }
 
 /**
- * Obtiene los productos más comprados y pedidos para estantes destacados
+ * Obtiene los productos con mayor volumen real de compra y pedidos
  */
 export async function getTopRecommendedProducts(limit = 6): Promise<ProductWithRecommendation[]> {
   const scored = await getScoredProducts();
+  // Filtrar primero los que tienen actividad real de compra
+  const withSales = scored.filter((p) => p.totalSold > 0 || p.totalWebOrdered > 0);
+
+  if (withSales.length >= limit) {
+    return withSales.slice(0, limit);
+  }
+
+  // Si hay menos productos vendidos que el límite, completar con el resto pero sin insignias falsas
   return scored.slice(0, limit);
 }
 
 /**
- * Obtiene recomendaciones inteligentes relacionadas a un producto específico
- * (mismo estilo o categoría, o complementarios más vendidos)
+ * Obtiene recomendaciones relacionadas basadas en la misma categoría y popularidad real
  */
 export async function getRelatedRecommendations(
   currentProductId: string,
@@ -138,7 +143,6 @@ export async function getRelatedRecommendations(
 
   if (!current) return others.slice(0, limit);
 
-  // Priorizar misma categoría primero, luego los de mayor score general
   const sameCategory = others.filter((p) => p.category === current.category);
   const differentCategory = others.filter((p) => p.category !== current.category);
 

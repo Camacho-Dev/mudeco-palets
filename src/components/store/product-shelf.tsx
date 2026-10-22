@@ -48,7 +48,7 @@ function ShelfCard({ product }: { product: ShelfProduct }) {
           className="relative block aspect-square overflow-hidden bg-[#1a1a1a]"
         >
           {product.badge ? (
-            <span className="absolute top-2 left-2 z-10 rounded-full bg-[#0a0a0a]/90 backdrop-blur-sm px-2 py-0.5 text-[0.62rem] font-semibold text-[#e8c182] border border-[#e8c182]/30 shadow">
+            <span className="absolute top-2 left-2 z-10 rounded-sm bg-black/90 px-2 py-0.5 text-[0.58rem] font-bold tracking-widest text-[#d4af37] border border-[#d4af37]/40 uppercase shadow-sm">
               {product.badge}
             </span>
           ) : null}
