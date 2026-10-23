@@ -28,7 +28,7 @@ export async function getBusinessAnalytics(range?: DateRange) {
   const startOfYear = new Date(now.getFullYear(), 0, 1);
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
 
-  const [invoices, payments, products, materials, customers, webOrders] = await Promise.all([
+  const [invoices, payments, products, materials, customers, webOrders, ncfSeries] = await Promise.all([
     prisma.invoice.findMany({
       where: { status: { in: [...SOLD_STATUSES] } },
       include: {
@@ -62,7 +62,28 @@ export async function getBusinessAnalytics(range?: DateRange) {
         customerName: true,
       },
     }),
+    prisma.ncfSeries.findMany({ where: { active: true } }),
   ]);
+
+  const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+  const ncfAlerts = ncfSeries
+    .map((s) => {
+      const remaining = Math.max(0, s.maxSeq - s.nextSeq + 1);
+      const isLow = remaining <= 30;
+      const isExpiringSoon = s.expiresAt ? s.expiresAt <= in30Days : false;
+      const isExpired = s.expiresAt ? s.expiresAt < now : false;
+      return {
+        id: s.id,
+        type: s.type,
+        name: s.name,
+        remaining,
+        expiresAt: s.expiresAt ? s.expiresAt.toISOString() : null,
+        isLow,
+        isExpiringSoon,
+        isExpired,
+      };
+    })
+    .filter((s) => s.isLow || s.isExpiringSoon || s.isExpired);
 
   const periodInvoices = invoices.filter((i) => inRange(i.issueDate, period));
   const periodPayments = payments.filter((p) => inRange(p.paidAt, period));
@@ -346,6 +367,8 @@ export async function getBusinessAnalytics(range?: DateRange) {
       lowStockNames: lowStock.slice(0, 4).map((p) => p.name),
       lowStockMaterialsCount: lowStockMaterials.length,
       lowStockMaterialsNames: lowStockMaterials.slice(0, 4).map((m) => m.name),
+      ncfAlertsCount: ncfAlerts.length,
+      ncfAlerts,
       webPendingCount: webPending.length,
       webRepairsCount: webRepairs,
       webCustomQuotesCount: webCustomQuotes,

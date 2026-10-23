@@ -5,9 +5,25 @@ import { AutoPrint } from "@/components/auto-print";
 
 export function PrintControls({
   invoiceId,
+  quoteId,
+  backHref,
+  backLabel,
 }: {
-  invoiceId: string;
+  invoiceId?: string;
+  quoteId?: string;
+  backHref?: string;
+  backLabel?: string;
 }) {
+  const targetHref =
+    backHref ||
+    (quoteId
+      ? `/cotizaciones/${quoteId}`
+      : invoiceId
+        ? `/facturas/${invoiceId}`
+        : "/");
+  const targetLabel =
+    backLabel || (quoteId ? "Ver cotización" : "Ver factura");
+
   return (
     <div className="no-print mb-6 flex flex-wrap items-center gap-3">
       <AutoPrint />
@@ -18,8 +34,8 @@ export function PrintControls({
       >
         Imprimir de nuevo
       </button>
-      <Link href={`/facturas/${invoiceId}`} className="btn btn-secondary">
-        Ver factura
+      <Link href={targetHref} className="btn btn-secondary">
+        {targetLabel}
       </Link>
       <Link href="/vender" className="btn btn-primary">
         Nueva venta

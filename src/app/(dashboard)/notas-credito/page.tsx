@@ -97,7 +97,14 @@ export default async function NotasCreditoPage({
             ) : (
               rows.map((n) => (
                 <tr key={n.id}>
-                  <td>{n.number}</td>
+                  <td>
+                    <Link
+                      href={`/notas-credito/${n.id}`}
+                      className="font-medium text-[var(--wood-800)] underline hover:text-[var(--brass)]"
+                    >
+                      {n.number}
+                    </Link>
+                  </td>
                   <td>
                     <Link href={`/facturas/${n.invoiceId}`} className="underline">
                       {n.invoice.number}

@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/page-header";
 import { ProductImageInput } from "@/components/product-image-input";
 import { ExternalLink } from "lucide-react";
 import { deleteProduct, updateProduct } from "../actions";
+import { ConfirmForm } from "@/components/confirm-form";
 
 export default async function EditarProductoPage({
   params,
@@ -243,11 +244,19 @@ export default async function EditarProductoPage({
         </div>
       </form>
       {product.active ? (
-        <form action={remove} className="mt-6 max-w-2xl">
-          <button type="submit" className="btn btn-danger">
-            Desactivar
-          </button>
-        </form>
+        <div className="mt-6 max-w-2xl">
+          <ConfirmForm
+            action={remove}
+            title="Desactivar producto"
+            message={`¿Desactivar "${product.name}"? Ya no estará visible para ventas rápidas ni en el catálogo de la tienda online.`}
+            confirmLabel="Sí, desactivar producto"
+            isDestructive={true}
+          >
+            <button type="submit" className="btn btn-danger">
+              Desactivar producto
+            </button>
+          </ConfirmForm>
+        </div>
       ) : null}
     </div>
   );

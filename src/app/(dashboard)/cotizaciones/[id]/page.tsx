@@ -39,7 +39,21 @@ export default async function CotizacionDetailPage({
           fromWeb ? " · Origen WEB" : ""
         }`}
         action={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href={`/cotizaciones/${quote.id}/imprimir`}
+              className="btn btn-accent"
+            >
+              Imprimir
+            </Link>
+            <a
+              href={`/api/cotizaciones/${quote.id}/pdf`}
+              className="btn btn-secondary"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Descargar PDF
+            </a>
             <WhatsAppShareButton
               customerName={quote.customer.name}
               phone={quote.customer.phone}

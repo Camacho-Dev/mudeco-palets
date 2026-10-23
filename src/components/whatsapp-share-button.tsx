@@ -7,11 +7,12 @@ import { formatCurrency, formatDate } from "@/lib/format";
 type WhatsAppShareProps = {
   customerName: string;
   phone?: string | null;
-  type: "invoice" | "quote";
+  type: "invoice" | "quote" | "creditNote";
   number: string;
   total: number;
   ncf?: string | null;
   validUntil?: Date | string | null;
+  invoiceNumber?: string | null;
   companyName?: string;
 };
 
@@ -38,6 +39,7 @@ export function WhatsAppShareButton({
   total,
   ncf,
   validUntil,
+  invoiceNumber,
   companyName = "Mudeco Palets",
 }: WhatsAppShareProps) {
   const [modalOpen, setModalOpen] = useState(false);
@@ -55,6 +57,19 @@ export function WhatsAppShareButton({
         `💰 *Monto Total:* ${formattedTotal}\n\n` +
         `Agradecemos tu preferencia por nuestros muebles en madera recuperada con alma de taller.\n` +
         `Si tienes alguna consulta sobre tu entrega o acabado, ¡estamos a tu orden!`
+      );
+    }
+
+    if (type === "creditNote") {
+      const invRef = invoiceNumber ? `\n📄 *Factura origen:* ${invoiceNumber}` : "";
+      return (
+        `🪵 *${companyName} · Nota de Crédito*\n\n` +
+        `Hola *${customerName}*,\n` +
+        `Te compartimos el comprobante de Nota de Crédito por ajuste o devolución:\n\n` +
+        `📋 *Nota de Crédito:* ${number}${invRef}\n` +
+        `💰 *Monto Acreditado:* ${formattedTotal}\n\n` +
+        `El valor ha sido acreditado conforme a las políticas de nuestro taller artesanal.\n` +
+        `Si tienes alguna duda, estamos a tu disposición.`
       );
     }
 

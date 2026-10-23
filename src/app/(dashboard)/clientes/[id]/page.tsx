@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/page-header";
 import { deleteCustomer, updateCustomer } from "../actions";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { webOrderTypeLabel } from "@/lib/web-order-labels";
+import { ConfirmForm } from "@/components/confirm-form";
 
 export default async function EditarClientePage({
   params,
@@ -129,11 +130,19 @@ export default async function EditarClientePage({
           </Link>
         </div>
       </form>
-      <form action={remove} className="mt-6 max-w-xl">
-        <button type="submit" className="btn btn-danger">
-          Eliminar cliente
-        </button>
-      </form>
+      <div className="mt-6 max-w-xl">
+        <ConfirmForm
+          action={remove}
+          title="Eliminar cliente"
+          message={`¿Estás seguro de que deseas eliminar al cliente "${customer.name}"? Esta acción solo se permite si el cliente no tiene facturas, cotizaciones ni pedidos asociados.`}
+          confirmLabel="Sí, eliminar cliente"
+          isDestructive={true}
+        >
+          <button type="submit" className="btn btn-danger">
+            Eliminar cliente
+          </button>
+        </ConfirmForm>
+      </div>
 
       {customer.webOrders.length > 0 ? (
         <div className="mt-10">
