@@ -7,6 +7,7 @@ import { ListSearchBar } from "@/components/invoice-search";
 import { ConfirmForm } from "@/components/confirm-form";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { whatsappLink } from "@/lib/store";
+import { ExternalLink, Globe, Image as ImageIcon, Download, Activity } from "lucide-react";
 import {
   WEB_STATUS_COLORS,
   WEB_STATUS_LABEL,
@@ -117,6 +118,44 @@ export default async function PedidosWebPage({
           query
             ? `Resultados para “${query}”`
             : `${pendingCount} pendientes · Compras, reparaciones, cotizaciones y consultas`
+        }
+        action={
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href="/conexion-web"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+              title="Centro de control y diagnóstico de la conexión web"
+            >
+              <Activity className="h-3.5 w-3.5 text-emerald-600 animate-pulse" />
+              <span>Conexión Web</span>
+            </Link>
+            <a
+              href="/"
+              target="_blank"
+              rel="noreferrer"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+              title="Abrir tienda en nueva pestaña"
+            >
+              <Globe className="h-3.5 w-3.5 text-[#b0894f]" />
+              <span>Tienda pública</span>
+              <ExternalLink className="h-3 w-3 opacity-60" />
+            </a>
+            <Link
+              href="/contenido-web"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+            >
+              <ImageIcon className="h-3.5 w-3.5 text-[#b0894f]" />
+              <span>Fotos & Portadas</span>
+            </Link>
+            <a
+              href="/api/export/pedidos-web"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+              title="Descargar pedidos en formato CSV para Excel"
+            >
+              <Download className="h-3.5 w-3.5 text-[#b0894f]" />
+              <span>Exportar CSV</span>
+            </a>
+          </div>
         }
       />
 

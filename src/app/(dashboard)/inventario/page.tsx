@@ -5,6 +5,7 @@ import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { ListSearchBar } from "@/components/invoice-search";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { ExternalLink } from "lucide-react";
 
 export default async function InventarioPage({
   searchParams,
@@ -141,13 +142,25 @@ export default async function InventarioPage({
                     <td>{p.minStock}</td>
                     <td>{formatCurrency(p.cost)}</td>
                     <td>{formatCurrency(p.price)}</td>
-                    <td className="text-right">
-                      <Link
-                        href={`/productos/${p.id}`}
-                        className="text-sm font-medium text-[var(--wood-800)] hover:underline"
-                      >
-                        Ajustar
-                      </Link>
+                    <td className="text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-2">
+                        <a
+                          href={`/producto/${p.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 rounded border border-[var(--border)] bg-[#fbf7f2] px-2 py-1 text-xs text-[var(--wood-800)] hover:border-[#b0894f] hover:bg-white"
+                          title="Ver cómo se ve en la tienda online"
+                        >
+                          <span>Ver web</span>
+                          <ExternalLink className="h-3 w-3 opacity-60" />
+                        </a>
+                        <Link
+                          href={`/productos/${p.id}`}
+                          className="rounded border border-[var(--border)] bg-white px-2 py-1 text-xs font-medium text-[var(--wood-800)] hover:border-[var(--wood-700)]"
+                        >
+                          Ajustar
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 );

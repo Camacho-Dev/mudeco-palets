@@ -1,7 +1,9 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { WebMediaManager } from "./web-media-manager";
+import { Activity, Globe, ExternalLink, ShoppingBag } from "lucide-react";
 
 export const metadata = {
   title: "Fotos de la Web",
@@ -101,6 +103,36 @@ export default async function ContenidoWebPage() {
       <PageHeader
         title="Fotos y Contenido de la Web"
         description="Administra y sube las imágenes, portadas y fotografías que se muestran en la tienda pública"
+        action={
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              href="/conexion-web"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+              title="Centro de control y diagnóstico de la conexión web"
+            >
+              <Activity className="h-3.5 w-3.5 text-emerald-600 animate-pulse" />
+              <span>Conexión Web</span>
+            </Link>
+            <Link
+              href="/pedidos-web"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+            >
+              <ShoppingBag className="h-3.5 w-3.5 text-[#b0894f]" />
+              <span>Pedidos web</span>
+            </Link>
+            <a
+              href="/"
+              target="_blank"
+              rel="noreferrer"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+              title="Abrir tienda en nueva pestaña"
+            >
+              <Globe className="h-3.5 w-3.5 text-[#b0894f]" />
+              <span>Tienda pública</span>
+              <ExternalLink className="h-3 w-3 opacity-60" />
+            </a>
+          </div>
+        }
       />
 
       <WebMediaManager initialData={initialData} />

@@ -282,8 +282,24 @@ export async function getBusinessAnalytics(range?: DateRange) {
     ["PENDING", "AWAITING_PAYMENT", "QUOTED", "IN_PROGRESS"].includes(o.status),
   );
   const webRepairs = webOrders.filter((o) => o.serviceKind === "REPAIR").length;
+  const webCustomQuotes = webOrders.filter(
+    (o) => o.serviceKind === "CUSTOM_QUOTE",
+  ).length;
   const webContacts = webOrders.filter((o) => o.serviceKind === "CONTACT").length;
   const webSales = webOrders.filter((o) => o.type === "SALE").length;
+  const webQuotes = webOrders.filter((o) => o.type === "QUOTE").length;
+  const webDone = webOrders.filter((o) =>
+    ["DONE", "PAID"].includes(o.status),
+  ).length;
+  const webSalesVolume = roundMoney(
+    webOrders
+      .filter((o) => o.type === "SALE" || o.status === "PAID")
+      .reduce((sum, o) => sum + o.total, 0),
+  );
+  const webConversionRate =
+    webOrders.length > 0
+      ? roundMoney((webDone / webOrders.length) * 100)
+      : 0;
 
   return {
     company: await prisma.companySettings.findUnique({
@@ -323,8 +339,13 @@ export async function getBusinessAnalytics(range?: DateRange) {
       lowStockNames: lowStock.slice(0, 4).map((p) => p.name),
       webPendingCount: webPending.length,
       webRepairsCount: webRepairs,
+      webCustomQuotesCount: webCustomQuotes,
       webContactsCount: webContacts,
       webSalesCount: webSales,
+      webQuotesCount: webQuotes,
+      webDoneCount: webDone,
+      webSalesVolume,
+      webConversionRate,
       webOrdersTotal: webOrders.length,
     },
     monthlyTrend,

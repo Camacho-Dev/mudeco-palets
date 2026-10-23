@@ -23,6 +23,8 @@ import {
   ClipboardList,
   Globe,
   Image,
+  ExternalLink,
+  Activity,
 } from "lucide-react";
 import { BrandLogo } from "@/components/logo";
 import { isAdmin } from "@/lib/rbac";
@@ -41,6 +43,7 @@ const openNav = [
 
 const adminNav = [
   { href: "/panel", label: "Panel", icon: LayoutDashboard },
+  { href: "/conexion-web", label: "Conexión web", icon: Activity },
   { href: "/finanzas", label: "Finanzas", icon: Calculator },
   { href: "/inventario", label: "Inventario", icon: Warehouse },
   { href: "/materiales", label: "Materiales", icon: Boxes },
@@ -146,6 +149,30 @@ export async function Sidebar() {
 
       <NavLinks admin={admin} webPending={webPending} />
 
+      <div className="mx-3 mb-2 rounded-xl border border-white/10 bg-white/[0.05] p-3 text-xs">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[0.68rem] font-bold tracking-wider text-white/80 uppercase">
+              Tienda online
+            </span>
+          </div>
+          <a
+            href="/"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 rounded bg-[#b0894f] px-2 py-0.5 text-[0.65rem] font-bold text-[#2c1d14] hover:bg-[#c49a5c] transition shadow-sm"
+            title="Abrir tienda pública en nueva pestaña"
+          >
+            <span>Ver web</span>
+            <ExternalLink className="h-2.5 w-2.5" />
+          </a>
+        </div>
+        <p className="mt-1 text-[0.65rem] text-white/45">
+          Canal público sincronizado
+        </p>
+      </div>
+
       <div className="border-t border-white/10 p-4">
         <p className="truncate text-sm font-medium">{session?.user?.name}</p>
         <p className="truncate text-xs text-white/45">{session?.user?.email}</p>
@@ -191,6 +218,25 @@ export async function SidebarMobilePanel() {
         </p>
       </div>
       <NavLinks admin={admin} webPending={webPending} />
+      <div className="mx-3 mb-2 rounded-xl border border-white/10 bg-white/[0.05] p-3 text-xs">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[0.68rem] font-bold tracking-wider text-white/80 uppercase">
+              Tienda online
+            </span>
+          </div>
+          <a
+            href="/"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 rounded bg-[#b0894f] px-2 py-0.5 text-[0.65rem] font-bold text-[#2c1d14]"
+          >
+            <span>Ver web</span>
+            <ExternalLink className="h-2.5 w-2.5" />
+          </a>
+        </div>
+      </div>
       <div className="border-t border-white/10 p-4 text-sm">
         <p>{session?.user?.name}</p>
         <p className="text-xs text-white/50">{session?.user?.email}</p>

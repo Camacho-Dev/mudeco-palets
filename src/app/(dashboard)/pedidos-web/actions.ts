@@ -231,3 +231,144 @@ export async function convertWebQuoteToInvoice(id: string) {
   revalidatePath("/panel");
   redirect(`/facturas/${invoice.id}`);
 }
+
+/** Convierte directamente un pedido web (con o sin cotización previa) en una factura oficial del ERP */
+export async function convertWebOrderDirectToInvoice(id: string) {
+  const session = await requireSession();
+  const order = await prisma.webOrder.findUnique({
+    where: { id },
+    include: {
+      items: { include: { product: true } },
+      invoice: true,
+    },
+  });
+  if (!order) throw new Error("Pedido no encontrado");
+  if (order.invoiceId) {
+    redirect(`/facturas/${order.invoiceId}`);
+  }
+
+  // 1. Obtener o crear cliente
+  let customerId = order.customerId;
+  if (!customerId) {
+    let customer = null;
+    if (order.customerEmail) {
+      customer = await prisma.customer.findFirst({
+        where: { email: { equals: order.customerEmail, mode: "insensitive" } },
+      });
+    }
+    if (!customer && order.customerTaxId) {
+      customer = await prisma.customer.findFirst({
+        where: { taxId: order.customerTaxId },
+      });
+    }
+    if (!customer) {
+      customer = await prisma.customer.create({
+        data: {
+          name: order.customerName,
+          email: order.customerEmail,
+          phone: order.customerPhone,
+          taxId: order.customerTaxId,
+          address: order.customerAddress,
+        },
+      });
+    }
+    customerId = customer.id;
+    await prisma.webOrder.update({
+      where: { id },
+      data: { customerId },
+    });
+  }
+
+  // 2. Líneas de factura
+  const number = await nextInvoiceNumber();
+  let itemsData: {
+    productId?: string | null;
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    taxRate: number;
+    lineTotal: number;
+  }[] = [];
+
+  let subtotal = 0;
+  let tax = 0;
+  let total = 0;
+
+  if (order.items && order.items.length > 0) {
+    itemsData = order.items.map((i) => {
+      const lineSubtotal = i.quantity * i.unitPrice;
+      const rate = i.taxRate ?? 0.18;
+      const calculatedLineTax = lineSubtotal * (rate / (1 + rate));
+      subtotal += lineSubtotal - calculatedLineTax;
+      tax += calculatedLineTax;
+      total += lineSubtotal;
+      return {
+        productId: i.productId,
+        description: i.description || i.product?.name || "Artículo de catálogo web",
+        quantity: i.quantity,
+        unitPrice: i.unitPrice,
+        taxRate: rate,
+        lineTotal: i.lineTotal || lineSubtotal,
+      };
+    });
+  } else {
+    const fallbackTotal = order.total > 0 ? order.total : 0;
+    const base = fallbackTotal > 0 ? +(fallbackTotal / 1.18).toFixed(2) : 0;
+    const fallbackTax = fallbackTotal > 0 ? +(fallbackTotal - base).toFixed(2) : 0;
+    subtotal = base;
+    tax = fallbackTax;
+    total = fallbackTotal;
+    itemsData = [
+      {
+        productId: null,
+        description: `Servicio / Pedido web ${order.number}${order.serviceKind ? ` (${order.serviceKind})` : ""}`,
+        quantity: 1,
+        unitPrice: fallbackTotal,
+        taxRate: 0.18,
+        lineTotal: fallbackTotal,
+      },
+    ];
+  }
+
+  const invoice = await prisma.invoice.create({
+    data: {
+      number,
+      status: "DRAFT",
+      source: "WEB",
+      customerId,
+      userId: session.user.id,
+      notes: `Generada desde pedido web ${order.number} (${order.customerEmail}).\n${order.notes || ""}`,
+      subtotal: Math.round(subtotal * 100) / 100,
+      tax: Math.round(tax * 100) / 100,
+      total: Math.round(total * 100) / 100,
+      items: {
+        create: itemsData,
+      },
+    },
+  });
+
+  await prisma.webOrder.update({
+    where: { id },
+    data: {
+      invoiceId: invoice.id,
+      status: order.status === "PENDING" ? "IN_PROGRESS" : order.status,
+    },
+  });
+
+  await writeAudit({
+    action: "GENERATE_INVOICE",
+    entity: "WebOrder",
+    entityId: id,
+    summary: `Factura ${invoice.number} generada desde pedido web ${order.number}`,
+    userId: session.user?.id,
+    userEmail: session.user?.email,
+    userName: session.user?.name,
+  });
+
+  revalidatePath("/pedidos-web");
+  revalidatePath(`/pedidos-web/${id}`);
+  revalidatePath("/facturas");
+  revalidatePath("/panel");
+  redirect(`/facturas/${invoice.id}`);
+}
+

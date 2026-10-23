@@ -214,6 +214,14 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <Link
+                href="/conexion-web"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#b0894f]/40 bg-[#b0894f]/15 px-3 py-1.5 text-xs font-semibold text-[var(--wood-900)] hover:border-[#b0894f] hover:bg-[#b0894f]/25 transition shadow-sm"
+                title="Centro de Control, Diagnóstico y Sincronización de la Conexión Web"
+              >
+                <Globe className="h-3.5 w-3.5 text-[#b0894f]" />
+                <span>Conexión Web</span>
+              </Link>
+              <Link
                 href="/productos"
                 className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[#fbf7f2] px-3 py-1.5 text-xs font-medium text-[var(--wood-800)] hover:border-[#b0894f] hover:bg-white"
                 title="Muebles activos visibles en tienda"
@@ -318,6 +326,53 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
             </Link>
           </div>
 
+          {/* Métricas secundarias de rendimiento web */}
+          <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2 border-t border-[var(--border)] pt-3 text-xs">
+            <div className="rounded-lg bg-[#fbf7f2] p-2.5">
+              <span className="text-[0.65rem] font-semibold text-[var(--muted)] uppercase">
+                Facturación web
+              </span>
+              <p className="font-semibold text-[var(--wood-900)] mt-0.5">
+                {formatCurrency(kpis.webSalesVolume)}
+              </p>
+            </div>
+            <div className="rounded-lg bg-[#fbf7f2] p-2.5">
+              <span className="text-[0.65rem] font-semibold text-[var(--muted)] uppercase">
+                A medida / Proyectos VIP
+              </span>
+              <p className="font-semibold text-[var(--wood-900)] mt-0.5">
+                {kpis.webCustomQuotesCount} solicitudes
+              </p>
+            </div>
+            <div className="col-span-2 sm:col-span-1 rounded-lg bg-[#fbf7f2] p-2.5">
+              <span className="text-[0.65rem] font-semibold text-[var(--muted)] uppercase">
+                Tasa de atención
+              </span>
+              <p className="font-semibold text-[var(--wood-900)] mt-0.5">
+                {kpis.webDoneCount} atendidos ({kpis.webConversionRate}%)
+              </p>
+            </div>
+          </div>
+
+          {/* Barra de estado de conexión */}
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-emerald-50/70 border border-emerald-200/60 px-3 py-2 text-[0.7rem] text-emerald-900">
+            <div className="flex items-center gap-2">
+              <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="font-medium">
+                Conexión en vivo activa: Catálogo, stock de inventario, pasarela Stripe y contenidos multimedia sincronizados
+              </span>
+            </div>
+            <a
+              href="/"
+              target="_blank"
+              rel="noreferrer"
+              className="font-bold underline hover:text-emerald-950 inline-flex items-center gap-1"
+            >
+              <span>Abrir tienda</span>
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+
           {data.recentWebOrders?.length ? (
             <div className="mt-4 border-t border-[var(--border)] pt-3">
               <p className="mb-2 text-[0.68rem] font-semibold tracking-wider text-[var(--muted)] uppercase">
@@ -339,6 +394,19 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
                       <span className="text-xs text-[var(--muted)]">
                         · {o.customerName}
                       </span>
+                      {o.serviceKind ? (
+                        <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[0.62rem] font-medium text-amber-900">
+                          {o.serviceKind === "REPAIR"
+                            ? "Reparación"
+                            : o.serviceKind === "CUSTOM_QUOTE"
+                              ? "A medida"
+                              : "Consulta"}
+                        </span>
+                      ) : (
+                        <span className="rounded bg-stone-100 px-1.5 py-0.5 text-[0.62rem] font-medium text-stone-800">
+                          {o.type === "SALE" ? "Compra" : "Cotiz. Carrito"}
+                        </span>
+                      )}
                     </div>
                     <div className="flex items-center gap-3">
                       <span className="font-medium text-[var(--wood-950)]">

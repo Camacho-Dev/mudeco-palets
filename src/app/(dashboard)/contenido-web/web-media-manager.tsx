@@ -610,9 +610,25 @@ export function WebMediaManager({ initialData }: WebMediaManagerProps) {
                 <span className="text-xs font-bold text-[var(--wood-900)] tracking-wider uppercase">
                   Pestaña #{idx + 1}: {item.title}
                 </span>
-                <span className="rounded bg-muted px-2 py-0.5 text-[0.65rem] font-semibold text-muted-foreground uppercase">
-                  ID: {item.id}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="rounded bg-muted px-2 py-0.5 text-[0.65rem] font-semibold text-muted-foreground uppercase">
+                    ID: {item.id}
+                  </span>
+                  {(formData.beforeAfterItems || []).length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = (formData.beforeAfterItems || []).filter(
+                          (_, i) => i !== idx,
+                        );
+                        setFormData({ ...formData, beforeAfterItems: next });
+                      }}
+                      className="text-[0.68rem] text-red-600 hover:underline font-medium"
+                    >
+                      Eliminar
+                    </button>
+                  )}
+                </div>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">
@@ -758,6 +774,33 @@ export function WebMediaManager({ initialData }: WebMediaManagerProps) {
               </div>
             </div>
           ))}
+
+          <div className="flex justify-between items-center pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                const count = (formData.beforeAfterItems || []).length + 1;
+                const id = `item_${Date.now()}`;
+                const next = [
+                  ...(formData.beforeAfterItems || []),
+                  {
+                    id,
+                    title: `Proyecto artesanal #${count}`,
+                    category: "Fabricación a medida",
+                    description: "Madera de pino recuperada curada y tratada artesanalmente.",
+                    beforeImg: "/brand/store-workshop.jpg",
+                    afterImg: "/brand/cat-mesa.jpg",
+                    beforeLabel: "Antes · En bruto",
+                    afterLabel: "Después · Acabado fino",
+                  },
+                ];
+                setFormData({ ...formData, beforeAfterItems: next });
+              }}
+              className="btn btn-outline text-xs inline-flex items-center gap-1.5"
+            >
+              <span>+ Agregar nueva transformación</span>
+            </button>
+          </div>
         </div>
       </div>
 

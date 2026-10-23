@@ -6,6 +6,9 @@ import { PageHeader } from "@/components/page-header";
 import { ConfirmForm } from "@/components/confirm-form";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { whatsappLink } from "@/lib/store";
+import { productImage } from "@/lib/product-image";
+import { PrintActionButton } from "@/components/print-action-button";
+import { MapPin, Factory, ExternalLink } from "lucide-react";
 import {
   WEB_STATUS_COLORS,
   WEB_STATUS_LABEL,
@@ -17,6 +20,7 @@ import {
   addWebOrderStaffNote,
   cancelWebOrder,
   convertWebQuoteToInvoice,
+  convertWebOrderDirectToInvoice,
   markWebOrderDone,
   markWebOrderInProgress,
   updateWebOrderStatus,
@@ -32,7 +36,9 @@ export default async function PedidoWebDetailPage({
   const order = await prisma.webOrder.findUnique({
     where: { id },
     include: {
-      items: true,
+      items: {
+        include: { product: true },
+      },
       customer: true,
       invoice: true,
       quote: true,
@@ -47,11 +53,17 @@ export default async function PedidoWebDetailPage({
     order.quote.status !== "CONVERTED" &&
     !order.invoiceId;
 
+  const waMessage =
+    order.type === "SALE"
+      ? `Hola ${order.customerName}, te escribimos de Mudeco Palets para dar seguimiento a tu compra web ${order.number} (Total: RD$ ${order.total.toFixed(2)}).`
+      : order.serviceKind === "REPAIR"
+        ? `Hola ${order.customerName}, recibimos tu solicitud de reparación ${order.number} en Mudeco Palets. Nos gustaría coordinar la evaluación de tu mueble.`
+        : order.serviceKind === "CUSTOM_QUOTE"
+          ? `Hola ${order.customerName}, recibimos tu solicitud de mueble a medida ${order.number} en Mudeco Palets. Revisamos los detalles para avanzar con tu diseño.`
+          : `Hola ${order.customerName}, te escribimos de Mudeco Palets con relación a tu pedido / consulta ${order.number}.`;
+
   const wa = order.customerPhone
-    ? whatsappLink(
-        order.customerPhone,
-        `Hola ${order.customerName}, te escribimos de Mudeco Palets sobre tu pedido ${order.number}.`,
-      )
+    ? whatsappLink(order.customerPhone, waMessage)
     : null;
 
   return (
@@ -61,29 +73,39 @@ export default async function PedidoWebDetailPage({
         description={`${webOrderTypeLabel(order)} · ${formatDate(order.createdAt)}`}
         action={
           <div className="flex flex-wrap items-center gap-2">
-            <Link href="/pedidos-web" className="btn btn-ghost">
+            <Link href="/pedidos-web" className="btn btn-ghost text-xs">
               ← Volver
             </Link>
+            <PrintActionButton label="Imprimir pedido" className="btn btn-secondary text-xs" />
             {canConvert ? (
               <ConfirmForm
                 action={convertWebQuoteToInvoice.bind(null, order.id)}
                 message="¿Convertir la cotización de este pedido en factura borrador?"
               >
-                <button type="submit" className="btn btn-primary">
+                <button type="submit" className="btn btn-primary text-xs">
                   Convertir a factura
+                </button>
+              </ConfirmForm>
+            ) : !order.invoiceId ? (
+              <ConfirmForm
+                action={convertWebOrderDirectToInvoice.bind(null, order.id)}
+                message="¿Generar factura borrador oficial en el ERP para este pedido web?"
+              >
+                <button type="submit" className="btn btn-primary text-xs">
+                  Generar factura
                 </button>
               </ConfirmForm>
             ) : null}
             {open && order.status !== "IN_PROGRESS" ? (
               <form action={markWebOrderInProgress.bind(null, order.id)}>
-                <button type="submit" className="btn btn-secondary">
+                <button type="submit" className="btn btn-secondary text-xs">
                   Marcar en gestión
                 </button>
               </form>
             ) : null}
             {open ? (
               <form action={markWebOrderDone.bind(null, order.id)}>
-                <button type="submit" className="btn btn-secondary">
+                <button type="submit" className="btn btn-secondary text-xs">
                   Marcar atendido
                 </button>
               </form>
@@ -93,7 +115,7 @@ export default async function PedidoWebDetailPage({
                 action={cancelWebOrder.bind(null, order.id)}
                 message={`¿Cancelar el pedido ${order.number}?`}
               >
-                <button type="submit" className="btn btn-ghost text-red-800">
+                <button type="submit" className="btn btn-ghost text-xs text-red-800">
                   Cancelar pedido
                 </button>
               </ConfirmForm>
@@ -113,6 +135,11 @@ export default async function PedidoWebDetailPage({
         <span className="rounded-full bg-[#b0894f]/20 px-2.5 py-0.5 text-[0.65rem] font-semibold tracking-wide text-[var(--wood-800)] uppercase">
           Tienda web
         </span>
+        {order.paymentMode ? (
+          <span className="rounded bg-stone-100 px-2 py-0.5 text-[0.65rem] font-semibold text-stone-700 uppercase">
+            Pago: {order.paymentMode}
+          </span>
+        ) : null}
         <p className="text-lg font-semibold text-[var(--wood-950)]">
           {formatCurrency(order.total)}
         </p>
@@ -130,7 +157,20 @@ export default async function PedidoWebDetailPage({
           {order.customerPhone ? <p>{order.customerPhone}</p> : null}
           {order.customerTaxId ? <p>RNC/Céd: {order.customerTaxId}</p> : null}
           {order.customerAddress ? (
-            <p className="text-[var(--muted)]">{order.customerAddress}</p>
+            <div className="pt-1">
+              <p className="text-xs text-[var(--muted)] font-medium uppercase">Dirección de entrega:</p>
+              <p className="text-sm text-[var(--wood-900)] mt-0.5">{order.customerAddress}</p>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.customerAddress)}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-[#b0894f] hover:underline mt-1"
+              >
+                <MapPin className="h-3 w-3" />
+                <span>Abrir en Google Maps</span>
+                <ExternalLink className="h-2.5 w-2.5 opacity-60" />
+              </a>
+            </div>
           ) : null}
 
           <div className="flex flex-wrap gap-2 pt-3">
@@ -139,7 +179,7 @@ export default async function PedidoWebDetailPage({
                 href={wa}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-secondary text-sm"
+                className="btn btn-secondary text-xs"
               >
                 WhatsApp
               </a>
@@ -147,7 +187,7 @@ export default async function PedidoWebDetailPage({
             {order.customerEmail ? (
               <a
                 href={`mailto:${order.customerEmail}?subject=${encodeURIComponent(`Pedido ${order.number} · Mudeco Palets`)}`}
-                className="btn btn-ghost text-sm"
+                className="btn btn-ghost text-xs"
               >
                 Email
               </a>
@@ -155,7 +195,7 @@ export default async function PedidoWebDetailPage({
             {order.customerPhone ? (
               <a
                 href={`tel:${order.customerPhone.replace(/\D/g, "")}`}
-                className="btn btn-ghost text-sm"
+                className="btn btn-ghost text-xs"
               >
                 Llamar
               </a>
@@ -165,26 +205,26 @@ export default async function PedidoWebDetailPage({
           {order.customerId ? (
             <Link
               href={`/clientes/${order.customerId}`}
-              className="inline-block pt-2 underline"
+              className="inline-block pt-2 text-xs text-[var(--brass)] hover:underline"
             >
-              Ver ficha de cliente
+              Ver ficha de cliente en ERP →
             </Link>
           ) : null}
         </div>
 
         <div className="card space-y-3 p-5 text-sm">
           <p className="text-xs font-semibold tracking-wide text-[var(--muted)] uppercase">
-            Seguimiento ERP
+            Seguimiento ERP & Taller
           </p>
           <p>Tipo: {webOrderTypeLabel(order)}</p>
-          <p>Fecha: {formatDate(order.createdAt)}</p>
-          {order.paymentMode ? <p>Pago: {order.paymentMode}</p> : null}
+          <p>Fecha de recepción: {formatDate(order.createdAt)}</p>
+          {order.paymentMode ? <p>Modalidad de pago: {order.paymentMode}</p> : null}
           {order.invoice ? (
             <p>
-              Factura:{" "}
+              Factura vinculada:{" "}
               <Link
                 href={`/facturas/${order.invoice.id}`}
-                className="underline"
+                className="underline font-semibold text-[var(--wood-800)]"
               >
                 {order.invoice.number}
               </Link>{" "}
@@ -193,10 +233,10 @@ export default async function PedidoWebDetailPage({
           ) : null}
           {order.quote ? (
             <p>
-              Cotización:{" "}
+              Cotización vinculada:{" "}
               <Link
                 href={`/cotizaciones/${order.quote.id}`}
-                className="underline"
+                className="underline font-semibold text-[var(--wood-800)]"
               >
                 {order.quote.number}
               </Link>{" "}
@@ -204,8 +244,20 @@ export default async function PedidoWebDetailPage({
             </p>
           ) : null}
           {!order.invoice && !order.quote ? (
-            <p className="text-[var(--muted)]">Sin documento ERP aún</p>
+            <p className="text-[var(--muted)]">Sin documento ERP emitido aún</p>
           ) : null}
+
+          {/* Atajo de fabricación */}
+          <div className="pt-2 border-t border-[var(--border)]">
+            <Link
+              href={`/fabricacion/nueva`}
+              className="inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:text-[#b0894f]"
+              title="Abrir orden de fabricación para este pedido"
+            >
+              <Factory className="h-3.5 w-3.5 text-[#b0894f]" />
+              <span>Crear orden de fabricación en taller →</span>
+            </Link>
+          </div>
         </div>
 
         <div className="card space-y-3 p-5 text-sm">
@@ -270,6 +322,7 @@ export default async function PedidoWebDetailPage({
         <table className="data">
           <thead>
             <tr>
+              <th>Foto</th>
               <th>Descripción</th>
               <th>Cant</th>
               <th>Precio</th>
@@ -279,19 +332,56 @@ export default async function PedidoWebDetailPage({
           <tbody>
             {order.items.length === 0 ? (
               <tr>
-                <td colSpan={4} className="text-center text-[var(--muted)]">
+                <td colSpan={5} className="text-center text-[var(--muted)]">
                   Sin líneas de productos (solicitud de servicio / consulta)
                 </td>
               </tr>
             ) : (
-              order.items.map((it) => (
-                <tr key={it.id}>
-                  <td>{it.description}</td>
-                  <td>{it.quantity}</td>
-                  <td>{formatCurrency(it.unitPrice)}</td>
-                  <td>{formatCurrency(it.lineTotal)}</td>
-                </tr>
-              ))
+              order.items.map((it) => {
+                const img = it.product ? productImage(it.product) : null;
+                return (
+                  <tr key={it.id}>
+                    <td className="w-14 py-2">
+                      {img ? (
+                        <div className="relative h-11 w-11 overflow-hidden rounded-lg border border-[var(--border)] bg-[#fbf7f2]">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={img}
+                            alt={it.description}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <span className="text-xs text-[var(--muted)]">—</span>
+                      )}
+                    </td>
+                    <td>
+                      <div className="font-medium text-[var(--wood-900)]">
+                        {it.description}
+                      </div>
+                      {it.product ? (
+                        <div className="text-xs text-[var(--muted)]">
+                          {it.product.sku ? `SKU: ${it.product.sku} · ` : ""}
+                          <a
+                            href={`/producto/${it.product.id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[#b0894f] hover:underline inline-flex items-center gap-0.5"
+                          >
+                            <span>Ver en tienda</span>
+                            <ExternalLink className="h-2.5 w-2.5" />
+                          </a>
+                        </div>
+                      ) : null}
+                    </td>
+                    <td>{it.quantity}</td>
+                    <td>{formatCurrency(it.unitPrice)}</td>
+                    <td className="font-semibold text-[var(--wood-950)]">
+                      {formatCurrency(it.lineTotal)}
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
