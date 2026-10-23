@@ -1,19 +1,21 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
+import { useState, useEffect, useCallback, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import { signIn, getSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BrandLogo } from "@/components/logo";
 import {
-  Sparkles,
+  Lock,
+  Mail,
+  Eye,
+  EyeOff,
   ArrowRight,
-  LogIn,
   X,
-  Hammer,
-  Leaf,
-  Ruler,
-  CheckCircle2,
-  ShieldCheck,
+  Sparkles,
+  Loader2,
+  AlertCircle,
+  Clock,
 } from "lucide-react";
 
 // Partículas doradas ambientales flotantes
@@ -31,7 +33,13 @@ export function WelcomeModal({
 }: {
   isAuthenticated: boolean;
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleDismiss = useCallback(() => {
     setOpen(false);
@@ -49,13 +57,13 @@ export function WelcomeModal({
       }
     } catch {}
 
-    // En entorno de desarrollo o cuando no esté autenticado, abrir automáticamente
+    // En desarrollo local o para usuarios no autenticados, se abre automáticamente:
     const isDev = process.env.NODE_ENV !== "production";
     if (isAuthenticated && !isDev) {
       return;
     }
 
-    // Micro-retraso para que el montaje de React active la animación de Framer Motion
+    // Micro-retraso para que el montaje active la animación de Framer Motion
     const timer = setTimeout(() => {
       setOpen(true);
     }, 120);
@@ -82,6 +90,42 @@ export function WelcomeModal({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open, handleDismiss]);
 
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const result = await signIn("credentials", {
+        email: email.trim(),
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setLoading(false);
+        setError("Credenciales incorrectas. Verifica tu correo y contraseña.");
+        return;
+      }
+
+      const session = await getSession();
+      const role = session?.user?.role;
+
+      // Cierre del modal y redirección según rol
+      setOpen(false);
+
+      if (role === "ADMIN") {
+        router.push("/panel");
+        router.refresh();
+      } else {
+        router.refresh();
+      }
+    } catch {
+      setLoading(false);
+      setError("Ocurrió un error al intentar iniciar sesión. Intenta de nuevo.");
+    }
+  };
+
   return (
     <AnimatePresence>
       {open ? (
@@ -90,14 +134,14 @@ export function WelcomeModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
+          transition={{ duration: 0.38, ease: "easeOut" }}
           onClick={(e) => {
             // Cerrar si se hace clic fuera de la tarjeta
             if (e.target === e.currentTarget) handleDismiss();
           }}
           role="dialog"
           aria-modal="true"
-          aria-labelledby="welcome-title"
+          aria-labelledby="login-modal-title"
           style={{ perspective: 1200 }}
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-2xl p-4 sm:p-6 overflow-y-auto"
         >
@@ -136,7 +180,7 @@ export function WelcomeModal({
             initial={{
               opacity: 0,
               scale: 0.76,
-              y: 75,
+              y: 70,
               rotateX: 14,
               filter: "blur(10px)",
             }}
@@ -150,9 +194,9 @@ export function WelcomeModal({
             exit={{
               opacity: 0,
               scale: 0.9,
-              y: 35,
+              y: 30,
               filter: "blur(6px)",
-              transition: { duration: 0.26, ease: "easeIn" },
+              transition: { duration: 0.25, ease: "easeIn" },
             }}
             transition={{
               type: "spring",
@@ -160,7 +204,7 @@ export function WelcomeModal({
               stiffness: 220,
               mass: 0.85,
             }}
-            className="group/card relative w-full max-w-2xl overflow-hidden rounded-[28px] border border-[#c9a15a]/45 bg-[#110f0c]/95 p-6 sm:p-10 shadow-[0_40px_120px_rgba(0,0,0,0.98),0_0_60px_rgba(201,161,90,0.18)] text-white text-center backdrop-blur-3xl"
+            className="group/card relative w-full max-w-md sm:max-w-lg overflow-hidden rounded-[28px] border border-[#c9a15a]/45 bg-[#110f0c]/96 p-6 sm:p-9 shadow-[0_40px_120px_rgba(0,0,0,0.98),0_0_60px_rgba(201,161,90,0.18)] text-white backdrop-blur-3xl"
           >
             {/* Haz de luz perimetral dorado animado que recorre el borde */}
             <div className="pointer-events-none absolute -inset-[1px] rounded-[28px] overflow-hidden opacity-40">
@@ -190,20 +234,20 @@ export function WelcomeModal({
             {/* Borde sutil interior decorativo */}
             <div className="pointer-events-none absolute inset-2 rounded-[22px] border border-[#c9a15a]/12" />
 
-            {/* Botón de cierre en esquina superior con animación hover */}
+            {/* Botón de cierre en esquina superior */}
             <motion.button
               type="button"
               whileHover={{ scale: 1.15, rotate: 90 }}
               whileTap={{ scale: 0.9 }}
               onClick={handleDismiss}
-              className="absolute top-5 right-5 z-20 rounded-full border border-white/10 bg-white/[0.04] p-2.5 text-white/60 hover:border-[#c9a15a]/50 hover:bg-[#c9a15a]/15 hover:text-white transition cursor-pointer shadow-sm"
-              title="Cerrar y ver la tienda (Esc)"
+              className="absolute top-5 right-5 z-20 rounded-full border border-white/10 bg-white/[0.04] p-2 text-white/60 hover:border-[#c9a15a]/50 hover:bg-[#c9a15a]/15 hover:text-white transition cursor-pointer shadow-sm"
+              title="Cerrar y continuar como invitado (Esc)"
               aria-label="Cerrar modal"
             >
               <X className="h-4 w-4" />
             </motion.button>
 
-            {/* Contenido con revelación escalonada (Stagger) */}
+            {/* Contenido con revelación escalonada */}
             <motion.div
               initial="hidden"
               animate="show"
@@ -212,17 +256,17 @@ export function WelcomeModal({
                 show: {
                   opacity: 1,
                   transition: {
-                    staggerChildren: 0.09,
-                    delayChildren: 0.12,
+                    staggerChildren: 0.07,
+                    delayChildren: 0.1,
                   },
                 },
               }}
-              className="relative z-10"
+              className="relative z-10 text-center"
             >
               {/* Logo con halo sutil pulsante */}
               <motion.div
                 variants={{
-                  hidden: { opacity: 0, y: -25, scale: 0.75 },
+                  hidden: { opacity: 0, y: -20, scale: 0.8 },
                   show: {
                     opacity: 1,
                     y: 0,
@@ -230,186 +274,189 @@ export function WelcomeModal({
                     transition: { type: "spring", damping: 16, stiffness: 280 },
                   },
                 }}
-                className="flex justify-center mb-4"
+                className="flex justify-center mb-3"
               >
-                <div className="relative inline-flex items-center justify-center p-2.5 rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.01] border border-[#c9a15a]/35 shadow-[0_0_35px_rgba(201,161,90,0.22)]">
-                  {/* Anillo de pulso exterior */}
+                <div className="relative inline-flex items-center justify-center p-2 rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.01] border border-[#c9a15a]/35 shadow-[0_0_30px_rgba(201,161,90,0.2)]">
                   <motion.div
                     animate={{ scale: [1, 1.12, 1], opacity: [0.4, 0, 0.4] }}
                     transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                     className="pointer-events-none absolute inset-0 rounded-2xl border border-[#c9a15a]/50"
                   />
-                  <BrandLogo width={140} height={110} className="h-14 w-auto sm:h-16" priority />
+                  <BrandLogo width={130} height={100} className="h-12 w-auto sm:h-14" priority />
                 </div>
               </motion.div>
 
-              {/* Badge artesanal brillante */}
+              {/* Badge */}
               <motion.div
                 variants={{
-                  hidden: { opacity: 0, scale: 0.7, y: 10 },
+                  hidden: { opacity: 0, scale: 0.7 },
                   show: {
                     opacity: 1,
                     scale: 1,
-                    y: 0,
                     transition: { type: "spring", stiffness: 320, damping: 20 },
                   },
                 }}
-                className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/50 bg-gradient-to-r from-[#c9a15a]/20 via-[#c9a15a]/10 to-[#c9a15a]/20 px-4 py-1.5 text-[0.66rem] font-bold tracking-[0.22em] text-[#d4b06e] uppercase backdrop-blur-md mb-3.5 shadow-[0_0_20px_rgba(201,161,90,0.15)]"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#c9a15a]/50 bg-gradient-to-r from-[#c9a15a]/20 via-[#c9a15a]/10 to-[#c9a15a]/20 px-3.5 py-1 text-[0.62rem] font-bold tracking-[0.2em] text-[#d4b06e] uppercase backdrop-blur-md mb-2 shadow-[0_0_15px_rgba(201,161,90,0.15)]"
               >
-                <Sparkles className="h-3.5 w-3.5 text-[#c9a15a] animate-spin-slow" />
-                <span>Taller Artesanal · República Dominicana</span>
+                <Sparkles className="h-3 w-3 text-[#c9a15a]" />
+                <span>Acceso · Mudeco Palets</span>
               </motion.div>
 
-              {/* Título principal con tipografía display y gradiente dorado sutil */}
+              {/* Título */}
               <motion.h2
-                id="welcome-title"
+                id="login-modal-title"
                 variants={{
-                  hidden: { opacity: 0, y: 18, filter: "blur(4px)" },
-                  show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.45, ease: "easeOut" } },
-                }}
-                className="font-display text-2xl sm:text-4xl text-white font-medium leading-tight tracking-tight"
-              >
-                ¡Te damos la bienvenida a{" "}
-                <span className="bg-gradient-to-r from-white via-[#f5e1b8] to-[#c9a15a] bg-clip-text text-transparent">
-                  Mudeco Palets
-                </span>!
-              </motion.h2>
-
-              {/* Subtítulo editorial */}
-              <motion.p
-                variants={{
-                  hidden: { opacity: 0, y: 15 },
+                  hidden: { opacity: 0, y: 12 },
                   show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
                 }}
-                className="mt-3 text-xs sm:text-sm text-white/75 max-w-lg mx-auto leading-relaxed"
+                className="font-display text-2xl sm:text-3xl text-white font-medium tracking-tight"
               >
-                Muebles con alma de taller hechos con madera recuperada 100% ecológica y curada contra plagas. Diseños únicos listos para entrega o proyectos a tu medida.
+                Iniciar sesión
+              </motion.h2>
+
+              <motion.p
+                variants={{
+                  hidden: { opacity: 0, y: 10 },
+                  show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+                }}
+                className="mt-1 text-xs text-white/70 max-w-sm mx-auto leading-relaxed"
+              >
+                Ingresa con tu cuenta o continúa navegando la tienda libremente como invitado.
               </motion.p>
 
-              {/* 3 Pilares destacados con tarjetas interactivas */}
-              <motion.div
-                variants={{
-                  hidden: { opacity: 0, y: 22 },
-                  show: { opacity: 1, y: 0, transition: { duration: 0.45 } },
-                }}
-                className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-3 text-left"
-              >
+              {/* Formulario de Login */}
+              <form onSubmit={handleSubmit} className="mt-5 space-y-3.5 text-left">
+                {/* Campo Correo / Usuario */}
                 <motion.div
-                  whileHover={{
-                    y: -5,
-                    scale: 1.025,
-                    borderColor: "rgba(201,161,90,0.65)",
-                    backgroundColor: "rgba(255,255,255,0.06)",
-                    boxShadow: "0 12px 28px rgba(0,0,0,0.6), 0 0 20px rgba(201,161,90,0.15)",
+                  variants={{
+                    hidden: { opacity: 0, y: 12 },
+                    show: { opacity: 1, y: 0 },
                   }}
-                  transition={{ duration: 0.2 }}
-                  className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-white/[0.01] p-4 transition-colors"
                 >
-                  <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#c9a15a]/40 to-transparent" />
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#c9a15a]/15 text-[#c9a15a] mb-2.5 shadow-inner">
-                    <Leaf className="h-4 w-4" />
+                  <label className="block text-[0.68rem] font-bold tracking-wider text-white/75 uppercase mb-1.5">
+                    Correo electrónico
+                  </label>
+                  <div className="group relative flex items-center rounded-xl border border-white/15 bg-black/50 px-3.5 py-2.5 transition-all duration-200 focus-within:border-[#c9a15a] focus-within:ring-2 focus-within:ring-[#c9a15a]/25 focus-within:bg-black/70">
+                    <Mail className="h-4 w-4 text-[#c9a15a] mr-2.5 shrink-0 transition-transform group-focus-within:scale-110" />
+                    <input
+                      type="email"
+                      name="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="ejemplo@correo.com"
+                      autoComplete="username"
+                      className="w-full bg-transparent text-xs sm:text-sm text-white placeholder:text-white/35 focus:outline-none"
+                    />
                   </div>
-                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">Ecológico</h3>
-                  <p className="text-[0.72rem] text-white/60 mt-1 leading-snug">
-                    Pino noble seleccionado con tratamiento antiparasitario.
-                  </p>
                 </motion.div>
 
+                {/* Campo Contraseña */}
                 <motion.div
-                  whileHover={{
-                    y: -5,
-                    scale: 1.025,
-                    borderColor: "rgba(201,161,90,0.65)",
-                    backgroundColor: "rgba(255,255,255,0.06)",
-                    boxShadow: "0 12px 28px rgba(0,0,0,0.6), 0 0 20px rgba(201,161,90,0.15)",
+                  variants={{
+                    hidden: { opacity: 0, y: 12 },
+                    show: { opacity: 1, y: 0 },
                   }}
-                  transition={{ duration: 0.2 }}
-                  className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-white/[0.01] p-4 transition-colors"
                 >
-                  <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#c9a15a]/40 to-transparent" />
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#c9a15a]/15 text-[#c9a15a] mb-2.5 shadow-inner">
-                    <Hammer className="h-4 w-4" />
+                  <label className="block text-[0.68rem] font-bold tracking-wider text-white/75 uppercase mb-1.5">
+                    Contraseña
+                  </label>
+                  <div className="group relative flex items-center rounded-xl border border-white/15 bg-black/50 px-3.5 py-2.5 transition-all duration-200 focus-within:border-[#c9a15a] focus-within:ring-2 focus-within:ring-[#c9a15a]/25 focus-within:bg-black/70">
+                    <Lock className="h-4 w-4 text-[#c9a15a] mr-2.5 shrink-0 transition-transform group-focus-within:scale-110" />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      autoComplete="current-password"
+                      className="w-full bg-transparent text-xs sm:text-sm text-white placeholder:text-white/35 focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="text-white/40 hover:text-white transition p-1 cursor-pointer"
+                      title={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
                   </div>
-                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">Hecho a mano</h3>
-                  <p className="text-[0.72rem] text-white/60 mt-1 leading-snug">
-                    Ebanistería fina sin moldes industriales masivos.
-                  </p>
                 </motion.div>
 
-                <motion.div
-                  whileHover={{
-                    y: -5,
-                    scale: 1.025,
-                    borderColor: "rgba(201,161,90,0.65)",
-                    backgroundColor: "rgba(255,255,255,0.06)",
-                    boxShadow: "0 12px 28px rgba(0,0,0,0.6), 0 0 20px rgba(201,161,90,0.15)",
-                  }}
-                  transition={{ duration: 0.2 }}
-                  className="relative overflow-hidden rounded-2xl border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-white/[0.01] p-4 transition-colors"
-                >
-                  <div className="absolute top-0 inset-x-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#c9a15a]/40 to-transparent" />
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#c9a15a]/15 text-[#c9a15a] mb-2.5 shadow-inner">
-                    <Ruler className="h-4 w-4" />
-                  </div>
-                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">A tu medida</h3>
-                  <p className="text-[0.72rem] text-white/60 mt-1 leading-snug">
-                    Adaptamos cada centímetro para que calce en tu espacio.
-                  </p>
-                </motion.div>
-              </motion.div>
-
-              {/* Botones de acción principales */}
-              <motion.div
-                variants={{
-                  hidden: { opacity: 0, y: 16 },
-                  show: { opacity: 1, y: 0, transition: { duration: 0.45 } },
-                }}
-                className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3.5"
-              >
-                <motion.button
-                  type="button"
-                  whileHover={{
-                    scale: 1.04,
-                    boxShadow: "0 0 35px rgba(201,161,90,0.55), 0 10px 24px rgba(0,0,0,0.6)",
-                  }}
-                  whileTap={{ scale: 0.96 }}
-                  onClick={handleDismiss}
-                  className="group relative overflow-hidden inline-flex items-center justify-center gap-2 rounded-xl border border-[#c9a15a] bg-gradient-to-r from-[#c9a15a] via-[#dfbe78] to-[#c9a15a] bg-[length:200%_auto] px-8 py-3.5 text-xs font-bold tracking-[0.14em] text-[#0a0a0a] uppercase shadow-lg transition-all cursor-pointer"
-                >
-                  {/* Destello de luz pasando por encima */}
-                  <span className="pointer-events-none absolute -inset-full top-0 block -skew-x-12 bg-gradient-to-r from-transparent via-white/40 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-shine" />
-                  <span>Explorar catálogo</span>
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </motion.button>
-
-                <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.96 }}>
-                  <Link
-                    href="/login"
-                    onClick={handleDismiss}
-                    className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/[0.05] px-7 py-3.5 text-xs font-semibold tracking-[0.14em] text-white uppercase backdrop-blur-sm transition-all hover:border-[#c9a15a]/70 hover:bg-white/[0.09]"
+                {/* Mensaje de error si falla */}
+                {error ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2 rounded-xl border border-rose-500/40 bg-rose-500/10 p-2.5 text-xs text-rose-300"
                   >
-                    <LogIn className="h-4 w-4 text-[#c9a15a]" />
-                    <span>Iniciar sesión</span>
-                  </Link>
-                </motion.div>
-              </motion.div>
+                    <AlertCircle className="h-4 w-4 shrink-0 text-rose-400" />
+                    <span className="leading-tight">{error}</span>
+                  </motion.div>
+                ) : null}
 
-              {/* Micro-nota inferior y tip de teclado */}
+                {/* Botón Principal: Iniciar sesión */}
+                <motion.div
+                  variants={{
+                    hidden: { opacity: 0, y: 10 },
+                    show: { opacity: 1, y: 0 },
+                  }}
+                  className="pt-1.5"
+                >
+                  <motion.button
+                    type="submit"
+                    disabled={loading}
+                    whileHover={{
+                      scale: 1.02,
+                      boxShadow: "0 0 30px rgba(201,161,90,0.5), 0 8px 20px rgba(0,0,0,0.6)",
+                    }}
+                    whileTap={{ scale: 0.98 }}
+                    className="group gold-shimmer-btn relative overflow-hidden w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#c9a15a] bg-gradient-to-r from-[#c9a15a] via-[#dfbe78] to-[#c9a15a] bg-[length:200%_auto] py-3 text-xs font-bold tracking-[0.14em] text-[#0a0a0a] uppercase shadow-lg transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Verificando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Iniciar sesión</span>
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      </>
+                    )}
+                  </motion.button>
+                </motion.div>
+
+                {/* Opción destacada: Iniciar sesión más tarde */}
+                <motion.div
+                  variants={{
+                    hidden: { opacity: 0, y: 10 },
+                    show: { opacity: 1, y: 0 },
+                  }}
+                >
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.015 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleDismiss}
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/[0.04] py-3 text-xs font-semibold tracking-wider text-white/85 hover:border-[#c9a15a]/70 hover:bg-[#c9a15a]/10 hover:text-white transition cursor-pointer backdrop-blur-sm"
+                  >
+                    <Clock className="h-4 w-4 text-[#c9a15a]" />
+                    <span>Iniciar sesión más tarde</span>
+                  </motion.button>
+                </motion.div>
+              </form>
+
+              {/* Micro-nota inferior */}
               <motion.div
                 variants={{
                   hidden: { opacity: 0 },
                   show: { opacity: 1, transition: { duration: 0.3 } },
                 }}
-                className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-[0.72rem] text-white/50"
+                className="mt-4 pt-3 border-t border-white/10 text-center text-[0.7rem] text-white/45 flex items-center justify-center gap-1.5"
               >
-                <span className="flex items-center gap-1.5">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-                  <span>Compras y cotizaciones directas como invitado</span>
-                </span>
-                <span className="hidden sm:inline text-white/20">•</span>
-                <span className="text-white/40 text-[0.68rem]">
-                  Presiona <kbd className="rounded bg-white/10 px-1.5 py-0.5 font-mono text-[0.62rem] text-white/80">Esc</kbd> para explorar libremente
-                </span>
+                <span>Puedes explorar todo el catálogo y cotizar como invitado sin registrarte.</span>
               </motion.div>
             </motion.div>
           </motion.div>
@@ -418,4 +465,3 @@ export function WelcomeModal({
     </AnimatePresence>
   );
 }
-
