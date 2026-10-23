@@ -15,6 +15,8 @@ export const ADMIN_PREFIXES = [
   "/exportar",
   "/backup",
   "/desbloquear",
+  "/conexion-web",
+  "/contenido-web",
 ] as const;
 
 /** Rutas de la tienda pública (sin sesión) */

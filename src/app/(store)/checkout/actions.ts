@@ -11,6 +11,8 @@ import {
 } from "@/lib/web-checkout";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
+import { siteUrl } from "@/lib/store-info";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 function parseCustomer(fd: FormData): CheckoutCustomer {
   const name = String(fd.get("name") || "").trim();
@@ -55,8 +57,16 @@ function parseCart(fd: FormData): CartLineInput[] {
 export async function submitWebCheckout(fd: FormData) {
   const mode = String(fd.get("mode") || "");
   const customer = parseCustomer(fd);
+
+  // Rate limiting por email / sesión para prevenir spam de pedidos y agotamiento de recursos
+  const rl = checkRateLimit(`checkout:${customer.email.toLowerCase()}`, 10, 15 * 60 * 1000);
+  if (!rl.ok) {
+    throw new Error(
+      "Has realizado demasiados intentos de pedido en poco tiempo. Por favor espera unos minutos antes de intentar de nuevo.",
+    );
+  }
+
   const cart = parseCart(fd);
-  const origin = String(fd.get("origin") || "");
 
   if (mode === "quote") {
     const { order } = await createWebQuote(customer, cart);
@@ -104,11 +114,7 @@ export async function submitWebCheckout(fd: FormData) {
       cart,
     );
     const stripe = getStripe();
-    const base =
-      origin ||
-      process.env.AUTH_URL ||
-      process.env.NEXT_PUBLIC_APP_URL ||
-      "http://localhost:3000";
+    const base = siteUrl();
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",

@@ -4,8 +4,14 @@ import { isAdmin } from "@/lib/rbac";
 import { NextResponse } from "next/server";
 
 function csvEscape(v: unknown) {
-  const s = v == null ? "" : String(v);
-  if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+  if (v == null) return "";
+  let s = String(v);
+  // Mitigar CSV Formula Injection (CWE-1236)
+  // Previene ejecución de fórmulas en Excel/Sheets al anteponer comilla simple si inicia con =, +, -, @, \t, \r
+  if (/^[=+\-@\t\r]/.test(s)) {
+    s = `'${s}`;
+  }
+  if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
   return s;
 }
 

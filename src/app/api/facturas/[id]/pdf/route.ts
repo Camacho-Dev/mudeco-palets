@@ -14,13 +14,15 @@ export async function GET(
 
   if (!authorized) {
     const url = new URL(req.url);
-    const orderId = url.searchParams.get("orderId");
-    // Permitir descarga si el invoice pertenece a un pedido web o coincide con orderId
-    const webOrder = await prisma.webOrder.findFirst({
-      where: orderId ? { id: orderId, invoiceId: id } : { invoiceId: id },
-    });
-    if (webOrder) {
-      authorized = true;
+    const orderId = (url.searchParams.get("orderId") || "").trim();
+    // Solo permitir descarga sin sesión si se provee explícitamente el orderId correcto
+    if (orderId) {
+      const webOrder = await prisma.webOrder.findFirst({
+        where: { id: orderId, invoiceId: id },
+      });
+      if (webOrder) {
+        authorized = true;
+      }
     }
   }
 

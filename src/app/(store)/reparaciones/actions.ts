@@ -6,6 +6,7 @@ import {
   createWebServiceRequest,
   type ServiceRequestKind,
 } from "@/lib/web-checkout";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function submitServiceRequest(fd: FormData) {
   const name = String(fd.get("name") || "").trim();
@@ -26,6 +27,14 @@ export async function submitServiceRequest(fd: FormData) {
   if (!email || !email.includes("@")) throw new Error("Email válido requerido");
   if (!phone) throw new Error("Teléfono requerido");
   if (!description) throw new Error("Describe lo que necesitas");
+
+  // Rate limiting por correo para mitigar flooding de solicitudes públicas
+  const rl = checkRateLimit(`service-req:${email.toLowerCase()}`, 6, 15 * 60 * 1000);
+  if (!rl.ok) {
+    throw new Error(
+      "Has enviado varias solicitudes recientemente. Por favor espera unos minutos antes de intentar de nuevo.",
+    );
+  }
 
   const { order } = await createWebServiceRequest(
     {
