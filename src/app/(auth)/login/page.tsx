@@ -115,6 +115,10 @@ export default function LoginPage() {
           <LoginForm />
         </Suspense>
       </div>
+
+      <p className="relative z-10 mt-6 text-center text-[0.68rem] tracking-[0.22em] text-[#c9a15a] uppercase font-semibold">
+        DESARROLLADOR FULL STACK · BRAYAN CAMACHO
+      </p>
     </div>
   );
 }

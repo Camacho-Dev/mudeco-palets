@@ -424,6 +424,9 @@ export function WelcomeModal({
                 className="mt-3 pt-2.5 border-t border-white/10 text-center text-[0.68rem] text-white/45"
               >
                 <span>Puedes explorar el catálogo y cotizar como invitado sin registrarte.</span>
+                <p className="mt-2 text-[0.6rem] tracking-[0.16em] text-[#c9a15a]/80 uppercase font-medium">
+                  DESARROLLADOR FULL STACK · BRAYAN CAMACHO
+                </p>
               </motion.div>
             </motion.div>
           </motion.div>

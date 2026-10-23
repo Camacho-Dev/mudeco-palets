@@ -161,16 +161,21 @@ export function StoreFooter({
           </ul>
         </div>
       </div>
-      <div className="border-t border-white/[0.08] px-4 py-5 text-center text-[0.7rem] tracking-wide text-white/35">
-        © {new Date().getFullYear()} {company.name} · Todos los derechos
-        reservados ·{" "}
-        <Link href="/privacidad" className="hover:text-white">
-          Privacidad
-        </Link>{" "}
-        ·{" "}
-        <Link href="/terminos" className="hover:text-white">
-          Términos
-        </Link>
+      <div className="border-t border-white/[0.08] px-4 py-6 text-center text-[0.7rem] tracking-wide text-white/40">
+        <div>
+          © {new Date().getFullYear()} {company.name} · Todos los derechos
+          reservados ·{" "}
+          <Link href="/privacidad" className="hover:text-white transition">
+            Privacidad
+          </Link>{" "}
+          ·{" "}
+          <Link href="/terminos" className="hover:text-white transition">
+            Términos
+          </Link>
+        </div>
+        <p className="mt-2.5 text-[0.68rem] tracking-[0.22em] text-[#c9a15a] uppercase font-semibold">
+          DESARROLLADOR FULL STACK · BRAYAN CAMACHO
+        </p>
       </div>
     </footer>
   );

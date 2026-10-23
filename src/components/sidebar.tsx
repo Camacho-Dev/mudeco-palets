@@ -195,6 +195,9 @@ export async function Sidebar() {
             Cerrar sesión
           </button>
         </form>
+        <p className="mt-3 text-center text-[0.6rem] tracking-[0.16em] text-[#c9a15a]/80 uppercase font-medium">
+          DESARROLLADOR FULL STACK · BRAYAN CAMACHO
+        </p>
       </div>
     </aside>
   );
@@ -237,6 +240,9 @@ export async function SidebarMobilePanel() {
       <div className="border-t border-white/10 p-4 text-sm">
         <p>{session?.user?.name}</p>
         <p className="text-xs text-white/50">{session?.user?.email}</p>
+        <p className="mt-3 text-center text-[0.6rem] tracking-[0.16em] text-[#c9a15a]/80 uppercase font-medium">
+          DESARROLLADOR FULL STACK · BRAYAN CAMACHO
+        </p>
       </div>
     </div>
   );
