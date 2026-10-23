@@ -170,10 +170,6 @@ export function StoreFooter({
         ·{" "}
         <Link href="/terminos" className="hover:text-white">
           Términos
-        </Link>{" "}
-        ·{" "}
-        <Link href="/validador" className="hover:text-white">
-          Validador de Tarjetas
         </Link>
       </div>
     </footer>

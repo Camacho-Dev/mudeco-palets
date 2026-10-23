@@ -43,7 +43,6 @@ const openNav = [
   { href: "/pedidos-web", label: "Pedidos web", icon: Globe },
   { href: "/clientes", label: "Clientes", icon: Users },
   { href: "/productos", label: "Catálogo", icon: Package },
-  { href: "/validador", label: "Validador tarjetas", icon: CreditCard },
 ];
 
 const adminNav = [

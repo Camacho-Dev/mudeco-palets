@@ -461,12 +461,6 @@ export function WebConnectionView({
               >
                 {isCheckingStripe ? "Verificando..." : "Test de conexión"}
               </button>
-              <Link
-                href="/validador"
-                className="text-xs font-semibold text-[var(--wood-800)] hover:underline"
-              >
-                Validador →
-              </Link>
             </div>
           </div>
 
