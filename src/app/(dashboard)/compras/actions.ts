@@ -99,3 +99,28 @@ export async function receivePurchase(id: string) {
   revalidatePath("/vender");
   redirect(`/compras/${id}`);
 }
+
+export async function cancelPurchase(id: string) {
+  await requireAdmin();
+  const purchase = await prisma.purchase.findUnique({
+    where: { id },
+  });
+  if (!purchase || purchase.status === "RECEIVED") {
+    throw new Error("No se puede cancelar una compra ya recibida");
+  }
+
+  await prisma.purchase.update({
+    where: { id },
+    data: { status: "CANCELLED" },
+  });
+
+  await writeAudit({
+    action: "CANCEL",
+    entity: "Purchase",
+    entityId: id,
+    summary: `Compra cancelada ${purchase.number}`,
+  });
+
+  revalidatePath("/compras");
+  redirect(`/compras/${id}`);
+}

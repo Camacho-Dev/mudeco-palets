@@ -205,22 +205,41 @@ export default async function PagosPage({
                 </td>
               </tr>
             ) : (
-              payments.map((p) => (
-                <tr key={p.id}>
-                  <td>{formatDate(p.paidAt)}</td>
-                  <td>
-                    <Link
-                      href={`/facturas/${p.invoiceId}`}
-                      className="font-medium text-[var(--wood-800)] hover:underline"
-                    >
-                      {p.invoice.number}
-                    </Link>
-                  </td>
-                  <td>{p.invoice.customer.name}</td>
-                  <td>{PAYMENT_METHOD_LABELS[p.method] || p.method}</td>
-                  <td>{formatCurrency(p.amount)}</td>
-                </tr>
-              ))
+              payments.map((p) => {
+                const badgeColor =
+                  p.method === "CASH"
+                    ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                    : p.method === "TRANSFER"
+                      ? "bg-sky-50 text-sky-800 border-sky-200"
+                      : p.method === "CARD"
+                        ? "bg-purple-50 text-purple-800 border-purple-200"
+                        : p.method === "CHECK"
+                          ? "bg-amber-50 text-amber-800 border-amber-200"
+                          : "bg-stone-50 text-stone-700 border-stone-200";
+
+                return (
+                  <tr key={p.id}>
+                    <td className="text-xs text-[var(--muted)]">{formatDate(p.paidAt)}</td>
+                    <td className="font-mono text-xs font-semibold">
+                      <Link
+                        href={`/facturas/${p.invoiceId}`}
+                        className="text-[var(--wood-900)] hover:underline"
+                      >
+                        {p.invoice.number}
+                      </Link>
+                    </td>
+                    <td className="font-medium text-[var(--wood-950)]">{p.invoice.customer.name}</td>
+                    <td>
+                      <span
+                        className={`inline-flex items-center rounded border px-2 py-0.5 text-[0.68rem] font-bold uppercase tracking-wider ${badgeColor}`}
+                      >
+                        {PAYMENT_METHOD_LABELS[p.method] || p.method}
+                      </span>
+                    </td>
+                    <td className="font-bold text-[var(--wood-950)]">{formatCurrency(p.amount)}</td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>

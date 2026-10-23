@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { paidAmount } from "@/lib/invoice-calc";
+import { calcInvoiceBalance } from "@/lib/invoice-calc";
 
 export async function getCustomerOpenBalance(customerId: string) {
   const invoices = await prisma.invoice.findMany({
@@ -7,11 +7,10 @@ export async function getCustomerOpenBalance(customerId: string) {
       customerId,
       status: { in: ["ISSUED", "PARTIAL"] },
     },
-    include: { payments: true },
+    include: { payments: true, creditNotes: true },
   });
   return invoices.reduce((sum, inv) => {
-    const paid = paidAmount(inv.payments);
-    return sum + Math.max(0, inv.total - paid);
+    return sum + calcInvoiceBalance(inv.total, inv.payments, inv.creditNotes);
   }, 0);
 }
 

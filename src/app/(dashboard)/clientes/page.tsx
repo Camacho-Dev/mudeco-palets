@@ -5,6 +5,8 @@ import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { ListSearchBar } from "@/components/invoice-search";
 
+import { formatCurrency } from "@/lib/format";
+
 export default async function ClientesPage({
   searchParams,
 }: {
@@ -61,6 +63,7 @@ export default async function ClientesPage({
               <th>Nombre</th>
               <th>RNC / Cédula</th>
               <th>Contacto</th>
+              <th>Límite Crédito</th>
               <th>Facturas</th>
               <th></th>
             </tr>
@@ -68,7 +71,7 @@ export default async function ClientesPage({
           <tbody>
             {customers.length === 0 ? (
               <tr>
-                <td colSpan={5} className="text-center text-[var(--muted)]">
+                <td colSpan={6} className="text-center text-[var(--muted)]">
                   {query
                     ? `No se encontraron clientes para “${query}”`
                     : "No hay clientes"}
@@ -77,7 +80,7 @@ export default async function ClientesPage({
             ) : (
               customers.map((c) => (
                 <tr key={c.id}>
-                  <td className="font-medium">{c.name}</td>
+                  <td className="font-medium text-[var(--wood-950)]">{c.name}</td>
                   <td>{c.taxId || "—"}</td>
                   <td>
                     <div className="text-[var(--muted)]">
@@ -86,6 +89,15 @@ export default async function ClientesPage({
                         <div className="text-xs">{c.phone}</div>
                       ) : null}
                     </div>
+                  </td>
+                  <td>
+                    {c.creditLimit > 0 ? (
+                      <span className="font-semibold text-[var(--wood-900)]">
+                        {formatCurrency(c.creditLimit)}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-[var(--muted)]">Sin límite</span>
+                    )}
                   </td>
                   <td>{c._count.invoices}</td>
                   <td className="text-right">

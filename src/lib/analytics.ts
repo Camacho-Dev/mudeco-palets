@@ -40,6 +40,9 @@ export async function getBusinessAnalytics(range?: DateRange) {
       orderBy: { issueDate: "asc" },
     }),
     prisma.payment.findMany({
+      where: {
+        invoice: { status: { in: [...SOLD_STATUSES] } },
+      },
       orderBy: { paidAt: "asc" },
     }),
     prisma.product.findMany({ where: { active: true, kind: "FINISHED" } }),

@@ -239,37 +239,71 @@ export default async function FacturaDetallePage({
           </div>
 
           <div className="card p-6">
-            <h2 className="mb-3 font-medium text-slate-800">Pagos</h2>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="font-semibold text-slate-800">Pagos</h2>
+              {balance > 0 ? (
+                <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-800">
+                  Resta {formatCurrency(balance)}
+                </span>
+              ) : (
+                <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-800">
+                  Saldada
+                </span>
+              )}
+            </div>
             {invoice.payments.length === 0 ? (
               <p className="mb-4 text-sm text-slate-500">Sin pagos registrados</p>
             ) : (
-              <ul className="mb-4 space-y-2">
-                {invoice.payments.map((p) => (
-                  <li
-                    key={p.id}
-                    className="flex items-center justify-between border-b border-slate-100 pb-2 text-sm last:border-0"
-                  >
-                    <div>
-                      <div className="font-medium">
-                        {formatCurrency(p.amount)}
+              <ul className="mb-4 space-y-2.5">
+                {invoice.payments.map((p) => {
+                  const badgeColor =
+                    p.method === "CASH"
+                      ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                      : p.method === "TRANSFER"
+                        ? "bg-sky-50 text-sky-800 border-sky-200"
+                        : p.method === "CARD"
+                          ? "bg-purple-50 text-purple-800 border-purple-200"
+                          : p.method === "CHECK"
+                            ? "bg-amber-50 text-amber-800 border-amber-200"
+                            : "bg-stone-50 text-stone-700 border-stone-200";
+
+                  return (
+                    <li
+                      key={p.id}
+                      className="flex items-center justify-between rounded-lg border border-slate-100 bg-[#fbf7f2]/40 p-2.5 text-sm"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-[var(--wood-950)]">
+                            {formatCurrency(p.amount)}
+                          </span>
+                          <span
+                            className={`inline-flex items-center rounded border px-1.5 py-0.5 text-[0.68rem] font-bold uppercase tracking-wider ${badgeColor}`}
+                          >
+                            {PAYMENT_METHOD_LABELS[p.method] || p.method}
+                          </span>
+                        </div>
+                        <div className="mt-0.5 text-xs text-slate-500">
+                          {formatDate(p.paidAt)}
+                          {p.notes ? ` · “${p.notes}”` : ""}
+                        </div>
                       </div>
-                      <div className="text-xs text-slate-400">
-                        {formatDate(p.paidAt)} ·{" "}
-                        {PAYMENT_METHOD_LABELS[p.method] || p.method}
-                      </div>
-                    </div>
-                    {admin ? (
-                      <ConfirmForm
-                        action={deletePayment.bind(null, p.id)}
-                        message="¿Eliminar este pago?"
-                      >
-                        <button type="submit" className="text-xs text-rose-600">
-                          Quitar
-                        </button>
-                      </ConfirmForm>
-                    ) : null}
-                  </li>
-                ))}
+                      {admin ? (
+                        <ConfirmForm
+                          action={deletePayment.bind(null, p.id)}
+                          message={`¿Eliminar este pago de ${formatCurrency(p.amount)}?`}
+                        >
+                          <button
+                            type="submit"
+                            className="text-xs font-semibold text-rose-600 hover:text-rose-800 hover:underline px-1 py-0.5"
+                          >
+                            Quitar
+                          </button>
+                        </ConfirmForm>
+                      ) : null}
+                    </li>
+                  );
+                })}
               </ul>
             )}
             {canPay ? (

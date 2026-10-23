@@ -133,3 +133,27 @@ export async function completeWorkOrder(id: string) {
   revalidatePath(`/producto/${wo.productId}`);
   redirect("/fabricacion");
 }
+
+export async function cancelWorkOrder(id: string) {
+  await requireAdmin();
+  const wo = await prisma.workOrder.findUnique({
+    where: { id },
+  });
+  if (!wo || wo.status !== "PENDING") {
+    throw new Error("Solo se pueden cancelar órdenes en estado pendiente");
+  }
+
+  await prisma.workOrder.update({
+    where: { id },
+    data: { status: "CANCELLED" },
+  });
+
+  await writeAudit({
+    action: "CANCEL",
+    entity: "WorkOrder",
+    entityId: id,
+    summary: `Orden de fabricación cancelada ${wo.number}`,
+  });
+
+  revalidatePath("/fabricacion");
+}

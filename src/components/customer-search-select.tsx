@@ -8,6 +8,7 @@ export type CustomerOption = {
   id: string;
   name: string;
   taxId?: string | null;
+  creditLimit?: number | null;
 };
 
 function labelOf(c: CustomerOption) {
@@ -179,9 +180,16 @@ export function CustomerSearchSelect({
                       c.id === selectedId ? "bg-[#f3ebe3]" : ""
                     }`}
                   >
-                    <span className="truncate font-medium text-slate-800">
-                      {c.name}
-                    </span>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="truncate font-medium text-slate-800">
+                        {c.name}
+                      </span>
+                      {c.creditLimit && c.creditLimit > 0 ? (
+                        <span className="shrink-0 rounded bg-amber-50 border border-amber-200 px-1.5 py-0.5 text-[0.65rem] font-semibold text-amber-800">
+                          Crédito RD$ {c.creditLimit.toLocaleString("es-DO")}
+                        </span>
+                      ) : null}
+                    </div>
                     {c.taxId ? (
                       <span className="truncate text-xs text-[var(--muted)]">
                         {c.taxId}

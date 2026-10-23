@@ -333,7 +333,7 @@ export async function createWebLocalSale(
       productId: l.productId,
       quantity: l.quantity,
     })),
-    { refType: "INVOICE", refId: invoice.id },
+    { refType: "Invoice", refId: invoice.id },
   );
 
   await notifyStaffNewWebOrder(order.id).catch(() => undefined);
@@ -466,7 +466,7 @@ export async function finalizeOnlinePaidOrder(webOrderId: string) {
         productId: l.productId,
         quantity: l.quantity,
       })),
-      { refType: "INVOICE", refId: inv.id },
+      { refType: "Invoice", refId: inv.id },
     );
   }
 

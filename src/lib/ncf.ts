@@ -14,11 +14,11 @@ export async function allocateNcf(type: string): Promise<string | null> {
     throw new Error(`Serie NCF ${type} agotada`);
   }
 
-  const seq = series.nextSeq;
-  await prisma.ncfSeries.update({
+  const updated = await prisma.ncfSeries.update({
     where: { id: series.id },
-    data: { nextSeq: seq + 1 },
+    data: { nextSeq: { increment: 1 } },
   });
+  const seq = updated.nextSeq - 1;
 
   return `${series.prefix}${String(seq).padStart(8, "0")}`;
 }

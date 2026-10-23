@@ -102,16 +102,19 @@ export async function cancelWebOrder(id: string) {
   });
   if (!existing) throw new Error("Pedido no encontrado");
 
-  // Si tenía factura emitida y dedujo stock, anular la factura y devolver el inventario
-  if (existing.invoice && ["ISSUED", "PARTIAL"].includes(existing.invoice.status)) {
+  // Si tenía factura emitida/pagada y dedujo stock, anular la factura, eliminar pagos y devolver el inventario
+  if (existing.invoice && ["ISSUED", "PARTIAL", "PAID"].includes(existing.invoice.status)) {
     await restoreStock(existing.invoice.items, {
       refType: "WebOrderCancel",
       refId: id,
     });
-    await prisma.invoice.update({
-      where: { id: existing.invoice.id },
-      data: { status: "VOIDED" },
-    });
+    await prisma.$transaction([
+      prisma.payment.deleteMany({ where: { invoiceId: existing.invoice.id } }),
+      prisma.invoice.update({
+        where: { id: existing.invoice.id },
+        data: { status: "VOIDED" },
+      }),
+    ]);
   }
 
   const order = await prisma.webOrder.update({

@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { ListSearchBar } from "@/components/invoice-search";
 import { formatDate } from "@/lib/format";
-import { completeWorkOrder } from "./actions";
+import { completeWorkOrder, cancelWorkOrder } from "./actions";
 import { ConfirmForm } from "@/components/confirm-form";
 
 export default async function FabricacionPage({
@@ -77,7 +77,7 @@ export default async function FabricacionPage({
               <th>Cant</th>
               <th>Estado</th>
               <th>Fecha</th>
-              <th></th>
+              <th className="text-right">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -86,29 +86,58 @@ export default async function FabricacionPage({
                 <td colSpan={6} className="text-center text-[var(--muted)]">
                   {query
                     ? `No se encontraron órdenes para “${query}”`
-                    : "No hay órdenes de fabricación"}
+                    : "No hay órdenes de fabricación registradas"}
                 </td>
               </tr>
             ) : (
               rows.map((w) => (
                 <tr key={w.id}>
-                  <td>{w.number}</td>
-                  <td>{w.product.name}</td>
-                  <td>{w.quantity}</td>
-                  <td>{w.status}</td>
-                  <td>{formatDate(w.createdAt)}</td>
+                  <td className="font-mono text-xs font-semibold text-[var(--wood-900)]">
+                    {w.number}
+                  </td>
+                  <td className="font-medium">{w.product.name}</td>
+                  <td className="font-semibold text-[var(--wood-950)]">{w.quantity}</td>
                   <td>
-                    {w.status !== "DONE" ? (
-                      <ConfirmForm
-                        action={completeWorkOrder.bind(null, w.id)}
-                        message="¿Completar fabricación? Descontará materiales y sumará stock."
-                      >
-                        <button type="submit" className="btn btn-ghost text-xs">
-                          Completar
-                        </button>
-                      </ConfirmForm>
+                    {w.status === "DONE" ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        Completada
+                      </span>
+                    ) : w.status === "CANCELLED" ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-semibold text-rose-800">
+                        <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                        Cancelada
+                      </span>
                     ) : (
-                      "—"
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-800">
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                        En producción
+                      </span>
+                    )}
+                  </td>
+                  <td className="text-xs text-[var(--muted)]">{formatDate(w.createdAt)}</td>
+                  <td className="text-right">
+                    {w.status === "PENDING" ? (
+                      <div className="flex items-center justify-end gap-2">
+                        <ConfirmForm
+                          action={completeWorkOrder.bind(null, w.id)}
+                          message={`¿Completar fabricación de ${w.quantity} ${w.product.name}? Se descontarán los materiales del almacén y se sumará el stock terminado.`}
+                        >
+                          <button type="submit" className="btn btn-primary text-xs py-1 px-2.5">
+                            Completar
+                          </button>
+                        </ConfirmForm>
+                        <ConfirmForm
+                          action={cancelWorkOrder.bind(null, w.id)}
+                          message={`¿Cancelar orden de fabricación ${w.number}? No se afectará el inventario.`}
+                        >
+                          <button type="submit" className="btn btn-ghost text-xs py-1 px-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50">
+                            Cancelar
+                          </button>
+                        </ConfirmForm>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-[var(--muted)]">—</span>
                     )}
                   </td>
                 </tr>

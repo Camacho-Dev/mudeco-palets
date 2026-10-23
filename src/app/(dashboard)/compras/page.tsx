@@ -89,15 +89,32 @@ export default async function ComprasPage({
             ) : (
               rows.map((p) => (
                 <tr key={p.id}>
-                  <td>
-                    <Link href={`/compras/${p.id}`} className="underline">
+                  <td className="font-mono text-xs font-semibold text-[var(--wood-900)]">
+                    <Link href={`/compras/${p.id}`} className="hover:underline">
                       {p.number}
                     </Link>
                   </td>
-                  <td>{p.supplier.name}</td>
-                  <td>{formatDate(p.orderedAt)}</td>
-                  <td>{p.status}</td>
-                  <td>{formatCurrency(p.total)}</td>
+                  <td className="font-medium">{p.supplier.name}</td>
+                  <td className="text-xs text-[var(--muted)]">{formatDate(p.orderedAt)}</td>
+                  <td>
+                    {p.status === "RECEIVED" ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        Recibida
+                      </span>
+                    ) : p.status === "CANCELLED" ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-semibold text-rose-800">
+                        <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                        Cancelada
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800">
+                        <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+                        Ordenada
+                      </span>
+                    )}
+                  </td>
+                  <td className="font-bold text-[var(--wood-950)]">{formatCurrency(p.total)}</td>
                 </tr>
               ))
             )}

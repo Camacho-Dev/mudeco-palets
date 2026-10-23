@@ -31,6 +31,7 @@ type CustomerOption = {
   id: string;
   name: string;
   taxId: string | null;
+  creditLimit?: number | null;
 };
 
 type CartLine = {
@@ -688,6 +689,12 @@ export function QuickSale({
                 onChange={setCustomerId}
                 required
               />
+              {selectedCustomer?.creditLimit && selectedCustomer.creditLimit > 0 ? (
+                <div className="mt-1.5 flex items-center justify-between rounded-md border border-amber-200/90 bg-amber-50/80 px-2.5 py-1 text-xs text-amber-900">
+                  <span className="font-medium">Límite de crédito fijado:</span>
+                  <span className="font-bold">{formatCurrency(selectedCustomer.creditLimit)}</span>
+                </div>
+              ) : null}
             </div>
 
             <div className="space-y-2">

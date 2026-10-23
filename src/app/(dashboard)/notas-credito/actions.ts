@@ -22,10 +22,16 @@ export async function createCreditNote(fd: FormData) {
 
   const invoice = await prisma.invoice.findUnique({
     where: { id: invoiceId },
-    include: { items: true },
+    include: { items: true, creditNotes: true },
   });
   if (!invoice || invoice.status === "VOIDED" || invoice.status === "DRAFT") {
     throw new Error("Factura no válida para nota de crédito");
+  }
+
+  const alreadyCredited = creditNotesAmount(invoice.creditNotes);
+  const remainingCreditable = Math.round((invoice.total - alreadyCredited) * 100) / 100;
+  if (remainingCreditable <= 0.001) {
+    throw new Error("Esta factura ya fue acreditada en su totalidad con notas de crédito previas.");
   }
 
   const useFull = fd.get("full") === "on" || fd.get("full") === "true";
@@ -41,6 +47,11 @@ export async function createCreditNote(fd: FormData) {
   }[] = [];
 
   if (useFull) {
+    if (alreadyCredited > 0.001) {
+      throw new Error(
+        `Esta factura ya tiene notas de crédito previas por ${alreadyCredited}. Ingrese un monto de ajuste parcial por el restante (máximo ${remainingCreditable}).`,
+      );
+    }
     lines = invoice.items.map((it) => ({
       productId: it.productId,
       description: it.description,
@@ -50,9 +61,9 @@ export async function createCreditNote(fd: FormData) {
       lineTotal: it.lineTotal,
     }));
   } else if (customAmount > 0) {
-    if (customAmount > invoice.total) {
+    if (customAmount > remainingCreditable + 0.001) {
       throw new Error(
-        "El monto de la nota de crédito no puede superar el total de la factura",
+        `El monto (${customAmount}) supera el saldo acreditable restante de la factura (máximo ${remainingCreditable}).`,
       );
     }
     lines = [
