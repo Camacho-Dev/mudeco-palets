@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { signIn, getSession } from "next-auth/react";
+import { signIn, getSession, useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BrandLogo } from "@/components/logo";
 import {
@@ -24,6 +24,9 @@ export function WelcomeModal({
   isAuthenticated: boolean;
 }) {
   const router = useRouter();
+  const { data: session } = useSession();
+  const isUserLoggedIn = isAuthenticated || Boolean(session?.user);
+
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,27 +36,32 @@ export function WelcomeModal({
 
   const handleDismiss = useCallback(() => {
     setOpen(false);
+    try {
+      sessionStorage.setItem("mudeco_login_later", "true");
+    } catch {}
   }, []);
 
   useEffect(() => {
-    // Si la URL pide explícitamente ocultar con ?welcome=0
+    // Si el usuario ya inició sesión (sea Admin o cliente), NUNCA mostrar el modal
+    if (isUserLoggedIn) {
+      setOpen(false);
+      return;
+    }
+
     try {
       if (typeof window !== "undefined") {
         const params = new URLSearchParams(window.location.search);
         if (params.get("welcome") === "0") return;
-        sessionStorage.removeItem("mudeco_welcome_seen");
+
+        // Si ya eligió "Iniciar sesión más tarde" en esta pestaña/sesión, no volver a mostrar en cada clic
+        const later = sessionStorage.getItem("mudeco_login_later");
+        if (later === "true") return;
       }
     } catch {}
 
-    // En desarrollo local o para usuarios no autenticados, se abre de inmediato
-    const isDev = process.env.NODE_ENV !== "production";
-    if (isAuthenticated && !isDev) {
-      return;
-    }
-
-    // Apertura inmediata y rápida
+    // Si no ha iniciado sesión y no ha elegido omitir, mostrar el modal de acceso
     setOpen(true);
-  }, [isAuthenticated]);
+  }, [isUserLoggedIn]);
 
   // Permitir reabrir con evento global si se requiere
   useEffect(() => {
@@ -109,6 +117,11 @@ export function WelcomeModal({
       setError("Ocurrió un error al intentar iniciar sesión. Intenta de nuevo.");
     }
   };
+
+  // Si ya inició sesión, no renderizar absolutamente nada
+  if (isUserLoggedIn) {
+    return null;
+  }
 
   return (
     <AnimatePresence>
