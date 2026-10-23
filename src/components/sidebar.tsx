@@ -30,6 +30,10 @@ import { BrandLogo } from "@/components/logo";
 import { isAdmin } from "@/lib/rbac";
 import { GlobalSearch } from "@/components/global-search";
 import { prisma } from "@/lib/prisma";
+import {
+  getCachedAuthSession,
+  getCachedPendingWebOrders,
+} from "@/lib/dashboard-cache";
 
 const openNav = [
   { href: "/vender", label: "Generar factura", icon: Zap, accent: true },
@@ -127,15 +131,11 @@ function NavLinks({
 
 
 export async function Sidebar() {
-  const session = await auth();
+  const [session, { count: webPending }] = await Promise.all([
+    getCachedAuthSession(),
+    getCachedPendingWebOrders(),
+  ]);
   const admin = isAdmin(session?.user?.role);
-  const webPending = await prisma.webOrder.count({
-    where: {
-      status: {
-        in: ["PENDING", "AWAITING_PAYMENT", "QUOTED", "IN_PROGRESS"],
-      },
-    },
-  });
 
   return (
     <aside className="no-print sticky top-0 hidden h-screen w-64 shrink-0 flex-col overflow-y-auto bg-[#3d2a1f] text-[#faf6f1] md:flex">
@@ -200,15 +200,11 @@ export async function Sidebar() {
 }
 
 export async function SidebarMobilePanel() {
-  const session = await auth();
+  const [session, { count: webPending }] = await Promise.all([
+    getCachedAuthSession(),
+    getCachedPendingWebOrders(),
+  ]);
   const admin = isAdmin(session?.user?.role);
-  const webPending = await prisma.webOrder.count({
-    where: {
-      status: {
-        in: ["PENDING", "AWAITING_PAYMENT", "QUOTED", "IN_PROGRESS"],
-      },
-    },
-  });
 
   return (
     <div className="flex h-full flex-col text-[#faf6f1]">

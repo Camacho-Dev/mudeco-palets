@@ -69,6 +69,10 @@ model Product {
   bomAsMaterial BomItem[]       @relation("MaterialProduct")
   workOrderMats WorkOrderItem[]
   webOrderItems WebOrderItem[]
+
+  @@index([kind, active, category])
+  @@index([category])
+  @@index([sku])
 }
 
 model Invoice {
@@ -98,6 +102,10 @@ model Invoice {
   webOrders   WebOrder[]
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+
+  @@index([status, issueDate])
+  @@index([customerId])
+  @@index([userId])
 }
 
 model InvoiceItem {
@@ -111,6 +119,9 @@ model InvoiceItem {
   unitPrice   Float
   taxRate     Float
   lineTotal   Float
+
+  @@index([invoiceId])
+  @@index([productId])
 }
 
 model Payment {
@@ -122,6 +133,9 @@ model Payment {
   paidAt    DateTime @default(now())
   notes     String?
   createdAt DateTime @default(now())
+
+  @@index([invoiceId])
+  @@index([paidAt])
 }
 
 model CompanySettings {
@@ -186,6 +200,8 @@ model StockMovement {
   note      String?
   userId    String?
   createdAt DateTime @default(now())
+
+  @@index([productId, createdAt])
 }
 
 model Quote {
@@ -208,6 +224,9 @@ model Quote {
   webOrders  WebOrder[]
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
+
+  @@index([status, issueDate])
+  @@index([customerId])
 }
 
 model QuoteItem {
@@ -221,6 +240,9 @@ model QuoteItem {
   unitPrice   Float
   taxRate     Float
   lineTotal   Float
+
+  @@index([quoteId])
+  @@index([productId])
 }
 
 model WebOrder {
@@ -253,6 +275,9 @@ model WebOrder {
   items            WebOrderItem[]
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+
+  @@index([status, createdAt])
+  @@index([customerId])
 }
 
 model WebOrderItem {
@@ -266,6 +291,9 @@ model WebOrderItem {
   unitPrice   Float
   taxRate     Float
   lineTotal   Float
+
+  @@index([webOrderId])
+  @@index([productId])
 }
 
 model CreditNote {
@@ -285,6 +313,9 @@ model CreditNote {
   user       User             @relation(fields: [userId], references: [id])
   items      CreditNoteItem[]
   createdAt  DateTime         @default(now())
+
+  @@index([invoiceId])
+  @@index([customerId])
 }
 
 model CreditNoteItem {

@@ -2,8 +2,17 @@ import { PrismaClient } from "@prisma/client";
 
 function withConnectTimeout(url: string | undefined) {
   if (!url) return url;
-  if (/[?&]connect_timeout=/.test(url)) return url;
-  return `${url}${url.includes("?") ? "&" : "?"}connect_timeout=30`;
+  let res = url;
+  if (!/[?&]connect_timeout=/.test(res)) {
+    res = `${res}${res.includes("?") ? "&" : "?"}connect_timeout=15`;
+  }
+  if (!/[?&]connection_limit=/.test(res)) {
+    res = `${res}&connection_limit=10`;
+  }
+  if (res.includes("pooler") && !/[?&]pgbouncer=/.test(res)) {
+    res = `${res}&pgbouncer=true`;
+  }
+  return res;
 }
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };

@@ -1,28 +1,10 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
 import { WebOrdersBell } from "@/components/web-orders-bell";
 import { ExternalLink, Zap } from "lucide-react";
+import { getCachedPendingWebOrders } from "@/lib/dashboard-cache";
 
 export async function DashboardTopbar() {
-  const pendingOrders = await prisma.webOrder.findMany({
-    where: {
-      status: {
-        in: ["PENDING", "AWAITING_PAYMENT", "QUOTED", "IN_PROGRESS"],
-      },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 6,
-    select: {
-      id: true,
-      number: true,
-      customerName: true,
-      total: true,
-      type: true,
-      serviceKind: true,
-      status: true,
-      createdAt: true,
-    },
-  });
+  const { recent: pendingOrders } = await getCachedPendingWebOrders();
 
   return (
     <header className="no-print border-b border-[var(--border)] bg-white/70 backdrop-blur-md sticky top-0 z-30 px-6 py-2.5 md:px-10">

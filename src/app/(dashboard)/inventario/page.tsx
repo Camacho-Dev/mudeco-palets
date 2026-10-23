@@ -33,22 +33,23 @@ export default async function InventarioPage({
       }
     : {};
 
-  const products = await prisma.product.findMany({
-    where: { active: true, kind: "FINISHED", ...searchFilter },
-    orderBy: [{ category: "asc" }, { name: "asc" }],
-  });
-
-  const moves = await prisma.stockMovement.findMany({
-    where: {
-      product: {
-        kind: "FINISHED",
-        ...(query ? searchFilter : {}),
+  const [products, moves] = await Promise.all([
+    prisma.product.findMany({
+      where: { active: true, kind: "FINISHED", ...searchFilter },
+      orderBy: [{ category: "asc" }, { name: "asc" }],
+    }),
+    prisma.stockMovement.findMany({
+      where: {
+        product: {
+          kind: "FINISHED",
+          ...(query ? searchFilter : {}),
+        },
       },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 35,
-    include: { product: true },
-  });
+      orderBy: { createdAt: "desc" },
+      take: 35,
+      include: { product: true },
+    }),
+  ]);
 
   const low = products.filter(
     (p) => p.stock <= p.minStock && p.sku !== "CUS-001",
@@ -91,6 +92,40 @@ export default async function InventarioPage({
           ariaLabel="Buscar en inventario"
         />
       </Suspense>
+
+      <div className="mb-6 flex flex-wrap items-center gap-1.5">
+        <span className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wider mr-1">
+          Categoría:
+        </span>
+        <Link
+          href="/inventario"
+          className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+            !query
+              ? "bg-[var(--wood-950)] text-white shadow-xs"
+              : "bg-white text-[var(--wood-800)] hover:bg-stone-100 border border-stone-200"
+          }`}
+        >
+          Todas
+        </Link>
+        {Array.from(new Set(products.map((p) => p.category)))
+          .sort((a, b) => a.localeCompare(b, "es"))
+          .map((cat) => {
+            const active = query.toLowerCase() === cat.toLowerCase();
+            return (
+              <Link
+                key={cat}
+                href={`/inventario?q=${encodeURIComponent(cat)}`}
+                className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+                  active
+                    ? "bg-[var(--wood-950)] text-white shadow-xs font-semibold"
+                    : "bg-white text-[var(--wood-800)] hover:bg-stone-100 border border-stone-200"
+                }`}
+              >
+                {cat}
+              </Link>
+            );
+          })}
+      </div>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="card p-5">

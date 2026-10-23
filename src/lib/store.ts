@@ -3,7 +3,18 @@ import { productImage } from "@/lib/product-image";
 
 export { productImage };
 
+let cachedCompany: { data: any; expiresAt: number } | null = null;
+
+export function invalidateStoreCompanyCache() {
+  cachedCompany = null;
+}
+
 export async function getStoreCompany() {
+  const now = Date.now();
+  if (cachedCompany && cachedCompany.expiresAt > now) {
+    return cachedCompany.data;
+  }
+
   try {
     const company = await withDbRetry(
       () =>
@@ -12,7 +23,7 @@ export async function getStoreCompany() {
         }),
       { fallback: null },
     );
-    return {
+    const result = {
       name: company?.name || "Mudeco Palets",
       slogan: company?.slogan || "Muebles a la medida",
       phone: company?.phone || "+1 (809) 704-7519",
@@ -33,6 +44,8 @@ export async function getStoreCompany() {
       galleryImages: company?.galleryImages || null,
       beforeAfterJson: company?.beforeAfterJson || null,
     };
+    cachedCompany = { data: result, expiresAt: now + 60_000 };
+    return result;
   } catch {
     return {
       name: "Mudeco Palets",

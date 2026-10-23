@@ -16,7 +16,18 @@ export type ProductWithRecommendation = Product & {
  * - Pedidos web confirmados (WebOrderItem en WebOrders no cancelados)
  * Sin boosts artificiales ni datos ficticios.
  */
+let cachedScored: { data: ProductWithRecommendation[]; expiresAt: number } | null = null;
+
+export function invalidateScoredProductsCache() {
+  cachedScored = null;
+}
+
 export async function getScoredProducts(): Promise<ProductWithRecommendation[]> {
+  const now = Date.now();
+  if (cachedScored && cachedScored.expiresAt > now) {
+    return cachedScored.data;
+  }
+
   const [products, invoiceItems, webItems] = await Promise.all([
     prisma.product.findMany({
       where: { active: true, kind: "FINISHED" },
@@ -90,7 +101,7 @@ export async function getScoredProducts(): Promise<ProductWithRecommendation[]> 
   });
 
   // Asignar insignias ÚNICAMENTE a los productos que tienen ventas o pedidos reales
-  return scored.map((item) => {
+  const result = scored.map((item) => {
     let badge: ProductWithRecommendation["badge"] = undefined;
 
     const hasRealSales = item.totalSold > 0;
@@ -111,6 +122,9 @@ export async function getScoredProducts(): Promise<ProductWithRecommendation[]> 
       badge,
     };
   });
+
+  cachedScored = { data: result, expiresAt: now + 60_000 };
+  return result;
 }
 
 /**

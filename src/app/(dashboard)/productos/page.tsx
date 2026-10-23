@@ -58,6 +58,40 @@ export default async function ProductosPage({
         />
       </Suspense>
 
+      <div className="mb-6 flex flex-wrap items-center gap-1.5">
+        <span className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wider mr-1">
+          Categoría:
+        </span>
+        <Link
+          href="/productos"
+          className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+            !query
+              ? "bg-[var(--wood-950)] text-white shadow-xs"
+              : "bg-white text-[var(--wood-800)] hover:bg-stone-100 border border-stone-200"
+          }`}
+        >
+          Todas
+        </Link>
+        {Array.from(new Set(products.map((p) => p.category)))
+          .sort((a, b) => a.localeCompare(b, "es"))
+          .map((cat) => {
+            const active = query.toLowerCase() === cat.toLowerCase();
+            return (
+              <Link
+                key={cat}
+                href={`/productos?q=${encodeURIComponent(cat)}`}
+                className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+                  active
+                    ? "bg-[var(--wood-950)] text-white shadow-xs font-semibold"
+                    : "bg-white text-[var(--wood-800)] hover:bg-stone-100 border border-stone-200"
+                }`}
+              >
+                {cat}
+              </Link>
+            );
+          })}
+      </div>
+
       <div className="table-wrap">
         <table className="data">
           <thead>
