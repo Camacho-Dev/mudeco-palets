@@ -18,16 +18,6 @@ import {
   Clock,
 } from "lucide-react";
 
-// Partículas doradas ambientales flotantes
-const FLOATING_PARTICLES = [
-  { id: 1, top: "12%", left: "14%", size: 6, delay: 0.2, duration: 4.5 },
-  { id: 2, top: "24%", right: "12%", size: 5, delay: 0.5, duration: 5.2 },
-  { id: 3, bottom: "18%", left: "18%", size: 7, delay: 0.8, duration: 4.8 },
-  { id: 4, bottom: "28%", right: "16%", size: 4, delay: 0.1, duration: 6.0 },
-  { id: 5, top: "45%", left: "8%", size: 5, delay: 1.1, duration: 5.5 },
-  { id: 6, top: "60%", right: "8%", size: 6, delay: 0.7, duration: 4.9 },
-];
-
 export function WelcomeModal({
   isAuthenticated,
 }: {
@@ -51,24 +41,18 @@ export function WelcomeModal({
       if (typeof window !== "undefined") {
         const params = new URLSearchParams(window.location.search);
         if (params.get("welcome") === "0") return;
-
-        // Limpiar cualquier residuo de sessionStorage de pruebas anteriores
         sessionStorage.removeItem("mudeco_welcome_seen");
       }
     } catch {}
 
-    // En desarrollo local o para usuarios no autenticados, se abre automáticamente:
+    // En desarrollo local o para usuarios no autenticados, se abre de inmediato
     const isDev = process.env.NODE_ENV !== "production";
     if (isAuthenticated && !isDev) {
       return;
     }
 
-    // Micro-retraso para que el montaje active la animación de Framer Motion
-    const timer = setTimeout(() => {
-      setOpen(true);
-    }, 120);
-
-    return () => clearTimeout(timer);
+    // Apertura inmediata y rápida
+    setOpen(true);
   }, [isAuthenticated]);
 
   // Permitir reabrir con evento global si se requiere
@@ -111,7 +95,7 @@ export function WelcomeModal({
       const session = await getSession();
       const role = session?.user?.role;
 
-      // Cierre del modal y redirección según rol
+      // Cierre del modal y redirección rápida
       setOpen(false);
 
       if (role === "ADMIN") {
@@ -134,120 +118,39 @@ export function WelcomeModal({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.38, ease: "easeOut" }}
+          transition={{ duration: 0.18, ease: "easeOut" }}
           onClick={(e) => {
-            // Cerrar si se hace clic fuera de la tarjeta
             if (e.target === e.currentTarget) handleDismiss();
           }}
           role="dialog"
           aria-modal="true"
           aria-labelledby="login-modal-title"
-          style={{ perspective: 1200 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-2xl p-4 sm:p-6 overflow-y-auto"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl p-4 sm:p-6 overflow-y-auto"
         >
-          {/* Partículas doradas sutiles que flotan en el fondo borroso */}
-          {FLOATING_PARTICLES.map((p) => (
-            <motion.div
-              key={p.id}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{
-                opacity: [0.2, 0.75, 0.2],
-                scale: [0.8, 1.25, 0.8],
-                y: [-12, 12, -12],
-              }}
-              transition={{
-                duration: p.duration,
-                delay: p.delay,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              style={{
-                position: "absolute",
-                top: p.top,
-                bottom: p.bottom,
-                left: p.left,
-                right: p.right,
-                width: p.size,
-                height: p.size,
-              }}
-              className="pointer-events-none rounded-full bg-[#c9a15a] shadow-[0_0_12px_#c9a15a]"
-            />
-          ))}
-
-          {/* Tarjeta Modal animada con física elástica de alta gama y borde dorado */}
+          {/* Tarjeta Modal: Entrada de posición rápida y limpia. Se posiciona y queda estática */}
           <motion.div
             key="welcome-card"
-            initial={{
-              opacity: 0,
-              scale: 0.76,
-              y: 70,
-              rotateX: 14,
-              filter: "blur(10px)",
-            }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-              y: 0,
-              rotateX: 0,
-              filter: "blur(0px)",
-            }}
-            exit={{
-              opacity: 0,
-              scale: 0.9,
-              y: 30,
-              filter: "blur(6px)",
-              transition: { duration: 0.25, ease: "easeIn" },
-            }}
+            initial={{ opacity: 0, y: 35, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.97 }}
             transition={{
-              type: "spring",
-              damping: 20,
-              stiffness: 220,
-              mass: 0.85,
+              duration: 0.22,
+              ease: [0.16, 1, 0.3, 1],
             }}
-            className="group/card relative w-full max-w-md sm:max-w-lg overflow-hidden rounded-[28px] border border-[#c9a15a]/45 bg-[#110f0c]/96 p-6 sm:p-9 shadow-[0_40px_120px_rgba(0,0,0,0.98),0_0_60px_rgba(201,161,90,0.18)] text-white backdrop-blur-3xl"
+            className="relative w-full max-w-md sm:max-w-lg rounded-2xl border border-[#c9a15a]/45 bg-[#12100d] p-6 sm:p-8 shadow-[0_25px_80px_rgba(0,0,0,0.95)] text-white"
           >
-            {/* Haz de luz perimetral dorado animado que recorre el borde */}
-            <div className="pointer-events-none absolute -inset-[1px] rounded-[28px] overflow-hidden opacity-40">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                className="absolute -inset-[150%] bg-[conic-gradient(from_0deg,transparent_0_300deg,rgba(201,161,90,0.9)_360deg)]"
-              />
-            </div>
-
-            {/* Haz de luz dorada radial en el fondo interior */}
-            <motion.div
-              initial={{ scale: 0.6, opacity: 0 }}
-              animate={{
-                scale: [1, 1.15, 1],
-                opacity: [0.35, 0.55, 0.35],
-              }}
-              transition={{
-                duration: 6,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className="pointer-events-none absolute -top-28 left-1/2 -translate-x-1/2 h-72 w-96 rounded-full bg-gradient-to-b from-[#c9a15a]/30 to-transparent blur-3xl"
-            />
-            <div className="pointer-events-none absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-[#c9a15a]/15 blur-3xl" />
-
-            {/* Borde sutil interior decorativo */}
-            <div className="pointer-events-none absolute inset-2 rounded-[22px] border border-[#c9a15a]/12" />
-
-            {/* Botón de cierre en esquina superior */}
-            <motion.button
+            {/* Botón de cierre directo */}
+            <button
               type="button"
-              whileHover={{ scale: 1.15, rotate: 90 }}
-              whileTap={{ scale: 0.9 }}
               onClick={handleDismiss}
-              className="absolute top-5 right-5 z-20 rounded-full border border-white/10 bg-white/[0.04] p-2 text-white/60 hover:border-[#c9a15a]/50 hover:bg-[#c9a15a]/15 hover:text-white transition cursor-pointer shadow-sm"
+              className="absolute top-4 right-4 z-20 rounded-full border border-white/10 bg-white/[0.04] p-2 text-white/60 hover:border-[#c9a15a]/50 hover:bg-[#c9a15a]/15 hover:text-white transition cursor-pointer"
               title="Cerrar y continuar como invitado (Esc)"
               aria-label="Cerrar modal"
             >
               <X className="h-4 w-4" />
-            </motion.button>
+            </button>
 
-            {/* Contenido con revelación escalonada */}
+            {/* Contenedor de elementos: Cada uno se coloca en su lugar con animación de posición rápida */}
             <motion.div
               initial="hidden"
               animate="show"
@@ -256,68 +159,71 @@ export function WelcomeModal({
                 show: {
                   opacity: 1,
                   transition: {
-                    staggerChildren: 0.07,
-                    delayChildren: 0.1,
+                    staggerChildren: 0.035,
+                    delayChildren: 0.02,
                   },
                 },
               }}
-              className="relative z-10 text-center"
+              className="text-center"
             >
-              {/* Logo con halo sutil pulsante */}
+              {/* Logo: Se desliza a su lugar desde arriba */}
               <motion.div
                 variants={{
-                  hidden: { opacity: 0, y: -20, scale: 0.8 },
+                  hidden: { opacity: 0, y: -16 },
                   show: {
                     opacity: 1,
                     y: 0,
-                    scale: 1,
-                    transition: { type: "spring", damping: 16, stiffness: 280 },
+                    transition: { duration: 0.18, ease: "easeOut" },
                   },
                 }}
-                className="flex justify-center mb-3"
+                className="flex justify-center mb-2.5"
               >
-                <div className="relative inline-flex items-center justify-center p-2 rounded-2xl bg-gradient-to-b from-white/[0.06] to-white/[0.01] border border-[#c9a15a]/35 shadow-[0_0_30px_rgba(201,161,90,0.2)]">
-                  <motion.div
-                    animate={{ scale: [1, 1.12, 1], opacity: [0.4, 0, 0.4] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                    className="pointer-events-none absolute inset-0 rounded-2xl border border-[#c9a15a]/50"
-                  />
-                  <BrandLogo width={130} height={100} className="h-12 w-auto sm:h-14" priority />
+                <div className="inline-flex items-center justify-center p-2 rounded-xl bg-white/[0.03] border border-[#c9a15a]/30 shadow-md">
+                  <BrandLogo width={120} height={92} className="h-11 w-auto sm:h-12" priority />
                 </div>
               </motion.div>
 
-              {/* Badge */}
+              {/* Badge: Se posiciona rápidamente */}
               <motion.div
                 variants={{
-                  hidden: { opacity: 0, scale: 0.7 },
+                  hidden: { opacity: 0, y: -10 },
                   show: {
                     opacity: 1,
-                    scale: 1,
-                    transition: { type: "spring", stiffness: 320, damping: 20 },
+                    y: 0,
+                    transition: { duration: 0.18, ease: "easeOut" },
                   },
                 }}
-                className="inline-flex items-center gap-1.5 rounded-full border border-[#c9a15a]/50 bg-gradient-to-r from-[#c9a15a]/20 via-[#c9a15a]/10 to-[#c9a15a]/20 px-3.5 py-1 text-[0.62rem] font-bold tracking-[0.2em] text-[#d4b06e] uppercase backdrop-blur-md mb-2 shadow-[0_0_15px_rgba(201,161,90,0.15)]"
+                className="inline-flex items-center gap-1.5 rounded-full border border-[#c9a15a]/40 bg-[#c9a15a]/10 px-3 py-0.5 text-[0.62rem] font-bold tracking-[0.18em] text-[#d4b06e] uppercase mb-1.5"
               >
                 <Sparkles className="h-3 w-3 text-[#c9a15a]" />
                 <span>Acceso · Mudeco Palets</span>
               </motion.div>
 
-              {/* Título */}
+              {/* Título: Se posiciona desde abajo */}
               <motion.h2
                 id="login-modal-title"
                 variants={{
                   hidden: { opacity: 0, y: 12 },
-                  show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+                  show: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { duration: 0.18, ease: "easeOut" },
+                  },
                 }}
                 className="font-display text-2xl sm:text-3xl text-white font-medium tracking-tight"
               >
                 Iniciar sesión
               </motion.h2>
 
+              {/* Subtítulo: Se posiciona desde abajo */}
               <motion.p
                 variants={{
                   hidden: { opacity: 0, y: 10 },
-                  show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+                  show: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { duration: 0.18, ease: "easeOut" },
+                  },
                 }}
                 className="mt-1 text-xs text-white/70 max-w-sm mx-auto leading-relaxed"
               >
@@ -325,8 +231,8 @@ export function WelcomeModal({
               </motion.p>
 
               {/* Formulario de Login */}
-              <form onSubmit={handleSubmit} className="mt-5 space-y-3.5 text-left">
-                {/* Estilos dedicados para neutralizar el fondo blanco del autofill de contraseñas guardadas del navegador */}
+              <form onSubmit={handleSubmit} className="mt-4 space-y-3 text-left">
+                {/* Estilos para neutralizar el fondo blanco de contraseñas guardadas del navegador */}
                 <style dangerouslySetInnerHTML={{
                   __html: `
                     .modal-dark-input:-webkit-autofill,
@@ -343,18 +249,22 @@ export function WelcomeModal({
                   `
                 }} />
 
-                {/* Campo Correo / Usuario */}
+                {/* Campo Correo: Se desliza a su lugar */}
                 <motion.div
                   variants={{
-                    hidden: { opacity: 0, y: 12 },
-                    show: { opacity: 1, y: 0 },
+                    hidden: { opacity: 0, y: 14 },
+                    show: {
+                      opacity: 1,
+                      y: 0,
+                      transition: { duration: 0.18, ease: "easeOut" },
+                    },
                   }}
                 >
-                  <label className="block text-[0.68rem] font-bold tracking-wider text-white/75 uppercase mb-1.5">
+                  <label className="block text-[0.66rem] font-bold tracking-wider text-white/75 uppercase mb-1">
                     Correo electrónico
                   </label>
-                  <div className="group relative flex items-center rounded-xl border border-white/15 bg-[#14120e] px-3.5 py-2.5 transition-all duration-200 focus-within:border-[#c9a15a] focus-within:ring-2 focus-within:ring-[#c9a15a]/25">
-                    <Mail className="h-4 w-4 text-[#c9a15a] mr-2.5 shrink-0 transition-transform group-focus-within:scale-110" />
+                  <div className="group relative flex items-center rounded-xl border border-white/15 bg-[#14120e] px-3.5 py-2.5 transition-colors duration-150 focus-within:border-[#c9a15a] focus-within:ring-1 focus-within:ring-[#c9a15a]/40">
+                    <Mail className="h-4 w-4 text-[#c9a15a] mr-2.5 shrink-0" />
                     <input
                       type="email"
                       name="email"
@@ -368,18 +278,22 @@ export function WelcomeModal({
                   </div>
                 </motion.div>
 
-                {/* Campo Contraseña */}
+                {/* Campo Contraseña: Se desliza a su lugar */}
                 <motion.div
                   variants={{
-                    hidden: { opacity: 0, y: 12 },
-                    show: { opacity: 1, y: 0 },
+                    hidden: { opacity: 0, y: 14 },
+                    show: {
+                      opacity: 1,
+                      y: 0,
+                      transition: { duration: 0.18, ease: "easeOut" },
+                    },
                   }}
                 >
-                  <label className="block text-[0.68rem] font-bold tracking-wider text-white/75 uppercase mb-1.5">
+                  <label className="block text-[0.66rem] font-bold tracking-wider text-white/75 uppercase mb-1">
                     Contraseña
                   </label>
-                  <div className="group relative flex items-center rounded-xl border border-white/15 bg-[#14120e] px-3.5 py-2.5 transition-all duration-200 focus-within:border-[#c9a15a] focus-within:ring-2 focus-within:ring-[#c9a15a]/25">
-                    <Lock className="h-4 w-4 text-[#c9a15a] mr-2.5 shrink-0 transition-transform group-focus-within:scale-110" />
+                  <div className="group relative flex items-center rounded-xl border border-white/15 bg-[#14120e] px-3.5 py-2.5 transition-colors duration-150 focus-within:border-[#c9a15a] focus-within:ring-1 focus-within:ring-[#c9a15a]/40">
+                    <Lock className="h-4 w-4 text-[#c9a15a] mr-2.5 shrink-0" />
                     <input
                       type={showPassword ? "text" : "password"}
                       name="password"
@@ -401,35 +315,30 @@ export function WelcomeModal({
                   </div>
                 </motion.div>
 
-                {/* Mensaje de error si falla */}
+                {/* Error */}
                 {error ? (
-                  <motion.div
-                    initial={{ opacity: 0, y: -6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-2 rounded-xl border border-rose-500/40 bg-rose-500/10 p-2.5 text-xs text-rose-300"
-                  >
+                  <div className="flex items-center gap-2 rounded-xl border border-rose-500/40 bg-rose-500/10 p-2.5 text-xs text-rose-300">
                     <AlertCircle className="h-4 w-4 shrink-0 text-rose-400" />
                     <span className="leading-tight">{error}</span>
-                  </motion.div>
+                  </div>
                 ) : null}
 
-                {/* Botón Principal: Iniciar sesión */}
+                {/* Botón Principal: Se coloca en su lugar */}
                 <motion.div
                   variants={{
-                    hidden: { opacity: 0, y: 10 },
-                    show: { opacity: 1, y: 0 },
+                    hidden: { opacity: 0, y: 14 },
+                    show: {
+                      opacity: 1,
+                      y: 0,
+                      transition: { duration: 0.18, ease: "easeOut" },
+                    },
                   }}
-                  className="pt-1.5"
+                  className="pt-1"
                 >
-                  <motion.button
+                  <button
                     type="submit"
                     disabled={loading}
-                    whileHover={{
-                      scale: 1.02,
-                      boxShadow: "0 0 30px rgba(201,161,90,0.5), 0 8px 20px rgba(0,0,0,0.6)",
-                    }}
-                    whileTap={{ scale: 0.98 }}
-                    className="group gold-shimmer-btn relative overflow-hidden w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#c9a15a] bg-gradient-to-r from-[#c9a15a] via-[#dfbe78] to-[#c9a15a] bg-[length:200%_auto] py-3 text-xs font-bold tracking-[0.14em] text-[#0a0a0a] uppercase shadow-lg transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#c9a15a] bg-gradient-to-r from-[#c9a15a] via-[#dfbe78] to-[#c9a15a] py-2.5 text-xs font-bold tracking-[0.12em] text-[#0a0a0a] uppercase shadow-md hover:brightness-105 active:scale-[0.99] transition cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {loading ? (
                       <>
@@ -439,41 +348,46 @@ export function WelcomeModal({
                     ) : (
                       <>
                         <span>Iniciar sesión</span>
-                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                        <ArrowRight className="h-4 w-4" />
                       </>
                     )}
-                  </motion.button>
+                  </button>
                 </motion.div>
 
                 {/* Opción destacada: Iniciar sesión más tarde */}
                 <motion.div
                   variants={{
-                    hidden: { opacity: 0, y: 10 },
-                    show: { opacity: 1, y: 0 },
+                    hidden: { opacity: 0, y: 14 },
+                    show: {
+                      opacity: 1,
+                      y: 0,
+                      transition: { duration: 0.18, ease: "easeOut" },
+                    },
                   }}
                 >
-                  <motion.button
+                  <button
                     type="button"
-                    whileHover={{ scale: 1.015 }}
-                    whileTap={{ scale: 0.98 }}
                     onClick={handleDismiss}
-                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/[0.04] py-3 text-xs font-semibold tracking-wider text-white/85 hover:border-[#c9a15a]/70 hover:bg-[#c9a15a]/10 hover:text-white transition cursor-pointer backdrop-blur-sm"
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/[0.04] py-2.5 text-xs font-semibold tracking-wider text-white/85 hover:border-[#c9a15a]/70 hover:bg-[#c9a15a]/10 hover:text-white active:scale-[0.99] transition cursor-pointer"
                   >
-                    <Clock className="h-4 w-4 text-[#c9a15a]" />
+                    <Clock className="h-3.5 w-3.5 text-[#c9a15a]" />
                     <span>Iniciar sesión más tarde</span>
-                  </motion.button>
+                  </button>
                 </motion.div>
               </form>
 
-              {/* Micro-nota inferior */}
+              {/* Nota inferior estática */}
               <motion.div
                 variants={{
                   hidden: { opacity: 0 },
-                  show: { opacity: 1, transition: { duration: 0.3 } },
+                  show: {
+                    opacity: 1,
+                    transition: { duration: 0.18 },
+                  },
                 }}
-                className="mt-4 pt-3 border-t border-white/10 text-center text-[0.7rem] text-white/45 flex items-center justify-center gap-1.5"
+                className="mt-3 pt-2.5 border-t border-white/10 text-center text-[0.68rem] text-white/45"
               >
-                <span>Puedes explorar todo el catálogo y cotizar como invitado sin registrarte.</span>
+                <span>Puedes explorar el catálogo y cotizar como invitado sin registrarte.</span>
               </motion.div>
             </motion.div>
           </motion.div>
