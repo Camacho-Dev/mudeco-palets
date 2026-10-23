@@ -114,11 +114,13 @@ export default function LoginPage() {
         <Suspense fallback={<p className="login-loading">…</p>}>
           <LoginForm />
         </Suspense>
-      </div>
 
-      <p className="relative z-10 mt-6 text-center text-[0.68rem] tracking-[0.22em] text-[#c9a15a] uppercase font-semibold">
-        DESARROLLADOR FULL STACK · BRAYAN CAMACHO
-      </p>
+        <div className="mt-5 pt-3.5 border-t border-white/10 text-center">
+          <p className="text-[0.62rem] tracking-[0.16em] text-[#c9a15a] uppercase font-semibold">
+            DESARROLLADOR FULL STACK · BRAYAN CAMACHO
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
