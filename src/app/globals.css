@@ -137,7 +137,16 @@ body {
   border-radius: 1rem;
   border: 1px solid var(--border);
   background: var(--surface);
-  box-shadow: 0 1px 2px rgba(28, 20, 16, 0.04);
+  box-shadow: 0 1px 3px rgba(28, 20, 16, 0.05), 0 10px 24px -8px rgba(61, 42, 31, 0.04);
+  transition:
+    transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.2s ease;
+}
+
+.card:hover {
+  border-color: #d8c6b3;
+  box-shadow: 0 12px 32px -4px rgba(61, 42, 31, 0.08), 0 4px 12px rgba(61, 42, 31, 0.03);
 }
 
 .table-wrap {
@@ -145,6 +154,7 @@ body {
   border-radius: 1rem;
   border: 1px solid var(--border);
   background: var(--surface);
+  box-shadow: 0 1px 3px rgba(28, 20, 16, 0.04);
 }
 
 table.data {
@@ -155,20 +165,21 @@ table.data {
 
 table.data th {
   background: #f7f0e8;
-  padding: 0.75rem 1rem;
+  padding: 0.8rem 1rem;
   text-align: left;
   font-size: 0.68rem;
   font-weight: 650;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
   border-bottom: 1px solid var(--border);
 }
 
 table.data td {
-  padding: 0.85rem 1rem;
+  padding: 0.9rem 1rem;
   border-bottom: 1px solid #f0e6db;
   color: #2a1f18;
+  transition: background-color 0.15s ease;
 }
 
 table.data tr:last-child td {
@@ -179,10 +190,11 @@ table.data tr:hover td {
   background: #fbf7f2;
 }
 
+/* Animations & Keyframes */
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
@@ -190,19 +202,97 @@ table.data tr:hover td {
   }
 }
 
-.animate-rise {
-  animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+@keyframes gold-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
-.card {
-  transition:
-    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.25s ease,
-    border-color 0.2s ease;
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes float-soft {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-rise {
+  animation: rise-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-float {
+  animation: float-soft 4s ease-in-out infinite;
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2.5s ease-in-out infinite;
+}
+
+.gold-shimmer-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.gold-shimmer-btn::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.25) 50%,
+    transparent 80%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.gold-shimmer-btn:hover::after {
+  transform: translateX(100%);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f3ebe3;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c8b5a0;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a9927b;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-rise {
+  .animate-rise,
+  .animate-float,
+  .animate-pulse-subtle {
     animation: none;
   }
 
@@ -228,3 +318,4 @@ table.data tr:hover td {
 .print-only {
   display: none;
 }
+

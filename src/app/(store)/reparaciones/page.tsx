@@ -27,10 +27,23 @@ const services = [
 ] as const;
 
 const steps = [
-  { n: "01", t: "Describe tu proyecto" },
-  { n: "02", t: "Evaluamos" },
-  { n: "03", t: "Te enviamos propuesta" },
+  {
+    n: "01",
+    t: "Describe tu proyecto",
+    desc: "Dinos qué mueble necesitas o deseas restaurar, indicando medidas aproximadas y acabado.",
+  },
+  {
+    n: "02",
+    t: "Evaluación en taller",
+    desc: "Analizamos viabilidad técnica, maderas óptimas y tiempo estimado de elaboración.",
+  },
+  {
+    n: "03",
+    t: "Propuesta formal",
+    desc: "Te enviamos cotización detallada sin compromiso directo a tu WhatsApp o correo.",
+  },
 ] as const;
+
 
 export default async function ReparacionesPage() {
   const company = await getStoreCompany();
@@ -139,18 +152,24 @@ export default async function ReparacionesPage() {
               recibimos en el taller. Sin compromiso.
             </p>
 
-            <ol className="mt-12 space-y-6">
+            <ol className="mt-10 space-y-5">
               {steps.map((step) => (
-                <li key={step.n} className="flex items-baseline gap-4">
-                  <span className="font-display text-2xl text-[#c9a15a]">
+                <li key={step.n} className="flex items-start gap-4">
+                  <span className="font-display text-2xl text-[#c9a15a] leading-none shrink-0 mt-0.5">
                     {step.n}
                   </span>
-                  <span className="text-sm tracking-wide text-[#3b2a22]">
-                    {step.t}
-                  </span>
+                  <div>
+                    <p className="text-sm font-semibold tracking-wide text-[#111111]">
+                      {step.t}
+                    </p>
+                    <p className="text-xs text-[#3b2a22]/70 mt-0.5 leading-relaxed">
+                      {step.desc}
+                    </p>
+                  </div>
                 </li>
               ))}
             </ol>
+
 
             <Link
               href="/catalogo"

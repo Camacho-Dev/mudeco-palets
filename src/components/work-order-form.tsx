@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2, AlertCircle } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
+
+
+
 
 type FinishedOption = {
   id: string;

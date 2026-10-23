@@ -353,20 +353,14 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
               <AreaChart data={data.monthlyTrend}>
                 <defs>
                   <linearGradient id="salesFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor={CHART.sales} stopOpacity={0.35} />
-                    <stop offset="100%" stopColor={CHART.sales} stopOpacity={0} />
+                    <stop offset="0%" stopColor="#5c4334" stopOpacity={0.45} />
+                    <stop offset="60%" stopColor="#5c4334" stopOpacity={0.12} />
+                    <stop offset="100%" stopColor="#5c4334" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="collectedFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="0%"
-                      stopColor={CHART.collected}
-                      stopOpacity={0.4}
-                    />
-                    <stop
-                      offset="100%"
-                      stopColor={CHART.collected}
-                      stopOpacity={0}
-                    />
+                    <stop offset="0%" stopColor="#c9a15a" stopOpacity={0.55} />
+                    <stop offset="60%" stopColor="#b0894f" stopOpacity={0.15} />
+                    <stop offset="100%" stopColor="#b0894f" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid stroke={CHART.grid} strokeDasharray="3 3" />
@@ -392,6 +386,7 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
                   stroke={CHART.sales}
                   fill="url(#salesFill)"
                   strokeWidth={2.5}
+                  activeDot={{ r: 5, stroke: "#fff", strokeWidth: 2 }}
                 />
                 <Area
                   type="monotone"
@@ -400,6 +395,7 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
                   stroke={CHART.collected}
                   fill="url(#collectedFill)"
                   strokeWidth={2.5}
+                  activeDot={{ r: 5, stroke: "#fff", strokeWidth: 2 }}
                 />
               </AreaChart>
             </ResponsiveContainer>
@@ -510,35 +506,47 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
 
         <FadeIn delay={0.32} className="card p-5">
           <h2 className="font-display mb-1 text-lg">Mejores clientes</h2>
-          <p className="mb-4 text-xs text-[var(--muted)]">Por volumen de compra</p>
+          <p className="mb-4 text-xs text-[var(--muted)]">Por volumen de compra acumulado</p>
           <ul className="space-y-3">
             {data.topCustomers.length === 0 ? (
               <li className="py-8 text-center text-sm text-[var(--muted)]">
                 Sin datos
               </li>
             ) : (
-              data.topCustomers.map((c, i) => (
-                <li
-                  key={c.name}
-                  className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[#fbf7f2] px-3 py-2.5"
-                >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--wood-950)] text-xs font-bold text-[var(--brass)]">
-                    {i + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{c.name}</p>
-                    <p className="text-xs text-[var(--muted)]">
-                      {c.count} factura{c.count === 1 ? "" : "s"}
+              data.topCustomers.map((c, i) => {
+                const medalClass =
+                  i === 0
+                    ? "bg-gradient-to-br from-[#efd08d] via-[#c9a15a] to-[#a07736] text-[#2c1d14] shadow-[0_2px_10px_rgba(201,161,90,0.4)] font-extrabold"
+                    : i === 1
+                      ? "bg-gradient-to-br from-slate-200 to-slate-400 text-slate-900 font-bold"
+                      : i === 2
+                        ? "bg-gradient-to-br from-amber-600 to-amber-800 text-white font-bold"
+                        : "bg-[var(--wood-950)] text-[var(--brass)] font-semibold";
+
+                return (
+                  <li
+                    key={c.name}
+                    className="flex items-center gap-3 rounded-xl border border-[var(--border)] bg-[#fbf7f2] px-3.5 py-3 transition hover:border-[#b0894f]/50 hover:bg-white hover:shadow-sm"
+                  >
+                    <span className={`flex h-8 w-8 items-center justify-center rounded-full text-xs shrink-0 ${medalClass}`}>
+                      {i + 1}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-[var(--wood-950)]">{c.name}</p>
+                      <p className="text-xs text-[var(--muted)]">
+                        {c.count} {c.count === 1 ? "factura" : "facturas"}
+                      </p>
+                    </div>
+                    <p className="font-display text-base font-semibold text-[var(--wood-900)]">
+                      {formatCurrency(c.total)}
                     </p>
-                  </div>
-                  <p className="font-display text-sm">
-                    {formatCurrency(c.total)}
-                  </p>
-                </li>
-              ))
+                  </li>
+                );
+              })
             )}
           </ul>
         </FadeIn>
+
       </div>
 
       <div className="grid gap-6 lg:grid-cols-5">

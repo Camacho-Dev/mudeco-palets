@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   ArrowRight,
+
   Leaf,
   Hammer,
   Award,
@@ -13,6 +14,10 @@ import {
   Quote,
   Camera,
   CheckCircle2,
+  Sparkles,
+  MessageCircle,
+  ShieldCheck,
+  Layers,
 } from "lucide-react";
 import { FadeUp, Reveal } from "@/components/store/store-motion";
 import { ProductShelf } from "@/components/store/product-shelf";
@@ -21,6 +26,8 @@ import { prisma, withDbRetry } from "@/lib/prisma";
 import { STORE_SOCIAL } from "@/lib/store-brand";
 import { getTopRecommendedProducts } from "@/lib/recommendations";
 import { getStoreCompany } from "@/lib/store";
+import { storeWhatsApp } from "@/lib/store-info";
+
 
 const TRUST = [
   {
@@ -44,6 +51,34 @@ const TRUST = [
     desc: "Adaptado al milímetro para tu espacio",
   },
 ] as const;
+
+const CRAFT_STEPS = [
+  {
+    step: "01",
+    title: "Curado & Selección",
+    desc: "Desarmado artesanal de palets de pino noble. Tratamiento térmico ecológico antiparasitario.",
+    icon: Leaf,
+  },
+  {
+    step: "02",
+    title: "Calibración de Vetas",
+    desc: "Cepillado milimétrico respetando el relieve orgánico y la personalidad natural de la madera.",
+    icon: Ruler,
+  },
+  {
+    step: "03",
+    title: "Ebanistería Robusta",
+    desc: "Ensamble estructural reforzado con espigas y juntas calibradas para décadas de uso intensivo.",
+    icon: Hammer,
+  },
+  {
+    step: "04",
+    title: "Sellado Satinado",
+    desc: "Lijado fino al tacto, tintado artesanal y aplicación de capa protectora impermeable.",
+    icon: Award,
+  },
+] as const;
+
 
 const PROMO_TILES = [
   {
@@ -406,6 +441,47 @@ export default async function StoreHomePage() {
         </div>
       </section>
 
+      {/* —— El Proceso Mudeco: Del Palet a la Obra de Arte —— */}
+      <section className="border-b border-white/[0.06] bg-[#0c0c0c] py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="max-w-2xl mb-12">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/30 bg-[#c9a15a]/10 px-3 py-1 text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a] uppercase">
+                <Sparkles className="h-3 w-3" />
+                Oficio & Sostenibilidad
+              </div>
+              <h2 className="font-display mt-3 text-3xl text-white sm:text-4xl">
+                El Proceso Mudeco: Del palet a tu hogar
+              </h2>
+              <p className="mt-2 text-sm text-white/60">
+                Cada creación atraviesa un riguroso estándar de 4 fases para convertir madera industrial en piezas únicas con garantía estructural.
+              </p>
+            </div>
+          </Reveal>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {CRAFT_STEPS.map((step, idx) => (
+              <Reveal key={step.step} delay={idx * 0.08}>
+                <div className="store-step-card group relative h-full flex flex-col justify-between border border-white/[0.08] bg-[#121212] p-6 transition-all duration-300 hover:border-[#c9a15a]/50 hover:bg-[#161616] hover:-translate-y-1 hover:shadow-[0_14px_36px_rgba(0,0,0,0.5)]">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="store-step-num">{step.step}</span>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-[#c9a15a] transition-all duration-300 group-hover:bg-[#c9a15a] group-hover:text-black">
+                      <step.icon className="h-5 w-5" strokeWidth={1.75} />
+                    </div>
+                  </div>
+                  <h3 className="font-display text-xl text-white group-hover:text-[#c9a15a] transition-colors">
+                    {step.title}
+                  </h3>
+                  <p className="mt-2 text-xs leading-relaxed text-[#d7d7d7]/70 flex-1">
+                    {step.desc}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* —— Opiniones de clientes con acabado editorial —— */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-10">
@@ -450,6 +526,47 @@ export default async function StoreHomePage() {
           ))}
         </div>
       </section>
+
+      {/* —— Banner VIP Proyectos Especiales y a Medida —— */}
+      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <Reveal>
+          <div className="store-vip-banner rounded-lg p-8 sm:p-12 border border-[#c9a15a]/35 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+            <div className="max-w-2xl space-y-3">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/40 bg-[#c9a15a]/10 px-3 py-1 text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a] uppercase">
+                <Sparkles className="h-3 w-3" />
+                Taller VIP · Proyectos Especiales
+              </div>
+              <h3 className="font-display text-2xl sm:text-3xl lg:text-4xl text-white">
+                ¿Tienes una idea en mente o viste una foto en Pinterest?
+              </h3>
+              <p className="text-sm text-white/70 leading-relaxed">
+                Fabricamos a medida comedores, repisas flotantes, camas, barras y mobiliario comercial. Envíanos una foto de referencia y tus medidas para cotizarte sin compromiso.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+              <a
+                href={storeWhatsApp(
+                  company.phone,
+                  "Hola Mudeco Palets, tengo un diseño/foto en mente y me gustaría solicitar una cotización a medida.",
+                )}
+                target="_blank"
+                rel="noreferrer"
+                className="store-cta store-cta-primary group text-center"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Cotizar por WhatsApp
+              </a>
+              <Link
+                href="/reparaciones"
+                className="store-cta store-cta-ghost text-center"
+              >
+                Formulario de taller
+              </Link>
+            </div>
+          </div>
+        </Reveal>
+      </section>
+
 
       {/* —— Galería de Instagram con hover interactivo —— */}
       <section className="border-t border-white/[0.06] bg-[#0c0c0c] py-12">

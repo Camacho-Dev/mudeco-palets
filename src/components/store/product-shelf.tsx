@@ -60,24 +60,45 @@ function ShelfCard({ product }: { product: ShelfProduct }) {
 
   return (
     <article className="group w-[172px] shrink-0 snap-start sm:w-[210px]">
-      <div className="overflow-hidden border border-white/[0.08] bg-[#141414] transition-all duration-300 hover:border-[#c9a15a]/50 hover:shadow-[0_12px_28px_rgba(201,161,90,0.12)] hover:-translate-y-1">
+      <div className="overflow-hidden border border-white/[0.08] bg-[#141414] transition-all duration-300 hover:border-[#c9a15a]/50 hover:shadow-[0_12px_28px_rgba(201,161,90,0.18)] hover:-translate-y-1 rounded-sm">
         <Link
           href={`/producto/${product.id}`}
           className="relative block aspect-square overflow-hidden bg-[#1a1a1a]"
         >
           {product.badge ? (
-            <span className="absolute top-2 left-2 z-10 rounded bg-gradient-to-r from-black/95 to-black/85 px-2 py-0.5 text-[0.58rem] font-bold tracking-widest text-[#d4af37] border border-[#d4af37]/40 uppercase shadow-md backdrop-blur-md">
+            <span className="absolute top-2 left-2 z-10 rounded bg-gradient-to-r from-black/95 to-black/85 px-2 py-0.5 text-[0.55rem] font-bold tracking-widest text-[#d4af37] border border-[#d4af37]/40 uppercase shadow-md backdrop-blur-md">
               {product.badge}
             </span>
           ) : null}
+
+          {/* Live availability indicator */}
+          <div className="absolute top-2 right-2 z-10 flex items-center gap-1 rounded-full bg-black/75 px-1.5 py-0.5 text-[0.52rem] font-medium backdrop-blur-md border border-white/10">
+            <span className="relative flex h-1.5 w-1.5">
+              <span
+                className={`absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping ${
+                  product.stock > 0 ? "bg-emerald-400" : "bg-amber-400"
+                }`}
+              />
+              <span
+                className={`relative inline-flex h-1.5 w-1.5 rounded-full ${
+                  product.stock > 0 ? "bg-emerald-400" : "bg-amber-400"
+                }`}
+              />
+            </span>
+            <span className="text-white/80">
+              {product.stock > 0 ? "En taller" : "A medida"}
+            </span>
+          </div>
+
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={src}
             alt={product.name}
-            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
             loading="lazy"
           />
         </Link>
+
         <div className="space-y-2 p-3.5">
           <p className="text-[0.58rem] font-medium tracking-[0.14em] text-[#c9a15a]/85 uppercase">
             {product.category}

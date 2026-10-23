@@ -158,17 +158,15 @@ export function BeforeAfterSlider() {
               {/* Imagen ANTES (Clip interactivo) */}
               <div
                 className="absolute inset-0 overflow-hidden pointer-events-none"
-                style={{ width: `${sliderPos}%` }}
+                style={{
+                  clipPath: `polygon(0 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0 100%)`,
+                }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={current.beforeImg}
                   alt={current.beforeLabel}
                   className="absolute inset-0 h-full w-full object-cover pointer-events-none"
-                  style={{
-                    width: containerRef.current ? `${containerRef.current.clientWidth}px` : "100%",
-                    maxWidth: "none",
-                  }}
                   draggable={false}
                 />
                 <div className="absolute inset-0 bg-black/25" />
@@ -177,6 +175,7 @@ export function BeforeAfterSlider() {
                   {current.beforeLabel}
                 </span>
               </div>
+
 
               {/* Línea divisoria y manija */}
               <div

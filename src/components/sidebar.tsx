@@ -70,7 +70,7 @@ function NavLinks({
         <GlobalSearch />
       </div>
       <div>
-        <p className="mb-1.5 px-3 text-[0.65rem] font-semibold tracking-[0.14em] text-white/40 uppercase">
+        <p className="mb-2 px-3 text-[0.65rem] font-bold tracking-[0.16em] text-white/40 uppercase">
           Operación
         </p>
         <div className="flex flex-col gap-1">
@@ -78,17 +78,20 @@ function NavLinks({
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
+              className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 ${
                 item.accent
-                  ? "bg-[#b0894f] font-semibold text-[#3d2a1f] hover:bg-[#c49a5c]"
-                  : "text-[#faf6f1]/90 hover:bg-white/10 hover:text-white"
+                  ? "bg-gradient-to-r from-[#b0894f] via-[#c49a5c] to-[#b0894f] font-semibold text-[#2c1d14] shadow-[0_2px_12px_rgba(176,137,79,0.35)] hover:shadow-[0_4px_18px_rgba(176,137,79,0.5)] hover:scale-[1.02]"
+                  : "text-[#faf6f1]/90 hover:bg-white/10 hover:text-white hover:translate-x-1"
               }`}
             >
-              <item.icon className="h-4 w-4 shrink-0" />
+              <item.icon className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
               <span className="flex-1">{item.label}</span>
               {item.href === "/pedidos-web" && webPending > 0 ? (
-                <span className="rounded-full bg-[#b0894f] px-1.5 py-0.5 text-[0.65rem] font-bold text-[#3d2a1f]">
-                  {webPending > 99 ? "99+" : webPending}
+                <span className="relative flex items-center">
+                  <span className="absolute -inset-0.5 rounded-full bg-[#b0894f] opacity-60 animate-ping" />
+                  <span className="relative rounded-full bg-[#b0894f] px-2 py-0.5 text-[0.62rem] font-bold text-[#3d2a1f] shadow-sm">
+                    {webPending > 99 ? "99+" : webPending}
+                  </span>
                 </span>
               ) : null}
             </Link>
@@ -98,7 +101,7 @@ function NavLinks({
 
       {admin ? (
         <div>
-          <p className="mb-1.5 px-3 text-[0.65rem] font-semibold tracking-[0.14em] text-white/40 uppercase">
+          <p className="mb-2 px-3 text-[0.65rem] font-bold tracking-[0.16em] text-white/40 uppercase">
             Administración
           </p>
           <div className="flex flex-col gap-1">
@@ -106,9 +109,9 @@ function NavLinks({
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#faf6f1]/75 transition hover:bg-white/10 hover:text-white"
+                className="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#faf6f1]/80 transition-all duration-200 hover:bg-white/10 hover:text-white hover:translate-x-1"
               >
-                <item.icon className="h-4 w-4 shrink-0" strokeWidth={2} />
+                <item.icon className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110 text-[#c4a574]" strokeWidth={2} />
                 <span className="flex-1">{item.label}</span>
               </Link>
             ))}
@@ -118,6 +121,7 @@ function NavLinks({
     </nav>
   );
 }
+
 
 export async function Sidebar() {
   const session = await auth();

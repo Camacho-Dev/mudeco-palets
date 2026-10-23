@@ -98,93 +98,134 @@ export default async function ProductoPage({
         </Reveal>
 
         <Reveal delay={0.12} className="flex flex-col justify-center">
-          <p className="text-[0.7rem] font-semibold tracking-[0.2em] text-[var(--muted)] uppercase">
-            {product.category}
-          </p>
-          <h1 className="font-display mt-3 text-4xl leading-tight text-[var(--wood-950)] md:text-5xl">
+          <div className="flex items-center gap-2">
+            <span className="text-[0.68rem] font-bold tracking-[0.2em] text-[#b0894f] uppercase">
+              {product.category}
+            </span>
+            {product.sku ? (
+              <span className="text-[0.65rem] text-[var(--muted)]">· SKU {product.sku}</span>
+            ) : null}
+          </div>
+
+          <h1 className="font-display mt-2 text-3xl sm:text-4xl lg:text-5xl leading-tight text-[var(--wood-950)]">
             {product.name}
           </h1>
-          {product.sku ? (
-            <p className="mt-2 text-sm text-[var(--muted)]">SKU {product.sku}</p>
-          ) : null}
-          <p className="mt-6 text-2xl font-semibold tracking-wide text-[var(--wood-800)]">
-            {formatCurrency(product.price)}
-          </p>
-          <p className="mt-2 text-sm text-[var(--muted)]">
-            {product.stock > 0
-              ? `Disponible · ${product.stock} en taller`
-              : "Disponible bajo pedido · te confirmamos plazo"}
-          </p>
+
+          <div className="mt-4 flex items-baseline gap-4">
+            <span className="text-3xl font-bold tracking-tight text-[#8a6a3a]">
+              {formatCurrency(product.price)}
+            </span>
+            <div className="flex items-center gap-1.5 text-xs">
+              <span className="relative flex h-2 w-2">
+                <span
+                  className={`absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping ${
+                    product.stock > 0 ? "bg-emerald-500" : "bg-amber-500"
+                  }`}
+                />
+                <span
+                  className={`relative inline-flex h-2 w-2 rounded-full ${
+                    product.stock > 0 ? "bg-emerald-500" : "bg-amber-500"
+                  }`}
+                />
+              </span>
+              <span className="font-medium text-[var(--muted)]">
+                {product.stock > 0
+                  ? `Disponible · ${product.stock} en taller`
+                  : "Fabricación a medida bajo pedido"}
+              </span>
+            </div>
+          </div>
 
           {product.description ? (
-            <p className="mt-8 max-w-md leading-relaxed text-[var(--wood-800)]">
+            <p className="mt-6 text-sm leading-relaxed text-[var(--wood-800)]">
               {product.description}
             </p>
           ) : (
-            <p className="mt-8 max-w-md leading-relaxed text-[var(--muted)]">
-              Pieza elaborada con madera recuperada. Acabado artesanal y carácter
-              único en cada detalle.
+            <p className="mt-6 text-sm leading-relaxed text-[var(--muted)]">
+              Pieza elaborada artesanalmente con listones de madera de pino recuperada. Acabado cepillado fino y carácter único en cada veta.
             </p>
           )}
 
           {dims ? (
-            <p className="mt-4 text-sm text-[var(--muted)]">
-              Medidas: {dims} cm
-            </p>
+            <div className="mt-5 inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[#faf6f1] px-3.5 py-2 text-xs font-medium text-[var(--wood-900)]">
+              <span className="text-[#8a6a3a] font-bold">Dimensiones:</span>
+              <span>{dims} cm</span>
+            </div>
           ) : null}
 
-          <div className="mt-10 flex flex-wrap gap-3">
+          <div className="mt-8 flex flex-wrap items-center gap-3">
             <AddToCartButton product={product} />
             <a
               href={wa}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center border border-[var(--border)] bg-white px-5 py-3 text-[0.75rem] font-semibold tracking-[0.1em] text-[var(--wood-950)] uppercase transition hover:border-[var(--wood-700)]"
+              className="inline-flex items-center gap-2 rounded-[4px] border border-emerald-600/40 bg-emerald-50/60 px-5 py-3 text-[0.72rem] font-bold tracking-[0.12em] text-emerald-800 uppercase transition hover:bg-emerald-100 hover:border-emerald-600"
             >
               WhatsApp
             </a>
             <Link
               href="/contacto"
-              className="inline-flex items-center border border-[var(--border)] bg-white px-5 py-3 text-[0.75rem] font-semibold tracking-[0.1em] text-[var(--wood-950)] uppercase transition hover:border-[var(--wood-700)]"
+              className="inline-flex items-center rounded-[4px] border border-[var(--border)] bg-white px-5 py-3 text-[0.72rem] font-semibold tracking-[0.12em] text-[var(--wood-950)] uppercase transition hover:bg-[#faf6f1] hover:border-[var(--wood-700)]"
             >
               Contacto
             </Link>
           </div>
 
-          <dl className="mt-10 space-y-4 border-t border-[var(--border)] pt-8 text-sm">
+          {/* Micro trust strip */}
+          <div className="mt-8 grid grid-cols-2 gap-2 border-y border-[var(--border)] py-4">
+            <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#b0894f]" />
+              <span>Madera 100% curada y tratada</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#b0894f]" />
+              <span>Ensamble reforzado de por vida</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#b0894f]" />
+              <span>Acabado antimanchas satinado</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-[var(--muted)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#b0894f]" />
+              <span>Envíos a todo el país</span>
+            </div>
+          </div>
+
+          <dl className="mt-6 space-y-3.5 text-sm">
             <div>
-              <dt className="font-semibold tracking-wide text-[var(--wood-950)] uppercase text-[0.7rem]">
+              <dt className="font-bold tracking-wider text-[var(--wood-950)] uppercase text-[0.68rem]">
                 Materiales
               </dt>
-              <dd className="mt-1 text-[var(--muted)]">
+              <dd className="mt-1 text-xs text-[var(--muted)]">
                 {STORE_LOGISTICS.materials}
               </dd>
             </div>
             <div>
-              <dt className="font-semibold tracking-wide text-[var(--wood-950)] uppercase text-[0.7rem]">
+              <dt className="font-bold tracking-wider text-[var(--wood-950)] uppercase text-[0.68rem]">
                 Entrega y retiro
               </dt>
-              <dd className="mt-1 text-[var(--muted)]">
+              <dd className="mt-1 text-xs text-[var(--muted)]">
                 {STORE_LOGISTICS.pickup} {STORE_LOGISTICS.delivery}
               </dd>
             </div>
             <div>
-              <dt className="font-semibold tracking-wide text-[var(--wood-950)] uppercase text-[0.7rem]">
-                Plazos
+              <dt className="font-bold tracking-wider text-[var(--wood-950)] uppercase text-[0.68rem]">
+                Plazos de taller
               </dt>
-              <dd className="mt-1 text-[var(--muted)]">
+              <dd className="mt-1 text-xs text-[var(--muted)]">
                 {STORE_LOGISTICS.leadTime}
               </dd>
             </div>
             <div>
-              <dt className="font-semibold tracking-wide text-[var(--wood-950)] uppercase text-[0.7rem]">
-                Cuidado
+              <dt className="font-bold tracking-wider text-[var(--wood-950)] uppercase text-[0.68rem]">
+                Cuidado de la madera
               </dt>
-              <dd className="mt-1 text-[var(--muted)]">{STORE_LOGISTICS.care}</dd>
+              <dd className="mt-1 text-xs text-[var(--muted)]">{STORE_LOGISTICS.care}</dd>
             </div>
           </dl>
         </Reveal>
       </div>
+
 
       {related.length > 0 ? (
         <section className="mt-20 border-t border-[var(--border)] pt-14">
