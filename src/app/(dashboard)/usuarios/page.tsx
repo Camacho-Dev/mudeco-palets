@@ -40,9 +40,14 @@ export default async function UsuariosPage({
             : "Empleados y administradores del sistema"
         }
         action={
-          <Link href="/usuarios/nuevo" className="btn btn-primary">
-            Nuevo usuario
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/empleados" className="btn btn-secondary">
+              Directorio de Empleados
+            </Link>
+            <Link href="/empleados/nuevo" className="btn btn-primary">
+              Nuevo empleado
+            </Link>
+          </div>
         }
       />
 
@@ -81,7 +86,11 @@ export default async function UsuariosPage({
             ) : (
               users.map((u) => (
                 <tr key={u.id}>
-                  <td className="font-medium text-[var(--wood-950)]">{u.name}</td>
+                  <td className="font-medium text-[var(--wood-950)]">
+                    <Link href={`/empleados/${u.id}`} className="hover:underline">
+                      {u.name}
+                    </Link>
+                  </td>
                   <td className="text-xs text-[var(--muted)]">{u.email}</td>
                   <td>
                     {u.role === "ADMIN" ? (

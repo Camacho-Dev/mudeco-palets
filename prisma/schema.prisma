@@ -8,18 +8,32 @@ datasource db {
 }
 
 model User {
-  id             String    @id @default(cuid())
-  email          String    @unique
-  name           String
-  passwordHash   String
-  role           String    @default("ADMIN")
-  active         Boolean   @default(true)
-  commissionRate Float     @default(0)
-  createdAt      DateTime  @default(now())
-  invoices       Invoice[]
-  quotes         Quote[]
-  creditNotes    CreditNote[]
-  workOrders     WorkOrder[]
+  id               String       @id @default(cuid())
+  email            String       @unique
+  name             String
+  passwordHash     String
+  role             String       @default("ADMIN")
+  active           Boolean      @default(true)
+  commissionRate   Float        @default(0)
+  idCard           String?
+  phone            String?
+  position         String?
+  department       String?      @default("TALLER")
+  salary           Float?       @default(0)
+  hireDate         DateTime?
+  emergencyContact String?
+  address          String?
+  bankName         String?
+  bankAccount      String?
+  notes            String?
+  createdAt        DateTime     @default(now())
+  invoices         Invoice[]
+  quotes           Quote[]
+  creditNotes      CreditNote[]
+  workOrders       WorkOrder[]
+
+  @@index([department])
+  @@index([active])
 }
 
 model Customer {

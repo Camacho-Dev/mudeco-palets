@@ -7,6 +7,7 @@ export const ADMIN_PREFIXES = [
   "/configuracion",
   "/auditoria",
   "/usuarios",
+  "/empleados",
   "/proveedores",
   "/compras",
   "/notas-credito",
