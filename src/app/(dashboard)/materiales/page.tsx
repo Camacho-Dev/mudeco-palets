@@ -32,7 +32,7 @@ export default async function MaterialesPage({
       }
     : {};
 
-  const [materials, moves] = await Promise.all([
+  const [materials, moves, catRows] = await Promise.all([
     prisma.product.findMany({
       where: { kind: "MATERIAL", active: true, ...searchFilter },
       orderBy: [{ category: "asc" }, { name: "asc" }],
@@ -48,8 +48,15 @@ export default async function MaterialesPage({
       take: 25,
       include: { product: true },
     }),
+    prisma.product.findMany({
+      where: { kind: "MATERIAL", active: true },
+      select: { category: true },
+      distinct: ["category"],
+      orderBy: { category: "asc" },
+    }),
   ]);
 
+  const categories = catRows.map((c) => c.category).filter(Boolean);
   const low = materials.filter((m) => m.stock <= m.minStock);
   const value = materials.reduce((s, m) => s + m.stock * m.cost, 0);
 
@@ -84,6 +91,38 @@ export default async function MaterialesPage({
           ariaLabel="Buscar materiales"
         />
       </Suspense>
+
+      <div className="mb-6 flex flex-wrap items-center gap-1.5">
+        <span className="text-xs font-semibold text-[var(--muted)] uppercase tracking-wider mr-1">
+          Categoría:
+        </span>
+        <Link
+          href="/materiales"
+          className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+            !query
+              ? "bg-[var(--wood-950)] text-white shadow-xs"
+              : "bg-white text-[var(--wood-800)] hover:bg-stone-100 border border-stone-200"
+          }`}
+        >
+          Todas
+        </Link>
+        {categories.map((cat) => {
+          const active = query.toLowerCase() === cat.toLowerCase();
+          return (
+            <Link
+              key={cat}
+              href={`/materiales?q=${encodeURIComponent(cat)}`}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+                active
+                  ? "bg-[var(--wood-950)] text-white shadow-xs"
+                  : "bg-white text-[var(--wood-800)] hover:bg-stone-100 border border-stone-200"
+              }`}
+            >
+              {cat}
+            </Link>
+          );
+        })}
+      </div>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <div className="card p-5">

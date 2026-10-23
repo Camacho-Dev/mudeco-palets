@@ -81,11 +81,35 @@ export default async function UsuariosPage({
             ) : (
               users.map((u) => (
                 <tr key={u.id}>
-                  <td className="font-medium">{u.name}</td>
-                  <td>{u.email}</td>
-                  <td>{u.role}</td>
-                  <td>{u.commissionRate}</td>
-                  <td>{u.active ? "Activo" : "Inactivo"}</td>
+                  <td className="font-medium text-[var(--wood-950)]">{u.name}</td>
+                  <td className="text-xs text-[var(--muted)]">{u.email}</td>
+                  <td>
+                    {u.role === "ADMIN" ? (
+                      <span className="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-semibold text-purple-800">
+                        Administrador
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-semibold text-stone-800">
+                        Ventas / Operador
+                      </span>
+                    )}
+                  </td>
+                  <td className="font-mono text-xs">
+                    {u.commissionRate ? `${(u.commissionRate * 100).toFixed(1)}%` : "0%"}
+                  </td>
+                  <td>
+                    {u.active ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        Activo
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-800">
+                        <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                        Inactivo
+                      </span>
+                    )}
+                  </td>
                   <td className="space-y-2">
                     <ConfirmForm
                       action={toggleUserActive.bind(null, u.id)}

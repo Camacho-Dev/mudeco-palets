@@ -5,6 +5,7 @@ import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { ListSearchBar } from "@/components/invoice-search";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { StatusBadge } from "@/components/status-badge";
 
 export default async function CotizacionesPage({
   searchParams,
@@ -75,13 +76,14 @@ export default async function CotizacionesPage({
               <th>Origen</th>
               <th>Fecha</th>
               <th>Estado</th>
-              <th>Total</th>
+              <th className="text-right">Total</th>
+              <th className="text-right"></th>
             </tr>
           </thead>
           <tbody>
             {quotes.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center text-[var(--muted)]">
+                <td colSpan={7} className="text-center text-[var(--muted)]">
                   {query
                     ? `No se encontraron cotizaciones para “${query}”`
                     : "No hay cotizaciones todavía"}
@@ -93,24 +95,36 @@ export default async function CotizacionesPage({
                   <td>
                     <Link
                       href={`/cotizaciones/${quote.id}`}
-                      className="font-medium underline"
+                      className="font-medium font-mono text-xs text-[var(--wood-900)] hover:underline"
                     >
                       {quote.number}
                     </Link>
                   </td>
-                  <td>{quote.customer.name}</td>
+                  <td className="font-medium text-[var(--wood-950)]">{quote.customer.name}</td>
                   <td>
                     {quote.source === "WEB" ? (
                       <span className="rounded-full bg-[#b0894f]/20 px-2 py-0.5 text-[0.65rem] font-semibold text-[var(--wood-800)] uppercase">
                         Web
                       </span>
                     ) : (
-                      <span className="text-[var(--muted)]">POS</span>
+                      <span className="text-[var(--muted)] text-xs">POS</span>
                     )}
                   </td>
-                  <td>{formatDate(quote.issueDate)}</td>
-                  <td>{quote.status}</td>
-                  <td>{formatCurrency(quote.total)}</td>
+                  <td className="text-xs text-[var(--muted)]">{formatDate(quote.issueDate)}</td>
+                  <td>
+                    <StatusBadge status={quote.status} />
+                  </td>
+                  <td className="text-right font-mono font-bold text-xs text-[var(--wood-950)]">
+                    {formatCurrency(quote.total)}
+                  </td>
+                  <td className="text-right">
+                    <Link
+                      href={`/cotizaciones/${quote.id}`}
+                      className="text-xs font-semibold text-[var(--wood-800)] hover:underline"
+                    >
+                      Ver
+                    </Link>
+                  </td>
                 </tr>
               ))
             )}

@@ -92,10 +92,22 @@ export default async function FabricacionPage({
             ) : (
               rows.map((w) => (
                 <tr key={w.id}>
-                  <td className="font-mono text-xs font-semibold text-[var(--wood-900)]">
-                    {w.number}
+                  <td>
+                    <Link
+                      href={`/fabricacion/${w.id}`}
+                      className="font-mono text-xs font-bold text-[var(--wood-900)] hover:text-[var(--accent)] hover:underline"
+                    >
+                      {w.number}
+                    </Link>
                   </td>
-                  <td className="font-medium">{w.product.name}</td>
+                  <td className="font-medium">
+                    <Link
+                      href={`/fabricacion/${w.id}`}
+                      className="hover:underline text-[var(--wood-950)]"
+                    >
+                      {w.product.name}
+                    </Link>
+                  </td>
                   <td className="font-semibold text-[var(--wood-950)]">{w.quantity}</td>
                   <td>
                     {w.status === "DONE" ? (
@@ -117,28 +129,34 @@ export default async function FabricacionPage({
                   </td>
                   <td className="text-xs text-[var(--muted)]">{formatDate(w.createdAt)}</td>
                   <td className="text-right">
-                    {w.status === "PENDING" ? (
-                      <div className="flex items-center justify-end gap-2">
-                        <ConfirmForm
-                          action={completeWorkOrder.bind(null, w.id)}
-                          message={`¿Completar fabricación de ${w.quantity} ${w.product.name}? Se descontarán los materiales del almacén y se sumará el stock terminado.`}
-                        >
-                          <button type="submit" className="btn btn-primary text-xs py-1 px-2.5">
-                            Completar
-                          </button>
-                        </ConfirmForm>
-                        <ConfirmForm
-                          action={cancelWorkOrder.bind(null, w.id)}
-                          message={`¿Cancelar orden de fabricación ${w.number}? No se afectará el inventario.`}
-                        >
-                          <button type="submit" className="btn btn-ghost text-xs py-1 px-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50">
-                            Cancelar
-                          </button>
-                        </ConfirmForm>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-[var(--muted)]">—</span>
-                    )}
+                    <div className="flex items-center justify-end gap-2">
+                      <Link
+                        href={`/fabricacion/${w.id}`}
+                        className="btn btn-ghost text-xs py-1 px-2.5"
+                      >
+                        Ver
+                      </Link>
+                      {w.status === "PENDING" && (
+                        <>
+                          <ConfirmForm
+                            action={completeWorkOrder.bind(null, w.id)}
+                            message={`¿Completar fabricación de ${w.quantity} ${w.product.name}? Se descontarán los materiales del almacén y se sumará el stock terminado.`}
+                          >
+                            <button type="submit" className="btn btn-primary text-xs py-1 px-2.5">
+                              Completar
+                            </button>
+                          </ConfirmForm>
+                          <ConfirmForm
+                            action={cancelWorkOrder.bind(null, w.id)}
+                            message={`¿Cancelar orden de fabricación ${w.number}? No se afectará el inventario.`}
+                          >
+                            <button type="submit" className="btn btn-ghost text-xs py-1 px-2 text-rose-600 hover:text-rose-700 hover:bg-rose-50">
+                              Cancelar
+                            </button>
+                          </ConfirmForm>
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))

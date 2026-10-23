@@ -24,6 +24,12 @@ export const INVOICE_STATUS_LABELS: Record<string, string> = {
   PARTIAL: "Pago parcial",
   PAID: "Pagada",
   VOIDED: "Anulada",
+  PENDING: "Pendiente",
+  ACCEPTED: "Aprobada",
+  CONVERTED: "Facturada",
+  REJECTED: "Rechazada",
+  DONE: "Completada",
+  CANCELLED: "Cancelada",
 };
 
 export const PAYMENT_METHOD_LABELS: Record<string, string> = {
@@ -40,6 +46,12 @@ export const INVOICE_STATUS_COLORS: Record<string, string> = {
   PARTIAL: "bg-amber-100 text-amber-800",
   PAID: "bg-emerald-100 text-emerald-800",
   VOIDED: "bg-rose-100 text-rose-800",
+  PENDING: "bg-amber-100 text-amber-900",
+  ACCEPTED: "bg-emerald-100 text-emerald-800",
+  CONVERTED: "bg-purple-100 text-purple-800",
+  REJECTED: "bg-rose-100 text-rose-800",
+  DONE: "bg-emerald-100 text-emerald-800",
+  CANCELLED: "bg-stone-100 text-stone-600",
 };
 
 export const STOCK_REASON_LABELS: Record<string, string> = {

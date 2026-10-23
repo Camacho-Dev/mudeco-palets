@@ -48,11 +48,12 @@ export default async function ProductoPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [product, company] = await Promise.all([
+  const [product, company, related] = await Promise.all([
     prisma.product.findFirst({
       where: { id, active: true, kind: "FINISHED" },
     }),
     getStoreCompany(),
+    getRelatedRecommendations(id, 4),
   ]);
 
   if (!product) notFound();
@@ -62,8 +63,6 @@ export default async function ProductoPage({
   const dims = [product.widthCm, product.heightCm, product.depthCm]
     .filter((n) => n != null && n > 0)
     .join(" × ");
-
-  const related = await getRelatedRecommendations(product.id, 4);
 
   const wa = storeWhatsApp(
     company.phone,
