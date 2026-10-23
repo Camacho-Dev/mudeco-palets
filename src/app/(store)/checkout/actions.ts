@@ -54,7 +54,14 @@ function parseCart(fd: FormData): CartLineInput[] {
   }));
 }
 
+import { auth } from "@/lib/auth";
+
 export async function submitWebCheckout(fd: FormData) {
+  const session = await auth();
+  if (!session?.user) {
+    redirect("/login?callbackUrl=/checkout");
+  }
+
   const mode = String(fd.get("mode") || "");
   const customer = parseCustomer(fd);
 

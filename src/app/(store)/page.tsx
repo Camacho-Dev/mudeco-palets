@@ -29,7 +29,6 @@ import { getStoreCompany } from "@/lib/store";
 import { storeWhatsApp } from "@/lib/store-info";
 import { auth } from "@/lib/auth";
 import { HeroSearchBar } from "@/components/store/hero-search-bar";
-import { WelcomeModal } from "@/components/store/welcome-modal";
 
 
 const TRUST = [
@@ -236,9 +235,6 @@ export default async function StoreHomePage() {
 
   return (
     <div className="bg-[#0a0a0a] text-white">
-      {/* Pantalla modal de bienvenida para visitantes no autenticados con fondo borroso */}
-      <WelcomeModal isAuthenticated={Boolean(session?.user)} />
-
       {/* —— Hero principal con iluminación artesanal y micro-animaciones —— */}
       <section className="relative mx-auto max-w-[1760px] px-4 pt-4 sm:px-8 lg:px-12 xl:px-16">
         <div className="relative isolate min-h-[480px] sm:min-h-[560px] md:min-h-[640px] lg:min-h-[700px] xl:min-h-[740px] overflow-hidden border border-white/[0.08] shadow-[0_24px_70px_rgba(0,0,0,0.9)]">

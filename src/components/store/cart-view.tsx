@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useCart } from "@/components/store/cart-context";
+import { useSession } from "next-auth/react";
 import { formatCurrency } from "@/lib/format";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 
 export function CartView() {
+  const { data: session } = useSession();
   const { items, setQty, removeItem, subtotal, clear } = useCart();
   const tax = items.reduce(
     (s, i) => s + i.price * i.quantity * i.taxRate,
@@ -117,13 +119,37 @@ export function CartView() {
           <span>Total</span>
           <span>{formatCurrency(total)}</span>
         </div>
-        <Link
-          href="/checkout"
-          className="store-cta store-cta-primary mt-4 w-full"
-        >
-          Continuar al checkout
-        </Link>
+        {session?.user ? (
+          <Link
+            href="/checkout"
+            className="store-cta store-cta-primary mt-4 w-full"
+          >
+            Continuar al checkout
+          </Link>
+        ) : (
+          <div className="mt-4 space-y-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(
+                    new CustomEvent("mudeco:welcome", {
+                      detail: { reason: "checkout" },
+                    }),
+                  );
+                }
+              }}
+              className="store-cta store-cta-primary w-full cursor-pointer"
+            >
+              Iniciar sesión para comprar
+            </button>
+            <p className="text-center text-[0.72rem] text-[var(--muted)]">
+              Debes iniciar sesión con tu cuenta para procesar tu pedido.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
 }
+

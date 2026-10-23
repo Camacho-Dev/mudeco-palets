@@ -21,13 +21,14 @@ import {
 export function WelcomeModal({
   isAuthenticated,
 }: {
-  isAuthenticated: boolean;
-}) {
+  isAuthenticated?: boolean;
+} = {}) {
   const router = useRouter();
   const { data: session } = useSession();
-  const isUserLoggedIn = isAuthenticated || Boolean(session?.user);
+  const isUserLoggedIn = Boolean(isAuthenticated) || Boolean(session?.user);
 
   const [open, setOpen] = useState(false);
+  const [promptMessage, setPromptMessage] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -63,9 +64,19 @@ export function WelcomeModal({
     setOpen(true);
   }, [isUserLoggedIn]);
 
-  // Permitir reabrir con evento global si se requiere
+  // Permitir reabrir con evento global si se requiere (ej. al intentar comprar o agregar al carrito)
   useEffect(() => {
-    const onOpen = () => setOpen(true);
+    const onOpen = (e?: Event) => {
+      const custom = e as CustomEvent<{ reason?: string }>;
+      if (custom?.detail?.reason === "cart") {
+        setPromptMessage("Debes iniciar sesión para agregar productos al carrito.");
+      } else if (custom?.detail?.reason === "checkout") {
+        setPromptMessage("Debes iniciar sesión con tu cuenta para procesar tu compra.");
+      } else {
+        setPromptMessage(null);
+      }
+      setOpen(true);
+    };
     window.addEventListener("mudeco:welcome", onOpen);
     return () => window.removeEventListener("mudeco:welcome", onOpen);
   }, []);
@@ -245,6 +256,18 @@ export function WelcomeModal({
 
               {/* Formulario de Login */}
               <form onSubmit={handleSubmit} className="mt-4 space-y-3 text-left">
+                {/* Aviso contextual cuando se intenta comprar o agregar al carrito sin sesión */}
+                {promptMessage ? (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2 rounded-xl border border-[#c9a15a]/50 bg-[#c9a15a]/15 p-2.5 text-xs text-[#d4b06e] mb-2"
+                  >
+                    <AlertCircle className="h-4 w-4 shrink-0 text-[#c9a15a]" />
+                    <span className="leading-tight font-medium">{promptMessage}</span>
+                  </motion.div>
+                ) : null}
+
                 {/* Estilos para neutralizar el fondo blanco de contraseñas guardadas del navegador */}
                 <style dangerouslySetInnerHTML={{
                   __html: `

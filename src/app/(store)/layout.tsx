@@ -58,6 +58,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { WelcomeModal } from "@/components/store/welcome-modal";
+
 export default async function StoreLayout({
   children,
 }: {
@@ -71,6 +73,7 @@ export default async function StoreLayout({
         <div
           className={`${storeDisplay.variable} ${storeBody.variable} store-shell flex min-h-screen flex-col`}
         >
+          <WelcomeModal />
           <StoreHeader />
           <main className="flex-1">{children}</main>
           <StoreFooter company={company} />

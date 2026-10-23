@@ -1,6 +1,7 @@
 "use client";
 
 import { useCart } from "@/components/store/cart-context";
+import { useSession } from "next-auth/react";
 import { productImage } from "@/lib/product-image";
 import { useState } from "react";
 import { ShoppingBag, Check } from "lucide-react";
@@ -18,6 +19,7 @@ type Product = {
 };
 
 export function AddToCartButton({ product }: { product: Product }) {
+  const { data: session } = useSession();
   const { addItem, items } = useCart();
   const [added, setAdded] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
@@ -29,12 +31,22 @@ export function AddToCartButton({ product }: { product: Product }) {
   const canAdd = inCart < max;
 
   const handleClick = () => {
+    // Si no ha iniciado sesión, no permitir agregar al carrito y abrir login modal
+    if (!session?.user) {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("mudeco:welcome", { detail: { reason: "cart" } }),
+        );
+      }
+      return;
+    }
+
     if (!canAdd) {
       setLimitReached(true);
       setTimeout(() => setLimitReached(false), 2000);
       return;
     }
-    addItem(
+    const ok = addItem(
       {
         productId: product.id,
         name: product.name,
@@ -45,6 +57,7 @@ export function AddToCartButton({ product }: { product: Product }) {
       1,
       max,
     );
+    if (!ok) return;
     setAdded(true);
     setTimeout(() => setAdded(false), 1800);
   };
