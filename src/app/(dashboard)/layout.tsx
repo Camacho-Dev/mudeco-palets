@@ -15,7 +15,7 @@ export default function DashboardLayout({
       </MobileNav>
       <main className="flex-1 overflow-y-auto flex flex-col">
         <DashboardTopbar />
-        <div className="mx-auto w-full max-w-6xl px-6 py-6 md:px-10 flex-1">
+        <div className="mx-auto w-full max-w-[1720px] px-4 py-6 sm:px-8 lg:px-10 flex-1">
           {children}
         </div>
       </main>

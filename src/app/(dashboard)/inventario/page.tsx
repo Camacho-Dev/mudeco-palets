@@ -11,6 +11,7 @@ import {
   STOCK_REASON_COLORS,
 } from "@/lib/format";
 import { ExternalLink, Layers, ArrowUpRight } from "lucide-react";
+import { QuickAdjustDialog } from "./quick-adjust-dialog";
 
 export default async function InventarioPage({
   searchParams,
@@ -72,6 +73,15 @@ export default async function InventarioPage({
         }
         action={
           <div className="flex flex-wrap gap-2">
+            <QuickAdjustDialog
+              products={products.map((p) => ({
+                id: p.id,
+                name: p.name,
+                sku: p.sku,
+                stock: p.stock,
+                category: p.category,
+              }))}
+            />
             <Link href="/materiales" className="btn btn-secondary">
               Ver materiales
             </Link>
@@ -253,6 +263,24 @@ export default async function InventarioPage({
                     </td>
                     <td className="text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1.5">
+                        <QuickAdjustDialog
+                          products={products.map((pr) => ({
+                            id: pr.id,
+                            name: pr.name,
+                            sku: pr.sku,
+                            stock: pr.stock,
+                            category: pr.category,
+                          }))}
+                          preselectedProduct={{
+                            id: p.id,
+                            name: p.name,
+                            sku: p.sku,
+                            stock: p.stock,
+                            category: p.category,
+                          }}
+                          triggerLabel="Ajustar"
+                          className="rounded border border-[var(--border)] bg-white px-2 py-1 text-xs font-medium text-[var(--wood-800)] hover:border-[#b0894f] hover:bg-[#fbf7f2] inline-flex items-center gap-1 cursor-pointer"
+                        />
                         <a
                           href={`/producto/${p.id}`}
                           target="_blank"
@@ -266,8 +294,9 @@ export default async function InventarioPage({
                         <Link
                           href={`/productos/${p.id}`}
                           className="rounded border border-[var(--border)] bg-white px-2 py-1 text-xs font-medium text-[var(--wood-800)] hover:border-[var(--wood-700)] hover:bg-[#fbf7f2]"
+                          title="Editar información completa del mueble"
                         >
-                          Ajustar
+                          Editar
                         </Link>
                       </div>
                     </td>

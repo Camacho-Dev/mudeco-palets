@@ -58,6 +58,7 @@ const adminNav = [
   { href: "/notas-credito", label: "Notas crédito", icon: FileMinus },
   { href: "/fabricacion", label: "Fabricación", icon: Factory },
   { href: "/empleados", label: "Empleados", icon: UserCheck },
+  { href: "/usuarios", label: "Usuarios y roles", icon: UserCog },
   { href: "/exportar", label: "Exportar", icon: Download },
   { href: "/backup", label: "Respaldo", icon: DatabaseBackup },
   { href: "/contenido-web", label: "Fotos de la web", icon: Image },
