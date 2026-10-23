@@ -4,7 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { ListSearchBar } from "@/components/invoice-search";
-import { formatCurrency, formatDate } from "@/lib/format";
+import {
+  formatCurrency,
+  formatDate,
+  STOCK_REASON_LABELS,
+  STOCK_REASON_COLORS,
+} from "@/lib/format";
 
 export default async function MaterialesPage({
   searchParams,
@@ -175,18 +180,45 @@ export default async function MaterialesPage({
                 </td>
               </tr>
             ) : (
-              moves.map((mv) => (
-                <tr key={mv.id}>
-                  <td className="text-xs">{formatDate(mv.createdAt)}</td>
-                  <td>{mv.product.name}</td>
-                  <td>{mv.reason}</td>
-                  <td className={mv.qty < 0 ? "text-rose-700" : "text-emerald-700"}>
-                    {mv.qty > 0 ? `+${mv.qty}` : mv.qty}
-                  </td>
-                  <td>{mv.balance}</td>
-                  <td className="text-xs text-[var(--muted)]">{mv.note || "—"}</td>
-                </tr>
-              ))
+              moves.map((mv) => {
+                const label = STOCK_REASON_LABELS[mv.reason] || mv.reason;
+                const badgeColor =
+                  STOCK_REASON_COLORS[mv.reason] || "bg-stone-100 text-stone-700 border-stone-200";
+
+                return (
+                  <tr key={mv.id} className="hover:bg-[#fbf7f2]/50">
+                    <td className="text-xs text-[var(--muted)] whitespace-nowrap">
+                      {formatDate(mv.createdAt)}
+                    </td>
+                    <td>
+                      <Link
+                        href={`/materiales/${mv.product.id}`}
+                        className="font-medium text-[var(--wood-950)] hover:underline"
+                      >
+                        {mv.product.name}
+                      </Link>
+                    </td>
+                    <td>
+                      <span
+                        className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[0.68rem] font-bold uppercase tracking-wider ${badgeColor}`}
+                      >
+                        {label}
+                      </span>
+                    </td>
+                    <td
+                      className={`font-semibold whitespace-nowrap ${
+                        mv.qty < 0 ? "text-rose-700 font-bold" : "text-emerald-700"
+                      }`}
+                    >
+                      {mv.qty > 0 ? `+${mv.qty}` : mv.qty} {mv.product.unit || "unid."}
+                    </td>
+                    <td className="font-bold text-[var(--wood-950)]">
+                      {mv.balance}
+                    </td>
+                    <td className="text-xs text-[var(--muted)]">{mv.note || "—"}</td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>

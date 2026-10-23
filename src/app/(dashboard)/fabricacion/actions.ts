@@ -125,5 +125,11 @@ export async function completeWorkOrder(id: string) {
   });
   revalidatePath("/fabricacion");
   revalidatePath("/inventario");
+  revalidatePath("/materiales");
+  revalidatePath("/productos");
+  revalidatePath("/vender");
+  revalidatePath("/catalogo");
+  revalidatePath("/");
+  revalidatePath(`/producto/${wo.productId}`);
   redirect("/fabricacion");
 }

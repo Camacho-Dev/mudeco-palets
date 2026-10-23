@@ -352,6 +352,10 @@ export async function voidInvoice(id: string) {
       where: { id },
       data: { status: "VOIDED" },
     }),
+    prisma.webOrder.updateMany({
+      where: { invoiceId: id },
+      data: { status: "CANCELLED" },
+    }),
   ]);
 
   await writeAudit({
@@ -362,5 +366,6 @@ export async function voidInvoice(id: string) {
     details: { total: inv.total, paymentsRemoved: paid },
   });
   revalidateSales(id);
+  revalidatePath("/pedidos-web");
   redirect(`/facturas/${id}`);
 }

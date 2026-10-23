@@ -94,5 +94,8 @@ export async function receivePurchase(id: string) {
   });
   revalidatePath("/compras");
   revalidatePath("/inventario");
+  revalidatePath("/materiales");
+  revalidatePath("/productos");
+  revalidatePath("/vender");
   redirect(`/compras/${id}`);
 }

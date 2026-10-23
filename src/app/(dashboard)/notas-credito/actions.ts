@@ -137,6 +137,10 @@ export async function createCreditNote(fd: FormData) {
 
   revalidatePath("/notas-credito");
   revalidatePath("/inventario");
+  revalidatePath("/productos");
+  revalidatePath("/vender");
+  revalidatePath("/catalogo");
+  revalidatePath("/");
   revalidatePath("/facturas");
   revalidatePath("/finanzas");
   revalidatePath("/panel");

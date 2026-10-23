@@ -41,3 +41,26 @@ export const INVOICE_STATUS_COLORS: Record<string, string> = {
   PAID: "bg-emerald-100 text-emerald-800",
   VOIDED: "bg-rose-100 text-rose-800",
 };
+
+export const STOCK_REASON_LABELS: Record<string, string> = {
+  SALE: "Venta (Factura)",
+  VOID: "Anulación / Reposición",
+  PURCHASE: "Compra / Recepción",
+  ADJUST: "Ajuste manual",
+  MANUFACTURE_IN: "Entrada taller",
+  MANUFACTURE_OUT: "Salida taller",
+  CREDIT_NOTE: "Nota de crédito",
+  WebOrderCancel: "Cancelación web",
+};
+
+export const STOCK_REASON_COLORS: Record<string, string> = {
+  SALE: "bg-emerald-100 text-emerald-800 border-emerald-200",
+  VOID: "bg-rose-100 text-rose-800 border-rose-200",
+  PURCHASE: "bg-blue-100 text-blue-800 border-blue-200",
+  ADJUST: "bg-amber-100 text-amber-800 border-amber-200",
+  MANUFACTURE_IN: "bg-purple-100 text-purple-800 border-purple-200",
+  MANUFACTURE_OUT: "bg-stone-100 text-stone-800 border-stone-200",
+  CREDIT_NOTE: "bg-indigo-100 text-indigo-800 border-indigo-200",
+  WebOrderCancel: "bg-rose-100 text-rose-800 border-rose-200",
+};
+
