@@ -326,6 +326,23 @@ export function WelcomeModal({
 
               {/* Formulario de Login */}
               <form onSubmit={handleSubmit} className="mt-5 space-y-3.5 text-left">
+                {/* Estilos dedicados para neutralizar el fondo blanco del autofill de contraseñas guardadas del navegador */}
+                <style dangerouslySetInnerHTML={{
+                  __html: `
+                    .modal-dark-input:-webkit-autofill,
+                    .modal-dark-input:-webkit-autofill:hover,
+                    .modal-dark-input:-webkit-autofill:focus,
+                    .modal-dark-input:-webkit-autofill:active {
+                      -webkit-text-fill-color: #faf6f1 !important;
+                      caret-color: #c9a15a !important;
+                      -webkit-box-shadow: 0 0 0 1000px #14120e inset !important;
+                      box-shadow: 0 0 0 1000px #14120e inset !important;
+                      background-color: #14120e !important;
+                      transition: background-color 99999s ease-in-out 0s !important;
+                    }
+                  `
+                }} />
+
                 {/* Campo Correo / Usuario */}
                 <motion.div
                   variants={{
@@ -336,7 +353,7 @@ export function WelcomeModal({
                   <label className="block text-[0.68rem] font-bold tracking-wider text-white/75 uppercase mb-1.5">
                     Correo electrónico
                   </label>
-                  <div className="group relative flex items-center rounded-xl border border-white/15 bg-black/50 px-3.5 py-2.5 transition-all duration-200 focus-within:border-[#c9a15a] focus-within:ring-2 focus-within:ring-[#c9a15a]/25 focus-within:bg-black/70">
+                  <div className="group relative flex items-center rounded-xl border border-white/15 bg-[#14120e] px-3.5 py-2.5 transition-all duration-200 focus-within:border-[#c9a15a] focus-within:ring-2 focus-within:ring-[#c9a15a]/25">
                     <Mail className="h-4 w-4 text-[#c9a15a] mr-2.5 shrink-0 transition-transform group-focus-within:scale-110" />
                     <input
                       type="email"
@@ -346,7 +363,7 @@ export function WelcomeModal({
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="ejemplo@correo.com"
                       autoComplete="username"
-                      className="w-full bg-transparent text-xs sm:text-sm text-white placeholder:text-white/35 focus:outline-none"
+                      className="modal-dark-input dark-autofill w-full bg-transparent text-xs sm:text-sm text-white placeholder:text-white/35 focus:outline-none"
                     />
                   </div>
                 </motion.div>
@@ -361,7 +378,7 @@ export function WelcomeModal({
                   <label className="block text-[0.68rem] font-bold tracking-wider text-white/75 uppercase mb-1.5">
                     Contraseña
                   </label>
-                  <div className="group relative flex items-center rounded-xl border border-white/15 bg-black/50 px-3.5 py-2.5 transition-all duration-200 focus-within:border-[#c9a15a] focus-within:ring-2 focus-within:ring-[#c9a15a]/25 focus-within:bg-black/70">
+                  <div className="group relative flex items-center rounded-xl border border-white/15 bg-[#14120e] px-3.5 py-2.5 transition-all duration-200 focus-within:border-[#c9a15a] focus-within:ring-2 focus-within:ring-[#c9a15a]/25">
                     <Lock className="h-4 w-4 text-[#c9a15a] mr-2.5 shrink-0 transition-transform group-focus-within:scale-110" />
                     <input
                       type={showPassword ? "text" : "password"}
@@ -371,7 +388,7 @@ export function WelcomeModal({
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
                       autoComplete="current-password"
-                      className="w-full bg-transparent text-xs sm:text-sm text-white placeholder:text-white/35 focus:outline-none"
+                      className="modal-dark-input dark-autofill w-full bg-transparent text-xs sm:text-sm text-white placeholder:text-white/35 focus:outline-none"
                     />
                     <button
                       type="button"
