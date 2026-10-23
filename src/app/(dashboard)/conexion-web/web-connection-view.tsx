@@ -33,6 +33,7 @@ import {
   checkStripeStatus,
   createDiagnosticWebOrder,
 } from "./actions";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import {
   WEB_STATUS_COLORS,
   WEB_STATUS_LABEL,
@@ -109,6 +110,7 @@ export function WebConnectionView({
     message: string;
   } | null>(null);
   const [isCreatingTest, setIsCreatingTest] = useState(false);
+  const [confirmTestOpen, setConfirmTestOpen] = useState(false);
 
   // Manejador de revalidación de caché
   function handleRevalidate() {
@@ -151,10 +153,8 @@ export function WebConnectionView({
   }
 
   // Manejador de creación de pedido de prueba
-  async function handleCreateTestOrder() {
-    if (!confirm("¿Deseas crear un pedido web de prueba para validar el circuito de sincronización?")) {
-      return;
-    }
+  async function executeCreateTestOrder() {
+    setConfirmTestOpen(false);
     setIsCreatingTest(true);
     try {
       const res = await createDiagnosticWebOrder();
@@ -554,11 +554,11 @@ export function WebConnectionView({
             </div>
             <div className="mt-4 pt-3 border-t border-[var(--border)] flex items-center justify-between">
               <button
-                onClick={handleCreateTestOrder}
+                onClick={() => setConfirmTestOpen(true)}
                 disabled={isCreatingTest}
                 className="text-xs font-semibold text-[var(--wood-900)] hover:underline inline-flex items-center gap-1"
               >
-                <Plus className="h-3 w-3 text-[#b0894f]" />
+                <Plus className="h-3.5 w-3.5 text-[#b0894f]" />
                 <span>{isCreatingTest ? "Creando..." : "Crear pedido de prueba"}</span>
               </button>
             </div>
@@ -827,6 +827,18 @@ export function WebConnectionView({
           </div>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmTestOpen}
+        onClose={() => setConfirmTestOpen(false)}
+        onConfirm={executeCreateTestOrder}
+        title="Crear pedido web de prueba"
+        description="¿Deseas generar un pedido web seguro de prueba en la base de datos? Esto permitirá simular la entrada de una compra online y verificar la bandeja y facturación."
+        confirmLabel="Crear pedido test"
+        cancelLabel="Cancelar"
+        isDestructive={false}
+        isPending={isCreatingTest}
+      />
     </div>
   );
 }

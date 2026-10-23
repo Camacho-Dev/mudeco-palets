@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { IconField } from "@/components/icon-field";
 import { CustomerSearchSelect } from "@/components/customer-search-select";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 type ProductOption = {
   id: string;
@@ -85,6 +86,8 @@ export function QuickSale({
   const [nameInput, setNameInput] = useState("");
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const [draftToDiscard, setDraftToDiscard] = useState<InvoiceDraft | null>(null);
+  const [clearCartConfirm, setClearCartConfirm] = useState(false);
 
   // Carga de borradores previos desde localStorage (persistencia ante recargas)
   useEffect(() => {
@@ -166,6 +169,20 @@ export function QuickSale({
     e.stopPropagation();
     setError("");
 
+    const target = drafts.find((d) => d.id === idToClose);
+    if (!target) return;
+
+    // Si la factura tiene artículos agregados, solicitar confirmación profesional
+    if (target.cart.length > 0) {
+      setDraftToDiscard(target);
+      return;
+    }
+
+    // Si está vacía, descartarla directamente
+    executeDiscardDraft(idToClose);
+  }
+
+  function executeDiscardDraft(idToClose: string) {
     if (drafts.length <= 1) {
       updateActive((d) => ({
         ...d,
@@ -173,15 +190,8 @@ export function QuickSale({
         delivery: false,
         deliveryFee: "",
       }));
+      setDraftToDiscard(null);
       return;
-    }
-
-    const target = drafts.find((d) => d.id === idToClose);
-    if (target && target.cart.length > 0) {
-      const ok = window.confirm(
-        `¿Deseas descartar "${target.name}" con ${target.cart.length} producto(s)?`,
-      );
-      if (!ok) return;
     }
 
     const filtered = drafts.filter((d) => d.id !== idToClose);
@@ -189,6 +199,7 @@ export function QuickSale({
     if (activeDraftId === idToClose) {
       setActiveDraftId(filtered[0]?.id || "draft-1");
     }
+    setDraftToDiscard(null);
   }
 
   function saveCustomName() {
@@ -685,7 +696,7 @@ export function QuickSale({
                 {cart.length > 0 ? (
                   <button
                     type="button"
-                    onClick={() => updateActive((d) => ({ ...d, cart: [] }))}
+                    onClick={() => setClearCartConfirm(true)}
                     className="text-xs text-[var(--muted)] hover:text-rose-700"
                   >
                     Vaciar carrito
@@ -835,6 +846,57 @@ export function QuickSale({
           </div>
         </div>
       </div>
+
+      {/* Modal Profesional de Confirmación para Descartar Factura Borrador */}
+      <ConfirmDialog
+        isOpen={!!draftToDiscard}
+        onClose={() => setDraftToDiscard(null)}
+        onConfirm={() => {
+          if (draftToDiscard) executeDiscardDraft(draftToDiscard.id);
+        }}
+        title="Descartar factura simultánea"
+        description={`¿Estás seguro de que deseas descartar "${draftToDiscard?.name}"? Esta acción liberará la pestaña de trabajo.`}
+        confirmLabel="Sí, descartar factura"
+        cancelLabel="Conservar factura"
+        isDestructive={true}
+        itemDetails={
+          draftToDiscard
+            ? {
+                name: draftToDiscard.name,
+                count: draftToDiscard.cart.reduce((s, i) => s + i.quantity, 0),
+                total: formatCurrency(
+                  draftToDiscard.cart.reduce(
+                    (s, i) => s + i.quantity * i.unitPrice,
+                    0,
+                  ) * (draftToDiscard.applyTax ? 1.18 : 1),
+                ),
+                subtitle:
+                  "Los productos agregados a esta pestaña se removerán de tu sesión.",
+              }
+            : undefined
+        }
+      />
+
+      {/* Modal Profesional de Confirmación para Vaciar Carrito */}
+      <ConfirmDialog
+        isOpen={clearCartConfirm}
+        onClose={() => setClearCartConfirm(false)}
+        onConfirm={() => {
+          updateActive((d) => ({ ...d, cart: [] }));
+          setClearCartConfirm(false);
+        }}
+        title="Vaciar carrito"
+        description={`¿Deseas remover todos los artículos de "${activeDraft.name}"?`}
+        confirmLabel="Vaciar artículos"
+        cancelLabel="Conservar artículos"
+        isDestructive={true}
+        itemDetails={{
+          name: activeDraft.name,
+          count: cart.reduce((s, i) => s + i.quantity, 0),
+          total: formatCurrency(totals.total),
+          subtitle: "La factura permanecerá abierta pero sin artículos.",
+        }}
+      />
     </div>
   );
 }

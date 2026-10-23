@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { UploadCloud, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
 import { restoreBackup } from "@/app/(dashboard)/backup/actions";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 export function BackupRestoreForm() {
   const [pending, startTransition] = useTransition();
@@ -10,6 +11,8 @@ export function BackupRestoreForm() {
     null,
   );
   const [error, setError] = useState("");
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingFormData, setPendingFormData] = useState<FormData | null>(null);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -23,13 +26,17 @@ export function BackupRestoreForm() {
       return;
     }
 
-    if (!confirm("¿Confirmas la restauración del respaldo? Se sincronizarán los clientes, productos y proveedores.")) {
-      return;
-    }
+    setPendingFormData(fd);
+    setConfirmOpen(true);
+  }
+
+  function doRestore() {
+    if (!pendingFormData) return;
+    setConfirmOpen(false);
 
     startTransition(async () => {
       try {
-        const res = await restoreBackup(fd);
+        const res = await restoreBackup(pendingFormData);
         setResult(res);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Error al restaurar");
@@ -84,6 +91,18 @@ export function BackupRestoreForm() {
           </>
         )}
       </button>
+
+      <ConfirmDialog
+        isOpen={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={doRestore}
+        title="Restaurar copia de seguridad"
+        description="¿Confirmas la restauración del respaldo? Esta acción sincronizará los clientes, productos y proveedores a partir del archivo seleccionado."
+        confirmLabel="Sí, restaurar datos"
+        cancelLabel="Cancelar"
+        isDestructive={false}
+        isPending={pending}
+      />
     </form>
   );
 }
