@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
 import { Reveal } from "@/components/store/store-motion";
@@ -10,16 +11,19 @@ import { ProductCard } from "@/components/store/product-card";
 import { STORE_LOGISTICS, siteUrl, storeWhatsApp } from "@/lib/store-info";
 import { getRelatedRecommendations } from "@/lib/recommendations";
 
+const getProduct = cache(async (id: string) => {
+  return prisma.product.findFirst({
+    where: { id, active: true, kind: "FINISHED" },
+  });
+});
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const product = await prisma.product.findFirst({
-    where: { id, active: true, kind: "FINISHED" },
-    select: { name: true, description: true, imageUrl: true, category: true },
-  });
+  const product = await getProduct(id);
   if (!product) return { title: "Producto" };
   const img = productImage(product);
   const url = `${siteUrl()}/producto/${id}`;
@@ -49,9 +53,7 @@ export default async function ProductoPage({
 }) {
   const { id } = await params;
   const [product, company, related] = await Promise.all([
-    prisma.product.findFirst({
-      where: { id, active: true, kind: "FINISHED" },
-    }),
+    getProduct(id),
     getStoreCompany(),
     getRelatedRecommendations(id, 4),
   ]);

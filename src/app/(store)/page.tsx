@@ -24,7 +24,7 @@ import { ProductShelf } from "@/components/store/product-shelf";
 import { BeforeAfterSlider, type Transformation } from "@/components/store/before-after-slider";
 import { prisma, withDbRetry } from "@/lib/prisma";
 import { STORE_SOCIAL } from "@/lib/store-brand";
-import { getTopRecommendedProducts } from "@/lib/recommendations";
+import { getScoredProducts } from "@/lib/recommendations";
 import { getStoreCompany } from "@/lib/store";
 import { storeWhatsApp } from "@/lib/store-info";
 import { auth } from "@/lib/auth";
@@ -140,35 +140,18 @@ const REVIEWS = [
 ] as const;
 
 export default async function StoreHomePage() {
-  type P = Awaited<ReturnType<typeof prisma.product.findMany>>;
-  const empty: P = [];
-
-  const [company, featured, newest, topRecommended, session] = await Promise.all([
+  const [company, scoredProducts, session] = await Promise.all([
     getStoreCompany(),
-    withDbRetry(
-      () =>
-        prisma.product.findMany({
-          where: { active: true, kind: "FINISHED" },
-          orderBy: { createdAt: "desc" },
-          take: 16,
-        }),
-      { fallback: empty },
-    ),
-    withDbRetry(
-      () =>
-        prisma.product.findMany({
-          where: { active: true, kind: "FINISHED" },
-          orderBy: { createdAt: "desc" },
-          take: 12,
-        }),
-      { fallback: empty },
-    ),
-    withDbRetry(() => getTopRecommendedProducts(10), { fallback: [] }),
+    withDbRetry(() => getScoredProducts(), { fallback: [] }),
     auth().catch(() => null),
   ]);
 
-  const fresh =
-    newest.length > 4 ? newest.slice(0, 12) : featured.slice(0, 12);
+  const topRecommended = scoredProducts.slice(0, 10);
+  const newest = [...scoredProducts]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 12);
+  const featured = scoredProducts.slice(0, 16);
+  const fresh = newest.length > 4 ? newest : featured.slice(0, 12);
 
   const promoTiles = [
     {
@@ -221,7 +204,7 @@ export default async function StoreHomePage() {
     } catch {}
   }
 
-  function toShelf(list: P) {
+  function toShelf(list: Array<{ id: string; name: string; category: string; price: number; taxRate: number; stock: number; imageUrl: string | null }>) {
     return list.map((p) => ({
       id: p.id,
       name: p.name,

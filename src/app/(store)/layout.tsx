@@ -9,7 +9,8 @@ import { getStoreCompany } from "@/lib/store";
 import { siteUrl } from "@/lib/store-info";
 import "@/components/store/store.css";
 
-export const dynamic = "force-dynamic";
+// Revalidación periódica cada 60s (ISR) para carga instantánea de la tienda
+export const revalidate = 60;
 
 const storeDisplay = Cormorant_Garamond({
   variable: "--font-store-display",

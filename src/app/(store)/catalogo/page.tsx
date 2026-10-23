@@ -21,14 +21,12 @@ export default async function CatalogoPage({
   const initialCategory = (cat || "").trim();
   const initialFilter = (filter || "").trim();
 
-  const [products, scoredProducts, company] = await Promise.all([
-    prisma.product.findMany({
-      where: { active: true, kind: "FINISHED" },
-      orderBy: [{ category: "asc" }, { name: "asc" }],
-    }),
+  const [scoredProducts, company] = await Promise.all([
     getScoredProducts(),
     getStoreCompany(),
   ]);
+
+  const products = scoredProducts;
 
   const categories: string[] = Array.from(
     new Set(products.map((p) => p.category))
