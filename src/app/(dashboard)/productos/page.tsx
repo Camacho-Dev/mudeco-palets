@@ -5,6 +5,8 @@ import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { ListSearchBar } from "@/components/invoice-search";
 import { formatCurrency } from "@/lib/format";
+import { productImage } from "@/lib/product-image";
+import { ExternalLink } from "lucide-react";
 
 export default async function ProductosPage({
   searchParams,
@@ -40,7 +42,7 @@ export default async function ProductosPage({
         description={
           query
             ? `Resultados para “${query}”`
-            : "Muebles de venta y fabricación propia"
+            : `${products.filter((p) => p.active).length} muebles activos visibles en la tienda online`
         }
         action={{ href: "/productos/nuevo", label: "Nuevo mueble" }}
       />
@@ -60,49 +62,97 @@ export default async function ProductosPage({
         <table className="data">
           <thead>
             <tr>
+              <th>Foto</th>
               <th>Mueble</th>
               <th>Categoría</th>
               <th>Precio</th>
               <th>Stock</th>
               <th>ITBIS</th>
               <th>Estado</th>
-              <th></th>
+              <th className="text-right">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {products.length === 0 ? (
               <tr>
-                <td colSpan={7} className="text-center text-[var(--muted)]">
+                <td colSpan={8} className="text-center text-[var(--muted)]">
                   {query
                     ? `No se encontraron muebles para “${query}”`
                     : "No hay muebles en el catálogo"}
                 </td>
               </tr>
             ) : (
-              products.map((p) => (
-                <tr key={p.id} className={!p.active ? "opacity-50" : undefined}>
-                  <td>
-                    <div className="font-medium">{p.name}</div>
-                    <div className="text-xs text-[var(--muted)]">
-                      {p.sku || "Sin SKU"}
-                      {p.description ? ` · ${p.description}` : ""}
-                    </div>
-                  </td>
-                  <td>{p.category}</td>
-                  <td>{formatCurrency(p.price)}</td>
-                  <td>{p.stock}</td>
-                  <td>{(p.taxRate * 100).toFixed(0)}%</td>
-                  <td>{p.active ? "Activo" : "Inactivo"}</td>
-                  <td className="text-right">
-                    <Link
-                      href={`/productos/${p.id}`}
-                      className="text-sm font-medium text-[var(--wood-800)] hover:underline"
-                    >
-                      Editar
-                    </Link>
-                  </td>
-                </tr>
-              ))
+              products.map((p) => {
+                const img = productImage(p);
+                return (
+                  <tr key={p.id} className={!p.active ? "opacity-50" : undefined}>
+                    <td className="w-14 py-2">
+                      <div className="relative h-11 w-11 overflow-hidden rounded-lg border border-[var(--border)] bg-[#fbf7f2]">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={img}
+                          alt={p.name}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    </td>
+                    <td>
+                      <div className="font-medium">{p.name}</div>
+                      <div className="text-xs text-[var(--muted)]">
+                        {p.sku || "Sin SKU"}
+                        {p.description ? ` · ${p.description}` : ""}
+                      </div>
+                    </td>
+                    <td>{p.category}</td>
+                    <td>{formatCurrency(p.price)}</td>
+                    <td>
+                      <span
+                        className={`inline-flex rounded px-1.5 py-0.5 text-xs font-semibold ${
+                          p.stock <= p.minStock
+                            ? "bg-amber-100 text-amber-900"
+                            : "text-[var(--wood-900)]"
+                        }`}
+                      >
+                        {p.stock}
+                      </span>
+                    </td>
+                    <td>{(p.taxRate * 100).toFixed(0)}%</td>
+                    <td>
+                      <span
+                        className={`inline-flex rounded-full px-2 py-0.5 text-[0.68rem] font-semibold ${
+                          p.active
+                            ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                            : "bg-stone-100 text-stone-600"
+                        }`}
+                      >
+                        {p.active ? "En tienda" : "Inactivo"}
+                      </span>
+                    </td>
+                    <td className="text-right whitespace-nowrap">
+                      <div className="flex items-center justify-end gap-2">
+                        {p.active ? (
+                          <a
+                            href={`/producto/${p.id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 rounded border border-[var(--border)] bg-[#fbf7f2] px-2 py-1 text-xs text-[var(--wood-800)] hover:border-[#b0894f] hover:bg-white"
+                            title="Ver cómo se ve en la tienda online"
+                          >
+                            <span>Ver web</span>
+                            <ExternalLink className="h-3 w-3 opacity-60" />
+                          </a>
+                        ) : null}
+                        <Link
+                          href={`/productos/${p.id}`}
+                          className="rounded border border-[var(--border)] bg-white px-2 py-1 text-xs font-medium text-[var(--wood-800)] hover:border-[var(--wood-700)]"
+                        >
+                          Editar
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>

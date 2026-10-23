@@ -3,6 +3,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
+import { ProductImageInput } from "@/components/product-image-input";
+import { ExternalLink } from "lucide-react";
 import { deleteProduct, updateProduct } from "../actions";
 
 export default async function EditarProductoPage({
@@ -20,7 +22,29 @@ export default async function EditarProductoPage({
 
   return (
     <div>
-      <PageHeader title="Editar mueble" description={product.name} />
+      <PageHeader
+        title="Editar mueble"
+        description={product.name}
+        action={
+          <div className="flex items-center gap-2">
+            {product.active ? (
+              <a
+                href={`/producto/${product.id}`}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+                title="Ver producto en la tienda online"
+              >
+                <span>Ver en la tienda web</span>
+                <ExternalLink className="h-3.5 w-3.5 opacity-60" />
+              </a>
+            ) : null}
+            <Link href="/productos" className="btn btn-ghost text-xs">
+              ← Catálogo
+            </Link>
+          </div>
+        }
+      />
       <form action={update} className="card max-w-2xl space-y-4 p-6">
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
@@ -156,22 +180,10 @@ export default async function EditarProductoPage({
             />
           </div>
         </div>
-        <div>
-          <label className="label" htmlFor="imageUrl">
-            URL de imagen (foto real del mueble)
-          </label>
-          <input
-            id="imageUrl"
-            name="imageUrl"
-            defaultValue={product.imageUrl || ""}
-            className="input"
-            placeholder="https://…"
-          />
-          <p className="mt-1 text-xs text-[var(--muted)]">
-            Sube la foto a Imgur, Cloudinary o tu hosting y pega el link. Sin
-            foto se usa una imagen de categoría.
-          </p>
-        </div>
+        <ProductImageInput
+          defaultValue={product.imageUrl}
+          category={product.category}
+        />
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
             <label className="label" htmlFor="widthCm">

@@ -13,6 +13,7 @@ import {
   Camera,
   FolderOpen,
 } from "lucide-react";
+import type { Transformation } from "@/components/store/before-after-slider";
 import { updateWebMedia } from "./actions";
 
 interface WebMediaManagerProps {
@@ -26,6 +27,7 @@ interface WebMediaManagerProps {
     promoMesaImage: string;
     promoTvImage: string;
     galleryImages: string[];
+    beforeAfterItems?: Transformation[];
   };
 }
 
@@ -73,6 +75,7 @@ export function WebMediaManager({ initialData }: WebMediaManagerProps) {
         promoMesaImage: formData.promoMesaImage,
         promoTvImage: formData.promoTvImage,
         galleryImages: formData.galleryImages,
+        beforeAfterJson: JSON.stringify(formData.beforeAfterItems || []),
       });
 
       setSavedSuccess(true);
@@ -575,6 +578,183 @@ export function WebMediaManager({ initialData }: WebMediaManagerProps) {
                     }}
                   />
                 </label>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* SECCIÓN 5: Transformaciones Antes y Después (Slider Interactivo) */}
+      <div className="card space-y-6 p-6">
+        <div className="flex items-center gap-2.5 border-b border-border pb-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/15 text-amber-600 dark:text-amber-400">
+            <Sparkles className="h-4 w-4" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground">
+              5. Transformaciones Antes y Después (Slider Interactivo)
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Compara fotos de madera en bruto vs el acabado final de ebanistería en la página principal
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          {(formData.beforeAfterItems || []).map((item, idx) => (
+            <div
+              key={item.id || idx}
+              className="rounded-xl border border-border bg-card p-5 space-y-4"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border pb-3">
+                <span className="text-xs font-bold text-[var(--wood-900)] tracking-wider uppercase">
+                  Pestaña #{idx + 1}: {item.title}
+                </span>
+                <span className="rounded bg-muted px-2 py-0.5 text-[0.65rem] font-semibold text-muted-foreground uppercase">
+                  ID: {item.id}
+                </span>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="label">Título de la Pieza</label>
+                  <input
+                    value={item.title}
+                    onChange={(e) => {
+                      const next = [...(formData.beforeAfterItems || [])];
+                      next[idx] = { ...next[idx], title: e.target.value };
+                      setFormData({ ...formData, beforeAfterItems: next });
+                    }}
+                    className="input text-xs"
+                    placeholder="Ej. Mesa de centro rústica"
+                  />
+                </div>
+                <div>
+                  <label className="label">Categoría / Tipo de trabajo</label>
+                  <input
+                    value={item.category}
+                    onChange={(e) => {
+                      const next = [...(formData.beforeAfterItems || [])];
+                      next[idx] = { ...next[idx], category: e.target.value };
+                      setFormData({ ...formData, beforeAfterItems: next });
+                    }}
+                    className="input text-xs"
+                    placeholder="Ej. Restauración artesanal"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="label">Descripción</label>
+                <textarea
+                  rows={2}
+                  value={item.description}
+                  onChange={(e) => {
+                    const next = [...(formData.beforeAfterItems || [])];
+                    next[idx] = { ...next[idx], description: e.target.value };
+                    setFormData({ ...formData, beforeAfterItems: next });
+                  }}
+                  className="input text-xs"
+                  placeholder="Detalles sobre el proceso de fabricación o restauración…"
+                />
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                {/* Foto ANTES */}
+                <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase">
+                      Foto ANTES (Madera en bruto)
+                    </span>
+                  </div>
+                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded border border-border bg-muted">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={item.beforeImg}
+                      alt={item.beforeLabel}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="flex gap-1.5">
+                    <input
+                      value={item.beforeImg}
+                      onChange={(e) => {
+                        const next = [...(formData.beforeAfterItems || [])];
+                        next[idx] = { ...next[idx], beforeImg: e.target.value };
+                        setFormData({ ...formData, beforeAfterItems: next });
+                      }}
+                      className="input flex-1 text-xs"
+                      placeholder="URL o ruta"
+                    />
+                    <label className="btn btn-outline inline-flex cursor-pointer items-center gap-1 text-xs">
+                      <FolderOpen className="h-3 w-3" />
+                      <span>Subir</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handleFileUpload(file, (url) => {
+                              const next = [...(formData.beforeAfterItems || [])];
+                              next[idx] = { ...next[idx], beforeImg: url };
+                              setFormData({ ...formData, beforeAfterItems: next });
+                            });
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Foto DESPUÉS */}
+                <div className="space-y-2 rounded-lg border border-border bg-muted/20 p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase">
+                      Foto DESPUÉS (Mueble terminado)
+                    </span>
+                  </div>
+                  <div className="relative aspect-[16/10] w-full overflow-hidden rounded border border-border bg-muted">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={item.afterImg}
+                      alt={item.afterLabel}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="flex gap-1.5">
+                    <input
+                      value={item.afterImg}
+                      onChange={(e) => {
+                        const next = [...(formData.beforeAfterItems || [])];
+                        next[idx] = { ...next[idx], afterImg: e.target.value };
+                        setFormData({ ...formData, beforeAfterItems: next });
+                      }}
+                      className="input flex-1 text-xs"
+                      placeholder="URL o ruta"
+                    />
+                    <label className="btn btn-outline inline-flex cursor-pointer items-center gap-1 text-xs">
+                      <FolderOpen className="h-3 w-3" />
+                      <span>Subir</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handleFileUpload(file, (url) => {
+                              const next = [...(formData.beforeAfterItems || [])];
+                              next[idx] = { ...next[idx], afterImg: url };
+                              setFormData({ ...formData, beforeAfterItems: next });
+                            });
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
               </div>
             </div>
           ))}

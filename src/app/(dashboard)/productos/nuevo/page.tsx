@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createProduct } from "../actions";
 import { PageHeader } from "@/components/page-header";
+import { ProductImageInput } from "@/components/product-image-input";
 import { requireSession } from "@/lib/session";
 
 export default async function NuevoProductoPage() {
@@ -127,20 +128,7 @@ export default async function NuevoProductoPage() {
             <input id="unit" name="unit" defaultValue="UND" className="input" />
           </div>
         </div>
-        <div>
-          <label className="label" htmlFor="imageUrl">
-            URL de imagen (foto real del mueble)
-          </label>
-          <input
-            id="imageUrl"
-            name="imageUrl"
-            className="input"
-            placeholder="https://…"
-          />
-          <p className="mt-1 text-xs text-[var(--muted)]">
-            Pega el link de una foto real. Sin ella se usa imagen de categoría.
-          </p>
-        </div>
+        <ProductImageInput category="Muebles" />
         <div className="grid gap-4 sm:grid-cols-3">
           <div>
             <label className="label" htmlFor="widthCm">

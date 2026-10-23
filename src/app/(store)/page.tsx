@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { FadeUp, Reveal } from "@/components/store/store-motion";
 import { ProductShelf } from "@/components/store/product-shelf";
-import { BeforeAfterSlider } from "@/components/store/before-after-slider";
+import { BeforeAfterSlider, type Transformation } from "@/components/store/before-after-slider";
 import { prisma, withDbRetry } from "@/lib/prisma";
 import { STORE_SOCIAL } from "@/lib/store-brand";
 import { getTopRecommendedProducts } from "@/lib/recommendations";
@@ -204,6 +204,16 @@ export default async function StoreHomePage() {
       const parsed = JSON.parse(company.galleryImages);
       if (Array.isArray(parsed) && parsed.length > 0) {
         gallery = parsed;
+      }
+    } catch {}
+  }
+
+  let transformations: Transformation[] | undefined = undefined;
+  if (company.beforeAfterJson) {
+    try {
+      const parsed = JSON.parse(company.beforeAfterJson);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        transformations = parsed;
       }
     } catch {}
   }
@@ -437,7 +447,7 @@ export default async function StoreHomePage() {
             </Link>
           </div>
 
-          <BeforeAfterSlider />
+          <BeforeAfterSlider initialItems={transformations} />
         </div>
       </section>
 

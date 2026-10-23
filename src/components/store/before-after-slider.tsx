@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, ChevronsLeftRight, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-interface Transformation {
+export interface Transformation {
   id: string;
   title: string;
   category: string;
@@ -16,7 +16,7 @@ interface Transformation {
   afterLabel: string;
 }
 
-const TRANSFORMATIONS: Transformation[] = [
+export const DEFAULT_TRANSFORMATIONS: Transformation[] = [
   {
     id: "mesa",
     title: "Mesa de centro rústica",
@@ -49,13 +49,18 @@ const TRANSFORMATIONS: Transformation[] = [
   },
 ];
 
-export function BeforeAfterSlider() {
-  const [activeTab, setActiveTab] = useState<string>("mesa");
+export function BeforeAfterSlider({
+  initialItems,
+}: {
+  initialItems?: Transformation[];
+} = {}) {
+  const items = initialItems && initialItems.length > 0 ? initialItems : DEFAULT_TRANSFORMATIONS;
+  const [activeTab, setActiveTab] = useState<string>(() => items[0]?.id || "mesa");
   const [sliderPos, setSliderPos] = useState<number>(50);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const current = TRANSFORMATIONS.find((t) => t.id === activeTab) || TRANSFORMATIONS[0];
+  const current = items.find((t) => t.id === activeTab) || items[0] || DEFAULT_TRANSFORMATIONS[0];
 
   const handleMove = useCallback((clientX: number) => {
     if (!containerRef.current) return;
@@ -95,7 +100,7 @@ export function BeforeAfterSlider() {
     <div className="space-y-6">
       {/* Selector de transformaciones */}
       <div className="flex flex-wrap gap-2">
-        {TRANSFORMATIONS.map((t) => {
+        {items.map((t) => {
           const active = t.id === activeTab;
           return (
             <button

@@ -37,6 +37,50 @@ export default async function ContenidoWebPage() {
     }
   }
 
+  let beforeAfterItems = [
+    {
+      id: "mesa",
+      title: "Mesa de centro rústica",
+      category: "Restauración artesanal",
+      description: "Madera de palets de pino seleccionados, cepillada, curada contra plagas y sellada con aceite natural mate.",
+      beforeImg: "/brand/store-workshop.jpg",
+      afterImg: "/brand/cat-mesa.jpg",
+      beforeLabel: "Antes · Madera en bruto",
+      afterLabel: "Después · Ebanistería fina",
+    },
+    {
+      id: "tv",
+      title: "Consola de TV moderna",
+      category: "Fabricación a medida",
+      description: "Diseño minimalista con compartimentos ocultos y ensamble de caja y espiga para máxima rigidez.",
+      beforeImg: "/brand/store-craft.jpg",
+      afterImg: "/brand/cat-tv.jpg",
+      beforeLabel: "Antes · Vetas sin curar",
+      afterLabel: "Después · Acabado satinado",
+    },
+    {
+      id: "banco",
+      title: "Banco industrial reforzado",
+      category: "Mueble de uso intensivo",
+      description: "Estructura robusta de doble capa con acabado resistente a la intemperie y tono roble envejecido.",
+      beforeImg: "/brand/store-workshop.jpg",
+      afterImg: "/brand/cat-banco.jpg",
+      beforeLabel: "Antes · Palet desarmado",
+      afterLabel: "Después · Barniz protector",
+    },
+  ];
+
+  if (company?.beforeAfterJson) {
+    try {
+      const parsed = JSON.parse(company.beforeAfterJson);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        beforeAfterItems = parsed;
+      }
+    } catch {
+      // fallback
+    }
+  }
+
   const initialData = {
     heroImage: company?.heroImage || "/brand/store-hero.jpg",
     heroBadge: company?.heroBadge || "Taller artesanal · República Dominicana",
@@ -49,6 +93,7 @@ export default async function ContenidoWebPage() {
     promoMesaImage: company?.promoMesaImage || "/brand/cat-mesa.jpg",
     promoTvImage: company?.promoTvImage || "/brand/cat-tv.jpg",
     galleryImages: gallery.slice(0, 8),
+    beforeAfterItems,
   };
 
   return (

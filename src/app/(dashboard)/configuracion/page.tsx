@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
@@ -16,7 +17,12 @@ export default async function ConfiguracionPage() {
       <div>
         <PageHeader
           title="Empresa"
-          description="Datos que aparecen en facturas e impresión"
+          description="Datos oficiales que aparecen en facturas, cotizaciones y en el pie de página y WhatsApp de la tienda web"
+          action={
+            <Link href="/contenido-web" className="btn btn-secondary text-xs">
+              Fotos y contenido web
+            </Link>
+          }
         />
         <form action={updateCompany} className="card max-w-xl space-y-4 p-6">
           <div>

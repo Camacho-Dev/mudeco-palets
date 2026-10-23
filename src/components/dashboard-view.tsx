@@ -21,11 +21,19 @@ import {
   Banknote,
   Boxes,
   Calculator,
+  Clock,
+  ExternalLink,
+  Globe,
+  Image as ImageIcon,
+  MessageSquare,
+  Package,
   Percent,
   PiggyBank,
   Receipt,
+  ShoppingBag,
   TrendingUp,
   Wallet,
+  Wrench,
   Zap,
 } from "lucide-react";
 import type { BusinessAnalytics } from "@/lib/analytics";
@@ -145,7 +153,18 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
               {data.period?.label ? ` · ${data.period.label}` : ""}
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <a
+              href="/"
+              target="_blank"
+              rel="noreferrer"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+              title="Abrir tienda pública en una pestaña nueva"
+            >
+              <Globe className="h-4 w-4 text-[#b0894f]" />
+              <span>Tienda pública</span>
+              <ExternalLink className="h-3 w-3 opacity-60" />
+            </a>
             <Link href="/finanzas" className="btn btn-secondary">
               <Calculator className="h-4 w-4" />
               Ver finanzas
@@ -180,67 +199,162 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
       ) : null}
 
       <FadeIn delay={0.06}>
-        <div className="mb-6 rounded-xl border border-[var(--border)] bg-white p-5 shadow-sm">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="mb-6 rounded-2xl border border-[var(--border)] bg-white p-5 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border)] pb-4">
             <div>
-              <p className="text-xs font-semibold tracking-[0.14em] text-[var(--brass)] uppercase">
-                Tienda web
-              </p>
-              <p className="mt-1 text-sm text-[var(--muted)]">
-                Lo que llega desde la web al panel
-              </p>
+              <div className="flex items-center gap-2">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <p className="text-xs font-semibold tracking-[0.14em] text-[var(--brass)] uppercase">
+                  Canal Web · Tienda Online
+                </p>
+              </div>
+              <h2 className="font-display mt-0.5 text-xl text-[var(--wood-950)]">
+                Pedidos, cotizaciones y solicitudes recibidas
+              </h2>
             </div>
-            <Link href="/pedidos-web" className="btn btn-secondary text-sm">
-              Ver pedidos web
-              <ArrowUpRight className="h-4 w-4" />
-            </Link>
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href="/productos"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[#fbf7f2] px-3 py-1.5 text-xs font-medium text-[var(--wood-800)] hover:border-[#b0894f] hover:bg-white"
+                title="Muebles activos visibles en tienda"
+              >
+                <Package className="h-3.5 w-3.5 text-[#b0894f]" />
+                <span>{kpis.productCount} en catálogo</span>
+              </Link>
+              <Link
+                href="/contenido-web"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[#fbf7f2] px-3 py-1.5 text-xs font-medium text-[var(--wood-800)] hover:border-[#b0894f] hover:bg-white"
+                title="Fotos de portada, transformaciones y galería"
+              >
+                <ImageIcon className="h-3.5 w-3.5 text-[#b0894f]" />
+                <span>Fotos web</span>
+              </Link>
+              <Link href="/pedidos-web" className="btn btn-secondary text-xs">
+                <span>Bandeja completa</span>
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
           </div>
+
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-lg bg-[#fbf7f2] px-4 py-3">
-              <p className="text-xs text-[var(--muted)]">Pendientes</p>
-              <p className="text-2xl font-semibold text-[var(--wood-950)]">
+            <Link
+              href="/pedidos-web?estado=pending"
+              className="group relative flex flex-col justify-between rounded-xl border border-[var(--border)] bg-[#fbf7f2] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#b0894f] hover:bg-white hover:shadow-md"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold tracking-wide text-[var(--muted)] uppercase group-hover:text-[var(--wood-900)]">
+                  Pendientes
+                </span>
+                <div className="rounded-lg bg-[#b0894f]/15 p-1.5 text-[#b0894f] transition-transform group-hover:scale-110">
+                  <Clock className="h-4 w-4" />
+                </div>
+              </div>
+              <p className="font-display mt-2 text-3xl font-bold text-[var(--wood-950)]">
                 {kpis.webPendingCount}
               </p>
-            </div>
-            <div className="rounded-lg bg-[#fbf7f2] px-4 py-3">
-              <p className="text-xs text-[var(--muted)]">Reparaciones</p>
-              <p className="text-2xl font-semibold text-[var(--wood-950)]">
+              <p className="mt-2 text-xs font-medium text-[#b0894f] group-hover:underline">
+                Por atender →
+              </p>
+            </Link>
+
+            <Link
+              href="/pedidos-web?tipo=REPAIR"
+              className="group relative flex flex-col justify-between rounded-xl border border-[var(--border)] bg-[#fbf7f2] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#b0894f] hover:bg-white hover:shadow-md"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold tracking-wide text-[var(--muted)] uppercase group-hover:text-[var(--wood-900)]">
+                  Reparaciones
+                </span>
+                <div className="rounded-lg bg-[#5c4334]/10 p-1.5 text-[var(--wood-800)] transition-transform group-hover:scale-110">
+                  <Wrench className="h-4 w-4" />
+                </div>
+              </div>
+              <p className="font-display mt-2 text-3xl font-bold text-[var(--wood-950)]">
                 {kpis.webRepairsCount}
               </p>
-            </div>
-            <div className="rounded-lg bg-[#fbf7f2] px-4 py-3">
-              <p className="text-xs text-[var(--muted)]">Consultas</p>
-              <p className="text-2xl font-semibold text-[var(--wood-950)]">
+              <p className="mt-2 text-xs font-medium text-[#b0894f] group-hover:underline">
+                Solicitudes de taller →
+              </p>
+            </Link>
+
+            <Link
+              href="/pedidos-web?tipo=CONTACT"
+              className="group relative flex flex-col justify-between rounded-xl border border-[var(--border)] bg-[#fbf7f2] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#b0894f] hover:bg-white hover:shadow-md"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold tracking-wide text-[var(--muted)] uppercase group-hover:text-[var(--wood-900)]">
+                  Consultas
+                </span>
+                <div className="rounded-lg bg-[#5c4334]/10 p-1.5 text-[var(--wood-800)] transition-transform group-hover:scale-110">
+                  <MessageSquare className="h-4 w-4" />
+                </div>
+              </div>
+              <p className="font-display mt-2 text-3xl font-bold text-[var(--wood-950)]">
                 {kpis.webContactsCount}
               </p>
-            </div>
-            <div className="rounded-lg bg-[#fbf7f2] px-4 py-3">
-              <p className="text-xs text-[var(--muted)]">Ventas web</p>
-              <p className="text-2xl font-semibold text-[var(--wood-950)]">
+              <p className="mt-2 text-xs font-medium text-[#b0894f] group-hover:underline">
+                Mensajes recibidos →
+              </p>
+            </Link>
+
+            <Link
+              href="/pedidos-web?tipo=sale"
+              className="group relative flex flex-col justify-between rounded-xl border border-[var(--border)] bg-[#fbf7f2] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#b0894f] hover:bg-white hover:shadow-md"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold tracking-wide text-[var(--muted)] uppercase group-hover:text-[var(--wood-900)]">
+                  Ventas web
+                </span>
+                <div className="rounded-lg bg-emerald-500/10 p-1.5 text-emerald-700 transition-transform group-hover:scale-110">
+                  <ShoppingBag className="h-4 w-4" />
+                </div>
+              </div>
+              <p className="font-display mt-2 text-3xl font-bold text-[var(--wood-950)]">
                 {kpis.webSalesCount}
               </p>
-            </div>
+              <p className="mt-2 text-xs font-medium text-emerald-700 group-hover:underline">
+                Compras confirmadas →
+              </p>
+            </Link>
           </div>
+
           {data.recentWebOrders?.length ? (
-            <ul className="mt-4 divide-y divide-[var(--border)] border-t border-[var(--border)]">
-              {data.recentWebOrders.map((o) => (
-                <li
-                  key={o.id}
-                  className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-sm"
-                >
-                  <Link
-                    href={`/pedidos-web/${o.id}`}
-                    className="font-medium underline-offset-2 hover:underline"
+            <div className="mt-4 border-t border-[var(--border)] pt-3">
+              <p className="mb-2 text-[0.68rem] font-semibold tracking-wider text-[var(--muted)] uppercase">
+                Últimos pedidos recibidos desde la tienda
+              </p>
+              <ul className="divide-y divide-[var(--border)]">
+                {data.recentWebOrders.map((o) => (
+                  <li
+                    key={o.id}
+                    className="flex flex-wrap items-center justify-between gap-3 py-2.5 text-sm transition hover:bg-[#fbf7f2]/80 px-2 rounded-lg"
                   >
-                    {o.number}
-                  </Link>
-                  <span className="text-[var(--muted)]">{o.customerName}</span>
-                  <span className="text-[var(--muted)]">
-                    {formatCurrency(o.total)}
-                  </span>
-                </li>
-              ))}
-            </ul>
+                    <div className="flex items-center gap-2.5">
+                      <Link
+                        href={`/pedidos-web/${o.id}`}
+                        className="font-semibold text-[var(--wood-900)] underline-offset-2 hover:underline"
+                      >
+                        {o.number}
+                      </Link>
+                      <span className="text-xs text-[var(--muted)]">
+                        · {o.customerName}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium text-[var(--wood-950)]">
+                        {formatCurrency(o.total)}
+                      </span>
+                      <Link
+                        href={`/pedidos-web/${o.id}`}
+                        className="text-xs font-medium text-[var(--brass)] hover:underline"
+                      >
+                        Gestionar →
+                      </Link>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ) : null}
         </div>
       </FadeIn>

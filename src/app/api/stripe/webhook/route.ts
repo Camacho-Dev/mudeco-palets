@@ -61,6 +61,9 @@ export async function POST(req: NextRequest) {
       revalidatePath("/pedidos-web");
       revalidatePath("/facturas");
       revalidatePath("/pagos");
+      revalidatePath("/panel");
+      revalidatePath("/");
+      revalidatePath("/catalogo");
     }
   }
 
