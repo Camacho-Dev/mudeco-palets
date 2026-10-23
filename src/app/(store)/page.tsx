@@ -27,6 +27,8 @@ import { STORE_SOCIAL } from "@/lib/store-brand";
 import { getTopRecommendedProducts } from "@/lib/recommendations";
 import { getStoreCompany } from "@/lib/store";
 import { storeWhatsApp } from "@/lib/store-info";
+import { auth } from "@/lib/auth";
+import { HeroWelcomeSearch } from "@/components/store/hero-welcome-search";
 
 
 const TRUST = [
@@ -141,7 +143,7 @@ export default async function StoreHomePage() {
   type P = Awaited<ReturnType<typeof prisma.product.findMany>>;
   const empty: P = [];
 
-  const [company, featured, newest, topRecommended] = await Promise.all([
+  const [company, featured, newest, topRecommended, session] = await Promise.all([
     getStoreCompany(),
     withDbRetry(
       () =>
@@ -162,6 +164,7 @@ export default async function StoreHomePage() {
       { fallback: empty },
     ),
     withDbRetry(() => getTopRecommendedProducts(10), { fallback: [] }),
+    auth().catch(() => null),
   ]);
 
   const fresh =
@@ -251,63 +254,84 @@ export default async function StoreHomePage() {
             className="absolute inset-0"
             style={{
               background:
-                "radial-gradient(circle at 25% 45%, rgba(201, 161, 90, 0.18), transparent 55%), linear-gradient(90deg, rgba(10,10,10,0.96) 0%, rgba(10,10,10,0.78) 46%, rgba(10,10,10,0.3) 100%)",
+                "radial-gradient(circle at 20% 45%, rgba(201, 161, 90, 0.16), transparent 55%), linear-gradient(90deg, rgba(10,10,10,0.96) 0%, rgba(10,10,10,0.80) 48%, rgba(10,10,10,0.50) 100%)",
             }}
           />
 
-          <div className="relative z-10 flex h-full min-h-[480px] sm:min-h-[560px] md:min-h-[640px] lg:min-h-[700px] xl:min-h-[740px] flex-col justify-center px-6 py-14 sm:px-12 md:px-16 lg:px-20 xl:px-24">
-            <FadeUp>
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/35 bg-black/60 px-3.5 py-1 text-[0.62rem] font-semibold tracking-[0.2em] text-[#c9a15a] uppercase backdrop-blur-md mb-4 shadow-sm">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c9a15a] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#c9a15a]"></span>
-                </span>
-                {company.heroBadge}
+          <div className="relative z-10 flex h-full min-h-[480px] sm:min-h-[560px] md:min-h-[640px] lg:min-h-[700px] xl:min-h-[740px] flex-col justify-center px-6 py-12 sm:px-10 md:px-14 lg:px-16 xl:px-20">
+            <div className="grid gap-10 lg:grid-cols-12 lg:gap-10 xl:gap-14 items-center">
+              {/* Columna Izquierda: Mensaje editorial y llamadas a la acción */}
+              <div className="lg:col-span-7 xl:col-span-7">
+                <FadeUp>
+                  <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/35 bg-black/60 px-3.5 py-1 text-[0.62rem] font-semibold tracking-[0.2em] text-[#c9a15a] uppercase backdrop-blur-md mb-4 shadow-sm">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c9a15a] opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#c9a15a]"></span>
+                    </span>
+                    {company.heroBadge}
+                  </div>
+
+                  <h1 className="font-display max-w-2xl text-[clamp(2.3rem,4.2vw,4.2rem)] leading-[1.05] text-white">
+                    {company.heroTitle}
+                  </h1>
+
+                  <p className="mt-4 max-w-xl text-base leading-relaxed text-[#d7d7d7]/90 sm:text-lg">
+                    {company.heroSubtitle}
+                  </p>
+
+                  <div className="mt-7 flex flex-wrap items-center gap-3.5">
+                    <Link
+                      href="/catalogo"
+                      className="group relative inline-flex items-center gap-2 overflow-hidden border border-[#c9a15a] bg-[#c9a15a] px-7 py-3.5 text-xs font-bold tracking-[0.14em] text-[#0a0a0a] uppercase transition-all duration-300 hover:bg-[#d4b06e] hover:shadow-[0_0_28px_rgba(201,161,90,0.35)]"
+                    >
+                      Ver catálogo
+                      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    </Link>
+
+                    <Link
+                      href="/reparaciones"
+                      className="inline-flex items-center gap-2 border border-white/20 bg-white/[0.04] px-7 py-3.5 text-xs font-medium tracking-[0.14em] text-white uppercase backdrop-blur-sm transition-all duration-300 hover:border-[#c9a15a]/60 hover:bg-white/[0.08]"
+                    >
+                      Cotizar a medida
+                    </Link>
+                  </div>
+
+                  {/* Mini métricas flotantes de confianza */}
+                  <div className="mt-10 hidden pt-6 border-t border-white/10 sm:flex items-center gap-8 text-xs text-white/70">
+                    <div className="flex items-center gap-2">
+                      <span className="font-display text-lg text-[#c9a15a] font-semibold">+500</span>
+                      <span>Piezas fabricadas</span>
+                    </div>
+                    <div className="h-3 w-[1px] bg-white/15" />
+                    <div className="flex items-center gap-2">
+                      <span className="font-display text-lg text-[#c9a15a] font-semibold">100%</span>
+                      <span>Pino tratado</span>
+                    </div>
+                    <div className="h-3 w-[1px] bg-white/15" />
+                    <div className="flex items-center gap-2">
+                      <span className="font-display text-lg text-[#c9a15a] font-semibold">10 años</span>
+                      <span>Garantía de ensamble</span>
+                    </div>
+                  </div>
+                </FadeUp>
               </div>
 
-              <h1 className="font-display max-w-3xl text-[clamp(2.4rem,4.5vw,4.5rem)] leading-[1.05] text-white">
-                {company.heroTitle}
-              </h1>
-
-              <p className="mt-5 max-w-xl text-base leading-relaxed text-[#d7d7d7]/90 sm:text-lg">
-                {company.heroSubtitle}
-              </p>
-
-              <div className="mt-8 flex flex-wrap items-center gap-3.5">
-                <Link
-                  href="/catalogo"
-                  className="group relative inline-flex items-center gap-2 overflow-hidden border border-[#c9a15a] bg-[#c9a15a] px-7 py-4 text-xs font-bold tracking-[0.14em] text-[#0a0a0a] uppercase transition-all duration-300 hover:bg-[#d4b06e] hover:shadow-[0_0_28px_rgba(201,161,90,0.35)]"
-                >
-                  Ver catálogo
-                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                </Link>
-
-                <Link
-                  href="/reparaciones"
-                  className="inline-flex items-center gap-2 border border-white/20 bg-white/[0.04] px-7 py-4 text-xs font-medium tracking-[0.14em] text-white uppercase backdrop-blur-sm transition-all duration-300 hover:border-[#c9a15a]/60 hover:bg-white/[0.08]"
-                >
-                  Cotizar a medida
-                </Link>
+              {/* Columna Derecha: Tarjeta de bienvenida y buscador (ubicación marcada en rojo) */}
+              <div className="lg:col-span-5 xl:col-span-5 flex justify-center lg:justify-end">
+                <FadeUp delay={0.12}>
+                  <HeroWelcomeSearch
+                    user={
+                      session?.user
+                        ? {
+                            name: session.user.name,
+                            role: (session.user as { role?: string }).role,
+                          }
+                        : null
+                    }
+                  />
+                </FadeUp>
               </div>
-
-              {/* Mini métricas flotantes de confianza */}
-              <div className="mt-12 hidden pt-6 border-t border-white/10 sm:flex items-center gap-10 text-xs text-white/70">
-                <div className="flex items-center gap-2.5">
-                  <span className="font-display text-xl text-[#c9a15a] font-semibold">+500</span>
-                  <span>Piezas fabricadas</span>
-                </div>
-                <div className="h-3.5 w-[1px] bg-white/15" />
-                <div className="flex items-center gap-2.5">
-                  <span className="font-display text-xl text-[#c9a15a] font-semibold">100%</span>
-                  <span>Pino tratado</span>
-                </div>
-                <div className="h-3.5 w-[1px] bg-white/15" />
-                <div className="flex items-center gap-2.5">
-                  <span className="font-display text-xl text-[#c9a15a] font-semibold">10 años</span>
-                  <span>Garantía de ensamble</span>
-                </div>
-              </div>
-            </FadeUp>
+            </div>
           </div>
         </div>
       </section>
