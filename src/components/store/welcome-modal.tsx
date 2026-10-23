@@ -35,28 +35,40 @@ export function WelcomeModal({
 
   const handleDismiss = useCallback(() => {
     setOpen(false);
-    try {
-      sessionStorage.setItem("mudeco_welcome_seen", "true");
-    } catch {}
   }, []);
 
   useEffect(() => {
-    // Si ya inició sesión, no mostrar la bienvenida
-    if (isAuthenticated) return;
-
+    // Si la URL pide explícitamente ocultar con ?welcome=0
     try {
-      const seen = sessionStorage.getItem("mudeco_welcome_seen");
-      if (!seen) {
-        // Breve retraso elegante para que cargue la interfaz base antes de la entrada cinemática
-        const timer = setTimeout(() => {
-          setOpen(true);
-        }, 450);
-        return () => clearTimeout(timer);
+      if (typeof window !== "undefined") {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("welcome") === "0") return;
+
+        // Limpiar cualquier residuo de sessionStorage de pruebas anteriores
+        sessionStorage.removeItem("mudeco_welcome_seen");
       }
-    } catch {
-      // Ignorar en entornos sin acceso a storage
+    } catch {}
+
+    // En entorno de desarrollo o cuando no esté autenticado, abrir automáticamente
+    const isDev = process.env.NODE_ENV !== "production";
+    if (isAuthenticated && !isDev) {
+      return;
     }
+
+    // Micro-retraso para que el montaje de React active la animación de Framer Motion
+    const timer = setTimeout(() => {
+      setOpen(true);
+    }, 120);
+
+    return () => clearTimeout(timer);
   }, [isAuthenticated]);
+
+  // Permitir reabrir con evento global si se requiere
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener("mudeco:welcome", onOpen);
+    return () => window.removeEventListener("mudeco:welcome", onOpen);
+  }, []);
 
   // Soporte para cerrar con la tecla Escape
   useEffect(() => {
