@@ -7,6 +7,8 @@ import { convertQuoteToInvoice } from "../actions";
 import { ConfirmForm } from "@/components/confirm-form";
 import { notFound } from "next/navigation";
 
+import { WhatsAppShareButton } from "@/components/whatsapp-share-button";
+
 export default async function CotizacionDetailPage({
   params,
 }: {
@@ -37,20 +39,30 @@ export default async function CotizacionDetailPage({
           fromWeb ? " · Origen WEB" : ""
         }`}
         action={
-          quote.status !== "CONVERTED" ? (
-            <ConfirmForm
-              action={convertQuoteToInvoice.bind(null, quote.id)}
-              message="¿Convertir esta cotización en factura borrador?"
-            >
-              <button type="submit" className="btn btn-primary">
-                Convertir a factura
-              </button>
-            </ConfirmForm>
-          ) : (
-            <Link href="/facturas" className="btn btn-ghost">
-              Ya convertida
-            </Link>
-          )
+          <div className="flex items-center gap-2">
+            <WhatsAppShareButton
+              customerName={quote.customer.name}
+              phone={quote.customer.phone}
+              type="quote"
+              number={quote.number}
+              total={quote.total}
+              validUntil={quote.validUntil}
+            />
+            {quote.status !== "CONVERTED" ? (
+              <ConfirmForm
+                action={convertQuoteToInvoice.bind(null, quote.id)}
+                message="¿Convertir esta cotización en factura borrador?"
+              >
+                <button type="submit" className="btn btn-primary">
+                  Convertir a factura
+                </button>
+              </ConfirmForm>
+            ) : (
+              <Link href="/facturas" className="btn btn-ghost text-xs">
+                Ya convertida
+              </Link>
+            )}
+          </div>
         }
       />
       <div className="card mb-4 space-y-2 p-4">

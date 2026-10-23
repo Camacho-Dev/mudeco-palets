@@ -123,6 +123,82 @@ export async function GET(
       tax: q.tax,
       total: q.total,
     }));
+  } else if (type === "dgii-607") {
+    // Formato 607 DGII: Reporte mensual de ventas y operaciones
+    const data = await prisma.invoice.findMany({
+      where: { status: { in: ["ISSUED", "PARTIAL", "PAID"] } },
+      include: { customer: true },
+      orderBy: { issueDate: "desc" },
+    });
+    rows = data.map((i) => {
+      const cleanTax = (i.customer.taxId || "").replace(/\D/g, "");
+      const idType = cleanTax.length === 9 ? "1" : cleanTax.length === 11 ? "2" : "3";
+      const y = i.issueDate.getFullYear();
+      const m = String(i.issueDate.getMonth() + 1).padStart(2, "0");
+      const d = String(i.issueDate.getDate()).padStart(2, "0");
+
+      return {
+        RNC_CEDULA: cleanTax,
+        TIPO_IDENTIFICACION: idType,
+        NUMERO_COMPROBANTE_FISCAL: i.ncf || i.number,
+        NCF_MODIFICADO: "",
+        TIPO_INGRESO: "01",
+        FECHA_COMPROBANTE: `${y}${m}${d}`,
+        FECHA_RETENCION: "",
+        MONTO_FACTURADO: i.subtotal,
+        ITBIS_FACTURADO: i.tax,
+        ITBIS_RETENIDO_POR_TERCEROS: 0,
+        ITBIS_PERCIBIDO: 0,
+        RETENCION_RENTA_POR_TERCEROS: 0,
+        ISR_PERCIBIDO: 0,
+        IMPUESTO_SELECTIVO_AL_CONSUMO: 0,
+        OTROS_IMPUESTOS_TASAS: 0,
+        MONTO_PROPINA_LEGAL: 0,
+        TOTAL_FACTURADO: i.total,
+        ESTADO: i.status,
+      };
+    });
+  } else if (type === "dgii-606") {
+    // Formato 606 DGII: Reporte mensual de compras de bienes y servicios
+    const data = await prisma.purchase.findMany({
+      where: { status: "RECEIVED" },
+      include: { supplier: true },
+      orderBy: { orderedAt: "desc" },
+    });
+    rows = data.map((p) => {
+      const cleanTax = (p.supplier.taxId || "").replace(/\D/g, "");
+      const idType = cleanTax.length === 9 ? "1" : cleanTax.length === 11 ? "2" : "3";
+      const refDate = p.receivedAt || p.orderedAt;
+      const y = refDate.getFullYear();
+      const m = String(refDate.getMonth() + 1).padStart(2, "0");
+      const d = String(refDate.getDate()).padStart(2, "0");
+
+      return {
+        RNC_CEDULA: cleanTax,
+        TIPO_IDENTIFICACION: idType,
+        TIPO_BIENES_SERVICIOS_COMPRADOS: "09", // Compras que forman parte del costo de venta
+        NUMERO_COMPROBANTE_FISCAL: p.number,
+        NCF_MODIFICADO: "",
+        FECHA_COMPROBANTE: `${y}${m}${d}`,
+        FECHA_PAGO: `${y}${m}${d}`,
+        MONTO_FACTURADO_SERVICIOS: 0,
+        MONTO_FACTURADO_BIENES: p.total,
+        TOTAL_MONTO_FACTURADO: p.total,
+        ITBIS_FACTURADO: 0,
+        ITBIS_RETENIDO: 0,
+        ITBIS_SUJETO_A_PROPORCIONALIDAD: 0,
+        ITBIS_LLEVADO_AL_COSTO: 0,
+        ITBIS_POR_ADELANTAR: 0,
+        ITBIS_PERCIBIDO_EN_COMPRAS: 0,
+        TIPO_RETENCION_ISR: "",
+        MONTO_RETENCION_RENTA: 0,
+        ISR_PERCIBIDO_EN_COMPRAS: 0,
+        IMPUESTO_SELECTIVO_AL_CONSUMO: 0,
+        OTROS_IMPUESTOS_TASAS: 0,
+        MONTO_PROPINA_LEGAL: 0,
+        FORMA_DE_PAGO: "01",
+      };
+    });
   } else {
     return NextResponse.json({ error: "Tipo inválido" }, { status: 400 });
   }

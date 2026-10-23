@@ -20,6 +20,8 @@ import { createPayment, deletePayment } from "../../pagos/actions";
 import { ConfirmForm } from "@/components/confirm-form";
 import { isAdmin } from "@/lib/rbac";
 
+import { WhatsAppShareButton } from "@/components/whatsapp-share-button";
+
 export default async function FacturaDetallePage({
   params,
 }: {
@@ -96,6 +98,14 @@ export default async function FacturaDetallePage({
           >
             Descargar PDF
           </a>
+          <WhatsAppShareButton
+            customerName={invoice.customer.name}
+            phone={invoice.customer.phone}
+            type="invoice"
+            number={invoice.number}
+            total={invoice.total}
+            ncf={invoice.ncf}
+          />
           {invoice.status === "DRAFT" ? (
             <>
               <Link href={`/facturas/${id}/editar`} className="btn btn-secondary">

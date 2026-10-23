@@ -28,7 +28,7 @@ export async function getBusinessAnalytics(range?: DateRange) {
   const startOfYear = new Date(now.getFullYear(), 0, 1);
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
 
-  const [invoices, payments, products, customers, webOrders] = await Promise.all([
+  const [invoices, payments, products, materials, customers, webOrders] = await Promise.all([
     prisma.invoice.findMany({
       where: { status: { in: [...SOLD_STATUSES] } },
       include: {
@@ -46,6 +46,7 @@ export async function getBusinessAnalytics(range?: DateRange) {
       orderBy: { paidAt: "asc" },
     }),
     prisma.product.findMany({ where: { active: true, kind: "FINISHED" } }),
+    prisma.product.findMany({ where: { active: true, kind: "MATERIAL" } }),
     prisma.customer.count(),
     prisma.webOrder.findMany({
       orderBy: { createdAt: "desc" },
@@ -135,6 +136,9 @@ export async function getBusinessAnalytics(range?: DateRange) {
 
   const lowStock = products.filter(
     (p) => p.sku !== "CUS-001" && p.stock <= p.minStock,
+  );
+  const lowStockMaterials = materials.filter(
+    (m) => m.stock <= m.minStock,
   );
 
   const trendMap = new Map<
@@ -340,6 +344,8 @@ export async function getBusinessAnalytics(range?: DateRange) {
       openCount: openInvoices.length,
       lowStockCount: lowStock.length,
       lowStockNames: lowStock.slice(0, 4).map((p) => p.name),
+      lowStockMaterialsCount: lowStockMaterials.length,
+      lowStockMaterialsNames: lowStockMaterials.slice(0, 4).map((m) => m.name),
       webPendingCount: webPending.length,
       webRepairsCount: webRepairs,
       webCustomQuotesCount: webCustomQuotes,
