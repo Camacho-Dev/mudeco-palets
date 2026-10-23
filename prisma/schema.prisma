@@ -125,13 +125,23 @@ model Payment {
 }
 
 model CompanySettings {
-  id      String  @id @default("default")
-  name    String  @default("Mudeco Palets")
-  slogan  String  @default("Muebles a la medida")
-  taxId   String?
-  address String?
-  phone   String?
-  email   String?
+  id               String  @id @default("default")
+  name             String  @default("Mudeco Palets")
+  slogan           String  @default("Muebles a la medida")
+  taxId            String?
+  address          String?
+  phone            String?
+  email            String?
+  heroImage        String? @default("/brand/store-hero.jpg")
+  heroBadge        String? @default("Taller artesanal · República Dominicana")
+  heroTitle        String? @default("Muebles de madera recuperada con alma de taller")
+  heroSubtitle     String? @default("Cada pieza nace de materiales nobles reciclados, transformados con pasión artesanal. Diseños únicos para tu hogar o proyectos comerciales a la medida.")
+  workshopImage    String? @default("/brand/store-workshop.jpg")
+  craftImage       String? @default("/brand/store-craft.jpg")
+  promoMesaImage   String? @default("/brand/cat-mesa.jpg")
+  promoTvImage     String? @default("/brand/cat-tv.jpg")
+  galleryImages    String? // JSON array con URLs de la galería
+  beforeAfterJson  String? // JSON array con transformaciones antes/después
 }
 
 model AuditLog {

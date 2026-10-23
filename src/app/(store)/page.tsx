@@ -20,6 +20,7 @@ import { BeforeAfterSlider } from "@/components/store/before-after-slider";
 import { prisma, withDbRetry } from "@/lib/prisma";
 import { STORE_SOCIAL } from "@/lib/store-brand";
 import { getTopRecommendedProducts } from "@/lib/recommendations";
+import { getStoreCompany } from "@/lib/store";
 
 const TRUST = [
   {
@@ -105,7 +106,8 @@ export default async function StoreHomePage() {
   type P = Awaited<ReturnType<typeof prisma.product.findMany>>;
   const empty: P = [];
 
-  const [featured, newest, topRecommended] = await Promise.all([
+  const [company, featured, newest, topRecommended] = await Promise.all([
+    getStoreCompany(),
     withDbRetry(
       () =>
         prisma.product.findMany({
@@ -130,6 +132,47 @@ export default async function StoreHomePage() {
   const fresh =
     newest.length > 4 ? newest.slice(0, 12) : featured.slice(0, 12);
 
+  const promoTiles = [
+    {
+      title: "Reparaciones",
+      text: "Segunda vida a tu mueble",
+      href: "/reparaciones",
+      image: company.workshopImage,
+      icon: Wrench,
+    },
+    {
+      title: "A medida",
+      text: "Diseño personalizado",
+      href: "/reparaciones",
+      image: company.craftImage,
+      icon: Ruler,
+    },
+    {
+      title: "Colección rústica",
+      text: "Comedores y mesas nobles",
+      href: "/catalogo?cat=MESA%20DE%20COMEDOR",
+      image: company.promoMesaImage,
+      icon: Table2,
+    },
+    {
+      title: "Centros TV",
+      text: "Piezas con carácter",
+      href: "/catalogo?cat=REPISA%20DE%20TV",
+      image: company.promoTvImage,
+      icon: Tv,
+    },
+  ];
+
+  let gallery: readonly string[] = GALLERY;
+  if (company.galleryImages) {
+    try {
+      const parsed = JSON.parse(company.galleryImages);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        gallery = parsed;
+      }
+    } catch {}
+  }
+
   function toShelf(list: P) {
     return list.map((p) => ({
       id: p.id,
@@ -151,7 +194,7 @@ export default async function StoreHomePage() {
           <div className="absolute inset-0 overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/brand/store-hero.jpg"
+              src={company.heroImage}
               alt="Muebles rústicos Mudeco Palets"
               className="h-full w-full object-cover transition-transform duration-[12000ms] ease-out hover:scale-105 scale-102"
               fetchPriority="high"
@@ -174,15 +217,15 @@ export default async function StoreHomePage() {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c9a15a] opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[#c9a15a]"></span>
                 </span>
-                Taller artesanal · República Dominicana
+                {company.heroBadge}
               </div>
 
               <h1 className="font-display max-w-2xl text-[clamp(2.1rem,4.5vw,3.6rem)] leading-[1.06] text-white">
-                Muebles de madera recuperada con alma de taller
+                {company.heroTitle}
               </h1>
 
               <p className="mt-4 max-w-lg text-sm leading-relaxed text-[#d7d7d7]/90 sm:text-base">
-                Cada pieza nace de materiales nobles reciclados, transformados con pasión artesanal. Diseños únicos para tu hogar o proyectos comerciales a la medida.
+                {company.heroSubtitle}
               </p>
 
               <div className="mt-7 flex flex-wrap items-center gap-3">
@@ -277,7 +320,7 @@ export default async function StoreHomePage() {
             </div>
           </Reveal>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {PROMO_TILES.map((tile, i) => (
+            {promoTiles.map((tile, i) => (
               <Reveal key={tile.title} delay={i * 0.05}>
                 <Link
                   href={tile.href}
@@ -430,7 +473,7 @@ export default async function StoreHomePage() {
             </a>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
-            {GALLERY.map((src, i) => (
+            {gallery.map((src, i) => (
               <a
                 key={i}
                 href={STORE_SOCIAL.instagram}

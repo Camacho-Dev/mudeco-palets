@@ -45,7 +45,7 @@ export default async function ReparacionesPage() {
       <section className="relative isolate h-[550px] overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/brand/store-workshop.jpg"
+          src={company.workshopImage || "/brand/store-workshop.jpg"}
           alt="Taller artesanal de Mudeco Palets"
           className="absolute inset-0 h-full w-full object-cover"
           fetchPriority="high"

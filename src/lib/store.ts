@@ -20,6 +20,18 @@ export async function getStoreCompany() {
       address:
         company?.address ||
         "Santo Domingo Oeste, Santo Domingo, República Dominicana",
+      heroImage: company?.heroImage || "/brand/store-hero.jpg",
+      heroBadge: company?.heroBadge || "Taller artesanal · República Dominicana",
+      heroTitle: company?.heroTitle || "Muebles de madera recuperada con alma de taller",
+      heroSubtitle:
+        company?.heroSubtitle ||
+        "Cada pieza nace de materiales nobles reciclados, transformados con pasión artesanal. Diseños únicos para tu hogar o proyectos comerciales a la medida.",
+      workshopImage: company?.workshopImage || "/brand/store-workshop.jpg",
+      craftImage: company?.craftImage || "/brand/store-craft.jpg",
+      promoMesaImage: company?.promoMesaImage || "/brand/cat-mesa.jpg",
+      promoTvImage: company?.promoTvImage || "/brand/cat-tv.jpg",
+      galleryImages: company?.galleryImages || null,
+      beforeAfterJson: company?.beforeAfterJson || null,
     };
   } catch {
     return {
@@ -28,6 +40,17 @@ export async function getStoreCompany() {
       phone: "+1 (809) 704-7519",
       email: "Mudecopalets@gmail.com",
       address: "Santo Domingo Oeste, Santo Domingo, República Dominicana",
+      heroImage: "/brand/store-hero.jpg",
+      heroBadge: "Taller artesanal · República Dominicana",
+      heroTitle: "Muebles de madera recuperada con alma de taller",
+      heroSubtitle:
+        "Cada pieza nace de materiales nobles reciclados, transformados con pasión artesanal. Diseños únicos para tu hogar o proyectos comerciales a la medida.",
+      workshopImage: "/brand/store-workshop.jpg",
+      craftImage: "/brand/store-craft.jpg",
+      promoMesaImage: "/brand/cat-mesa.jpg",
+      promoTvImage: "/brand/cat-tv.jpg",
+      galleryImages: null,
+      beforeAfterJson: null,
     };
   }
 }

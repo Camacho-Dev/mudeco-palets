@@ -22,6 +22,7 @@ import {
   DatabaseBackup,
   ClipboardList,
   Globe,
+  Image,
 } from "lucide-react";
 import { BrandLogo } from "@/components/logo";
 import { isAdmin } from "@/lib/rbac";
@@ -51,6 +52,7 @@ const adminNav = [
   { href: "/usuarios", label: "Usuarios", icon: UserCog },
   { href: "/exportar", label: "Exportar", icon: Download },
   { href: "/backup", label: "Respaldo", icon: DatabaseBackup },
+  { href: "/contenido-web", label: "Fotos de la web", icon: Image },
   { href: "/configuracion", label: "Empresa", icon: Settings },
   { href: "/auditoria", label: "Historial", icon: ScrollText },
 ];

@@ -35,20 +35,27 @@ export async function GET(
     return NextResponse.json({ error: "No encontrada" }, { status: 404 });
   }
 
-  let company = await prisma.companySettings.findUnique({
+  const company = (await prisma.companySettings.findUnique({
     where: { id: "default" },
-  });
-  if (!company) {
-    company = {
-      id: "default",
-      name: "Mudeco Palets",
-      slogan: "Muebles a la medida",
-      taxId: null,
-      address: null,
-      phone: null,
-      email: null,
-    };
-  }
+  })) ?? {
+    id: "default",
+    name: "Mudeco Palets",
+    slogan: "Muebles a la medida",
+    taxId: null,
+    address: null,
+    phone: null,
+    email: null,
+    heroImage: null,
+    heroBadge: null,
+    heroTitle: null,
+    heroSubtitle: null,
+    workshopImage: null,
+    craftImage: null,
+    promoMesaImage: null,
+    promoTvImage: null,
+    galleryImages: null,
+    beforeAfterJson: null,
+  };
 
   const pdf = await buildInvoicePdf(invoice, company);
 
