@@ -20,7 +20,7 @@ export default async function NosotrosPage() {
           }}
         />
         <div className="absolute inset-0 bg-[#2f2018]/80" />
-        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <div className="relative mx-auto max-w-[1760px] px-4 py-16 sm:px-8 lg:px-12 xl:px-16">
           <Reveal>
             <p className="text-[0.7rem] font-semibold tracking-[0.2em] text-[#b0894f] uppercase">
               La marca
@@ -32,7 +32,7 @@ export default async function NosotrosPage() {
       </div>
 
       <section className="bg-[#2f2018] text-[#faf6f1]">
-        <div className="mx-auto grid max-w-6xl md:grid-cols-2">
+        <div className="mx-auto grid max-w-[1760px] md:grid-cols-2 px-4 sm:px-8 lg:px-12 xl:px-16">
           <div className="relative min-h-[420px] overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -54,7 +54,7 @@ export default async function NosotrosPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+      <section className="mx-auto max-w-[1760px] px-4 py-16 sm:px-8 lg:px-12 xl:px-16">
         <div className="grid gap-10 md:grid-cols-3">
           <Reveal>
             <p className="text-[0.7rem] font-semibold tracking-[0.16em] text-[#b0894f] uppercase">

@@ -18,7 +18,7 @@ export function StoreFooter({
 
   return (
     <footer className="mt-auto border-t border-white/[0.08] bg-[#0f0f0f] text-white">
-      <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 md:grid-cols-2 lg:grid-cols-4 lg:px-8">
+      <div className="mx-auto grid max-w-[1760px] gap-12 px-4 py-16 sm:px-8 md:grid-cols-2 lg:grid-cols-4 lg:px-12 xl:px-16">
         <div>
           <BrandLogo
             width={160}

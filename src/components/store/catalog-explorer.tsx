@@ -264,7 +264,7 @@ export function CatalogExplorer({
           </div>
         </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
           {filteredProducts.map((p, i) => (
             <Reveal key={p.id} delay={Math.min(i * 0.03, 0.2)}>
               <ProductCard product={p} badge={badges[p.id]} />

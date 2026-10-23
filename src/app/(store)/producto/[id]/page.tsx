@@ -70,7 +70,7 @@ export default async function ProductoPage({
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <div className="mx-auto max-w-[1560px] px-4 py-10 sm:px-8 lg:px-12 xl:px-16">
       <Link
         href="/catalogo"
         className="text-[0.75rem] tracking-[0.12em] text-[var(--muted)] uppercase transition hover:text-[var(--wood-950)]"

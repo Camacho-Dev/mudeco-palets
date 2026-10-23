@@ -71,7 +71,7 @@ export default async function ReparacionesPage() {
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent" />
 
-        <div className="relative z-10 mx-auto flex h-full max-w-7xl flex-col justify-center px-4 sm:px-6 lg:px-8">
+        <div className="relative z-10 mx-auto flex h-full max-w-[1760px] flex-col justify-center px-4 sm:px-8 lg:px-12 xl:px-16">
           <FadeUp>
             <p className="text-[0.7rem] font-medium tracking-[0.28em] text-[#c9a15a] uppercase">
               Taller
@@ -117,7 +117,7 @@ export default async function ReparacionesPage() {
 
       {/* —— Beneficios —— */}
       <section className="border-b border-white/[0.08] bg-[#111111]">
-        <div className="mx-auto grid max-w-7xl gap-4 px-4 py-10 sm:grid-cols-3 sm:px-6 sm:py-12 lg:px-8">
+        <div className="mx-auto grid max-w-[1760px] gap-4 px-4 py-10 sm:grid-cols-3 sm:px-8 sm:py-12 lg:px-12 xl:px-16">
           {services.map((s, i) => (
             <Reveal key={s.title} delay={i * 0.08} y={18}>
               <div className="store-benefit-gold group h-full px-6 py-8 transition duration-300 hover:-translate-y-1">
@@ -139,7 +139,7 @@ export default async function ReparacionesPage() {
 
       {/* —— Formulario —— */}
       <section className="bg-[#f8f5f1] text-[#3b2a22]">
-        <div className="mx-auto grid max-w-7xl gap-12 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-12 lg:gap-16 lg:px-8 lg:py-24">
+        <div className="mx-auto grid max-w-[1760px] gap-12 px-4 py-16 sm:px-8 sm:py-20 lg:grid-cols-12 lg:gap-16 lg:px-12 xl:px-16 lg:py-24">
           <Reveal className="lg:col-span-5">
             <p className="text-[0.7rem] font-medium tracking-[0.24em] text-[#c9a15a] uppercase">
               Solicitud

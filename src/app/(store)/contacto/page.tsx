@@ -31,7 +31,7 @@ export default async function ContactoPage() {
           }}
         />
         <div className="absolute inset-0 bg-[#2f2018]/80" />
-        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <div className="relative mx-auto max-w-[1760px] px-4 py-16 sm:px-8 lg:px-12 xl:px-16">
           <Reveal>
             <p className="text-[0.7rem] font-semibold tracking-[0.2em] text-[#b0894f] uppercase">
               Hablemos
@@ -45,7 +45,7 @@ export default async function ContactoPage() {
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-2">
+      <div className="mx-auto grid max-w-[1760px] gap-10 px-4 py-14 sm:px-8 lg:px-12 xl:px-16 lg:grid-cols-2">
         <Reveal>
           <div className="space-y-2 border border-[var(--border)] bg-white p-2">
             <a

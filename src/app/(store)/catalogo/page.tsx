@@ -58,7 +58,7 @@ export default async function CatalogoPage({
         {/* Ambient gold glow */}
         <div className="absolute -top-24 right-1/4 h-72 w-72 rounded-full bg-[#c9a15a]/15 blur-3xl pointer-events-none" />
 
-        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <div className="relative mx-auto max-w-[1760px] px-4 py-16 sm:px-8 lg:px-12 xl:px-16">
           <Reveal>
             <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/35 bg-black/40 px-3 py-1 text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a] uppercase backdrop-blur-md">
               <Sparkles className="h-3 w-3" />
@@ -74,7 +74,7 @@ export default async function CatalogoPage({
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+      <div className="mx-auto max-w-[1760px] px-4 py-10 sm:px-8 lg:px-12 xl:px-16">
         <CatalogExplorer
           products={products}
           categories={categories}

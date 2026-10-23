@@ -59,7 +59,7 @@ function ShelfCard({ product }: { product: ShelfProduct }) {
   };
 
   return (
-    <article className="group w-[172px] shrink-0 snap-start sm:w-[210px]">
+    <article className="group w-[190px] shrink-0 snap-start sm:w-[230px] md:w-[260px] lg:w-[280px]">
       <div className="overflow-hidden border border-white/[0.08] bg-[#141414] transition-all duration-300 hover:border-[#c9a15a]/50 hover:shadow-[0_12px_28px_rgba(201,161,90,0.18)] hover:-translate-y-1 rounded-sm">
         <Link
           href={`/producto/${product.id}`}
@@ -171,7 +171,7 @@ export function ProductShelf({
   function scroll(dir: -1 | 1) {
     const el = ref.current;
     if (!el) return;
-    el.scrollBy({ left: dir * Math.min(el.clientWidth * 0.8, 640), behavior: "smooth" });
+    el.scrollBy({ left: dir * Math.min(el.clientWidth * 0.8, 900), behavior: "smooth" });
   }
 
   return (
