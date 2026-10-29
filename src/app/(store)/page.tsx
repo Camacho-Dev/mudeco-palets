@@ -182,13 +182,13 @@ export default async function StoreHomePage() {
       {/* —— Hero principal con iluminación artesanal y micro-animaciones —— */}
       <section className="relative mx-auto max-w-[1760px] px-4 pt-4 sm:px-8 lg:px-12 xl:px-16">
         <div className="relative isolate min-h-[480px] sm:min-h-[560px] md:min-h-[640px] lg:min-h-[700px] xl:min-h-[740px] overflow-hidden border border-white/[0.08] shadow-[0_24px_70px_rgba(0,0,0,0.9)]">
-          {/* Imagen de fondo con sutil animación de zoom lento */}
+          {/* Imagen de fondo estática de alta nitidez */}
           <div className="absolute inset-0 overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={company.heroImage}
               alt="Muebles rústicos Mudeco Palets"
-              className="h-full w-full object-cover transition-transform duration-[12000ms] ease-out hover:scale-105 scale-102"
+              className="h-full w-full object-cover"
               fetchPriority="high"
             />
           </div>
@@ -326,7 +326,7 @@ export default async function StoreHomePage() {
                   <img
                     src={tile.image}
                     alt=""
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/15 transition-opacity duration-300 group-hover:from-black/95 group-hover:via-black/55" />
                   
@@ -455,7 +455,7 @@ export default async function StoreHomePage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                     <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
                       <div className="flex items-center gap-2.5">
-                        <div className="h-2 w-2 rounded-full bg-[#c9a15a] animate-pulse" />
+                        <div className="h-2 w-2 rounded-full bg-[#c9a15a]" />
                         <span className="text-xs font-semibold tracking-wider text-white uppercase">
                           Taller Artesanal Santo Domingo
                         </span>
@@ -645,7 +645,7 @@ export default async function StoreHomePage() {
                 <img
                   src={src}
                   alt=""
-                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-115"
+                  className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-black/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-center justify-center">
                   <Camera className="h-5 w-5 text-[#c9a15a] scale-75 group-hover:scale-100 transition-transform duration-300" />

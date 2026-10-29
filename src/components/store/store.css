@@ -180,17 +180,17 @@
 }
 
 .store-product-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
   border-color: #cbb9a6;
   box-shadow: 0 20px 45px rgba(61, 42, 31, 0.12), 0 4px 12px rgba(61, 42, 31, 0.04);
 }
 
 .store-product-card img {
-  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .store-product-card:hover img {
-  transform: scale(1.07);
+  transform: scale(1.04);
 }
 
 /* Product cards — dark home */
@@ -207,17 +207,17 @@
 }
 
 .store-product-card-dark:hover {
-  transform: translateY(-6px);
+  transform: translateY(-4px);
   border-color: rgba(201, 161, 90, 0.45);
   box-shadow: 0 22px 52px rgba(0, 0, 0, 0.55), 0 0 20px rgba(201, 161, 90, 0.08);
 }
 
 .store-product-card-dark img {
-  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .store-product-card-dark:hover img {
-  transform: scale(1.07);
+  transform: scale(1.04);
 }
 
 /* Luxury VIP Consultation Banner */

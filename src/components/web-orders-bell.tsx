@@ -51,14 +51,14 @@ export function WebOrdersBell({
       >
         <Bell className="h-4 w-4" />
         {count > 0 ? (
-          <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#b0894f] px-1 text-[10px] font-bold text-[#2c1d14] shadow-sm animate-pulse">
+          <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#b0894f] px-1 text-[10px] font-bold text-[#2c1d14] shadow-sm">
             {count > 9 ? "9+" : count}
           </span>
         ) : null}
       </button>
 
       {open ? (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-2xl z-50 animate-fade-in">
+        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-2xl z-50 animate-rise">
           <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
             <div className="flex items-center gap-2">
               <Globe className="h-4 w-4 text-[#b0894f]" />

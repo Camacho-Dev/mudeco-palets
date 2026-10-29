@@ -47,6 +47,7 @@ function AtelierParticles() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -61,16 +62,16 @@ function AtelierParticles() {
     };
     window.addEventListener("resize", onResize);
 
-    // 24 partículas sutiles de polvo dorado / viruta iluminada flotando
-    const count = 22;
+    // 14 partículas ligeras sin shadowBlur para fluidez a 60fps sin carga de GPU
+    const count = 14;
     const particles = Array.from({ length: count }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
-      radius: Math.random() * 1.6 + 0.6,
-      vx: (Math.random() - 0.5) * 0.25,
-      vy: -Math.random() * 0.35 - 0.1,
-      alpha: Math.random() * 0.45 + 0.15,
-      baseAlpha: Math.random() * 0.45 + 0.15,
+      radius: Math.random() * 1.4 + 0.6,
+      vx: (Math.random() - 0.5) * 0.18,
+      vy: -Math.random() * 0.25 - 0.08,
+      alpha: Math.random() * 0.35 + 0.12,
+      baseAlpha: Math.random() * 0.35 + 0.12,
       phase: Math.random() * Math.PI * 2,
     }));
 
@@ -80,8 +81,8 @@ function AtelierParticles() {
       particles.forEach((p) => {
         p.x += p.vx;
         p.y += p.vy;
-        p.phase += 0.02;
-        p.alpha = p.baseAlpha + Math.sin(p.phase) * 0.12;
+        p.phase += 0.015;
+        p.alpha = p.baseAlpha + Math.sin(p.phase) * 0.08;
 
         if (p.y < -10) {
           p.y = height + 10;
@@ -93,8 +94,6 @@ function AtelierParticles() {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(212, 175, 55, ${Math.max(0, p.alpha)})`;
-        ctx.shadowBlur = 8;
-        ctx.shadowColor = "rgba(212, 175, 55, 0.4)";
         ctx.fill();
       });
 

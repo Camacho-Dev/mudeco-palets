@@ -7,7 +7,7 @@ import { formatCurrency } from "@/lib/format";
 export function AnimatedNumber({
   value,
   currency = true,
-  duration = 1.1,
+  duration = 0.55,
   className = "",
 }: {
   value: number;
@@ -47,7 +47,7 @@ export function FadeIn({
   children,
   delay = 0,
   className = "",
-  y = 16,
+  y = 10,
 }: {
   children: React.ReactNode;
   delay?: number;
@@ -60,7 +60,7 @@ export function FadeIn({
       className={className}
       initial={reduce ? false : { opacity: 0, y }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, delay, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.32, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>
@@ -84,7 +84,7 @@ export function Stagger({
         hidden: {},
         show: {
           transition: {
-            staggerChildren: reduce ? 0 : 0.07,
+            staggerChildren: reduce ? 0 : 0.045,
           },
         },
       }}
@@ -106,11 +106,11 @@ export function StaggerItem({
     <motion.div
       className={className}
       variants={{
-        hidden: reduce ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 },
+        hidden: reduce ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 },
         show: {
           opacity: 1,
           y: 0,
-          transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+          transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] },
         },
       }}
     >
