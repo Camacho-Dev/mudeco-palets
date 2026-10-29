@@ -39,7 +39,7 @@ export async function getApprovedReviews(limit = 12): Promise<CustomerReviewData
       select: {
         id: true,
         customerName: true,
-        customerEmail: true,
+        // customerEmail NO se envía al cliente (privacidad)
         rating: true,
         comment: true,
         city: true,

@@ -18,12 +18,19 @@ import {
   Package,
   Sparkles,
   Trash2,
+  MessageCircle,
 } from "lucide-react";
 import type { CustomerReviewData } from "@/lib/reviews";
+import {
+  parseReviewReplies,
+  toHandle,
+  type ReviewReplyItem,
+} from "@/lib/review-replies";
 import {
   submitCustomerReviewAction,
   toggleReviewLikeAction,
   submitReviewReplyAction,
+  deleteReviewReplyAction,
   toggleReviewPinAction,
   deleteReviewAction,
 } from "@/app/(store)/testimonios/actions";
@@ -82,9 +89,24 @@ function formatYouTubeTime(date: Date | string) {
   }
 }
 
-// Convierte un nombre a un handle estilo YouTube (@usuario)
-function toHandle(name: string) {
-  return "@" + name.toLowerCase().replace(/[^a-z0-9]/g, "_").slice(0, 18);
+// Avatar pequeño para respuestas dentro del hilo
+function ReplyAvatar({ reply }: { reply: ReviewReplyItem }) {
+  if (reply.isOfficial) {
+    return (
+      <div className="h-7 w-7 rounded-full bg-[#0a0a0a] border border-[#c9a15a] flex items-center justify-center text-[#c9a15a] font-bold text-xs shadow">
+        M
+      </div>
+    );
+  }
+  return (
+    <div
+      className={`h-7 w-7 rounded-full flex items-center justify-center font-bold text-xs select-none shadow-sm ${getAvatarColor(
+        reply.authorName,
+      )}`}
+    >
+      {reply.authorName.charAt(0).toUpperCase()}
+    </div>
+  );
 }
 
 export function CustomerReviewsSection({
@@ -130,10 +152,34 @@ export function CustomerReviewsSection({
     [initialReviews.find((r) => r.officialReply)?.id || ""]: true,
   });
 
-  // Caja de respuesta activa por comentario
-  const [activeReplyBox, setActiveReplyBox] = useState<string | null>(null);
+  // Caja de respuesta activa (comentario + @handle al que se responde)
+  const [activeReply, setActiveReply] = useState<{ reviewId: string; handle: string } | null>(
+    null,
+  );
   const [replyInputText, setReplyInputText] = useState("");
+  const [replyName, setReplyName] = useState(userSession?.name || "");
+  const [replyError, setReplyError] = useState<string | null>(null);
   const [isSubmittingReply, startReplyTransition] = useTransition();
+
+  // Hilos de respuestas parseados por comentario (compatibles con texto plano antiguo)
+  const repliesByReview = useMemo(() => {
+    const map: Record<string, ReviewReplyItem[]> = {};
+    for (const r of reviews) {
+      map[r.id] = parseReviewReplies(r.officialReply, r.officialReplyAt ?? r.createdAt);
+    }
+    return map;
+  }, [reviews]);
+
+  function openReplyBox(reviewId: string, authorName: string) {
+    const handle = toHandle(authorName);
+    if (activeReply?.reviewId === reviewId && activeReply.handle === handle) {
+      setActiveReply(null);
+      return;
+    }
+    setActiveReply({ reviewId, handle });
+    setReplyInputText("");
+    setReplyError(null);
+  }
 
   // Comentarios ordenados
   const sortedReviews = useMemo(() => {
@@ -177,7 +223,7 @@ export function CustomerReviewsSection({
     startSubmitTransition(async () => {
       const res = await submitCustomerReviewAction(formData);
       if (res.success) {
-        const tempId = `yt-${Date.now()}`;
+        const tempId = res.id || `yt-${Date.now()}`;
         const newReview: CustomerReviewData = {
           id: tempId,
           customerName: finalName,
@@ -257,27 +303,58 @@ export function CustomerReviewsSection({
     }
   }
 
-  // Responder a un comentario estilo YouTube (solo Staff/Admin)
+  // Responder a un comentario o a una respuesta estilo YouTube (todos los usuarios)
   function handleSendReply(reviewId: string) {
-    if (!replyInputText.trim()) return;
+    const text = replyInputText.trim();
+    if (!text) return;
+    setReplyError(null);
+
+    if (!isStaffUser && !userSession?.name && replyName.trim().length < 2) {
+      setReplyError("Escribe tu nombre para poder responder.");
+      return;
+    }
+
+    const handle = activeReply?.reviewId === reviewId ? activeReply.handle : null;
 
     startReplyTransition(async () => {
-      const res = await submitReviewReplyAction(reviewId, replyInputText.trim());
-      if (res.success) {
+      const res = await submitReviewReplyAction(reviewId, text, {
+        authorName: replyName.trim(),
+        replyToHandle: handle,
+      });
+      if (res.success && res.replies) {
+        const replies = res.replies;
         setReviews((prev) =>
           prev.map((r) =>
             r.id === reviewId
               ? {
                   ...r,
-                  officialReply: replyInputText.trim(),
+                  officialReply: JSON.stringify(replies),
                   officialReplyAt: new Date(),
                 }
               : r,
           ),
         );
         setExpandedReplies((prev) => ({ ...prev, [reviewId]: true }));
-        setActiveReplyBox(null);
+        setActiveReply(null);
         setReplyInputText("");
+      } else {
+        setReplyError(res.error || "No se pudo publicar la respuesta.");
+      }
+    });
+  }
+
+  function handleDeleteReply(reviewId: string, replyId: string) {
+    startReplyTransition(async () => {
+      const res = await deleteReviewReplyAction(reviewId, replyId);
+      if (res.success && res.replies) {
+        const replies = res.replies;
+        setReviews((prev) =>
+          prev.map((r) =>
+            r.id === reviewId
+              ? { ...r, officialReply: replies.length ? JSON.stringify(replies) : null }
+              : r,
+          ),
+        );
       }
     });
   }
@@ -552,9 +629,10 @@ export function CustomerReviewsSection({
           const isLiked = likedReviews[review.id];
           const isDisliked = dislikedReviews[review.id];
           const likesCount = reviewLikesCount[review.id] ?? review.likes ?? 0;
-          const hasOfficialReply = Boolean(review.officialReply);
+          const replies = repliesByReview[review.id] || [];
+          const hasReplies = replies.length > 0;
           const isRepliesOpen = expandedReplies[review.id];
-          const isReplying = activeReplyBox === review.id;
+          const isReplying = activeReply?.reviewId === review.id;
 
           return (
             <motion.div
@@ -692,19 +770,19 @@ export function CustomerReviewsSection({
                     <Heart className="h-3 w-3 text-red-500 fill-red-500 -ml-1.5 drop-shadow" />
                   </div>
 
-                  {/* Controles de Staff / Admin */}
-                  {isStaffUser && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveReplyBox(isReplying ? null : review.id);
-                        setReplyInputText(review.officialReply || "");
-                      }}
-                      className="rounded-full px-3 py-1 font-semibold text-stone-300 hover:bg-white/10 transition"
-                    >
-                      {hasOfficialReply ? "Editar respuesta" : "Responder"}
-                    </button>
-                  )}
+                  {/* Responder a @usuario (visible para todos) */}
+                  <button
+                    type="button"
+                    onClick={() => openReplyBox(review.id, review.customerName)}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-semibold transition ${
+                      isReplying && activeReply?.handle === toHandle(review.customerName)
+                        ? "bg-white/10 text-white"
+                        : "text-stone-300 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    <MessageCircle className="h-3.5 w-3.5" />
+                    <span>Responder</span>
+                  </button>
 
                   {isAdminUser && (
                     <>
@@ -731,37 +809,97 @@ export function CustomerReviewsSection({
                 </div>
 
                 {/* Caja de respuesta activa estilo YouTube */}
-                {isReplying && isStaffUser && (
-                  <div className="mt-3 pl-3 border-l-2 border-[#c9a15a]/40 space-y-2">
-                    <textarea
-                      rows={2}
-                      value={replyInputText}
-                      onChange={(e) => setReplyInputText(e.target.value)}
-                      placeholder={`Responder oficialmente a ${toHandle(review.customerName)}...`}
-                      className="w-full resize-none rounded-lg border border-white/10 bg-white/[0.04] p-2 text-xs text-white placeholder-stone-400 outline-none focus:border-[#c9a15a]"
-                    />
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setActiveReplyBox(null)}
-                        className="rounded-full px-3 py-1 text-xs text-stone-400 hover:text-white"
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        type="button"
-                        disabled={!replyInputText.trim() || isSubmittingReply}
-                        onClick={() => handleSendReply(review.id)}
-                        className="rounded-full bg-white text-black px-3.5 py-1 text-xs font-bold hover:bg-stone-200 disabled:opacity-40"
-                      >
-                        {isSubmittingReply ? "Enviando..." : "Publicar respuesta oficial"}
-                      </button>
-                    </div>
-                  </div>
-                )}
+                <AnimatePresence>
+                  {isReplying && activeReply && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.18 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="mt-3 flex items-start gap-3">
+                        <div
+                          className={`shrink-0 h-7 w-7 rounded-full flex items-center justify-center font-bold text-xs select-none ${
+                            isStaffUser
+                              ? "bg-[#0a0a0a] border border-[#c9a15a] text-[#c9a15a]"
+                              : userSession?.name
+                                ? getAvatarColor(userSession.name)
+                                : "bg-gradient-to-tr from-[#c9a15a] to-[#e4c284] text-[#0a0a0a]"
+                          }`}
+                        >
+                          {isStaffUser ? "M" : currentUserInitial}
+                        </div>
+                        <div className="flex-1 min-w-0 space-y-2">
+                          <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-stone-400">
+                            <span>Respondiendo a</span>
+                            <span className="font-semibold text-[#c9a15a]">{activeReply.handle}</span>
+                            {isStaffUser && (
+                              <span className="rounded bg-[#c9a15a] text-[#0a0a0a] px-1 text-[9px] font-black uppercase tracking-wider">
+                                Como Taller Oficial
+                              </span>
+                            )}
+                          </div>
+                          {!isStaffUser && !userSession?.name && (
+                            <input
+                              type="text"
+                              value={replyName}
+                              maxLength={60}
+                              onChange={(e) => setReplyName(e.target.value)}
+                              placeholder="Tu nombre"
+                              className="w-full sm:w-64 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white placeholder-stone-400 outline-none focus:border-[#c9a15a]"
+                            />
+                          )}
+                          <textarea
+                            rows={2}
+                            autoFocus
+                            maxLength={600}
+                            value={replyInputText}
+                            onChange={(e) => setReplyInputText(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                                handleSendReply(review.id);
+                              }
+                            }}
+                            placeholder={`Responder a ${activeReply.handle}...`}
+                            className="w-full resize-none bg-transparent text-xs sm:text-sm text-white placeholder-stone-400 outline-none border-b border-stone-700 focus:border-white pb-1.5 leading-relaxed"
+                          />
+                          {replyError && (
+                            <p className="text-[11px] text-rose-400 font-medium">{replyError}</p>
+                          )}
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActiveReply(null);
+                                setReplyError(null);
+                              }}
+                              className="rounded-full px-3.5 py-1.5 text-xs font-semibold text-stone-300 hover:bg-white/10 transition"
+                            >
+                              Cancelar
+                            </button>
+                            <button
+                              type="button"
+                              disabled={!replyInputText.trim() || isSubmittingReply}
+                              onClick={() => handleSendReply(review.id)}
+                              className="inline-flex items-center gap-1.5 rounded-full bg-white text-black px-3.5 py-1.5 text-xs font-bold hover:bg-stone-200 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                            >
+                              {isSubmittingReply ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                <Send className="h-3 w-3" />
+                              )}
+                              <span>{isSubmittingReply ? "Enviando..." : "Responder"}</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
 
                 {/* Hilo de respuestas oficiales estilo YouTube (Acordeón ▼ 1 respuesta) */}
-                {hasOfficialReply && (
+                {hasReplies && (
                   <div className="mt-2.5">
                     <button
                       type="button"
@@ -776,12 +914,14 @@ export function CustomerReviewsSection({
                       {isRepliesOpen ? (
                         <>
                           <ChevronUp className="h-3.5 w-3.5" />
-                          <span>Ocultar respuesta</span>
+                          <span>{replies.length === 1 ? "Ocultar respuesta" : "Ocultar respuestas"}</span>
                         </>
                       ) : (
                         <>
                           <ChevronDown className="h-3.5 w-3.5" />
-                          <span>1 respuesta</span>
+                          <span>
+                            {replies.length} {replies.length === 1 ? "respuesta" : "respuestas"}
+                          </span>
                         </>
                       )}
                     </button>
@@ -794,43 +934,73 @@ export function CustomerReviewsSection({
                           animate={{ opacity: 1, height: "auto" }}
                           exit={{ opacity: 0, height: 0 }}
                           transition={{ duration: 0.2 }}
-                          className="overflow-hidden mt-2.5 ml-2 pl-3 border-l-2 border-[#c9a15a]/30"
+                          className="overflow-hidden mt-2.5 ml-2 pl-3 border-l-2 border-[#c9a15a]/30 space-y-4"
                         >
-                          <div className="flex items-start gap-3">
-                            {/* Avatar oficial Mudeco Palets */}
-                            <div className="shrink-0">
-                              <div className="h-7 w-7 rounded-full bg-[#0a0a0a] border border-[#c9a15a] flex items-center justify-center text-[#c9a15a] font-bold text-xs shadow">
-                                M
+                          {replies.map((reply) => (
+                            <div key={reply.id} className="flex items-start gap-3">
+                              <div className="shrink-0">
+                                <ReplyAvatar reply={reply} />
+                              </div>
+
+                              <div className="flex-1 min-w-0">
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                  <span className="font-bold text-xs text-white">
+                                    {reply.isOfficial ? "Mudeco Palets" : toHandle(reply.authorName)}
+                                  </span>
+                                  {reply.isOfficial ? (
+                                    <span className="rounded bg-[#c9a15a] text-[#0a0a0a] px-1 text-[9px] font-black uppercase tracking-wider">
+                                      Taller Oficial ✔
+                                    </span>
+                                  ) : (
+                                    <span className="text-[11px] text-stone-400">
+                                      {reply.authorName}
+                                    </span>
+                                  )}
+                                  <span className="text-[11px] text-stone-400">
+                                    · {formatYouTubeTime(reply.createdAt)}
+                                  </span>
+                                </div>
+
+                                <p className="text-xs text-stone-200 mt-1 leading-relaxed whitespace-pre-line break-words">
+                                  {reply.replyToHandle && (
+                                    <span className="font-semibold text-[#c9a15a] mr-1">
+                                      {reply.replyToHandle}
+                                    </span>
+                                  )}
+                                  {reply.text}
+                                </p>
+
+                                <div className="flex items-center gap-1 mt-1 text-[11px] text-stone-400">
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      openReplyBox(
+                                        review.id,
+                                        reply.isOfficial ? "Mudeco Palets" : reply.authorName,
+                                      )
+                                    }
+                                    className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-semibold text-stone-300 hover:bg-white/10 hover:text-white transition"
+                                  >
+                                    <MessageCircle className="h-3 w-3" />
+                                    <span>
+                                      Responder a{" "}
+                                      {reply.isOfficial ? "@mudeco_palets" : toHandle(reply.authorName)}
+                                    </span>
+                                  </button>
+                                  {isAdminUser && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteReply(review.id, reply.id)}
+                                      className="inline-flex items-center gap-1 rounded-full px-2 py-1 font-semibold text-rose-400 hover:bg-rose-500/10 transition"
+                                      title="Eliminar respuesta"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </button>
+                                  )}
+                                </div>
                               </div>
                             </div>
-
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-1.5">
-                                <span className="font-bold text-xs text-white">
-                                  Mudeco Palets
-                                </span>
-                                <span className="rounded bg-[#c9a15a] text-[#0a0a0a] px-1 py-0.2 text-[9px] font-black uppercase tracking-wider">
-                                  Taller Oficial ✔
-                                </span>
-                                <span className="text-[11px] text-stone-400">
-                                  {review.officialReplyAt
-                                    ? formatYouTubeTime(review.officialReplyAt)
-                                    : "hace poco"}
-                                </span>
-                              </div>
-
-                              <p className="text-xs text-stone-200 mt-1 leading-relaxed">
-                                {review.officialReply}
-                              </p>
-
-                              <div className="flex items-center gap-2 mt-1.5 text-[11px] text-stone-400">
-                                <span className="inline-flex items-center gap-1 text-stone-400">
-                                  <ThumbsUp className="h-3 w-3" />
-                                  <span>6</span>
-                                </span>
-                              </div>
-                            </div>
-                          </div>
+                          ))}
                         </motion.div>
                       )}
                     </AnimatePresence>

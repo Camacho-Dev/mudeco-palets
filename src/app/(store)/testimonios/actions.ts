@@ -6,9 +6,17 @@ import { checkDualRateLimit } from "@/lib/rate-limit";
 import { invalidateReviewsCache } from "@/lib/reviews";
 import { auth } from "@/lib/auth";
 import { isAdmin, isStaff } from "@/lib/rbac";
+import {
+  MAX_REPLIES_PER_REVIEW,
+  parseReviewReplies,
+  sanitizeHandle,
+  serializeReviewReplies,
+  type ReviewReplyItem,
+} from "@/lib/review-replies";
 
 export type SubmitReviewResult = {
   success: boolean;
+  id?: string;
   error?: string;
 };
 
@@ -83,7 +91,7 @@ export async function submitCustomerReviewAction(formData: FormData): Promise<Su
   }
 
   try {
-    await prisma.customerReview.create({
+    const created = await prisma.customerReview.create({
       data: {
         customerName,
         customerEmail: customerEmail || null,
@@ -104,7 +112,7 @@ export async function submitCustomerReviewAction(formData: FormData): Promise<Su
       revalidatePath(`/pedido/${finalWebOrderId}`);
     }
 
-    return { success: true };
+    return { success: true, id: created.id };
   } catch (err) {
     console.error("Error al registrar testimonio de cliente:", err);
     return {
@@ -162,35 +170,124 @@ export async function toggleReviewLikeAction(
 export async function submitReviewReplyAction(
   reviewId: string,
   replyText: string,
-): Promise<{ success: boolean; error?: string }> {
-  const session = await auth();
-  if (!session?.user || !isStaff(session.user.role)) {
+  options: { authorName?: string; replyToHandle?: string | null } = {},
+): Promise<{ success: boolean; error?: string; replies?: ReviewReplyItem[] }> {
+  if (!reviewId || typeof reviewId !== "string" || reviewId.startsWith("yt-")) {
     return {
       success: false,
-      error: "Solo el equipo de Mudeco Palets puede publicar respuestas oficiales.",
+      error: "Este comentario aún se está sincronizando. Recarga la página e inténtalo de nuevo.",
     };
   }
 
-  const reply = replyText.trim();
-  if (!reply || reply.length < 3 || reply.length > 800) {
-    return { success: false, error: "La respuesta debe tener entre 3 y 800 caracteres." };
+  const session = await auth();
+  const staff = Boolean(session?.user && isStaff(session.user.role));
+
+  const reply = String(replyText || "").trim();
+  if (!reply || reply.length < 2 || reply.length > 600) {
+    return { success: false, error: "La respuesta debe tener entre 2 y 600 caracteres." };
+  }
+
+  const authorName = staff
+    ? "Mudeco Palets"
+    : String(session?.user?.name || options.authorName || "").trim().slice(0, 60);
+  if (!staff && authorName.length < 2) {
+    return { success: false, error: "Escribe tu nombre para poder responder." };
+  }
+
+  const rl = await checkDualRateLimit({
+    scope: "review-reply",
+    identifier: session?.user?.email || authorName.toLowerCase(),
+    ipLimit: staff ? 40 : 6,
+    idLimit: staff ? 40 : 4,
+    windowMs: 10 * 60 * 1000,
+  });
+  if (!rl.ok) {
+    return {
+      success: false,
+      error: "Has enviado varias respuestas seguidas. Espera unos minutos.",
+    };
   }
 
   try {
+    const current = await prisma.customerReview.findUnique({
+      where: { id: reviewId },
+      select: { officialReply: true, officialReplyAt: true, status: true },
+    });
+    if (!current || current.status !== "APPROVED") {
+      return { success: false, error: "Comentario no encontrado." };
+    }
+
+    const existing = parseReviewReplies(current.officialReply, current.officialReplyAt);
+    if (existing.length >= MAX_REPLIES_PER_REVIEW) {
+      return { success: false, error: "Este hilo alcanzó el máximo de respuestas." };
+    }
+
+    const now = new Date();
+    const newReply: ReviewReplyItem = {
+      id: `r-${now.getTime().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+      authorName,
+      isOfficial: staff,
+      text: reply,
+      replyToHandle: sanitizeHandle(options.replyToHandle),
+      createdAt: now.toISOString(),
+    };
+    const nextReplies = [...existing, newReply];
+
     await prisma.customerReview.update({
       where: { id: reviewId },
       data: {
-        officialReply: reply,
-        officialReplyAt: new Date(),
+        officialReply: serializeReviewReplies(nextReplies),
+        officialReplyAt: now,
       },
     });
 
     invalidateReviewsCache();
     revalidatePath("/");
-    return { success: true };
+    return { success: true, replies: nextReplies };
   } catch (err) {
     console.error("Error al responder comentario:", err);
     return { success: false, error: "No se pudo guardar la respuesta." };
+  }
+}
+
+export async function deleteReviewReplyAction(
+  reviewId: string,
+  replyId: string,
+): Promise<{ success: boolean; error?: string; replies?: ReviewReplyItem[] }> {
+  const session = await auth();
+  if (!session?.user || !isAdmin(session.user.role)) {
+    return { success: false, error: "Solo el administrador puede eliminar respuestas." };
+  }
+
+  try {
+    const current = await prisma.customerReview.findUnique({
+      where: { id: reviewId },
+      select: { officialReply: true, officialReplyAt: true },
+    });
+    if (!current) {
+      return { success: false, error: "Comentario no encontrado." };
+    }
+
+    const nextReplies = parseReviewReplies(current.officialReply, current.officialReplyAt).filter(
+      (r) => r.id !== replyId,
+    );
+
+    await prisma.customerReview.update({
+      where: { id: reviewId },
+      data: {
+        officialReply: serializeReviewReplies(nextReplies),
+        officialReplyAt: nextReplies.length
+          ? new Date(nextReplies[nextReplies.length - 1].createdAt)
+          : null,
+      },
+    });
+
+    invalidateReviewsCache();
+    revalidatePath("/");
+    return { success: true, replies: nextReplies };
+  } catch (err) {
+    console.error("Error al eliminar respuesta:", err);
+    return { success: false, error: "No se pudo eliminar la respuesta." };
   }
 }
 
