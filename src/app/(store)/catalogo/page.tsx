@@ -53,8 +53,8 @@ export default async function CatalogoPage({
 
   return (
     <div className="bg-[#faf7f2] min-h-screen">
-      {/* Editorial Luxury Header Banner with full clearance for fixed 90px header */}
-      <section className="relative overflow-hidden bg-[#14100d] text-[#faf6f1] border-b border-[#c9a15a]/25 pt-28 pb-12 sm:pt-36 sm:pb-16 lg:pt-40 lg:pb-18">
+      {/* Editorial Luxury Header Banner */}
+      <section className="relative overflow-hidden bg-[#14100d] text-[#faf6f1] border-b border-[#c9a15a]/25 py-10 sm:py-12">
         <div
           className="absolute inset-0 opacity-20 scale-105"
           style={{
@@ -84,16 +84,16 @@ export default async function CatalogoPage({
               Colección Artesanal · Taller Santo Domingo Oeste
             </div>
 
-            <h1 className="font-display mt-4 text-4xl sm:text-5xl md:text-6xl text-white tracking-tight">
+            <h1 className="font-display mt-3 text-3xl sm:text-4xl md:text-5xl text-white tracking-tight">
               Catálogo de Piezas
             </h1>
 
-            <p className="mt-3.5 max-w-2xl text-sm sm:text-base text-white/75 leading-relaxed font-light">
+            <p className="mt-2.5 max-w-2xl text-sm sm:text-base text-white/75 leading-relaxed font-light">
               Muebles hechos a mano con madera de pino recuperada y curada contra humedad y plagas. Diseños listos para entrega inmediata o proyectos a medida adaptados a tu espacio.
             </p>
 
             {/* Atelier Quality Highlights Strip */}
-            <div className="mt-8 flex flex-wrap items-center gap-4 sm:gap-6 border-t border-white/10 pt-6 text-xs text-white/80">
+            <div className="mt-6 flex flex-wrap items-center gap-4 sm:gap-6 border-t border-white/10 pt-4 text-xs text-white/80">
               <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-[#c9a15a]" />
                 <span className="font-semibold text-white">{products.length} muebles</span> disponibles

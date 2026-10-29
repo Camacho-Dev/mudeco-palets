@@ -100,21 +100,23 @@ export async function getScoredProducts(): Promise<ProductWithRecommendation[]> 
     return b.totalWebOrdered - a.totalWebOrdered;
   });
 
-  // Asignar insignias ÚNICAMENTE a los productos que tienen ventas o pedidos reales
-  const result = scored.map((item) => {
+  // Asignar insignias únicamente al Top 6 con ventas/pedidos reales para evitar saturación visual
+  const result = scored.map((item, idx) => {
     let badge: ProductWithRecommendation["badge"] = undefined;
 
     const hasRealSales = item.totalSold > 0;
     const hasRealWebOrders = item.totalWebOrdered > 0;
 
-    if (hasRealSales && hasRealWebOrders) {
-      badge = "EN TENDENCIA";
-    } else if (hasRealSales && item.totalSold >= 2) {
-      badge = "MÁS VENDIDO";
-    } else if (hasRealWebOrders) {
-      badge = "MÁS PEDIDO";
-    } else if (hasRealSales) {
-      badge = "MÁS VENDIDO";
+    if (idx < 6 && (hasRealSales || hasRealWebOrders)) {
+      if (idx < 2 && hasRealSales) {
+        badge = "MÁS VENDIDO";
+      } else if (hasRealSales && hasRealWebOrders) {
+        badge = "EN TENDENCIA";
+      } else if (hasRealWebOrders) {
+        badge = "MÁS PEDIDO";
+      } else {
+        badge = "MÁS VENDIDO";
+      }
     }
 
     return {

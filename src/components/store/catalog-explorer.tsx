@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useTransition, useRef } from "react";
+import { useState, useMemo, useTransition } from "react";
 import {
   Search,
   X,
@@ -9,13 +9,13 @@ import {
   Sparkles,
   ArrowUpDown,
   Layers,
-  ChevronLeft,
-  ChevronRight,
+  ChevronDown,
   RotateCcw,
 } from "lucide-react";
 import { ProductCard } from "@/components/store/product-card";
 import { Reveal } from "@/components/store/store-motion";
 import { storeWhatsApp } from "@/lib/store-info";
+import { formatStoreCategory } from "@/lib/store-brand";
 import { formatCurrency } from "@/lib/format";
 import type { StoreProduct } from "@/lib/store";
 
@@ -35,19 +35,7 @@ type Props = {
   companyPhone: string;
 };
 
-function formatCategoryName(cat: string): string {
-  const map: Record<string, string> = {
-    "BASE DE CAMA": "Bases de Cama",
-    "MESA DE COMEDOR": "Mesas de Comedor",
-    "MESA DE CENTRO": "Mesas de Centro",
-    "GAVETEROS": "Gaveteros",
-    "MESA DE NOCHE": "Mesas de Noche",
-    "REPISA DE TV": "Repisas de TV",
-    "BANCO": "Bancos",
-    "REPISA DE ENTRADA": "Repisas de Entrada",
-  };
-  return map[cat.toUpperCase()] || cat;
-}
+const formatCategoryName = formatStoreCategory;
 
 export function CatalogExplorer({
   products,
@@ -66,10 +54,12 @@ export function CatalogExplorer({
   const [sortBy, setSortBy] = useState<SortOption>("relevance");
   const [availability, setAvailability] = useState<AvailabilityOption>("all");
   const [filterMode, setFilterMode] = useState<"all" | "popular">(
-    initialFilter === "popular" ? "popular" : "all"
+    initialFilter === "popular" ? "popular" : "all",
+  );
+  const [showPricePanel, setShowPricePanel] = useState(
+    Boolean(initialMinPrice != null || initialMaxPrice != null),
   );
   const [, startTransition] = useTransition();
-  const tabsScrollRef = useRef<HTMLDivElement>(null);
 
   // Compute overall min and max prices from the catalog
   const { minPriceLimit, maxPriceLimit } = useMemo(() => {
@@ -142,7 +132,7 @@ export function CatalogExplorer({
     q: string,
     filt: string,
     minP?: number,
-    maxP?: number
+    maxP?: number,
   ) {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams();
@@ -179,7 +169,7 @@ export function CatalogExplorer({
         query,
         next,
         priceRange[0],
-        priceRange[1]
+        priceRange[1],
       );
     });
   }
@@ -204,7 +194,7 @@ export function CatalogExplorer({
         query,
         filterMode,
         minPriceLimit,
-        maxPriceLimit
+        maxPriceLimit,
       );
     });
   }
@@ -237,15 +227,6 @@ export function CatalogExplorer({
     });
   }
 
-  function scrollTabs(direction: "left" | "right") {
-    if (!tabsScrollRef.current) return;
-    const distance = 260;
-    tabsScrollRef.current.scrollBy({
-      left: direction === "left" ? -distance : distance,
-      behavior: "smooth",
-    });
-  }
-
   const popularSet = useMemo(() => new Set(popularIds), [popularIds]);
 
   const isPriceFiltered =
@@ -260,8 +241,8 @@ export function CatalogExplorer({
             100,
             ((priceRange[0] - minPriceLimit) /
               (maxPriceLimit - minPriceLimit)) *
-              100
-          )
+              100,
+          ),
         )
       : 0;
 
@@ -273,15 +254,14 @@ export function CatalogExplorer({
             100,
             ((priceRange[1] - minPriceLimit) /
               (maxPriceLimit - minPriceLimit)) *
-              100
-          )
+              100,
+          ),
         )
       : 100;
 
   // Filtered and sorted products
   const filteredAndSortedProducts = useMemo(() => {
     let result = products.filter((p) => {
-      // Category filter
       if (
         selectedCategory &&
         p.category.toLowerCase() !== selectedCategory.toLowerCase()
@@ -289,21 +269,17 @@ export function CatalogExplorer({
         return false;
       }
 
-      // Popular filter
       if (filterMode === "popular" && !popularSet.has(p.id)) {
         return false;
       }
 
-      // Availability filter
       if (availability === "in-stock" && p.stock <= 0) return false;
       if (availability === "custom" && p.stock > 0) return false;
 
-      // Price range filter
       if (p.price < priceRange[0] || p.price > priceRange[1]) {
         return false;
       }
 
-      // Search query
       if (query.trim()) {
         const q = query.toLowerCase();
         const matchesName = p.name.toLowerCase().includes(q);
@@ -318,7 +294,6 @@ export function CatalogExplorer({
       return true;
     });
 
-    // Sorting
     switch (sortBy) {
       case "price-asc":
         result = [...result].sort((a, b) => a.price - b.price);
@@ -330,7 +305,7 @@ export function CatalogExplorer({
         result = [...result].sort(
           (a, b) =>
             new Date(b.createdAt || 0).getTime() -
-            new Date(a.createdAt || 0).getTime()
+            new Date(a.createdAt || 0).getTime(),
         );
         break;
       case "name":
@@ -338,7 +313,6 @@ export function CatalogExplorer({
         break;
       case "relevance":
       default:
-        // Maintains recommendation scoring
         break;
     }
 
@@ -360,18 +334,18 @@ export function CatalogExplorer({
       filterMode === "popular" ||
       availability !== "all" ||
       sortBy !== "relevance" ||
-      isPriceFiltered
+      isPriceFiltered,
   );
 
   return (
-    <div className="space-y-6">
-      {/* Luxury Search & Toolbar Control Panel */}
-      <div className="rounded-2xl border border-[#e2d5c5] bg-[#fffdfa] p-4 sm:p-6 shadow-[0_4px_20px_rgba(28,20,16,0.04)]">
-        {/* Top Controls: Search Input + Sorting & Availability */}
-        <div className="grid gap-3 lg:grid-cols-12 lg:items-center">
-          {/* Search Box - Absolute padding separation to guarantee zero text-icon overlap */}
-          <div className="relative lg:col-span-6 xl:col-span-7">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8a7260] pointer-events-none" />
+    <div className="space-y-5">
+      {/* Barra de búsqueda y filtros compacta y alineada */}
+      <div className="rounded-2xl border border-[#e2d5c5] bg-[#fffdfa] p-4 sm:p-5 shadow-[0_4px_20px_rgba(28,20,16,0.04)]">
+        {/* Fila 1: Buscador + Disponibilidad + Orden + Botón de Presupuesto en una sola línea en desktop */}
+        <div className="grid gap-2.5 md:grid-cols-2 lg:grid-cols-12 lg:items-center">
+          {/* Buscador */}
+          <div className="relative md:col-span-2 lg:col-span-5">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8a7260] pointer-events-none" />
             <input
               type="text"
               value={query}
@@ -381,8 +355,8 @@ export function CatalogExplorer({
                 updateUrl(selectedCategory, val, filterMode);
               }}
               placeholder="Buscar por cama, mesa, comedor, repisa..."
-              style={{ paddingLeft: "2.85rem", paddingRight: "2.5rem" }}
-              className="w-full h-12 rounded-xl border border-[#d8c8b4] bg-[#faf7f2] text-sm text-[#1b1511] placeholder:text-[#9c8978] transition-all duration-200 focus:bg-white focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/25 focus:outline-none"
+              style={{ paddingLeft: "2.65rem", paddingRight: "2.25rem" }}
+              className="w-full h-11 rounded-xl border border-[#d8c8b4] bg-[#faf7f2] text-sm text-[#1b1511] placeholder:text-[#9c8978] transition-all duration-200 focus:bg-white focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/25 focus:outline-none"
             />
             {query ? (
               <button
@@ -391,7 +365,7 @@ export function CatalogExplorer({
                   setQuery("");
                   updateUrl(selectedCategory, "", filterMode);
                 }}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full text-[#8a7260] hover:bg-black/5 hover:text-black transition"
+                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full text-[#8a7260] hover:bg-black/5 hover:text-black transition"
                 aria-label="Borrar búsqueda"
               >
                 <X className="h-4 w-4" />
@@ -399,90 +373,82 @@ export function CatalogExplorer({
             ) : null}
           </div>
 
-          {/* Availability Selector */}
-          <div className="relative lg:col-span-3 xl:col-span-2.5">
-            <div className="relative">
-              <Layers className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8a7260] pointer-events-none" />
-              <select
-                value={availability}
-                onChange={(e) =>
-                  setAvailability(e.target.value as AvailabilityOption)
-                }
-                style={{ paddingLeft: "2.6rem" }}
-                className="w-full h-12 rounded-xl border border-[#d8c8b4] bg-[#faf7f2] pr-8 text-xs font-medium text-[#1b1511] transition-all duration-200 focus:bg-white focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/25 focus:outline-none cursor-pointer"
-              >
-                <option value="all">Toda disponibilidad</option>
-                <option value="in-stock">Listos para entrega</option>
-                <option value="custom">Bajo pedido / A medida</option>
-              </select>
-            </div>
+          {/* Disponibilidad */}
+          <div className="relative lg:col-span-2">
+            <Layers className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8a7260] pointer-events-none" />
+            <select
+              value={availability}
+              onChange={(e) =>
+                setAvailability(e.target.value as AvailabilityOption)
+              }
+              style={{ paddingLeft: "2.2rem" }}
+              className="w-full h-11 rounded-xl border border-[#d8c8b4] bg-[#faf7f2] pr-7 text-xs font-medium text-[#1b1511] transition-all duration-200 focus:bg-white focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/25 focus:outline-none cursor-pointer"
+            >
+              <option value="all">Disponibilidad: Todas</option>
+              <option value="in-stock">Listos para entrega</option>
+              <option value="custom">Bajo pedido / A medida</option>
+            </select>
           </div>
 
-          {/* Sort Selector */}
-          <div className="relative lg:col-span-3 xl:col-span-2.5">
-            <div className="relative">
-              <ArrowUpDown className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8a7260] pointer-events-none" />
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortOption)}
-                style={{ paddingLeft: "2.6rem" }}
-                className="w-full h-12 rounded-xl border border-[#d8c8b4] bg-[#faf7f2] pr-8 text-xs font-medium text-[#1b1511] transition-all duration-200 focus:bg-white focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/25 focus:outline-none cursor-pointer"
-              >
-                <option value="relevance">Destacados del taller</option>
-                <option value="price-asc">Precio: Menor a mayor</option>
-                <option value="price-desc">Precio: Mayor a menor</option>
-                <option value="newest">Más recientes</option>
-                <option value="name">Nombre: A a Z</option>
-              </select>
-            </div>
+          {/* Ordenar por */}
+          <div className="relative lg:col-span-3">
+            <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8a7260] pointer-events-none" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortOption)}
+              style={{ paddingLeft: "2.2rem" }}
+              className="w-full h-11 rounded-xl border border-[#d8c8b4] bg-[#faf7f2] pr-7 text-xs font-medium text-[#1b1511] transition-all duration-200 focus:bg-white focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/25 focus:outline-none cursor-pointer"
+            >
+              <option value="relevance">Ordenar: Destacados del taller</option>
+              <option value="price-asc">Precio: Menor a mayor</option>
+              <option value="price-desc">Precio: Mayor a menor</option>
+              <option value="newest">Más recientes</option>
+              <option value="name">Nombre: A a Z</option>
+            </select>
+          </div>
+
+          {/* Botón desplegable de Presupuesto */}
+          <div className="lg:col-span-2">
+            <button
+              type="button"
+              onClick={() => setShowPricePanel((prev) => !prev)}
+              className={`flex h-11 w-full items-center justify-between gap-2 rounded-xl border px-3.5 text-xs font-semibold transition-all duration-200 cursor-pointer ${
+                showPricePanel || isPriceFiltered
+                  ? "border-[#c9a15a] bg-[#16120f] text-[#faf6f1]"
+                  : "border-[#d8c8b4] bg-[#faf7f2] text-[#1b1511] hover:border-[#c9a15a] hover:bg-white"
+              }`}
+            >
+              <span className="flex items-center gap-2 truncate">
+                <SlidersHorizontal className="h-3.5 w-3.5 shrink-0 text-[#c9a15a]" />
+                <span className="truncate">
+                  {isPriceFiltered ? "Precio activo" : "Presupuesto"}
+                </span>
+              </span>
+              <ChevronDown
+                className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${
+                  showPricePanel ? "rotate-180 text-[#c9a15a]" : "opacity-60"
+                }`}
+              />
+            </button>
           </div>
         </div>
 
-        {/* Category Carousel / Segmented Tab Bar with Counts */}
-        <div className="mt-5 pt-5 border-t border-[#ebdccf]">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-[0.68rem] font-bold tracking-[0.2em] text-[#8a7260] uppercase flex items-center gap-1.5">
-              <SlidersHorizontal className="h-3.5 w-3.5 text-[#c9a15a]" />
-              Colecciones de Carpintería
-            </span>
-            <div className="hidden sm:flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => scrollTabs("left")}
-                className="flex h-7 w-7 items-center justify-center rounded-full border border-[#d8c8b4] bg-white text-[#5c4a3b] hover:bg-[#faf7f2] hover:border-[#c9a15a] transition cursor-pointer"
-                aria-label="Mover a la izquierda"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => scrollTabs("right")}
-                className="flex h-7 w-7 items-center justify-center rounded-full border border-[#d8c8b4] bg-white text-[#5c4a3b] hover:bg-[#faf7f2] hover:border-[#c9a15a] transition cursor-pointer"
-                aria-label="Mover a la derecha"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-
-          <div
-            ref={tabsScrollRef}
-            className="flex items-center gap-2 overflow-x-auto pb-2 pt-1 no-scrollbar scroll-smooth"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
-            {/* All collections */}
+        {/* Fila 2: Colecciones completas visibles sin cortes */}
+        <div className="mt-4 pt-3.5 border-t border-[#ebdccf]">
+          <div className="flex flex-wrap items-center gap-1.5">
+            {/* Todas las piezas */}
             <button
               type="button"
               onClick={() => handleSelectCategory("")}
-              className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold tracking-wide transition-all duration-150 cursor-pointer ${
                 !selectedCategory && filterMode !== "popular"
-                  ? "bg-[#16120f] text-[#faf6f1] shadow-md border border-[#c9a15a]/50"
+                  ? "bg-[#16120f] text-[#faf6f1] shadow-xs border border-[#c9a15a]/50"
                   : "bg-white text-[#5c4a3b] border border-[#e0d2c1] hover:border-[#c9a15a] hover:bg-[#faf7f2]"
               }`}
             >
-              <span>Todas las piezas</span>
+              <span>Todas</span>
               <span
-                className={`rounded-full px-2 py-0.5 text-[0.62rem] font-bold ${
+                className={`rounded-full px-1.5 py-0.2 text-[0.62rem] font-bold ${
                   !selectedCategory && filterMode !== "popular"
                     ? "bg-[#c9a15a] text-[#16120f]"
                     : "bg-[#f2e9dd] text-[#755f4d]"
@@ -492,20 +458,20 @@ export function CatalogExplorer({
               </span>
             </button>
 
-            {/* Popular items tab */}
+            {/* Más vendidos */}
             <button
               type="button"
               onClick={handleSelectPopular}
-              className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold tracking-wide transition-all duration-150 cursor-pointer ${
                 filterMode === "popular"
-                  ? "bg-[#c9a15a] text-[#16120f] shadow-[0_2px_12px_rgba(201,161,90,0.35)] border border-[#b3883b]"
+                  ? "bg-[#c9a15a] text-[#16120f] shadow-xs border border-[#b3883b]"
                   : "bg-white text-[#8a682a] border border-[#c9a15a]/40 hover:border-[#c9a15a] hover:bg-[#fbf7ee]"
               }`}
             >
-              <Sparkles className="h-3.5 w-3.5" />
+              <Sparkles className="h-3 w-3" />
               <span>Más Vendidos</span>
               <span
-                className={`rounded-full px-2 py-0.5 text-[0.62rem] font-bold ${
+                className={`rounded-full px-1.5 py-0.2 text-[0.62rem] font-bold ${
                   filterMode === "popular"
                     ? "bg-[#16120f] text-[#faf6f1]"
                     : "bg-[#f5ebd7] text-[#8a682a]"
@@ -515,7 +481,7 @@ export function CatalogExplorer({
               </span>
             </button>
 
-            {/* Category tabs */}
+            {/* Categorías reales */}
             {validCategories.map((c) => {
               const count = categoryCounts[c] || 0;
               const active =
@@ -528,15 +494,15 @@ export function CatalogExplorer({
                   key={c}
                   type="button"
                   onClick={() => handleSelectCategory(c)}
-                  className={`inline-flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold tracking-wide transition-all duration-150 cursor-pointer ${
                     active
-                      ? "bg-[#16120f] text-[#faf6f1] shadow-md border border-[#c9a15a]/50"
+                      ? "bg-[#16120f] text-[#faf6f1] shadow-xs border border-[#c9a15a]/50"
                       : "bg-white text-[#5c4a3b] border border-[#e0d2c1] hover:border-[#c9a15a] hover:bg-[#faf7f2]"
                   }`}
                 >
                   <span>{label}</span>
                   <span
-                    className={`rounded-full px-2 py-0.5 text-[0.62rem] font-bold ${
+                    className={`rounded-full px-1.5 py-0.2 text-[0.62rem] font-bold ${
                       active
                         ? "bg-[#c9a15a] text-[#16120f]"
                         : "bg-[#f2e9dd] text-[#755f4d]"
@@ -550,75 +516,58 @@ export function CatalogExplorer({
           </div>
         </div>
 
-        {/* Luxury Price Range Control Panel */}
-        <div className="mt-5 rounded-2xl border border-[#e5d8c8] bg-gradient-to-b from-[#faf7f2] to-[#f4eee4] p-4 sm:p-5 shadow-xs">
-          {/* Top row: Label + Count + Reset + Dual Price Inputs */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3.5 border-b border-[#e5d8c8]">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#c9a15a]/30 bg-[#c9a15a]/15 text-[#8f6b28]">
-                <SlidersHorizontal className="h-3.5 w-3.5" />
-              </div>
+        {/* Panel colapsable de Rango de Presupuesto (solo abierto cuando el usuario lo solicita o está activo) */}
+        {showPricePanel ? (
+          <div className="mt-4 rounded-xl border border-[#e5d8c8] bg-[#faf7f2] p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-[#e5d8c8]">
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold tracking-[0.16em] text-[#2c221a] uppercase">
-                    Rango de Presupuesto
-                  </span>
-                  {isPriceFiltered ? (
-                    <span className="inline-flex items-center rounded-full bg-[#c9a15a]/25 px-2 py-0.5 text-[0.6rem] font-bold text-[#8a6524]">
-                      Filtrado
-                    </span>
-                  ) : null}
-                </div>
+                <span className="text-xs font-bold tracking-[0.14em] text-[#2c221a] uppercase">
+                  Rango de Presupuesto
+                </span>
                 <p className="text-[11px] text-[#85705e]">
-                  {filteredAndSortedProducts.length} de {products.length} piezas dentro del presupuesto
+                  RD$ {priceRange[0].toLocaleString("es-DO")} — RD${" "}
+                  {priceRange[1].toLocaleString("es-DO")} (
+                  {filteredAndSortedProducts.length} piezas)
                 </p>
               </div>
-            </div>
 
-            {/* Price Cards + Reset */}
-            <div className="flex items-center gap-2.5 self-start sm:self-auto">
-              <div className="flex items-center gap-1.5">
-                <div className="rounded-lg border border-[#d8c8b4] bg-white px-3 py-1 text-right shadow-xs">
-                  <span className="block text-[0.58rem] font-bold tracking-wider text-[#9c8978] uppercase">
-                    Mínimo
-                  </span>
-                  <span className="font-display text-xs sm:text-sm font-bold text-[#1b1511]">
-                    RD$ {priceRange[0].toLocaleString("es-DO")}
-                  </span>
-                </div>
-                <span className="text-[#c9a15a] font-light text-xs">—</span>
-                <div className="rounded-lg border border-[#d8c8b4] bg-white px-3 py-1 text-right shadow-xs">
-                  <span className="block text-[0.58rem] font-bold tracking-wider text-[#9c8978] uppercase">
-                    Máximo
-                  </span>
-                  <span className="font-display text-xs sm:text-sm font-bold text-[#1b1511]">
-                    RD$ {priceRange[1].toLocaleString("es-DO")}
-                  </span>
-                </div>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {presets.map((preset) => {
+                  const active =
+                    priceRange[0] === preset.min &&
+                    priceRange[1] === preset.max;
+                  return (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => handleApplyPreset(preset.min, preset.max)}
+                      className={`rounded-full px-3 py-1 text-xs transition-all duration-150 cursor-pointer ${
+                        active
+                          ? "bg-[#1b1511] text-[#c9a15a] font-semibold"
+                          : "bg-white text-[#5c4a3b] border border-[#d8c8b4] hover:border-[#c9a15a]"
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  );
+                })}
+                {isPriceFiltered ? (
+                  <button
+                    type="button"
+                    onClick={handleResetPrice}
+                    className="flex h-7 w-7 items-center justify-center rounded-full border border-[#d8c8b4] bg-white text-[#8a2b2b] hover:bg-[#8a2b2b]/10 transition cursor-pointer"
+                    title="Restablecer precio"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5" />
+                  </button>
+                ) : null}
               </div>
-
-              {isPriceFiltered ? (
-                <button
-                  type="button"
-                  onClick={handleResetPrice}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#d8c8b4] bg-white text-[#8a2b2b] hover:bg-[#8a2b2b]/10 hover:border-[#8a2b2b]/40 transition shadow-xs cursor-pointer"
-                  title="Restablecer precio al rango completo"
-                  aria-label="Restablecer precio"
-                >
-                  <RotateCcw className="h-3.5 w-3.5" />
-                </button>
-              ) : null}
             </div>
-          </div>
 
-          {/* Slider track row */}
-          <div className="pt-3.5 pb-1">
-            <div className="relative pt-2 pb-1 px-1">
-              {/* Background Track */}
+            <div className="pt-3 px-1">
               <div className="relative h-2 w-full rounded-full bg-[#dfd0be] overflow-hidden">
-                {/* Active Highlight Segment */}
                 <div
-                  className="absolute top-0 bottom-0 rounded-full bg-gradient-to-r from-[#c9a15a] via-[#e5c47a] to-[#b3883b] shadow-[0_0_10px_rgba(201,161,90,0.5)] transition-[left,width] duration-75"
+                  className="absolute top-0 bottom-0 rounded-full bg-gradient-to-r from-[#c9a15a] via-[#e5c47a] to-[#b3883b]"
                   style={{
                     left: `${minPercent}%`,
                     width: `${Math.max(0, maxPercent - minPercent)}%`,
@@ -626,7 +575,6 @@ export function CatalogExplorer({
                 />
               </div>
 
-              {/* Dual Range Inputs */}
               <div className="relative -mt-2 h-5">
                 <input
                   type="range"
@@ -650,54 +598,25 @@ export function CatalogExplorer({
                 />
               </div>
 
-              {/* Range endpoints markers */}
-              <div className="flex items-center justify-between text-[0.68rem] text-[#85705e] font-medium pt-1">
+              <div className="flex items-center justify-between text-[0.68rem] text-[#85705e] font-medium pt-0.5">
                 <span>Mín: RD$ {minPriceLimit.toLocaleString("es-DO")}</span>
-                <span className="text-[0.62rem] text-[#a18c7b] italic hidden sm:inline">
-                  Arrastra los controles para ajustar tu presupuesto
-                </span>
                 <span>Máx: RD$ {maxPriceLimit.toLocaleString("es-DO")}</span>
               </div>
             </div>
-
-            {/* Presets Row */}
-            <div className="mt-3 flex flex-wrap items-center gap-1.5 pt-3 border-t border-[#e8ddcf]/80">
-              <span className="text-[0.62rem] font-bold tracking-wider text-[#85705e] uppercase mr-1">
-                Atajos:
-              </span>
-              {presets.map((preset) => {
-                const active =
-                  priceRange[0] === preset.min && priceRange[1] === preset.max;
-                return (
-                  <button
-                    key={preset.label}
-                    type="button"
-                    onClick={() => handleApplyPreset(preset.min, preset.max)}
-                    className={`rounded-full px-3 py-1 text-xs transition-all duration-150 cursor-pointer ${
-                      active
-                        ? "bg-[#1b1511] text-[#c9a15a] shadow-xs font-semibold ring-1 ring-[#c9a15a]/40"
-                        : "bg-white text-[#5c4a3b] border border-[#d8c8b4] hover:border-[#c9a15a] hover:bg-[#faf7f2]"
-                    }`}
-                  >
-                    {preset.label}
-                  </button>
-                );
-              })}
-            </div>
           </div>
-        </div>
+        ) : null}
 
-        {/* Active Filters Summary Strip */}
+        {/* Barra de filtros activos */}
         {hasActiveFilters ? (
-          <div className="mt-5 pt-4 border-t border-[#ebdccf] flex flex-wrap items-center justify-between gap-2">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[0.68rem] text-[#8a7260] uppercase tracking-wider font-semibold">
+          <div className="mt-3.5 pt-3 border-t border-[#ebdccf] flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="text-[0.68rem] text-[#8a7260] uppercase tracking-wider font-semibold mr-1">
                 Filtros activos:
               </span>
 
               {selectedCategory ? (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-[#16120f] px-3 py-1 text-xs text-[#faf6f1]">
-                  Colección: {formatCategoryName(selectedCategory)}
+                  {formatCategoryName(selectedCategory)}
                   <button
                     type="button"
                     onClick={() => handleSelectCategory("")}
@@ -725,7 +644,7 @@ export function CatalogExplorer({
 
               {query ? (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-[#16120f] px-3 py-1 text-xs text-[#faf6f1]">
-                  Búsqueda: &ldquo;{query}&rdquo;
+                  &ldquo;{query}&rdquo;
                   <button
                     type="button"
                     onClick={() => {
@@ -758,7 +677,6 @@ export function CatalogExplorer({
 
               {isPriceFiltered ? (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-[#16120f] px-3 py-1 text-xs text-[#faf6f1] border border-[#c9a15a]/40">
-                  <span className="text-[#c9a15a] font-semibold">Precio:</span>{" "}
                   {formatCurrency(priceRange[0])} –{" "}
                   {formatCurrency(priceRange[1])}
                   <button
@@ -775,12 +693,12 @@ export function CatalogExplorer({
               {sortBy !== "relevance" ? (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-[#16120f] px-3 py-1 text-xs text-[#faf6f1]">
                   {sortBy === "price-asc"
-                    ? "Precio: Menor a mayor"
+                    ? "Menor precio"
                     : sortBy === "price-desc"
-                    ? "Precio: Mayor a menor"
-                    : sortBy === "newest"
-                    ? "Más recientes"
-                    : "Nombre A-Z"}
+                      ? "Mayor precio"
+                      : sortBy === "newest"
+                        ? "Más recientes"
+                        : "Nombre A-Z"}
                   <button
                     type="button"
                     onClick={() => setSortBy("relevance")}
@@ -799,13 +717,13 @@ export function CatalogExplorer({
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8a2b2b] hover:text-[#5c1c1c] transition uppercase tracking-wider cursor-pointer ml-auto"
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              Restablecer todo
+              Restablecer
             </button>
           </div>
         ) : null}
       </div>
 
-      {/* Catalog Results Header Bar */}
+      {/* Contador de resultados */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-1 text-xs text-[#8a7260]">
         <p>
           Mostrando{" "}
@@ -819,7 +737,7 @@ export function CatalogExplorer({
           {filterMode === "popular" ? " · Colección Más Vendidos" : ""}
           {isPriceFiltered
             ? ` · Entre ${formatCurrency(priceRange[0])} y ${formatCurrency(
-                priceRange[1]
+                priceRange[1],
               )}`
             : ""}
           {query ? ` para "${query}"` : ""}
@@ -830,14 +748,15 @@ export function CatalogExplorer({
         </span>
       </div>
 
-      {/* Products Grid */}
+      {/* Cuadrícula de productos */}
       {filteredAndSortedProducts.length === 0 ? (
         <div className="rounded-2xl border border-[#e4d8cb] bg-white px-6 py-16 text-center shadow-sm">
           <p className="font-display text-2xl text-[var(--wood-950)]">
             No se encontraron muebles para esta combinación
           </p>
           <p className="mt-2 text-sm text-[var(--muted)] max-w-md mx-auto">
-            Fabricamos cualquier mueble artesanal a tus dimensiones exactas en nuestro taller de Santo Domingo Oeste.
+            Fabricamos cualquier mueble artesanal a tus dimensiones exactas en
+            nuestro taller de Santo Domingo Oeste.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <button
@@ -855,10 +774,10 @@ export function CatalogExplorer({
                 }${
                   isPriceFiltered
                     ? ` con presupuesto entre ${formatCurrency(
-                        priceRange[0]
+                        priceRange[0],
                       )} y ${formatCurrency(priceRange[1])}`
                     : ""
-                }. ¿Podrían cotizármelo?`
+                }. ¿Podrían cotizármelo?`,
               )}
               target="_blank"
               rel="noreferrer"
