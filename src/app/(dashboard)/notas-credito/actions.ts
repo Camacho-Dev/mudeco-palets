@@ -10,6 +10,7 @@ import {
   creditNotesAmount,
   resolveInvoiceStatusWithCredits,
 } from "@/lib/invoice-calc";
+import { allocateNcf } from "@/lib/ncf";
 import { writeAudit } from "@/lib/audit";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -17,8 +18,8 @@ import { redirect } from "next/navigation";
 export async function createCreditNote(fd: FormData) {
   const session = await requireAdmin();
   const invoiceId = String(fd.get("invoiceId") || "");
-  const reason = String(fd.get("reason") || "").trim();
-  if (!invoiceId || !reason) throw new Error("Factura y motivo requeridos");
+  const rawReason = String(fd.get("reason") || "").trim();
+  if (!invoiceId || !rawReason) throw new Error("Factura y motivo requeridos");
 
   const invoice = await prisma.invoice.findUnique({
     where: { id: invoiceId },
@@ -66,14 +67,19 @@ export async function createCreditNote(fd: FormData) {
         `El monto (${customAmount}) supera el saldo acreditable restante de la factura (máximo ${remainingCreditable}).`,
       );
     }
+    // Si la factura original lleva ITBIS, desglosar la base imponible y el 18% de ITBIS proporcionalmente
+    const hasTax = invoice.applyTax && invoice.tax > 0;
+    const baseAmount = hasTax
+      ? Math.round((customAmount / 1.18) * 100) / 100
+      : customAmount;
     lines = [
       {
         productId: null,
-        description: `Ajuste parcial: ${reason}`,
+        description: `Ajuste parcial: ${rawReason}`,
         quantity: 1,
-        unitPrice: customAmount,
-        taxRate: 0,
-        lineTotal: customAmount,
+        unitPrice: baseAmount,
+        taxRate: hasTax ? 0.18 : 0,
+        lineTotal: baseAmount,
       },
     ];
   } else {
@@ -82,8 +88,16 @@ export async function createCreditNote(fd: FormData) {
     );
   }
 
-  const totals = calcInvoiceTotals(lines);
+  const totals = calcInvoiceTotals(lines, { applyTax: invoice.applyTax });
+  // En monto parcial con ITBIS, asegurar que posibles diferencias de 1 centavo por redondeo cuadren con customAmount
+  if (!useFull && customAmount > 0 && Math.abs(totals.total - customAmount) <= 0.02) {
+    totals.total = Math.round(customAmount * 100) / 100;
+    totals.tax = Math.round((totals.total - totals.subtotal) * 100) / 100;
+  }
+
   const number = await nextCreditNoteNumber();
+  const ncfB04 = await allocateNcf("B04").catch(() => null);
+  const reason = ncfB04 ? `${rawReason} (NCF: ${ncfB04})` : rawReason;
 
   const note = await prisma.creditNote.create({
     data: {
@@ -143,7 +157,7 @@ export async function createCreditNote(fd: FormData) {
     action: "CREDIT_NOTE",
     entity: "CreditNote",
     entityId: note.id,
-    summary: `NC ${number} sobre ${invoice.number} · ${totals.total}`,
+    summary: `NC ${number}${ncfB04 ? ` (${ncfB04})` : ""} sobre ${invoice.number} · ${totals.total}`,
   });
 
   revalidatePath("/notas-credito");

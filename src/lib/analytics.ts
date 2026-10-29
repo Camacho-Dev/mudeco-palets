@@ -92,17 +92,27 @@ export async function getBusinessAnalytics(range?: DateRange) {
     ["ISSUED", "PARTIAL"].includes(i.status),
   );
 
-  const salesAll = roundMoney(invoices.reduce((s, i) => s + i.total, 0));
+  function netInvoiceTotal(inv: (typeof invoices)[number]) {
+    const credited = (inv.creditNotes || []).reduce((a, c) => a + c.total, 0);
+    return Math.max(0, inv.total - credited);
+  }
+
+  function netInvoiceTax(inv: (typeof invoices)[number]) {
+    const creditedTax = (inv.creditNotes || []).reduce((a, c) => a + c.tax, 0);
+    return Math.max(0, inv.tax - creditedTax);
+  }
+
+  const salesAll = roundMoney(invoices.reduce((s, i) => s + netInvoiceTotal(i), 0));
   const salesYear = roundMoney(
     invoices
       .filter((i) => i.issueDate >= startOfYear)
-      .reduce((s, i) => s + i.total, 0),
+      .reduce((s, i) => s + netInvoiceTotal(i), 0),
   );
   const salesMonth = roundMoney(
-    periodInvoices.reduce((s, i) => s + i.total, 0),
+    periodInvoices.reduce((s, i) => s + netInvoiceTotal(i), 0),
   );
-  const taxAll = roundMoney(invoices.reduce((s, i) => s + i.tax, 0));
-  const taxMonth = roundMoney(periodInvoices.reduce((s, i) => s + i.tax, 0));
+  const taxAll = roundMoney(invoices.reduce((s, i) => s + netInvoiceTax(i), 0));
+  const taxMonth = roundMoney(periodInvoices.reduce((s, i) => s + netInvoiceTax(i), 0));
 
   const collectedAll = roundMoney(payments.reduce((s, p) => s + p.amount, 0));
   const collectedMonth = roundMoney(
@@ -270,7 +280,8 @@ export async function getBusinessAnalytics(range?: DateRange) {
   const aging = { d0_30: 0, d31_60: 0, d61_90: 0, d90plus: 0, count: 0 };
   for (const inv of openInvoices) {
     const paid = inv.payments.reduce((a, p) => a + p.amount, 0);
-    const bal = inv.total - paid;
+    const credited = (inv.creditNotes || []).reduce((a, c) => a + c.total, 0);
+    const bal = inv.total - paid - credited;
     if (bal <= 0) continue;
     const base = inv.dueDate || inv.issueDate;
     const days = Math.floor(

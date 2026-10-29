@@ -5,7 +5,7 @@ import {
   nextQuoteNumber,
   nextWebOrderNumber,
 } from "@/lib/invoice-number";
-import { assertStockAvailable, deductStock } from "@/lib/stock";
+import { deductStock } from "@/lib/stock";
 import { roundMoney } from "@/lib/format";
 import { serviceKindFromRequest } from "@/lib/web-order-labels";
 import { notifyStaffNewWebOrder } from "@/lib/mail";
@@ -261,7 +261,6 @@ export async function createWebLocalSale(
   cart: CartLineInput[],
 ) {
   const lines = await resolveLines(cart);
-  await assertStockAvailable(lines);
   const totals = calcInvoiceTotals(lines, { applyTax: true });
   const customer = await upsertWebCustomer(customerData);
   const userId = await webSalesUserId();
@@ -322,13 +321,14 @@ export async function createWebLocalSale(
     return { invoice: inv, order: wo };
   });
 
-  // Stock atómico (usa increment interno, seguro fuera de la transacción)
+  // Descuenta stock físico disponible (permite muebles bajo pedido con stock 0)
   await deductStock(
     lines.map((l) => ({
       productId: l.productId,
       quantity: l.quantity,
     })),
     { refType: "Invoice", refId: invoice.id },
+    { allowBackorder: true },
   );
 
   await notifyStaffNewWebOrder(order.id).catch(() => undefined);
@@ -341,7 +341,6 @@ export async function createWebOnlineSalePending(
   cart: CartLineInput[],
 ) {
   const lines = await resolveLines(cart);
-  await assertStockAvailable(lines);
   const totals = calcInvoiceTotals(lines, { applyTax: true });
   const customer = await upsertWebCustomer(customerData);
   const userId = await webSalesUserId();
@@ -414,11 +413,6 @@ export async function finalizeOnlinePaidOrder(webOrderId: string) {
 
   const inv = order.invoice;
 
-  // Verificar y deducir stock si la factura estaba en borrador
-  if (inv.status === "DRAFT") {
-    await assertStockAvailable(inv.items);
-  }
-
   // Pago + status updates en transacción atómica
   const result = await prisma.$transaction(async (tx) => {
     if (inv.status === "DRAFT") {
@@ -454,7 +448,7 @@ export async function finalizeOnlinePaidOrder(webOrderId: string) {
     });
   });
 
-  // Stock atómico fuera de la transacción DB (usa increment interno)
+  // Stock atómico fuera de la transacción DB (permite muebles bajo pedido con stock 0)
   if (inv.status === "DRAFT") {
     await deductStock(
       inv.items.map((l) => ({
@@ -462,6 +456,7 @@ export async function finalizeOnlinePaidOrder(webOrderId: string) {
         quantity: l.quantity,
       })),
       { refType: "Invoice", refId: inv.id },
+      { allowBackorder: true },
     );
   }
 

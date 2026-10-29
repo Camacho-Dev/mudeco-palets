@@ -25,6 +25,8 @@ function revalidatePay(invoiceId: string) {
   revalidatePath(`/facturas/${invoiceId}`);
   revalidatePath("/facturas");
   revalidatePath("/pagos");
+  revalidatePath("/pedidos-web");
+  revalidatePath("/mis-pedidos");
   revalidatePath("/");
   revalidatePath("/panel");
   revalidatePath("/finanzas");
@@ -86,6 +88,17 @@ export async function createPayment(invoiceId: string, fd: FormData) {
     data: { status },
   });
 
+  // Si la factura quedó saldada, actualizar automáticamente cualquier Pedido Web vinculado
+  if (status === "PAID") {
+    await prisma.webOrder.updateMany({
+      where: {
+        invoiceId,
+        status: { in: ["PENDING", "AWAITING_PAYMENT"] },
+      },
+      data: { status: "PAID" },
+    });
+  }
+
   await writeAudit({
     action: "PAYMENT",
     entity: "Payment",
@@ -131,6 +144,17 @@ export async function deletePayment(paymentId: string) {
     where: { id: payment.invoiceId },
     data: { status },
   });
+
+  // Si la factura dejó de estar pagada, revertir el estado del Pedido Web si estaba en PAID
+  if (status !== "PAID") {
+    await prisma.webOrder.updateMany({
+      where: {
+        invoiceId: payment.invoiceId,
+        status: "PAID",
+      },
+      data: { status: "PENDING" },
+    });
+  }
 
   await writeAudit({
     action: "DELETE",

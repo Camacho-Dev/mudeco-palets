@@ -6,8 +6,8 @@ import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { writeAudit } from "@/lib/audit";
 import { nextInvoiceNumber } from "@/lib/invoice-number";
-import { calcInvoiceTotals } from "@/lib/invoice-calc";
-import { restoreStock } from "@/lib/stock";
+import { calcInvoiceBalance, calcInvoiceTotals } from "@/lib/invoice-calc";
+import { deductStock, restoreInvoiceNetStock } from "@/lib/stock";
 
 const ALLOWED = new Set([
   "PENDING",
@@ -23,6 +23,59 @@ export async function updateWebOrderStatus(id: string, fd: FormData) {
   const session = await requireSession();
   const status = String(fd.get("status") || "").trim();
   if (!ALLOWED.has(status)) throw new Error("Estado inválido");
+
+  // Si seleccionan CANCELLED en el desplegable, usar cancelWebOrder para anular factura y restituir stock
+  if (status === "CANCELLED") {
+    await cancelWebOrder(id);
+    return;
+  }
+
+  const existing = await prisma.webOrder.findUnique({
+    where: { id },
+    include: {
+      invoice: {
+        include: { items: true, payments: true, creditNotes: true },
+      },
+    },
+  });
+  if (!existing) throw new Error("Pedido no encontrado");
+
+  // Si se marca como PAID y tiene factura abierta o en borrador, registrar el cobro y sincronizar factura
+  if (status === "PAID" && existing.invoice) {
+    const inv = existing.invoice;
+    if (inv.status === "DRAFT") {
+      await deductStock(
+        inv.items.map((l) => ({ productId: l.productId, quantity: l.quantity })),
+        { refType: "Invoice", refId: inv.id },
+        { allowBackorder: true },
+      );
+      await prisma.invoice.update({
+        where: { id: inv.id },
+        data: { status: "ISSUED", issueDate: new Date() },
+      });
+    }
+    if (["DRAFT", "ISSUED", "PARTIAL"].includes(inv.status)) {
+      const balance = calcInvoiceBalance(
+        inv.total,
+        inv.payments,
+        inv.creditNotes,
+      );
+      if (balance > 0.001) {
+        await prisma.payment.create({
+          data: {
+            invoiceId: inv.id,
+            amount: balance,
+            method: existing.paymentMode === "ONLINE" ? "CARD" : "TRANSFER",
+            notes: `Pago confirmado desde Pedido Web ${existing.number}`,
+          },
+        });
+      }
+      await prisma.invoice.update({
+        where: { id: inv.id },
+        data: { status: "PAID" },
+      });
+    }
+  }
 
   const order = await prisma.webOrder.update({
     where: { id },
@@ -41,6 +94,10 @@ export async function updateWebOrderStatus(id: string, fd: FormData) {
 
   revalidatePath("/pedidos-web");
   revalidatePath(`/pedidos-web/${id}`);
+  revalidatePath("/mis-pedidos");
+  revalidatePath("/facturas");
+  revalidatePath("/pagos");
+  revalidatePath("/finanzas");
   revalidatePath("/panel");
 }
 
@@ -103,9 +160,9 @@ export async function cancelWebOrder(id: string) {
   });
   if (!existing) throw new Error("Pedido no encontrado");
 
-  // Si tenía factura emitida/pagada y dedujo stock, anular la factura, eliminar pagos y devolver el inventario
+  // Si tenía factura emitida/pagada y dedujo stock, anular la factura, eliminar pagos y devolver el inventario neto
   if (existing.invoice && ["ISSUED", "PARTIAL", "PAID"].includes(existing.invoice.status)) {
-    await restoreStock(existing.invoice.items, {
+    await restoreInvoiceNetStock(existing.invoice.id, existing.invoice.items, {
       refType: "WebOrderCancel",
       refId: id,
     });

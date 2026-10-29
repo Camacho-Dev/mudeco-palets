@@ -209,7 +209,16 @@ export function InvoiceForm({
           <label className="label" htmlFor="ncfType">
             Serie NCF auto
           </label>
-          <select id="ncfType" name="ncfType" className="input" defaultValue="">
+          <select
+            id="ncfType"
+            name="ncfType"
+            className="input"
+            defaultValue={
+              initial?.ncf?.startsWith("PENDING:")
+                ? initial.ncf.slice("PENDING:".length)
+                : ""
+            }
+          >
             <option value="">Sin NCF automático</option>
             <option value="B01">B01 Crédito fiscal</option>
             <option value="B02">B02 Consumidor final</option>
@@ -222,7 +231,11 @@ export function InvoiceForm({
           <input
             id="ncf"
             name="ncf"
-            defaultValue={initial?.ncf || ""}
+            defaultValue={
+              initial?.ncf && !initial.ncf.startsWith("PENDING:")
+                ? initial.ncf
+                : ""
+            }
             className="input"
             placeholder="Deja vacío para usar serie"
           />

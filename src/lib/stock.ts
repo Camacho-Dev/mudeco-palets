@@ -122,13 +122,28 @@ export async function applyStockChange(input: {
 export async function deductStock(
   lines: { productId?: string | null; quantity: number }[],
   ref?: { refType: string; refId: string },
+  options?: { allowBackorder?: boolean },
 ) {
-  await assertStockAvailable(lines);
+  if (!options?.allowBackorder) {
+    await assertStockAvailable(lines);
+  }
   for (const line of lines) {
     if (!line.productId) continue;
+    let qtyToDeduct = line.quantity;
+    if (options?.allowBackorder) {
+      const product = await prisma.product.findUnique({
+        where: { id: line.productId },
+      });
+      if (!product) {
+        throw new Error("Hay un producto que ya no existe en el catálogo");
+      }
+      if (skipsStock(product.sku)) continue;
+      qtyToDeduct = Math.max(0, Math.min(product.stock, line.quantity));
+      if (qtyToDeduct <= 0) continue;
+    }
     await applyStockChange({
       productId: line.productId,
-      qtyDelta: -line.quantity,
+      qtyDelta: -qtyToDeduct,
       reason: "SALE",
       refType: ref?.refType,
       refId: ref?.refId,
@@ -141,7 +156,7 @@ export async function restoreStock(
   ref?: { refType: string; refId: string },
 ) {
   for (const line of lines) {
-    if (!line.productId) continue;
+    if (!line.productId || line.quantity <= 0) continue;
     await applyStockChange({
       productId: line.productId,
       qtyDelta: line.quantity,
@@ -151,4 +166,68 @@ export async function restoreStock(
       allowNegative: true,
     });
   }
+}
+
+/**
+ * Restituye al inventario únicamente las unidades que fueron efectivamente
+ * descontadas en una factura menos las que ya hayan sido devueltas por Notas de Crédito.
+ */
+export async function restoreInvoiceNetStock(
+  invoiceId: string,
+  fallbackItems: { productId?: string | null; quantity: number }[],
+  ref?: { refType: string; refId: string },
+) {
+  const [saleMovements, creditNotes] = await Promise.all([
+    prisma.stockMovement.findMany({
+      where: {
+        refType: "Invoice",
+        refId: invoiceId,
+        reason: "SALE",
+      },
+    }),
+    prisma.creditNote.findMany({
+      where: { invoiceId },
+      include: { items: true },
+    }),
+  ]);
+
+  const creditedByProduct = new Map<string, number>();
+  for (const cn of creditNotes) {
+    for (const item of cn.items) {
+      if (!item.productId) continue;
+      creditedByProduct.set(
+        item.productId,
+        (creditedByProduct.get(item.productId) || 0) + item.quantity,
+      );
+    }
+  }
+
+  const deductedByProduct = new Map<string, number>();
+  if (saleMovements.length > 0) {
+    for (const mov of saleMovements) {
+      deductedByProduct.set(
+        mov.productId,
+        (deductedByProduct.get(mov.productId) || 0) + Math.abs(mov.qty),
+      );
+    }
+  } else {
+    for (const item of fallbackItems) {
+      if (!item.productId) continue;
+      deductedByProduct.set(
+        item.productId,
+        (deductedByProduct.get(item.productId) || 0) + item.quantity,
+      );
+    }
+  }
+
+  const netLines: { productId: string; quantity: number }[] = [];
+  for (const [productId, deductedQty] of deductedByProduct.entries()) {
+    const alreadyCredited = creditedByProduct.get(productId) || 0;
+    const netToRestore = Math.max(0, deductedQty - alreadyCredited);
+    if (netToRestore > 0) {
+      netLines.push({ productId, quantity: netToRestore });
+    }
+  }
+
+  await restoreStock(netLines, ref ?? { refType: "Invoice", refId: invoiceId });
 }

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { calcInvoiceTotals, parseDeliveryFromForm, parseTaxFromForm } from "@/lib/invoice-calc";
 import { nextInvoiceNumber } from "@/lib/invoice-number";
-import { deductStock, restoreStock, assertStockAvailable } from "@/lib/stock";
+import { deductStock, restoreInvoiceNetStock, assertStockAvailable } from "@/lib/stock";
 import { writeAudit } from "@/lib/audit";
 import { assertCreditAllows } from "@/lib/credit";
 import { allocateNcf } from "@/lib/ncf";
@@ -61,9 +61,10 @@ function revalidateSales(invoiceId?: string) {
 
 async function resolveNcf(fd: FormData, issued: boolean) {
   const manual = String(fd.get("ncf") || "") || null;
-  if (manual) return manual;
+  if (manual && !manual.startsWith("PENDING:")) return manual;
   const ncfType = String(fd.get("ncfType") || "") || null;
   if (issued && ncfType) return allocateNcf(ncfType);
+  if (!issued && ncfType) return `PENDING:${ncfType}`;
   return null;
 }
 
@@ -306,16 +307,23 @@ export async function issueInvoice(id: string) {
   if (!inv || inv.status !== "DRAFT") throw new Error("No se puede emitir");
   await assertStockAvailable(inv.items);
   await assertCreditAllows(inv.customerId, inv.total);
+
+  let allocatedNcf = inv.ncf;
+  if (inv.ncf?.startsWith("PENDING:")) {
+    const pendingType = inv.ncf.slice("PENDING:".length);
+    allocatedNcf = pendingType ? await allocateNcf(pendingType) : null;
+  }
+
   await prisma.invoice.update({
     where: { id },
-    data: { status: "ISSUED", issueDate: new Date() },
+    data: { status: "ISSUED", issueDate: new Date(), ncf: allocatedNcf },
   });
   try {
     await deductStock(inv.items, { refType: "Invoice", refId: id });
   } catch (e) {
     await prisma.invoice.update({
       where: { id },
-      data: { status: "DRAFT", issueDate: inv.issueDate },
+      data: { status: "DRAFT", issueDate: inv.issueDate, ncf: inv.ncf },
     });
     throw e;
   }
@@ -342,7 +350,7 @@ export async function voidInvoice(id: string) {
     throw new Error("No se puede anular");
   }
   if (["ISSUED", "PARTIAL", "PAID"].includes(inv.status)) {
-    await restoreStock(inv.items, { refType: "Invoice", refId: id });
+    await restoreInvoiceNetStock(id, inv.items, { refType: "Invoice", refId: id });
   }
 
   const paid = inv.payments.reduce((s, p) => s + p.amount, 0);
@@ -367,5 +375,6 @@ export async function voidInvoice(id: string) {
   });
   revalidateSales(id);
   revalidatePath("/pedidos-web");
+  revalidatePath("/mis-pedidos");
   redirect(`/facturas/${id}`);
 }
