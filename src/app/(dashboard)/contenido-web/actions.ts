@@ -128,7 +128,7 @@ export async function createProductQuick(payload: {
   imageUrl?: string;
   description?: string;
 }) {
-  await requireAdmin();
+  const session = await requireAdmin();
 
   const generatedSku = `MUD-${Date.now().toString().slice(-5)}`;
   const product = await prisma.product.create({
@@ -145,6 +145,17 @@ export async function createProductQuick(payload: {
       taxRate: 0.18,
       cost: 0,
       unit: "UND",
+    },
+  });
+
+  await prisma.stockMovement.create({
+    data: {
+      productId: product.id,
+      qty: product.stock,
+      balance: product.stock,
+      reason: "ADJUST",
+      note: "Stock inicial (creado desde Fotos de la Web)",
+      userId: session.user.id,
     },
   });
 

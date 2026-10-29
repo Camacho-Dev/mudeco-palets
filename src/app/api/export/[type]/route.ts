@@ -7,7 +7,6 @@ function csvEscape(v: unknown) {
   if (v == null) return "";
   let s = String(v);
   // Mitigar CSV Formula Injection (CWE-1236)
-  // Previene ejecución de fórmulas en Excel/Sheets al anteponer comilla simple si inicia con =, +, -, @, \t, \r
   if (/^[=+\-@\t\r]/.test(s)) {
     s = `'${s}`;
   }
@@ -22,6 +21,11 @@ function toCsv(rows: Record<string, unknown>[]) {
     keys.join(","),
     ...rows.map((r) => keys.map((k) => csvEscape(r[k])).join(",")),
   ].join("\n");
+}
+
+function cleanNcfDisplay(ncf: string | null | undefined, fallback: string) {
+  if (!ncf || ncf.startsWith("PENDING:")) return fallback;
+  return ncf;
 }
 
 export async function GET(
@@ -43,7 +47,7 @@ export async function GET(
     });
     rows = data.map((i) => ({
       number: i.number,
-      ncf: i.ncf,
+      ncf: i.ncf && !i.ncf.startsWith("PENDING:") ? i.ncf : "",
       status: i.status,
       customer: i.customer.name,
       issueDate: i.issueDate.toISOString(),
@@ -130,13 +134,20 @@ export async function GET(
       total: q.total,
     }));
   } else if (type === "dgii-607") {
-    // Formato 607 DGII: Reporte mensual de ventas y operaciones
-    const data = await prisma.invoice.findMany({
-      where: { status: { in: ["ISSUED", "PARTIAL", "PAID"] } },
-      include: { customer: true },
-      orderBy: { issueDate: "desc" },
-    });
-    rows = data.map((i) => {
+    // Formato 607 DGII: Reporte mensual de ventas y operaciones + Notas de Crédito (B04)
+    const [invoices, creditNotes] = await Promise.all([
+      prisma.invoice.findMany({
+        where: { status: { in: ["ISSUED", "PARTIAL", "PAID"] } },
+        include: { customer: true },
+        orderBy: { issueDate: "desc" },
+      }),
+      prisma.creditNote.findMany({
+        include: { customer: true, invoice: true },
+        orderBy: { issueDate: "desc" },
+      }),
+    ]);
+
+    const invoiceRows = invoices.map((i) => {
       const cleanTax = (i.customer.taxId || "").replace(/\D/g, "");
       const idType = cleanTax.length === 9 ? "1" : cleanTax.length === 11 ? "2" : "3";
       const y = i.issueDate.getFullYear();
@@ -146,7 +157,7 @@ export async function GET(
       return {
         RNC_CEDULA: cleanTax,
         TIPO_IDENTIFICACION: idType,
-        NUMERO_COMPROBANTE_FISCAL: i.ncf || i.number,
+        NUMERO_COMPROBANTE_FISCAL: cleanNcfDisplay(i.ncf, i.number),
         NCF_MODIFICADO: "",
         TIPO_INGRESO: "01",
         FECHA_COMPROBANTE: `${y}${m}${d}`,
@@ -164,8 +175,40 @@ export async function GET(
         ESTADO: i.status,
       };
     });
+
+    const creditNoteRows = creditNotes.map((cn) => {
+      const cleanTax = (cn.customer.taxId || "").replace(/\D/g, "");
+      const idType = cleanTax.length === 9 ? "1" : cleanTax.length === 11 ? "2" : "3";
+      const y = cn.issueDate.getFullYear();
+      const m = String(cn.issueDate.getMonth() + 1).padStart(2, "0");
+      const d = String(cn.issueDate.getDate()).padStart(2, "0");
+      const b04Match = cn.reason.match(/NCF:\s*([A-Z0-9]+)/i);
+      const cnNcf = b04Match ? b04Match[1] : cn.number;
+
+      return {
+        RNC_CEDULA: cleanTax,
+        TIPO_IDENTIFICACION: idType,
+        NUMERO_COMPROBANTE_FISCAL: cnNcf,
+        NCF_MODIFICADO: cleanNcfDisplay(cn.invoice.ncf, cn.invoice.number),
+        TIPO_INGRESO: "01",
+        FECHA_COMPROBANTE: `${y}${m}${d}`,
+        FECHA_RETENCION: "",
+        MONTO_FACTURADO: cn.subtotal,
+        ITBIS_FACTURADO: cn.tax,
+        ITBIS_RETENIDO_POR_TERCEROS: 0,
+        ITBIS_PERCIBIDO: 0,
+        RETENCION_RENTA_POR_TERCEROS: 0,
+        ISR_PERCIBIDO: 0,
+        IMPUESTO_SELECTIVO_AL_CONSUMO: 0,
+        OTROS_IMPUESTOS_TASAS: 0,
+        MONTO_PROPINA_LEGAL: 0,
+        TOTAL_FACTURADO: cn.total,
+        ESTADO: "CREDIT_NOTE",
+      };
+    });
+
+    rows = [...invoiceRows, ...creditNoteRows];
   } else if (type === "dgii-606") {
-    // Formato 606 DGII: Reporte mensual de compras de bienes y servicios
     const data = await prisma.purchase.findMany({
       where: { status: "RECEIVED" },
       include: { supplier: true },
@@ -182,7 +225,7 @@ export async function GET(
       return {
         RNC_CEDULA: cleanTax,
         TIPO_IDENTIFICACION: idType,
-        TIPO_BIENES_SERVICIOS_COMPRADOS: "09", // Compras que forman parte del costo de venta
+        TIPO_BIENES_SERVICIOS_COMPRADOS: "09",
         NUMERO_COMPROBANTE_FISCAL: p.number,
         NCF_MODIFICADO: "",
         FECHA_COMPROBANTE: `${y}${m}${d}`,

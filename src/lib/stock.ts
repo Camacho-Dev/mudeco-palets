@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { invalidateScoredProductsCache } from "@/lib/recommendations";
 
 export type StockReason =
   | "SALE"
@@ -116,6 +117,7 @@ export async function applyStockChange(input: {
     return balance;
   });
 
+  invalidateScoredProductsCache();
   return updated;
 }
 

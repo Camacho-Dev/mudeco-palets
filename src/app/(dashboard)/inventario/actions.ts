@@ -6,6 +6,7 @@ import { writeAudit } from "@/lib/audit";
 import { canAdjustStock } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { invalidateScoredProductsCache } from "@/lib/recommendations";
 
 const adjustSchema = z.object({
   productId: z.string().min(1),
@@ -90,6 +91,7 @@ export async function quickStockAdjust(fd: FormData) {
     },
   });
 
+  invalidateScoredProductsCache();
   revalidatePath("/inventario");
   revalidatePath("/productos");
   revalidatePath("/vender");

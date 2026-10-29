@@ -3,7 +3,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
-import { updateSupplier } from "../actions";
+import { ConfirmForm } from "@/components/confirm-form";
+import { updateSupplier, deleteSupplier } from "../actions";
 import { formatCurrency, formatDate } from "@/lib/format";
 import {
   Truck,
@@ -208,6 +209,19 @@ export default async function ProveedorDetailPage({
               </button>
             </div>
           </form>
+
+          {totalPurchases === 0 ? (
+            <div className="mt-4 border-t border-stone-200 pt-4">
+              <ConfirmForm
+                action={deleteSupplier.bind(null, id)}
+                message="¿Eliminar este proveedor? Esta acción no se puede deshacer."
+              >
+                <button type="submit" className="btn btn-danger w-full text-xs">
+                  Eliminar proveedor
+                </button>
+              </ConfirmForm>
+            </div>
+          ) : null}
         </div>
 
         {/* Right: Purchase Orders History */}

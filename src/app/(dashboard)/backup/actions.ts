@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import { writeAudit } from "@/lib/audit";
 import { revalidatePath } from "next/cache";
+import { invalidateScoredProductsCache } from "@/lib/recommendations";
+import { invalidateStoreCompanyCache } from "@/lib/store";
 
 type BackupPayload = {
   customers?: Array<{
@@ -63,7 +65,7 @@ type BackupPayload = {
 };
 
 export async function restoreBackup(fd: FormData): Promise<{ ok: boolean; message: string }> {
-  await requireAdmin();
+  const session = await requireAdmin();
   const file = fd.get("backupFile") as File | null;
   if (!file || file.size === 0) {
     throw new Error("Selecciona un archivo JSON de respaldo");
@@ -104,6 +106,7 @@ export async function restoreBackup(fd: FormData): Promise<{ ok: boolean; messag
         update: {
           name: c.name,
           taxId: c.taxId || null,
+          email: c.email || null,
           phone: c.phone || null,
           address: c.address || null,
           creditLimit: c.creditLimit || 0,
@@ -130,6 +133,7 @@ export async function restoreBackup(fd: FormData): Promise<{ ok: boolean; messag
         update: {
           name: s.name,
           taxId: s.taxId || null,
+          email: s.email || null,
           phone: s.phone || null,
           address: s.address || null,
         },
@@ -138,10 +142,13 @@ export async function restoreBackup(fd: FormData): Promise<{ ok: boolean; messag
     }
   }
 
-  // Restaurar catálogo de productos
+  // Restaurar catálogo de productos y sincronizar kardex si cambia el stock
   if (Array.isArray(data.products)) {
     for (const p of data.products) {
       if (!p.id || !p.name) continue;
+      const before = await prisma.product.findUnique({ where: { id: p.id } });
+      const nextStock = Number(p.stock) || 0;
+
       await prisma.product.upsert({
         where: { id: p.id },
         create: {
@@ -153,9 +160,9 @@ export async function restoreBackup(fd: FormData): Promise<{ ok: boolean; messag
           category: p.category || "Muebles",
           price: Number(p.price) || 0,
           cost: Number(p.cost) || 0,
-          taxRate: Number(p.taxRate) || 0.18,
+          taxRate: Number(p.taxRate) ?? 0.18,
           unit: p.unit || "UND",
-          stock: Number(p.stock) || 0,
+          stock: nextStock,
           minStock: Number(p.minStock) || 2,
           active: p.active ?? true,
           imageUrl: p.imageUrl || null,
@@ -164,14 +171,41 @@ export async function restoreBackup(fd: FormData): Promise<{ ok: boolean; messag
           depthCm: p.depthCm || null,
         },
         update: {
+          sku: p.sku || null,
           name: p.name,
           description: p.description || null,
+          kind: p.kind || "FINISHED",
           price: Number(p.price) || 0,
           cost: Number(p.cost) || 0,
+          taxRate: Number(p.taxRate) ?? 0.18,
           unit: p.unit || "UND",
           category: p.category || "Muebles",
+          stock: nextStock,
+          minStock: Number(p.minStock) || 2,
+          active: p.active ?? true,
+          imageUrl: p.imageUrl || null,
+          widthCm: p.widthCm || null,
+          heightCm: p.heightCm || null,
+          depthCm: p.depthCm || null,
         },
       });
+
+      if (p.sku !== "CUS-001") {
+        const prevStock = before ? before.stock : 0;
+        const delta = nextStock - prevStock;
+        if (delta !== 0) {
+          await prisma.stockMovement.create({
+            data: {
+              productId: p.id,
+              qty: delta,
+              balance: nextStock,
+              reason: "ADJUST",
+              note: "Restauración de respaldo JSON",
+              userId: session.user.id,
+            },
+          });
+        }
+      }
       restoredProducts++;
     }
   }
@@ -235,11 +269,16 @@ export async function restoreBackup(fd: FormData): Promise<{ ok: boolean; messag
     summary: `Restauración: ${restoredProducts} productos, ${restoredCustomers} clientes, ${restoredSuppliers} proveedores, ${restoredNcf} series NCF`,
   });
 
+  invalidateScoredProductsCache();
+  invalidateStoreCompanyCache();
   revalidatePath("/clientes");
   revalidatePath("/productos");
+  revalidatePath("/inventario");
   revalidatePath("/proveedores");
   revalidatePath("/configuracion");
   revalidatePath("/panel");
+  revalidatePath("/");
+  revalidatePath("/catalogo");
 
   return {
     ok: true,

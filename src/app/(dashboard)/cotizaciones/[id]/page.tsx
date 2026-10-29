@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { formatCurrency, formatDate } from "@/lib/format";
-import { convertQuoteToInvoice } from "../actions";
+import { convertQuoteToInvoice, rejectQuote } from "../actions";
 import { ConfirmForm } from "@/components/confirm-form";
 import { notFound } from "next/navigation";
 
@@ -62,19 +62,33 @@ export default async function CotizacionDetailPage({
               total={quote.total}
               validUntil={quote.validUntil}
             />
-            {quote.status !== "CONVERTED" ? (
-              <ConfirmForm
-                action={convertQuoteToInvoice.bind(null, quote.id)}
-                message="¿Convertir esta cotización en factura borrador?"
-              >
-                <button type="submit" className="btn btn-primary">
-                  Convertir a factura
-                </button>
-              </ConfirmForm>
-            ) : (
+            {quote.status !== "CONVERTED" && quote.status !== "REJECTED" ? (
+              <>
+                <ConfirmForm
+                  action={convertQuoteToInvoice.bind(null, quote.id)}
+                  message="¿Convertir esta cotización en factura borrador?"
+                >
+                  <button type="submit" className="btn btn-primary">
+                    Convertir a factura
+                  </button>
+                </ConfirmForm>
+                <ConfirmForm
+                  action={rejectQuote.bind(null, quote.id)}
+                  message="¿Archivar/rechazar esta cotización?"
+                >
+                  <button type="submit" className="btn btn-danger">
+                    Rechazar
+                  </button>
+                </ConfirmForm>
+              </>
+            ) : quote.status === "CONVERTED" ? (
               <Link href="/facturas" className="btn btn-ghost text-xs">
                 Ya convertida
               </Link>
+            ) : (
+              <span className="btn btn-ghost text-xs text-rose-700">
+                Rechazada
+              </span>
             )}
           </div>
         }

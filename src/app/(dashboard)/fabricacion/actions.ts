@@ -55,21 +55,33 @@ export async function completeWorkOrder(id: string) {
     where: { id },
     include: { items: true, product: true },
   });
-  if (!wo || wo.status === "DONE") throw new Error("No se puede completar");
+  if (!wo || wo.status !== "PENDING") {
+    throw new Error("Solo se pueden completar órdenes de fabricación pendientes");
+  }
 
-  // 1. Verificar disponibilidad de TODOS los materiales antes de modificar nada
+  // 1. Agrupar cantidades por material para verificar disponibilidad real incluso si un material se repite
+  const neededByMaterial = new Map<string, number>();
   for (const item of wo.items) {
+    neededByMaterial.set(
+      item.productId,
+      (neededByMaterial.get(item.productId) || 0) + item.quantity,
+    );
+  }
+
+  let totalMaterialCost = 0;
+  for (const [matId, totalRequired] of neededByMaterial.entries()) {
     const mat = await prisma.product.findUnique({
-      where: { id: item.productId },
+      where: { id: matId },
     });
     if (!mat) {
       throw new Error("Hay un material en la orden que ya no existe");
     }
-    if (mat.stock + 0.0001 < item.quantity) {
+    if (mat.stock + 0.0001 < totalRequired) {
       throw new Error(
-        `Stock insuficiente de "${mat.name}": se requieren ${item.quantity} ${mat.unit}, disponibles: ${mat.stock}`,
+        `Stock insuficiente de "${mat.name}": se requieren ${totalRequired} ${mat.unit}, disponibles: ${mat.stock}`,
       );
     }
+    totalMaterialCost += (mat.cost || 0) * totalRequired;
   }
 
   // 2. Descontar materiales con mecanismo de rollback si ocurre un error inesperado
@@ -97,12 +109,21 @@ export async function completeWorkOrder(id: string) {
       allowNegative: true,
     });
 
+    // Si el mueble terminado tenía costo 0 y los materiales tenían costo, actualizar su costo unitario de fabricación
+    if (wo.product.cost <= 0 && totalMaterialCost > 0 && wo.quantity > 0) {
+      const unitManufacturedCost =
+        Math.round((totalMaterialCost / wo.quantity) * 100) / 100;
+      await prisma.product.update({
+        where: { id: wo.productId },
+        data: { cost: unitManufacturedCost },
+      });
+    }
+
     await prisma.workOrder.update({
       where: { id },
       data: { status: "DONE", completedAt: new Date() },
     });
   } catch (err) {
-    // Rollback de cualquier insumo deducido
     for (const d of deducted) {
       await applyStockChange({
         productId: d.productId,

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
+import { isAdmin } from "@/lib/rbac";
 import { PageHeader } from "@/components/page-header";
 import { formatCurrency } from "@/lib/format";
 import { DashboardSearch } from "@/components/dashboard-search";
@@ -10,7 +11,8 @@ export default async function BuscarPage({
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
-  await requireSession();
+  const session = await requireSession();
+  const admin = isAdmin(session.user.role);
   const { q } = await searchParams;
   const query = (q || "").trim();
 
@@ -81,28 +83,32 @@ export default async function BuscarPage({
       },
       take: 20,
     }),
-    prisma.supplier.findMany({
-      where: {
-        OR: [
-          { name: { contains: query, mode: "insensitive" } },
-          { taxId: { contains: query, mode: "insensitive" } },
-          { phone: { contains: query, mode: "insensitive" } },
-          { email: { contains: query, mode: "insensitive" } },
-        ],
-      },
-      take: 20,
-    }),
-    prisma.workOrder.findMany({
-      where: {
-        OR: [
-          { number: { contains: query, mode: "insensitive" } },
-          { notes: { contains: query, mode: "insensitive" } },
-          { product: { name: { contains: query, mode: "insensitive" } } },
-        ],
-      },
-      include: { product: true },
-      take: 20,
-    }),
+    admin
+      ? prisma.supplier.findMany({
+          where: {
+            OR: [
+              { name: { contains: query, mode: "insensitive" } },
+              { taxId: { contains: query, mode: "insensitive" } },
+              { phone: { contains: query, mode: "insensitive" } },
+              { email: { contains: query, mode: "insensitive" } },
+            ],
+          },
+          take: 20,
+        })
+      : Promise.resolve([]),
+    admin
+      ? prisma.workOrder.findMany({
+          where: {
+            OR: [
+              { number: { contains: query, mode: "insensitive" } },
+              { notes: { contains: query, mode: "insensitive" } },
+              { product: { name: { contains: query, mode: "insensitive" } } },
+            ],
+          },
+          include: { product: true },
+          take: 20,
+        })
+      : Promise.resolve([]),
   ]);
 
   return (
@@ -211,53 +217,57 @@ export default async function BuscarPage({
           </ul>
         </div>
 
-        {/* Proveedores */}
-        <div className="card p-5 space-y-3">
-          <h2 className="font-semibold text-base text-[var(--wood-950)] border-b pb-2">
-            Proveedores de Insumos ({suppliers.length})
-          </h2>
-          <ul className="space-y-2 text-sm">
-            {suppliers.length === 0 ? (
-              <li className="text-[var(--muted)] text-xs">Sin coincidencias</li>
-            ) : null}
-            {suppliers.map((s) => (
-              <li key={s.id} className="flex justify-between items-center border-b border-slate-100 pb-1.5 last:border-0">
-                <div>
-                  <Link href={`/proveedores/${s.id}`} className="font-medium hover:underline text-[var(--wood-800)]">
-                    {s.name}
-                  </Link>
-                  {s.phone ? <span className="ml-2 text-xs text-slate-500">· Tel: {s.phone}</span> : null}
-                </div>
-                {s.taxId ? <span className="text-xs text-slate-500">RNC: {s.taxId}</span> : null}
-              </li>
-            ))}
-          </ul>
-        </div>
+        {admin ? (
+          <>
+            {/* Proveedores */}
+            <div className="card p-5 space-y-3">
+              <h2 className="font-semibold text-base text-[var(--wood-950)] border-b pb-2">
+                Proveedores de Insumos ({suppliers.length})
+              </h2>
+              <ul className="space-y-2 text-sm">
+                {suppliers.length === 0 ? (
+                  <li className="text-[var(--muted)] text-xs">Sin coincidencias</li>
+                ) : null}
+                {suppliers.map((s) => (
+                  <li key={s.id} className="flex justify-between items-center border-b border-slate-100 pb-1.5 last:border-0">
+                    <div>
+                      <Link href={`/proveedores/${s.id}`} className="font-medium hover:underline text-[var(--wood-800)]">
+                        {s.name}
+                      </Link>
+                      {s.phone ? <span className="ml-2 text-xs text-slate-500">· Tel: {s.phone}</span> : null}
+                    </div>
+                    {s.taxId ? <span className="text-xs text-slate-500">RNC: {s.taxId}</span> : null}
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-        {/* Órdenes de Fabricación */}
-        <div className="card p-5 space-y-3">
-          <h2 className="font-semibold text-base text-[var(--wood-950)] border-b pb-2">
-            Órdenes de Taller / Fabricación ({workOrders.length})
-          </h2>
-          <ul className="space-y-2 text-sm">
-            {workOrders.length === 0 ? (
-              <li className="text-[var(--muted)] text-xs">Sin coincidencias</li>
-            ) : null}
-            {workOrders.map((wo) => (
-              <li key={wo.id} className="flex justify-between items-center border-b border-slate-100 pb-1.5 last:border-0">
-                <div>
-                  <Link href="/fabricacion" className="font-medium hover:underline text-[var(--wood-800)]">
-                    {wo.number}
-                  </Link>
-                  <span className="ml-2 text-xs text-slate-500">· {wo.product.name} (Cant: {wo.quantity})</span>
-                </div>
-                <span className="text-xs rounded-full bg-stone-100 px-2 py-0.5 font-semibold text-stone-700">
-                  {wo.status}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
+            {/* Órdenes de Fabricación */}
+            <div className="card p-5 space-y-3">
+              <h2 className="font-semibold text-base text-[var(--wood-950)] border-b pb-2">
+                Órdenes de Taller / Fabricación ({workOrders.length})
+              </h2>
+              <ul className="space-y-2 text-sm">
+                {workOrders.length === 0 ? (
+                  <li className="text-[var(--muted)] text-xs">Sin coincidencias</li>
+                ) : null}
+                {workOrders.map((wo) => (
+                  <li key={wo.id} className="flex justify-between items-center border-b border-slate-100 pb-1.5 last:border-0">
+                    <div>
+                      <Link href="/fabricacion" className="font-medium hover:underline text-[var(--wood-800)]">
+                        {wo.number}
+                      </Link>
+                      <span className="ml-2 text-xs text-slate-500">· {wo.product.name} (Cant: {wo.quantity})</span>
+                    </div>
+                    <span className="text-xs rounded-full bg-stone-100 px-2 py-0.5 font-semibold text-stone-700">
+                      {wo.status}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
+        ) : null}
       </div>
     </div>
   );

@@ -28,10 +28,8 @@ function parseLines(fd: FormData) {
     .map((description, i) => {
       const productId = productIds[i] || undefined;
       const desc = description.trim();
-      // Si eligió producto sin texto, usa el nombre del option vía description vacía + productId
       if (!desc && !productId) return null;
       if (!desc && productId) {
-        // description requerida: el form debe enviar texto; fallback corto
         return lineSchema.parse({
           description: "Ítem",
           quantity: quantities[i] || 1,
@@ -61,7 +59,6 @@ export async function createQuote(fd: FormData) {
   const validUntil = parseOptionalDate(String(fd.get("validUntil") || ""));
   const lines = parseLines(fd);
 
-  // Completar descripción desde catálogo si hace falta
   const productIds = lines.map((l) => l.productId).filter(Boolean) as string[];
   const products =
     productIds.length > 0
@@ -122,9 +119,9 @@ export async function convertQuoteToInvoice(id: string) {
   const session = await requireSession();
   const quote = await prisma.quote.findUnique({
     where: { id },
-    include: { items: true },
+    include: { items: true, webOrders: true },
   });
-  if (!quote || quote.status === "CONVERTED") {
+  if (!quote || quote.status === "CONVERTED" || quote.status === "REJECTED") {
     throw new Error("Cotización no convertible");
   }
 
@@ -133,6 +130,7 @@ export async function convertQuoteToInvoice(id: string) {
     data: {
       number,
       status: "DRAFT",
+      source: quote.source || "POS",
       customerId: quote.customerId,
       userId: session.user.id,
       quoteId: quote.id,
@@ -158,6 +156,16 @@ export async function convertQuoteToInvoice(id: string) {
     data: { status: "CONVERTED" },
   });
 
+  // Si la cotización estaba vinculada a algún Pedido Web, enlazar la nueva factura
+  if (quote.webOrders.length > 0) {
+    await prisma.webOrder.updateMany({
+      where: { quoteId: quote.id },
+      data: { invoiceId: invoice.id, status: "DONE" },
+    });
+    revalidatePath("/pedidos-web");
+    revalidatePath("/mis-pedidos");
+  }
+
   await writeAudit({
     action: "CONVERT",
     entity: "Quote",
@@ -165,6 +173,45 @@ export async function convertQuoteToInvoice(id: string) {
     summary: `Cotización ${quote.number} → factura ${invoice.number}`,
   });
   revalidatePath("/cotizaciones");
+  revalidatePath(`/cotizaciones/${id}`);
   revalidatePath("/facturas");
+  revalidatePath("/panel");
   redirect(`/facturas/${invoice.id}/editar`);
+}
+
+export async function rejectQuote(id: string) {
+  await requireSession();
+  const quote = await prisma.quote.findUnique({
+    where: { id },
+    include: { webOrders: true },
+  });
+  if (!quote || quote.status === "CONVERTED") {
+    throw new Error("No se puede rechazar una cotización ya convertida en factura");
+  }
+
+  await prisma.quote.update({
+    where: { id },
+    data: { status: "REJECTED" },
+  });
+
+  if (quote.webOrders.length > 0) {
+    await prisma.webOrder.updateMany({
+      where: {
+        quoteId: quote.id,
+        invoiceId: null,
+      },
+      data: { status: "CANCELLED" },
+    });
+    revalidatePath("/pedidos-web");
+    revalidatePath("/mis-pedidos");
+  }
+
+  await writeAudit({
+    action: "REJECT",
+    entity: "Quote",
+    entityId: id,
+    summary: `Cotización rechazada/archivada: ${quote.number}`,
+  });
+  revalidatePath("/cotizaciones");
+  revalidatePath(`/cotizaciones/${id}`);
 }
