@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import type { OrderReceipt } from "@/lib/order-receipt";
 import { uploadOrderReceiptAction } from "@/app/(store)/pedido/[id]/actions";
@@ -36,6 +37,7 @@ export function ReceiptUploader({
   initialReceipt,
   whatsAppUrl,
 }: ReceiptUploaderProps) {
+  const router = useRouter();
   const [receipt, setReceipt] = useState<OrderReceipt | null>(initialReceipt);
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -108,6 +110,7 @@ export function ReceiptUploader({
         setSelectedFile(null);
         setLocalPreview(null);
         setShowReplace(false);
+        router.refresh();
       } else {
         setError(res.error || "No se pudo subir el comprobante. Intenta nuevamente.");
       }
@@ -147,12 +150,12 @@ export function ReceiptUploader({
         </div>
 
         {receipt && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3.5 py-1 text-xs font-bold text-emerald-900 border border-emerald-300 shadow-2xs">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3.5 py-1 text-xs font-bold text-amber-900 border border-amber-300 shadow-2xs">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-600" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-600" />
             </span>
-            Comprobante registrado
+            En proceso de validación
           </span>
         )}
       </div>
@@ -225,9 +228,9 @@ export function ReceiptUploader({
 
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-gradient-to-r from-[#fbf7f2] to-amber-50/40 border border-[#e5d9c7] p-3.5 text-xs text-[var(--wood-900)]">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-2 w-2 rounded-full bg-[#b0894f] animate-pulse" />
+              <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
               <span>
-                Comprobante guardado en tu orden. También puedes reenviarlo al taller por WhatsApp:
+                Comprobante en revisión bancaria (validando ingreso en cuenta). También puedes avisar por WhatsApp:
               </span>
             </div>
             <a
@@ -309,10 +312,10 @@ export function ReceiptUploader({
             <div className="text-xs text-[var(--muted)]">
               {selectedFile ? (
                 <span className="font-semibold text-[var(--wood-900)]">
-                  Listo para cargar · {formatFileSize(selectedFile.size)}
+                  Listo para enviar · {formatFileSize(selectedFile.size)}
                 </span>
               ) : (
-                <span>Una vez adjuntado, se procesará la verificación inmediatamente.</span>
+                <span>Una vez adjuntado, nuestro equipo validará que el dinero haya ingresado a la cuenta correspondiente.</span>
               )}
             </div>
 
@@ -342,12 +345,12 @@ export function ReceiptUploader({
                 {isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Guardando comprobante...</span>
+                    <span>Enviando comprobante...</span>
                   </>
                 ) : (
                   <>
                     <UploadCloud className="h-4 w-4" />
-                    <span>Confirmar y Guardar Comprobante</span>
+                    <span>Enviar Comprobante para Verificación</span>
                   </>
                 )}
               </button>

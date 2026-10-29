@@ -165,6 +165,9 @@ export async function uploadOrderReceiptAction(orderId: string, formData: FormDa
       where: { id: orderId },
       data: {
         notes: updatedNotes,
+        ...(order.status === "PENDING" || order.status === "AWAITING_PAYMENT"
+          ? { status: "IN_PROGRESS" }
+          : {}),
       },
     });
 

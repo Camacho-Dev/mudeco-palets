@@ -54,6 +54,26 @@ export async function GET(
     return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
 
+  // Si quien descarga es un cliente (no Staff), exigir que el pago de la factura ya esté confirmado
+  if (!isStaff(session.user.role) && invoice.status !== "PAID") {
+    const paidOrder = await prisma.webOrder.findFirst({
+      where: {
+        invoiceId: id,
+        status: { in: ["PAID", "DONE"] },
+      },
+      select: { id: true },
+    });
+    if (!paidOrder) {
+      return NextResponse.json(
+        {
+          error:
+            "La factura estará disponible para descarga una vez que el taller valide y confirme tu pago.",
+        },
+        { status: 403 },
+      );
+    }
+  }
+
   const company = (await prisma.companySettings.findUnique({
     where: { id: "default" },
   })) ?? {

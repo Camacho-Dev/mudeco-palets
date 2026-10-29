@@ -98,3 +98,4 @@ export function BankAccountsGrid({ banks }: { banks: BankInfo[] }) {
     </div>
   );
 }
+

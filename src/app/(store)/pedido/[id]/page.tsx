@@ -15,6 +15,7 @@ import { extractReceiptFromNotes } from "@/lib/order-receipt";
 import { ReceiptUploader, BankAccountCard } from "@/components/store/receipt-uploader";
 import { AnimatedSuccessCheck } from "@/components/store/animated-success-check";
 import { OrderReviewPrompt } from "@/components/store/order-review-prompt";
+import { OrderTimelineTracker } from "@/components/store/order-timeline-tracker";
 import {
   Building2,
   MapPin,
@@ -26,6 +27,7 @@ import {
   Sparkles,
   Phone,
   MessageSquare,
+  Clock,
 } from "lucide-react";
 
 export const metadata = { title: "Confirmación de Pedido · Mudeco Palets" };
@@ -125,7 +127,10 @@ export default async function PedidoPage({
   );
   const isContact =
     order.serviceKind === "CONTACT" || Boolean(order.notes?.includes("[CONSULTA]"));
-  const isPaid = order.status === "PAID" || ok === "online";
+  const isPaid =
+    order.status === "PAID" ||
+    order.status === "DONE" ||
+    order.invoice?.status === "PAID";
   const receipt = extractReceiptFromNotes(order.notes);
   const cleanNotes = (order.notes || "")
     .replace(/\[COMPROBANTE_PAGO:\s*\{[\s\S]*?\}\]/g, "")
@@ -143,26 +148,30 @@ export default async function PedidoPage({
     `Hola, adjunto fotos de mi solicitud ${order.number}.`,
   );
 
-  // Título y encabezado principal
+  // Título y encabezado principal según validación real del pago
   const mainTitle = isPaid
-    ? "¡Pago realizado con éxito!"
+    ? "¡Pago confirmado con éxito!"
     : isTransfer
-      ? "¡Pedido realizado con éxito!"
+      ? receipt
+        ? "Pedido en proceso de verificación"
+        : "¡Pedido registrado · En proceso!"
       : order.type === "QUOTE"
         ? isContact
-          ? "¡Mensaje recibido con éxito!"
-          : "¡Cotización enviada con éxito!"
-        : "¡Pedido realizado con éxito!";
+          ? "¡Mensaje recibido · En proceso!"
+          : "¡Cotización en proceso!"
+        : "¡Pedido registrado · En proceso!";
 
   const mainSubtitle = isPaid
-    ? "Tu pago ha sido procesado y acreditado con éxito. Hemos generado tu orden de fabricación y factura correspondiente."
+    ? "Tu pago ha sido validado y acreditado en cuenta. Hemos confirmado tu orden de fabricación y habilitado tu factura oficial."
     : isTransfer
-      ? "Tu pedido ha sido registrado en nuestro taller. Por favor realiza tu transferencia y sube el comprobante a continuación para su verificación inmediata."
+      ? receipt
+        ? "Hemos recibido tu comprobante bancario. Nuestro equipo está validando que el dinero haya ingresado a la cuenta correspondiente para confirmar tu pedido y habilitar tu factura."
+        : "Tu pedido ha sido registrado en nuestro taller. Realiza tu transferencia y sube el comprobante a continuación; una vez validemos que el dinero ingresó a la cuenta correspondiente, confirmaremos tu pedido y habilitaremos tu factura."
       : order.type === "QUOTE"
         ? isContact
           ? "Gracias por comunicarte con nosotros. Nuestro equipo artesanal revisará tu mensaje y te contactará a la brevedad."
           : "Hemos recibido tu solicitud de cotización personalizada. Te responderemos pronto con la propuesta formal."
-        : "Tu pedido ha sido registrado con pago pendiente en el local o contra entrega.";
+        : "Tu pedido está en proceso con pago pendiente de validación en el local o contra entrega.";
 
   const fulfillmentType = order.notes?.includes("[Entrega a domicilio]")
     ? "Entrega a domicilio"
@@ -173,24 +182,40 @@ export default async function PedidoPage({
       {ok ? <ClearCartOnSuccess /> : null}
 
       <div className="mx-auto max-w-3xl space-y-6">
-        {/* ENCABEZADO DE ÉXITO LIMPIO */}
+        {/* ENCABEZADO DE ESTADO DEL PEDIDO */}
         <div className="rounded-2xl border border-[#e5d9c7] bg-white p-8 sm:p-10 text-center shadow-sm">
           <AnimatedSuccessCheck
             title={mainTitle}
             subtitle={mainSubtitle}
             orderNumber={order.number}
+            tone={isPaid ? "success" : "processing"}
             statusLabel={
               isPaid
                 ? "Pago confirmado"
-                : isContact
-                  ? "Consulta recibida"
-                  : order.type === "QUOTE"
-                    ? "Cotización registrada"
-                    : "Pedido completado"
+                : isTransfer
+                  ? receipt
+                    ? "En proceso · Verificando transferencia"
+                    : "En proceso · Pendiente de transferencia"
+                  : isContact
+                    ? "Consulta en proceso"
+                    : order.type === "QUOTE"
+                      ? "Cotización en proceso"
+                      : "En proceso · Pendiente de pago"
             }
             createdAt={order.createdAt}
           />
         </div>
+
+        {/* RASTREADOR DE ETAPAS DEL PEDIDO */}
+        {order.type === "SALE" && (
+          <OrderTimelineTracker
+            orderNumber={order.number}
+            isPaid={isPaid}
+            isTransfer={isTransfer}
+            hasReceipt={Boolean(receipt)}
+            fulfillmentType={fulfillmentType}
+          />
+        )}
 
         {/* ZONA DE CARGA DEL COMPROBANTE ADJUNTO (CLIENTE AUTENTICADO) */}
         {isTransfer && isAuthorizedViewer && (
@@ -392,8 +417,8 @@ export default async function PedidoPage({
           )}
         </div>
 
-        {/* CALIFICACIÓN Y TESTIMONIO EN TIEMPO REAL (solo para ventas reales del titular) */}
-        {order.type === "SALE" && isAuthorizedViewer && (
+        {/* CALIFICACIÓN Y TESTIMONIO EN TIEMPO REAL (solo cuando el pago ya fue confirmado) */}
+        {order.type === "SALE" && isAuthorizedViewer && isPaid && (
           <OrderReviewPrompt
             orderId={order.id}
             orderNumber={order.number}
@@ -407,15 +432,24 @@ export default async function PedidoPage({
         {/* ACCIONES Y BOTONES FINALES */}
         <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
           {order.invoice && isAuthorizedViewer ? (
-            <a
-              href={`/api/facturas/${order.invoice.id}/pdf?orderId=${order.id}`}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-5 py-3 text-sm font-semibold text-[var(--wood-950)] shadow-xs transition hover:bg-[#fbf7f2] hover:border-[#b0894f]"
-            >
-              <FileDown className="h-4 w-4 text-[#b0894f]" />
-              <span>Descargar Factura PDF ({order.invoice.number})</span>
-            </a>
+            isPaid ? (
+              <a
+                href={`/api/facturas/${order.invoice.id}/pdf?orderId=${order.id}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-5 py-3 text-sm font-semibold text-[var(--wood-950)] shadow-xs transition hover:bg-[#fbf7f2] hover:border-[#b0894f]"
+              >
+                <FileDown className="h-4 w-4 text-[#b0894f]" />
+                <span>Descargar Factura PDF ({order.invoice.number})</span>
+              </a>
+            ) : (
+              <div className="inline-flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-xs font-semibold text-amber-900">
+                <Clock className="h-4 w-4 shrink-0 text-amber-600" />
+                <span>
+                  Factura disponible cuando se valide el pago en cuenta
+                </span>
+              </div>
+            )
           ) : null}
 
           {order.quote && isAuthorizedViewer && !isContact ? (

@@ -107,7 +107,10 @@ export default async function MisPedidosPage() {
             {orders.map((order) => {
               const statusLabel =
                 WEB_STATUS_LABEL[order.status] || order.status;
-              const isPaid = order.status === "PAID" || order.status === "DONE";
+              const isPaid =
+                order.status === "PAID" ||
+                order.status === "DONE" ||
+                order.invoice?.status === "PAID";
               const isCancelled = order.status === "CANCELLED";
               const isTransfer = Boolean(
                 order.notes?.includes("Transferencia bancaria") ||
@@ -181,15 +184,21 @@ export default async function MisPedidosPage() {
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex flex-wrap items-center gap-2">
                       {order.invoice ? (
-                        <a
-                          href={`/api/facturas/${order.invoice.id}/pdf?orderId=${order.id}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border)] bg-[#faf7f2] px-3.5 py-2 text-xs font-semibold text-[var(--wood-900)] transition hover:border-[#b0894f] hover:bg-white"
-                        >
-                          <FileDown className="h-3.5 w-3.5 text-[#b0894f]" />
-                          <span>Factura PDF ({order.invoice.number})</span>
-                        </a>
+                        isPaid ? (
+                          <a
+                            href={`/api/facturas/${order.invoice.id}/pdf?orderId=${order.id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border)] bg-[#faf7f2] px-3.5 py-2 text-xs font-semibold text-[var(--wood-900)] transition hover:border-[#b0894f] hover:bg-white"
+                          >
+                            <FileDown className="h-3.5 w-3.5 text-[#b0894f]" />
+                            <span>Factura PDF ({order.invoice.number})</span>
+                          </a>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50/70 px-3 py-1.5 text-[11px] font-medium text-amber-900">
+                            <span>Factura disponible al confirmar pago</span>
+                          </span>
+                        )
                       ) : null}
 
                       {order.quote ? (

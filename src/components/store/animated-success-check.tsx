@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, Clock } from "lucide-react";
 
 interface AnimatedSuccessCheckProps {
   title: string;
   subtitle: string;
   orderNumber: string;
   statusLabel: string;
+  tone?: "success" | "processing";
   createdAt?: string | Date;
 }
 
@@ -17,9 +18,11 @@ export function AnimatedSuccessCheck({
   subtitle,
   orderNumber,
   statusLabel,
+  tone = "success",
   createdAt,
 }: AnimatedSuccessCheckProps) {
   const [copied, setCopied] = useState(false);
+  const isProcessing = tone === "processing";
 
   function copyOrderNumber() {
     navigator.clipboard.writeText(orderNumber);
@@ -40,7 +43,7 @@ export function AnimatedSuccessCheck({
 
   return (
     <div className="text-center">
-      {/* Check limpio estilo PedidosYa: círculo sólido + halo suave + trazo fluido */}
+      {/* Icono central: Reloj Ámbar si está En Proceso / Check Verde si ya fue Confirmado */}
       <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center">
         <motion.div
           initial={{ scale: 0, opacity: 0 }}
@@ -50,35 +53,53 @@ export function AnimatedSuccessCheck({
             stiffness: 280,
             damping: 20,
           }}
-          className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500 ring-8 ring-emerald-500/15 shadow-sm"
+          className={`flex h-20 w-20 items-center justify-center rounded-full shadow-sm ${
+            isProcessing
+              ? "bg-amber-500 ring-8 ring-amber-500/15"
+              : "bg-emerald-500 ring-8 ring-emerald-500/15"
+          }`}
         >
-          <svg
-            className="h-10 w-10 text-white"
-            viewBox="0 0 24 24"
-            fill="none"
-          >
-            <motion.path
-              d="M5 13l4 4L19 7"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{
-                delay: 0.15,
-                duration: 0.35,
-                ease: "easeOut",
-              }}
-            />
-          </svg>
+          {isProcessing ? (
+            <Clock className="h-10 w-10 text-white" strokeWidth={2.5} />
+          ) : (
+            <svg
+              className="h-10 w-10 text-white"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <motion.path
+                d="M5 13l4 4L19 7"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                initial={{ pathLength: 0 }}
+                animate={{ pathLength: 1 }}
+                transition={{
+                  delay: 0.15,
+                  duration: 0.35,
+                  ease: "easeOut",
+                }}
+              />
+            </svg>
+          )}
         </motion.div>
       </div>
 
       {/* Estado y número de orden */}
       <div className="flex flex-wrap items-center justify-center gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold tracking-wider text-emerald-800 uppercase border border-emerald-200">
-          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold tracking-wider uppercase border ${
+            isProcessing
+              ? "bg-amber-50 text-amber-900 border-amber-200"
+              : "bg-emerald-50 text-emerald-800 border-emerald-200"
+          }`}
+        >
+          <span
+            className={`h-2 w-2 rounded-full ${
+              isProcessing ? "bg-amber-500 animate-pulse" : "bg-emerald-500"
+            }`}
+          />
           {statusLabel}
         </span>
 
