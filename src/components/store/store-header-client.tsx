@@ -88,6 +88,19 @@ export function StoreHeaderClient({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    if (!open && !searchOpen && !catsOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        setSearchOpen(false);
+        setCatsOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open, searchOpen, catsOpen]);
+
   function active(href: string) {
     if (href === "/") return pathname === "/";
     return pathname === href || pathname.startsWith(`${href}/`);
@@ -141,9 +154,7 @@ export function StoreHeaderClient({
                       <div key={item.href}>
                         <Link
                           href={item.href}
-                          onClick={() => {
-                            if (!item.hasCats) setOpen(false);
-                          }}
+                          onClick={() => setOpen(false)}
                           className={`flex items-center gap-3 px-4 py-3.5 transition-colors rounded-sm ${
                             active(item.href)
                               ? "bg-white/[0.08] text-[#c9a15a] font-semibold border-l-2 border-[#c9a15a]"

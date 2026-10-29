@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useSession } from "next-auth/react";
 import { submitContactRequest } from "@/app/(store)/contacto/actions";
 import { MessageSquare, Ruler, Send } from "lucide-react";
@@ -8,8 +8,15 @@ import { MessageSquare, Ruler, Send } from "lucide-react";
 export function ContactForm() {
   const { data: session } = useSession();
   const [kind, setKind] = useState<"contact" | "quote">("contact");
+  const [name, setName] = useState(session?.user?.name || "");
+  const [email, setEmail] = useState(session?.user?.email || "");
   const [error, setError] = useState("");
   const [pending, start] = useTransition();
+
+  useEffect(() => {
+    if (session?.user?.name && !name) setName(session.user.name);
+    if (session?.user?.email && !email) setEmail(session.user.email);
+  }, [session?.user?.name, session?.user?.email, name, email]);
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -87,7 +94,8 @@ export function ContactForm() {
               id="c-name"
               name="name"
               required
-              defaultValue={session?.user?.name || ""}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               placeholder="Tu nombre y apellido"
               className="input"
             />
@@ -103,7 +111,8 @@ export function ContactForm() {
                 name="email"
                 type="email"
                 required
-                defaultValue={session?.user?.email || ""}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="ejemplo@correo.com"
                 className="input"
               />

@@ -101,13 +101,26 @@ export function CartView() {
                     </span>
                     <button
                       type="button"
-                      className="p-2 text-[var(--wood-900)] hover:text-[#b0894f] transition cursor-pointer"
+                      disabled={item.maxQty != null && item.quantity >= item.maxQty}
+                      className="p-2 text-[var(--wood-900)] hover:text-[#b0894f] transition cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed"
                       aria-label="Agregar uno"
-                      onClick={() => setQty(item.productId, item.quantity + 1)}
+                      title={
+                        item.maxQty != null && item.quantity >= item.maxQty
+                          ? `Stock máximo disponible (${item.maxQty})`
+                          : "Agregar uno"
+                      }
+                      onClick={() =>
+                        setQty(item.productId, item.quantity + 1, item.maxQty)
+                      }
                     >
                       <Plus className="h-3.5 w-3.5" />
                     </button>
                   </div>
+                  {item.maxQty != null && item.quantity >= item.maxQty && (
+                    <span className="text-[0.65rem] font-medium text-amber-700">
+                      Máx. disponible ({item.maxQty})
+                    </span>
+                  )}
                   <button
                     type="button"
                     className="ml-2 rounded-lg p-1.5 text-[var(--muted)] hover:bg-rose-50 hover:text-rose-700 transition cursor-pointer"

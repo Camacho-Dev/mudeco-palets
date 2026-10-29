@@ -110,10 +110,14 @@ export function WelcomeModal({
       const role = session?.user?.role;
 
       // Cierre del modal y redirección rápida
+      setLoading(false);
       setOpen(false);
 
       if (role === "ADMIN") {
         router.push("/panel");
+        router.refresh();
+      } else if (role === "VENDEDOR") {
+        router.push("/vender");
         router.refresh();
       } else {
         router.refresh();

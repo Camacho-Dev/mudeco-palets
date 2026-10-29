@@ -4,7 +4,8 @@ import { ExternalLink, Zap } from "lucide-react";
 import { getCachedPendingWebOrders } from "@/lib/dashboard-cache";
 
 export async function DashboardTopbar() {
-  const { recent: pendingOrders } = await getCachedPendingWebOrders();
+  const { count: totalPendingCount, recent: pendingOrders } =
+    await getCachedPendingWebOrders();
 
   return (
     <header className="no-print border-b border-[var(--border)] bg-white/70 backdrop-blur-md sticky top-0 z-30 px-6 py-2.5 md:px-10">
@@ -42,7 +43,7 @@ export async function DashboardTopbar() {
           </Link>
 
           {/* Campana de pedidos web interactiva */}
-          <WebOrdersBell orders={pendingOrders} />
+          <WebOrdersBell orders={pendingOrders} totalCount={totalPendingCount} />
         </div>
       </div>
     </header>

@@ -1,7 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { useFormStatus } from "react-dom";
 import { Plus, Trash2 } from "lucide-react";
+
+function WorkOrderSubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button type="submit" disabled={pending} className="btn btn-primary">
+      {pending ? "Creando orden..." : "Crear orden de fabricación"}
+    </button>
+  );
+}
 
 type FinishedOption = {
   id: string;
@@ -233,9 +243,7 @@ export function WorkOrderForm({
       </div>
 
       <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
-        <button type="submit" className="btn btn-primary">
-          Crear orden de fabricación
-        </button>
+        <WorkOrderSubmitButton />
       </div>
     </form>
   );

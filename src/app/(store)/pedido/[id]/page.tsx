@@ -212,6 +212,7 @@ export default async function PedidoPage({
             orderNumber={order.number}
             isPaid={isPaid}
             isTransfer={isTransfer}
+            isDone={order.status === "DONE"}
             hasReceipt={Boolean(receipt)}
             fulfillmentType={fulfillmentType}
           />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -23,6 +23,10 @@ export function HeaderAuth({
 }) {
   const router = useRouter();
   const [user, setUser] = useState(initialUser);
+
+  useEffect(() => {
+    setUser(initialUser);
+  }, [initialUser]);
 
   if (user) {
     const isStaff = user.role === "ADMIN" || user.role === "VENDEDOR";

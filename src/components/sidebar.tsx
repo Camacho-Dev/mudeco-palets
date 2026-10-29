@@ -192,8 +192,30 @@ export async function Sidebar() {
             Cerrar sesión
           </button>
         </form>
+        <DeveloperCredit />
       </div>
     </aside>
+  );
+}
+
+function DeveloperCredit() {
+  return (
+    <div className="mt-4 flex items-center gap-2.5 border-t border-white/10 pt-3">
+      <span
+        aria-hidden="true"
+        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#e4c284] via-[#c9a15a] to-[#8a6a34] font-serif text-[0.58rem] font-bold text-[#2c1d14]"
+      >
+        BC
+      </span>
+      <span className="flex min-w-0 flex-col leading-tight">
+        <span className="text-[0.52rem] font-semibold uppercase tracking-[0.2em] text-white/35">
+          Desarrollado por
+        </span>
+        <span className="truncate text-[0.72rem] font-semibold text-white/75">
+          Brayan Camacho
+        </span>
+      </span>
+    </div>
   );
 }
 
@@ -252,6 +274,7 @@ export async function SidebarMobilePanel() {
             Cerrar sesión
           </button>
         </form>
+        <DeveloperCredit />
       </div>
     </div>
   );

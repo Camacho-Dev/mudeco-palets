@@ -22,6 +22,9 @@ export const metadata: Metadata = {
   title: "Mudeco Palets — Muebles de madera recuperada",
   description:
     "Diseño, creatividad y sostenibilidad. Muebles únicos hechos con madera recuperada en República Dominicana.",
+  authors: [{ name: "Brayan Camacho" }],
+  creator: "Brayan Camacho",
+  publisher: "Mudeco Palets",
   openGraph: {
     type: "website",
     locale: "es_DO",

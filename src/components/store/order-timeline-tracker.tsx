@@ -21,6 +21,7 @@ interface OrderTimelineTrackerProps {
   orderNumber: string;
   isPaid: boolean;
   isTransfer?: boolean;
+  isDone?: boolean;
   hasReceipt: boolean;
   fulfillmentType: "Entrega a domicilio" | "Retiro en taller";
   estimatedDays?: string;
@@ -29,6 +30,8 @@ interface OrderTimelineTrackerProps {
 export function OrderTimelineTracker({
   orderNumber,
   isPaid,
+  isTransfer = false,
+  isDone = false,
   hasReceipt,
   fulfillmentType,
   estimatedDays = "2-4 días hábiles",
@@ -48,44 +51,74 @@ export function OrderTimelineTracker({
     },
     {
       num: 2,
-      title: isPaid ? "Pago Confirmado" : "Validación de Pago",
+      title: isPaid
+        ? "Pago Confirmado"
+        : isTransfer
+          ? "Validación de Pago"
+          : "Pago en el Local",
       shortDesc: isPaid
-        ? "Procesado con tarjeta"
-        : hasReceipt
-          ? "Comprobante en revisión"
-          : "Pendiente de comprobante",
+        ? isTransfer
+          ? "Transferencia conciliada"
+          : "Pago verificado"
+        : isTransfer
+          ? hasReceipt
+            ? "Comprobante en revisión"
+            : "Pendiente de comprobante"
+          : "Al retirar o recibir",
       detail: isPaid
-        ? "El pago fue aprobado instantáneamente mediante la pasarela segura. Tu factura con valor fiscal ha sido emitida."
-        : hasReceipt
-          ? "Hemos recibido tu comprobante bancario. Nuestro departamento de tesorería está conciliando los fondos con el banco."
-          : "Por favor transfiere el monto exacto a una de nuestras cuentas bancarias y adjunta la foto o PDF para iniciar la fabricación.",
-      status: isPaid ? "completed" : hasReceipt ? "in_progress" : "pending",
+        ? isTransfer
+          ? "Tu transferencia bancaria fue conciliada satisfactoriamente por nuestro equipo de administración. Tu factura oficial ha sido emitida."
+          : "El pago fue confirmado satisfactoriamente en el sistema. Tu factura oficial está disponible para descarga."
+        : isTransfer
+          ? hasReceipt
+            ? "Hemos recibido tu comprobante bancario. Nuestro departamento de tesorería está conciliando los fondos con el banco."
+            : "Por favor transfiere el monto exacto a una de nuestras cuentas bancarias y adjunta la foto o PDF para iniciar la fabricación."
+          : "Elegiste realizar el pago presencialmente en nuestro taller o contra entrega coordinada con nuestro equipo.",
+      status: isPaid
+        ? "completed"
+        : isTransfer
+          ? hasReceipt
+            ? "in_progress"
+            : "pending"
+          : "in_progress",
       icon: isPaid ? CreditCard : hasReceipt ? FileCheck : Clock,
     },
     {
       num: 3,
       title: "Fabricación en Taller",
-      shortDesc: `Estimado: ${estimatedDays}`,
+      shortDesc: isDone ? "Completado en taller" : `Estimado: ${estimatedDays}`,
       detail:
         "Nuestros maestros carpinteros cortan, ensamblan, curan contra polilla y lijan a mano cada pieza de madera de pino garantizada.",
-      status: isPaid ? "in_progress" : "waiting",
+      status: isDone ? "completed" : isPaid ? "in_progress" : "waiting",
       icon: Hammer,
     },
     {
       num: 4,
-      title: fulfillmentType === "Entrega a domicilio" ? "Despacho a Domicilio" : "Listo para Retiro",
-      shortDesc: fulfillmentType === "Entrega a domicilio" ? "Transporte seguro" : "Taller en Haina",
+      title:
+        fulfillmentType === "Entrega a domicilio"
+          ? "Despacho a Domicilio"
+          : "Listo para Retiro",
+      shortDesc:
+        fulfillmentType === "Entrega a domicilio"
+          ? "Transporte seguro"
+          : "Taller Santo Domingo Oeste",
       detail:
         fulfillmentType === "Entrega a domicilio"
           ? "Un chofer de nuestro equipo te contactará para coordinar la entrega y descarga segura de tus muebles."
-          : "Recibirás una notificación cuando tus piezas estén empacadas y listas para retirar en nuestras instalaciones en Haina.",
-      status: "waiting",
+          : "Recibirás una notificación cuando tus piezas estén empacadas y listas para retirar en nuestro taller en Santo Domingo Oeste.",
+      status: isDone ? "completed" : "waiting",
       icon: fulfillmentType === "Entrega a domicilio" ? Truck : Store,
     },
   ];
 
   // Cálculo del porcentaje de progreso de la barra
-  const progressPercent = isPaid ? 66 : hasReceipt ? 38 : 20;
+  const progressPercent = isDone
+    ? 100
+    : isPaid
+      ? 66
+      : hasReceipt || !isTransfer
+        ? 38
+        : 20;
 
   function handlePrint() {
     window.print();

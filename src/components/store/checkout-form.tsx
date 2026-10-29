@@ -46,12 +46,20 @@ export function CheckoutForm({
   const [fulfillment, setFulfillment] = useState<"pickup" | "delivery">(
     "pickup",
   );
+  const [name, setName] = useState(session?.user?.name ?? "");
+  const [email, setEmail] = useState(session?.user?.email ?? "");
   const [phone, setPhone] = useState("");
   const [taxId, setTaxId] = useState("");
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [pending, start] = useTransition();
   const copy = MODE_COPY[mode];
+
+  // Auto-fill name/email when session loads asynchronously
+  useEffect(() => {
+    if (session?.user?.name && !name) setName(session.user.name);
+    if (session?.user?.email && !email) setEmail(session.user.email);
+  }, [session?.user?.name, session?.user?.email, name, email]);
 
   // Restaurar borrador de campos en sessionStorage para no perder datos al cambiar de modalidad
   useEffect(() => {
@@ -122,7 +130,14 @@ export function CheckoutForm({
           err && typeof err === "object" && "digest" in err
             ? String((err as { digest?: string }).digest)
             : "";
-        if (dig.startsWith("NEXT_REDIRECT")) return;
+        if (dig.startsWith("NEXT_REDIRECT")) {
+          try {
+            sessionStorage.removeItem(DRAFT_KEY);
+          } catch {
+            /* ignore */
+          }
+          return;
+        }
         setError(err instanceof Error ? err.message : "No se pudo completar");
       }
     });
@@ -193,7 +208,8 @@ export function CheckoutForm({
             id="name"
             name="name"
             required
-            defaultValue={session?.user?.name ?? ""}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             placeholder="Tu nombre y apellido"
             className="input"
           />
@@ -207,7 +223,8 @@ export function CheckoutForm({
             name="email"
             type="email"
             required
-            defaultValue={session?.user?.email ?? ""}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="ejemplo@correo.com"
             className="input"
           />

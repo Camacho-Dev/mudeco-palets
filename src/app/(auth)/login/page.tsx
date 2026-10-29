@@ -1345,6 +1345,19 @@ export default function LoginPage() {
           <Suspense fallback={<div className="text-white/60 text-sm">Cargando acceso...</div>}>
             <LoginForm />
           </Suspense>
+          <div className="mt-5 flex items-center justify-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/45 px-3.5 py-1.5 backdrop-blur-md">
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#c9a15a]/20 text-[0.55rem] font-bold tracking-wider text-[#d4af37]">
+                BC
+              </span>
+              <span className="text-[0.65rem] tracking-[0.06em] text-white/55">
+                Desarrollado por{" "}
+                <strong className="font-semibold text-[#e6c567]">
+                  Brayan Camacho
+                </strong>
+              </span>
+            </div>
+          </div>
         </section>
       </div>
     </div>

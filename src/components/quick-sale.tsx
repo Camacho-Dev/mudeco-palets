@@ -94,20 +94,44 @@ export function QuickSale({
   const [clearCartConfirm, setClearCartConfirm] = useState(false);
 
   // Carga de borradores previos desde localStorage (persistencia ante recargas)
+  // Validando cliente existente y refrescando stock real de productos
   useEffect(() => {
     try {
       const raw = localStorage.getItem("mudeco_pos_drafts_v2");
       if (raw) {
-        const parsed = JSON.parse(raw);
+        const parsed = JSON.parse(raw) as InvoiceDraft[];
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setDrafts(parsed);
-          setActiveDraftId(parsed[0].id);
+          const validCustomerIds = new Set(customers.map((c) => c.id));
+          const productMap = new Map(products.map((p) => [p.id, p]));
+          const fallbackCustomerId = customers[0]?.id || "";
+          const sanitized = parsed.map((d) => ({
+            ...d,
+            customerId: validCustomerIds.has(d.customerId)
+              ? d.customerId
+              : fallbackCustomerId,
+            cart: Array.isArray(d.cart)
+              ? d.cart.flatMap((line): CartLine[] => {
+                  const live = productMap.get(line.productId);
+                  if (!live) return [];
+                  return [
+                    {
+                      ...line,
+                      description: live.name,
+                      stock: live.stock,
+                      taxRate: live.taxRate,
+                    },
+                  ];
+                })
+              : [],
+          }));
+          setDrafts(sanitized);
+          setActiveDraftId(sanitized[0].id);
         }
       }
     } catch {
       // Ignorar error si localStorage no está disponible
     }
-  }, []);
+  }, [customers, products]);
 
   // Guardar borradores automáticamente
   useEffect(() => {

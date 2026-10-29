@@ -19,12 +19,14 @@ export type PendingWebOrderSummary = {
 
 export function WebOrdersBell({
   orders,
+  totalCount,
 }: {
   orders: PendingWebOrderSummary[];
+  totalCount?: number;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-  const count = orders.length;
+  const count = totalCount ?? orders.length;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -32,11 +34,18 @@ export function WebOrdersBell({
         setOpen(false);
       }
     }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
     if (open) {
       document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
     }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [open]);
 

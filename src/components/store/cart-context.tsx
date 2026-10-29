@@ -16,6 +16,7 @@ export type CartItem = {
   taxRate: number;
   imageUrl: string;
   quantity: number;
+  maxQty?: number;
 };
 
 type CartContextValue = {
@@ -23,7 +24,7 @@ type CartContextValue = {
   count: number;
   subtotal: number;
   addItem: (
-    item: Omit<CartItem, "quantity">,
+    item: Omit<CartItem, "quantity" | "maxQty">,
     qty?: number,
     maxQty?: number,
   ) => boolean;
@@ -55,21 +56,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [items, ready]);
 
   const addItem = useCallback(
-    (item: Omit<CartItem, "quantity">, qty = 1, maxQty?: number): boolean => {
+    (item: Omit<CartItem, "quantity" | "maxQty">, qty = 1, maxQty?: number): boolean => {
       setItems((prev) => {
         const found = prev.find((p) => p.productId === item.productId);
         if (found) {
+          const limit = maxQty ?? found.maxQty;
           const next = found.quantity + qty;
           const capped =
-            maxQty != null ? Math.min(next, maxQty) : next;
+            limit != null ? Math.min(next, limit) : next;
           return prev.map((p) =>
             p.productId === item.productId
-              ? { ...p, quantity: capped }
+              ? { ...p, quantity: capped, maxQty: limit }
               : p,
           );
         }
         const start = maxQty != null ? Math.min(qty, maxQty) : qty;
-        return [...prev, { ...item, quantity: start }];
+        return [...prev, { ...item, quantity: start, maxQty }];
       });
       return true;
     },
@@ -82,11 +84,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         prev
           .map((p) => {
             if (p.productId !== productId) return p;
+            const limit = maxQty ?? p.maxQty;
             const q =
-              maxQty != null
-                ? Math.min(Math.max(0, quantity), maxQty)
+              limit != null
+                ? Math.min(Math.max(0, quantity), limit)
                 : Math.max(0, quantity);
-            return { ...p, quantity: q };
+            return { ...p, quantity: q, maxQty: limit };
           })
           .filter((p) => p.quantity > 0),
       );

@@ -75,3 +75,4 @@ export function serializeReviewReplies(list: ReviewReplyItem[]): string | null {
   if (list.length === 0) return null;
   return JSON.stringify(list.slice(-MAX_REPLIES_PER_REVIEW));
 }
+

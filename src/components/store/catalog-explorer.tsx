@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useTransition } from "react";
+import { useState, useMemo, useTransition, useEffect } from "react";
 import {
   Search,
   X,
@@ -60,6 +60,19 @@ export function CatalogExplorer({
     Boolean(initialMinPrice != null || initialMaxPrice != null),
   );
   const [, startTransition] = useTransition();
+
+  // Sync local filter state when URL searchParams change (e.g. clicking category or searching from header while already on /catalogo)
+  useEffect(() => {
+    setSelectedCategory(initialCategory);
+  }, [initialCategory]);
+
+  useEffect(() => {
+    setQuery(initialQuery);
+  }, [initialQuery]);
+
+  useEffect(() => {
+    setFilterMode(initialFilter === "popular" ? "popular" : "all");
+  }, [initialFilter]);
 
   // Compute overall min and max prices from the catalog
   const { minPriceLimit, maxPriceLimit } = useMemo(() => {

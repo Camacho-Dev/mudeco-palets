@@ -221,17 +221,40 @@ export function StoreFooter({
         </div>
       </div>
 
-      <div className="border-t border-white/[0.08] px-4 py-5 text-center text-[0.7rem] tracking-wide text-white/35">
-        © {new Date().getFullYear()} {company.name} ·{" "}
-        {company.taxId ? `RNC ${company.taxId}` : "República Dominicana"} · Todos los derechos
-        reservados ·{" "}
-        <Link href="/privacidad" className="hover:text-white transition">
-          Privacidad
-        </Link>{" "}
-        ·{" "}
-        <Link href="/terminos" className="hover:text-white transition">
-          Términos
-        </Link>
+      <div className="border-t border-white/[0.08] bg-[#0a0a0a]">
+        <div className="mx-auto flex max-w-[1760px] flex-col items-center gap-4 px-4 py-5 text-[0.7rem] tracking-wide text-white/35 sm:px-8 md:flex-row md:justify-between lg:px-12 xl:px-16">
+          <p className="text-center md:text-left">
+            © {new Date().getFullYear()} {company.name} ·{" "}
+            {company.taxId ? `RNC ${company.taxId}` : "República Dominicana"} · Todos los derechos
+            reservados ·{" "}
+            <Link href="/privacidad" className="hover:text-white transition">
+              Privacidad
+            </Link>{" "}
+            ·{" "}
+            <Link href="/terminos" className="hover:text-white transition">
+              Términos
+            </Link>
+          </p>
+
+          {/* Créditos del desarrollador */}
+          <div className="group flex items-center gap-3 rounded-full border border-white/[0.08] bg-white/[0.02] py-1.5 pl-1.5 pr-4 transition duration-300 hover:border-[#c9a15a]/40 hover:bg-[#c9a15a]/[0.04]">
+            <span
+              aria-hidden="true"
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#e4c284] via-[#c9a15a] to-[#8a6a34] font-serif text-[0.68rem] font-bold tracking-tight text-[#0a0a0a] shadow-[0_0_0_3px_rgba(201,161,90,0.12)] transition duration-300 group-hover:shadow-[0_0_0_4px_rgba(201,161,90,0.22)]"
+            >
+              BC
+            </span>
+            <span className="flex flex-col leading-tight">
+              <span className="text-[0.56rem] font-semibold uppercase tracking-[0.22em] text-white/35">
+                Diseño &amp; Desarrollo
+              </span>
+              <span className="text-[0.78rem] font-semibold tracking-wide text-white/80 transition group-hover:text-[#e4c284]">
+                Brayan Camacho
+                <span className="ml-1.5 font-normal text-white/35">· Software Developer</span>
+              </span>
+            </span>
+          </div>
+        </div>
       </div>
     </footer>
   );
