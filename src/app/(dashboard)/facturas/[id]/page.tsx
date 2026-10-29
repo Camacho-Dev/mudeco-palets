@@ -67,7 +67,11 @@ export default async function FacturaDetallePage({
       <div className="mb-6 flex flex-wrap items-center gap-3">
         <StatusBadge status={invoice.status} />
         {invoice.ncf ? (
-          <span className="text-sm text-slate-500">NCF: {invoice.ncf}</span>
+          <span className="text-sm text-slate-500">
+            {invoice.ncf.startsWith("PENDING:")
+              ? `NCF pendiente (${invoice.ncf.slice("PENDING:".length)})`
+              : `NCF: ${invoice.ncf}`}
+          </span>
         ) : null}
         {invoice.delivery ? (
           <span className="rounded-md bg-sky-50 px-2 py-0.5 text-xs font-medium text-sky-800">

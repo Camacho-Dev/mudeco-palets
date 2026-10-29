@@ -101,6 +101,7 @@ export async function submitWebCheckout(fd: FormData) {
         notes: `[Pago: Transferencia bancaria]\n${customer.notes || ""}`.trim(),
       },
       cart,
+      { paymentMode: "TRANSFER" },
     );
     revalidatePath("/pedidos-web");
     revalidatePath("/facturas");

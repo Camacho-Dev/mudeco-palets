@@ -115,7 +115,10 @@ export async function GET(
       subtotal: o.subtotal,
       tax: o.tax,
       total: o.total,
-      notes: o.notes || "",
+      notes: (o.notes || "")
+        .replace(/\[COMPROBANTE_PAGO:\s*\{[\s\S]*?\}\]/g, "[Comprobante adjunto]")
+        .replace(/\[COMPROBANTE:[^\]]+\]/g, "[Comprobante adjunto]")
+        .trim(),
       createdAt: o.createdAt.toISOString(),
     }));
   } else if (type === "cotizaciones") {

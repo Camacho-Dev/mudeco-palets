@@ -27,6 +27,12 @@ export function webOrderTypeLabel(order: {
   if (kind === "CONTACT") return "Consulta web";
   if (kind === "CUSTOM_QUOTE") return "Cotización a medida";
   if (order.type === "QUOTE") return "Cotización (carrito)";
+  if (
+    order.paymentMode === "TRANSFER" ||
+    order.notes?.includes("Transferencia bancaria")
+  ) {
+    return "Venta · Transferencia bancaria";
+  }
   if (order.paymentMode === "LOCAL") return "Venta · Pagar en local";
   if (order.paymentMode === "ONLINE") return "Venta · Online";
   return "Venta web";
@@ -34,8 +40,8 @@ export function webOrderTypeLabel(order: {
 
 export const WEB_STATUS_LABEL: Record<string, string> = {
   PENDING: "Pagar en local",
-  AWAITING_PAYMENT: "Esperando pago web",
-  PAID: "Pagado online",
+  AWAITING_PAYMENT: "En proceso · Validando pago",
+  PAID: "Pago confirmado",
   QUOTED: "Pendiente de respuesta",
   IN_PROGRESS: "En gestión",
   DONE: "Atendido",
@@ -56,8 +62,8 @@ export const WEB_STATUS_OPTIONS = [
   { value: "QUOTED", label: "Pendiente de respuesta" },
   { value: "IN_PROGRESS", label: "En gestión" },
   { value: "PENDING", label: "Pagar en local" },
-  { value: "AWAITING_PAYMENT", label: "Esperando pago web" },
-  { value: "PAID", label: "Pagado online" },
+  { value: "AWAITING_PAYMENT", label: "En proceso · Validando pago" },
+  { value: "PAID", label: "Pago confirmado" },
   { value: "DONE", label: "Atendido" },
   { value: "CANCELLED", label: "Cancelado" },
 ] as const;

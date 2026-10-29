@@ -185,7 +185,7 @@ export async function getBusinessAnalytics(range?: DateRange) {
     const key = monthKey(inv.issueDate);
     const row = trendMap.get(key);
     if (row) {
-      row.sales += inv.total;
+      row.sales += netInvoiceTotal(inv);
       row.invoices += 1;
     }
   }
@@ -237,7 +237,7 @@ export async function getBusinessAnalytics(range?: DateRange) {
       total: 0,
       count: 0,
     };
-    cur.total += inv.total;
+    cur.total += netInvoiceTotal(inv);
     cur.count += 1;
     customerSales.set(inv.customerId, cur);
   }
@@ -332,7 +332,11 @@ export async function getBusinessAnalytics(range?: DateRange) {
   ).length;
   const webSalesVolume = roundMoney(
     webOrders
-      .filter((o) => o.type === "SALE" || o.status === "PAID")
+      .filter(
+        (o) =>
+          o.status !== "CANCELLED" &&
+          (o.type === "SALE" || o.status === "PAID"),
+      )
       .reduce((sum, o) => sum + o.total, 0),
   );
   const webConversionRate =

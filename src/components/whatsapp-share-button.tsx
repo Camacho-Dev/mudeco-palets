@@ -48,7 +48,8 @@ export function WhatsAppShareButton({
   function buildMessage(): string {
     const formattedTotal = formatCurrency(total);
     if (type === "invoice") {
-      const ncfText = ncf ? `\n*NCF:* ${ncf}` : "";
+      const ncfText =
+        ncf && !ncf.startsWith("PENDING:") ? `\n*NCF:* ${ncf}` : "";
       return (
         `*${companyName} · Factura de Compra*\n\n` +
         `Hola *${customerName}*,\n` +

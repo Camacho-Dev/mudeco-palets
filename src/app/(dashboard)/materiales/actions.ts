@@ -42,6 +42,14 @@ function revalidateMaterials() {
 export async function createMaterial(fd: FormData) {
   await requireAdmin();
   const data = parse(fd);
+  if (data.sku) {
+    const skuExists = await prisma.product.findFirst({
+      where: { sku: data.sku },
+    });
+    if (skuExists) {
+      throw new Error(`Ya existe un material o producto con el código SKU "${data.sku}"`);
+    }
+  }
   const material = await prisma.product.create({
     data: {
       kind: "MATERIAL",
@@ -89,6 +97,14 @@ export async function updateMaterial(id: string, fd: FormData) {
     throw new Error("Material no encontrado");
   }
   const data = parse(fd);
+  if (data.sku && data.sku !== before.sku) {
+    const skuExists = await prisma.product.findFirst({
+      where: { sku: data.sku, NOT: { id } },
+    });
+    if (skuExists) {
+      throw new Error(`Ya existe otro material o producto con el código SKU "${data.sku}"`);
+    }
+  }
   const canStock = canAdjustStock(session.user.role);
   const nextStock = canStock ? data.stock : before.stock;
 

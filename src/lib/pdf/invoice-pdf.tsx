@@ -178,7 +178,7 @@ function InvoiceDocument({
           <View>
             <Text style={styles.title}>FACTURA</Text>
             <Text style={styles.muted}>{invoice.number}</Text>
-            {invoice.ncf ? (
+            {invoice.ncf && !invoice.ncf.startsWith("PENDING:") ? (
               <Text style={styles.muted}>NCF: {invoice.ncf}</Text>
             ) : null}
             <Text style={styles.muted}>
@@ -261,7 +261,12 @@ function InvoiceDocument({
         {invoice.notes ? (
           <View style={{ marginTop: 30 }}>
             <Text style={styles.label}>Notas</Text>
-            <Text>{invoice.notes}</Text>
+            <Text>
+              {invoice.notes
+                .replace(/\[COMPROBANTE_PAGO:\s*\{[\s\S]*?\}\]/g, "")
+                .replace(/\[COMPROBANTE:[^\]]+\]/g, "")
+                .trim()}
+            </Text>
           </View>
         ) : null}
       </Page>

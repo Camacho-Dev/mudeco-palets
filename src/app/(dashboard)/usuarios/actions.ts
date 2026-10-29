@@ -29,6 +29,13 @@ export async function createUser(fd: FormData) {
   const rawRate = data.commissionRate ?? 0;
   const normalizedRate = rawRate > 1 ? rawRate / 100 : rawRate;
 
+  const existing = await prisma.user.findUnique({
+    where: { email: data.email },
+  });
+  if (existing) {
+    throw new Error(`Ya existe un usuario registrado con el correo ${data.email}`);
+  }
+
   const user = await prisma.user.create({
     data: {
       name: data.name,

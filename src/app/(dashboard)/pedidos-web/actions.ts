@@ -8,7 +8,7 @@ import { writeAudit } from "@/lib/audit";
 import { nextInvoiceNumber } from "@/lib/invoice-number";
 import { calcInvoiceBalance, calcInvoiceTotals } from "@/lib/invoice-calc";
 import { deductStock, restoreInvoiceNetStock } from "@/lib/stock";
-import { notifyCustomerWebOrderStatus } from "@/lib/mail";
+import { notifyCustomerWebOrderStatus, sendInvoiceEmail } from "@/lib/mail";
 
 const ALLOWED = new Set([
   "PENDING",
@@ -75,6 +75,7 @@ export async function updateWebOrderStatus(id: string, fd: FormData) {
         where: { id: inv.id },
         data: { status: "PAID" },
       });
+      void sendInvoiceEmail(inv.id).catch(() => undefined);
     }
   }
 
@@ -97,6 +98,7 @@ export async function updateWebOrderStatus(id: string, fd: FormData) {
 
   revalidatePath("/pedidos-web");
   revalidatePath(`/pedidos-web/${id}`);
+  revalidatePath(`/pedido/${id}`);
   revalidatePath("/mis-pedidos");
   revalidatePath("/facturas");
   revalidatePath("/pagos");
@@ -209,26 +211,48 @@ export async function cancelWebOrder(id: string) {
 }
 
 export async function markWebOrderDone(id: string) {
-  await requireSession();
-  await prisma.webOrder.update({
+  const session = await requireSession();
+  const order = await prisma.webOrder.update({
     where: { id },
     data: { status: "DONE" },
+  });
+  await writeAudit({
+    action: "WEB_ORDER_STATUS",
+    entity: "WebOrder",
+    entityId: id,
+    summary: `${order.number} → DONE`,
+    userId: session.user?.id,
+    userEmail: session.user?.email,
+    userName: session.user?.name,
   });
   void notifyCustomerWebOrderStatus(id, "DONE");
   revalidatePath("/pedidos-web");
   revalidatePath(`/pedidos-web/${id}`);
+  revalidatePath(`/pedido/${id}`);
+  revalidatePath("/mis-pedidos");
   revalidatePath("/panel");
 }
 
 export async function markWebOrderInProgress(id: string) {
-  await requireSession();
-  await prisma.webOrder.update({
+  const session = await requireSession();
+  const order = await prisma.webOrder.update({
     where: { id },
     data: { status: "IN_PROGRESS" },
+  });
+  await writeAudit({
+    action: "WEB_ORDER_STATUS",
+    entity: "WebOrder",
+    entityId: id,
+    summary: `${order.number} → IN_PROGRESS`,
+    userId: session.user?.id,
+    userEmail: session.user?.email,
+    userName: session.user?.name,
   });
   void notifyCustomerWebOrderStatus(id, "IN_PROGRESS");
   revalidatePath("/pedidos-web");
   revalidatePath(`/pedidos-web/${id}`);
+  revalidatePath(`/pedido/${id}`);
+  revalidatePath("/mis-pedidos");
   revalidatePath("/panel");
 }
 
@@ -387,6 +411,11 @@ export async function convertWebOrderDirectToInvoice(id: string) {
 
   const totals = calcInvoiceTotals(itemsData, { applyTax: true });
 
+  const cleanOrderNotes = (order.notes || "")
+    .replace(/\[COMPROBANTE_PAGO:\s*\{[\s\S]*?\}\]/g, "")
+    .replace(/\[COMPROBANTE:[^\]]+\]/g, "")
+    .trim();
+
   const invoice = await prisma.invoice.create({
     data: {
       number,
@@ -394,7 +423,7 @@ export async function convertWebOrderDirectToInvoice(id: string) {
       source: "WEB",
       customerId,
       userId: session.user.id,
-      notes: `Generada desde pedido web ${order.number} (${order.customerEmail}).\n${order.notes || ""}`,
+      notes: `Generada desde pedido web ${order.number} (${order.customerEmail}).${cleanOrderNotes ? `\n${cleanOrderNotes}` : ""}`,
       subtotal: totals.subtotal,
       tax: totals.tax,
       total: totals.total,

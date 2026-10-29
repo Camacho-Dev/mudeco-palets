@@ -269,11 +269,14 @@ export async function createWebServiceRequest(
   return { order, quote, customer };
 }
 
-/** Compra con pago en local: factura emitida pendiente de cobro */
+/** Compra con pago en local o por transferencia bancaria: factura emitida pendiente de cobro */
 export async function createWebLocalSale(
   customerData: CheckoutCustomer,
   cart: CartLineInput[],
+  options?: { paymentMode?: "LOCAL" | "TRANSFER" },
 ) {
+  const mode = options?.paymentMode ?? "LOCAL";
+  const isTransfer = mode === "TRANSFER";
   const lines = await resolveLines(cart);
   const totals = calcInvoiceTotals(lines, { applyTax: true });
   const customer = await upsertWebCustomer(customerData);
@@ -292,7 +295,9 @@ export async function createWebLocalSale(
         source: "WEB",
         notes:
           customerData.notes ||
-          "Pedido web — el cliente pagará en el local",
+          (isTransfer
+            ? "Pedido web — pago por transferencia bancaria"
+            : "Pedido web — el cliente pagará en el local"),
         subtotal: totals.subtotal,
         tax: totals.tax,
         total: totals.total,
@@ -306,8 +311,8 @@ export async function createWebLocalSale(
       data: {
         number: webNumber,
         type: "SALE",
-        paymentMode: "LOCAL",
-        status: "PENDING",
+        paymentMode: mode,
+        status: isTransfer ? "AWAITING_PAYMENT" : "PENDING",
         customerName: customerData.name.trim(),
         customerEmail: customerData.email.trim().toLowerCase(),
         customerPhone: customerData.phone?.trim() || null,

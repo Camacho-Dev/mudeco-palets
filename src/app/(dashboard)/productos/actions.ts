@@ -71,6 +71,14 @@ function revalidateProducts(productId?: string) {
 export async function createProduct(fd: FormData) {
   await requireSession();
   const data = formDataToProduct(fd);
+  if (data.sku) {
+    const skuExists = await prisma.product.findFirst({
+      where: { sku: data.sku },
+    });
+    if (skuExists) {
+      throw new Error(`Ya existe un producto o material con el código SKU "${data.sku}"`);
+    }
+  }
   const product = await prisma.product.create({
     data: {
       kind: "FINISHED",
@@ -118,6 +126,14 @@ export async function updateProduct(id: string, fd: FormData) {
   const before = await prisma.product.findUnique({ where: { id } });
   if (!before) throw new Error("Producto no encontrado");
   const data = formDataToProduct(fd);
+  if (data.sku && data.sku !== before.sku) {
+    const skuExists = await prisma.product.findFirst({
+      where: { sku: data.sku, NOT: { id } },
+    });
+    if (skuExists) {
+      throw new Error(`Ya existe otro producto o material con el código SKU "${data.sku}"`);
+    }
+  }
 
   const wantsStockChange = before.stock !== data.stock;
   const canStock = canAdjustStock(session.user.role);

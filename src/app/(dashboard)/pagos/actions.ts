@@ -10,6 +10,7 @@ import {
 } from "@/lib/invoice-calc";
 import { writeAudit } from "@/lib/audit";
 import { canDeletePayment } from "@/lib/rbac";
+import { notifyCustomerWebOrderStatus, sendInvoiceEmail } from "@/lib/mail";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -88,15 +89,28 @@ export async function createPayment(invoiceId: string, fd: FormData) {
     data: { status },
   });
 
-  // Si la factura quedó saldada, actualizar automáticamente cualquier Pedido Web vinculado
+  // Si la factura quedó saldada, actualizar automáticamente cualquier Pedido Web vinculado y notificar al cliente
   if (status === "PAID") {
-    await prisma.webOrder.updateMany({
+    const linkedOrders = await prisma.webOrder.findMany({
       where: {
         invoiceId,
         status: { in: ["PENDING", "AWAITING_PAYMENT"] },
       },
-      data: { status: "PAID" },
+      select: { id: true },
     });
+    if (linkedOrders.length > 0) {
+      await prisma.webOrder.updateMany({
+        where: {
+          id: { in: linkedOrders.map((o) => o.id) },
+        },
+        data: { status: "PAID" },
+      });
+      for (const wo of linkedOrders) {
+        void notifyCustomerWebOrderStatus(wo.id, "PAID");
+        revalidatePath(`/pedido/${wo.id}`);
+      }
+      void sendInvoiceEmail(invoiceId).catch(() => undefined);
+    }
   }
 
   await writeAudit({

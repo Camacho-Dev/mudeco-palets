@@ -52,7 +52,7 @@ export default async function ImprimirFacturaPage({
             </p>
             <p className="font-display text-2xl">{invoice.number}</p>
             <p className="mt-2 text-sm">Fecha: {formatDate(invoice.issueDate)}</p>
-            {invoice.ncf ? (
+            {invoice.ncf && !invoice.ncf.startsWith("PENDING:") ? (
               <p className="text-sm">NCF: {invoice.ncf}</p>
             ) : null}
             {invoice.dueDate ? (
@@ -127,7 +127,11 @@ export default async function ImprimirFacturaPage({
 
         {invoice.notes ? (
           <p className="mt-8 text-sm text-[var(--muted)]">
-            Notas: {invoice.notes}
+            Notas:{" "}
+            {invoice.notes
+              .replace(/\[COMPROBANTE_PAGO:\s*\{[\s\S]*?\}\]/g, "")
+              .replace(/\[COMPROBANTE:[^\]]+\]/g, "")
+              .trim()}
           </p>
         ) : null}
 
