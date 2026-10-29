@@ -113,9 +113,10 @@ export async function updateEmployee(id: string, fd: FormData) {
   const phone = String(fd.get("phone") || "").trim() || null;
   const position = String(fd.get("position") || "").trim() || null;
   const department = String(fd.get("department") || "TALLER");
-  const role = String(fd.get("role") || user.role);
-  const salary = Number(fd.get("salary") || 0);
-  const commissionRateRaw = Number(fd.get("commissionRate") || 0);
+  const rawRole = String(fd.get("role") || user.role);
+  const role = rawRole === "ADMIN" ? "ADMIN" : "VENDEDOR";
+  const salary = Math.max(0, Number(fd.get("salary") || 0));
+  const commissionRateRaw = Math.max(0, Math.min(100, Number(fd.get("commissionRate") || 0)));
   const commissionRate = commissionRateRaw > 1 ? commissionRateRaw / 100 : commissionRateRaw;
   const hireDateRaw = String(fd.get("hireDate") || "").trim();
   const hireDate = hireDateRaw ? new Date(hireDateRaw) : null;
@@ -127,6 +128,16 @@ export async function updateEmployee(id: string, fd: FormData) {
 
   if (!name) throw new Error("El nombre es requerido");
   if (!email || !email.includes("@")) throw new Error("Email válido requerido");
+
+  // Proteger contra degradar al único administrador activo del sistema
+  if (user.active && user.role === "ADMIN" && role !== "ADMIN") {
+    const remainingAdmins = await prisma.user.count({
+      where: { role: "ADMIN", active: true, NOT: { id } },
+    });
+    if (remainingAdmins === 0) {
+      throw new Error("No puedes quitar el rol de Administrador al único administrador activo del sistema");
+    }
+  }
 
   // Check email conflict with other users
   if (email !== user.email) {

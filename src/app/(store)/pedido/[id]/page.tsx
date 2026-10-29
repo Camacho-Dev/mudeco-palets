@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { isStaff } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
@@ -28,6 +30,18 @@ import {
 
 export const metadata = { title: "Confirmación de Pedido · Mudeco Palets" };
 
+function maskEmail(email: string) {
+  const [user, domain] = email.split("@");
+  if (!user || !domain) return "***";
+  return `${user.slice(0, 2)}***@${domain}`;
+}
+
+function maskPhone(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length < 4) return "***";
+  return `***-***-${digits.slice(-4)}`;
+}
+
 export default async function PedidoPage({
   params,
   searchParams,
@@ -37,6 +51,7 @@ export default async function PedidoPage({
 }) {
   const { id } = await params;
   const { ok } = await searchParams;
+  const session = await auth();
 
   let order = await prisma.webOrder.findUnique({
     where: { id },
@@ -52,6 +67,19 @@ export default async function PedidoPage({
   });
   if (!order) notFound();
 
+  const isViewerStaff = Boolean(session?.user?.id && isStaff(session.user.role));
+  const isViewerOwner = Boolean(
+    session?.user?.email &&
+      order.customerEmail &&
+      session.user.email.toLowerCase() === order.customerEmail.toLowerCase(),
+  );
+  const isAuthorizedViewer = isViewerStaff || isViewerOwner;
+
+  // Para órdenes de compra (que requieren cuenta al hacer checkout), exigir sesión del titular o staff
+  if (order.type === "SALE" && !isAuthorizedViewer) {
+    redirect(`/login?callbackUrl=${encodeURIComponent(`/pedido/${id}`)}`);
+  }
+
   const company = await getStoreCompany();
   const banks = getDominicanBanks(company);
 
@@ -64,10 +92,10 @@ export default async function PedidoPage({
   ) {
     try {
       const stripe = getStripe();
-      const session = await stripe.checkout.sessions.retrieve(
+      const stripeSession = await stripe.checkout.sessions.retrieve(
         order.stripeSessionId,
       );
-      if (session.payment_status === "paid") {
+      if (stripeSession.payment_status === "paid") {
         order = (await finalizeOnlinePaidOrder(order.id)) as typeof order;
         if (order.invoiceId) {
           try {
@@ -164,8 +192,8 @@ export default async function PedidoPage({
           />
         </div>
 
-        {/* ZONA DE CARGA DEL COMPROBANTE ADJUNTO (CLIENTE) */}
-        {isTransfer && (
+        {/* ZONA DE CARGA DEL COMPROBANTE ADJUNTO (CLIENTE AUTENTICADO) */}
+        {isTransfer && isAuthorizedViewer && (
           <ReceiptUploader
             orderId={order.id}
             orderNumber={order.number}
@@ -253,14 +281,18 @@ export default async function PedidoPage({
                 Datos del Cliente
               </p>
               <p className="font-bold text-sm text-[var(--wood-950)]">{order.customerName}</p>
-              <p className="text-stone-600 font-medium">{order.customerEmail}</p>
+              <p className="text-stone-600 font-medium">
+                {isAuthorizedViewer ? order.customerEmail : maskEmail(order.customerEmail)}
+              </p>
               {order.customerPhone ? (
                 <p className="text-stone-600 flex items-center gap-1">
                   <Phone className="h-3 w-3 text-stone-400" />
-                  <span>{order.customerPhone}</span>
+                  <span>
+                    {isAuthorizedViewer ? order.customerPhone : maskPhone(order.customerPhone)}
+                  </span>
                 </p>
               ) : null}
-              {order.customerTaxId ? (
+              {order.customerTaxId && isAuthorizedViewer ? (
                 <p className="text-stone-500 text-[11px]">RNC/Cédula: {order.customerTaxId}</p>
               ) : null}
             </div>
@@ -272,7 +304,9 @@ export default async function PedidoPage({
                   Mensaje Enviado
                 </p>
                 <p className="text-stone-700 leading-relaxed whitespace-pre-wrap">
-                  {cleanNotes || "Consulta general recibida por el taller."}
+                  {isAuthorizedViewer
+                    ? cleanNotes || "Consulta general recibida por el taller."
+                    : "Hemos registrado tu consulta. Te responderemos a la brevedad por WhatsApp o correo."}
                 </p>
               </div>
             ) : (
@@ -283,7 +317,9 @@ export default async function PedidoPage({
                 </p>
                 <p className="font-bold text-sm text-[var(--wood-950)]">{fulfillmentType}</p>
                 {order.customerAddress ? (
-                  <p className="text-stone-600 leading-relaxed">{order.customerAddress}</p>
+                  <p className="text-stone-600 leading-relaxed">
+                    {isAuthorizedViewer ? order.customerAddress : "Dirección registrada en tu orden"}
+                  </p>
                 ) : (
                   <p className="text-stone-500 leading-relaxed">
                     Retiro directo en nuestro taller artesanal: {company.address}.
@@ -356,8 +392,8 @@ export default async function PedidoPage({
           )}
         </div>
 
-        {/* CALIFICACIÓN Y TESTIMONIO EN TIEMPO REAL (solo para ventas reales) */}
-        {order.type === "SALE" && (
+        {/* CALIFICACIÓN Y TESTIMONIO EN TIEMPO REAL (solo para ventas reales del titular) */}
+        {order.type === "SALE" && isAuthorizedViewer && (
           <OrderReviewPrompt
             orderId={order.id}
             orderNumber={order.number}
@@ -370,7 +406,7 @@ export default async function PedidoPage({
 
         {/* ACCIONES Y BOTONES FINALES */}
         <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
-          {order.invoice ? (
+          {order.invoice && isAuthorizedViewer ? (
             <a
               href={`/api/facturas/${order.invoice.id}/pdf?orderId=${order.id}`}
               target="_blank"
@@ -382,7 +418,7 @@ export default async function PedidoPage({
             </a>
           ) : null}
 
-          {order.quote ? (
+          {order.quote && isAuthorizedViewer && !isContact ? (
             <a
               href={`/api/cotizaciones/${order.quote.id}/pdf?orderId=${order.id}`}
               target="_blank"

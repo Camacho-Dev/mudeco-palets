@@ -14,9 +14,13 @@ export async function submitContactRequest(fd: FormData) {
   const phone = String(fd.get("phone") || "").trim();
   const kindRaw = String(fd.get("kind") || "contact");
   const kind: ServiceRequestKind = kindRaw === "quote" ? "quote" : "contact";
-  const piece = String(fd.get("piece") || "Consulta web").trim();
-  const description = String(fd.get("description") || "").trim();
-  const photoNote = String(fd.get("photoNote") || "").trim() || undefined;
+  const piece = String(fd.get("piece") || "Consulta web").trim().slice(0, 150);
+  const description = String(fd.get("description") || "")
+    .replace(/\[COMPROBANTE_PAGO:\s*\{[\s\S]*?\}\]/gi, "")
+    .replace(/\[COMPROBANTE:[^\]]+\]/gi, "")
+    .trim()
+    .slice(0, 2000);
+  const photoNote = String(fd.get("photoNote") || "").trim().slice(0, 500) || undefined;
 
   if (!name) throw new Error("Nombre requerido");
   if (!email || !email.includes("@")) throw new Error("Email válido requerido");

@@ -22,7 +22,7 @@ export async function submitCustomerReviewAction(formData: FormData): Promise<Su
   const orderNumber = String(formData.get("orderNumber") || "").trim() || undefined;
   const webOrderId = String(formData.get("webOrderId") || "").trim() || undefined;
 
-  if (!customerName || customerName.length < 2) {
+  if (!customerName || customerName.length < 2 || customerName.length > 80) {
     return { success: false, error: "Por favor introduce tu nombre completo." };
   }
 
@@ -34,7 +34,7 @@ export async function submitCustomerReviewAction(formData: FormData): Promise<Su
     return { success: false, error: "Tu testimonio no puede exceder los 600 caracteres." };
   }
 
-  const rating = Math.min(5, Math.max(1, Math.round(ratingRaw)));
+  const rating = Math.min(5, Math.max(1, Math.round(Number.isFinite(ratingRaw) ? ratingRaw : 5)));
 
   // Rate limit para prevenir spam (máximo 4 reseñas por email/nombre en 10 min)
   const rlKey = customerEmail ? `review:${customerEmail}` : `review:name:${customerName.toLowerCase()}`;
@@ -47,17 +47,20 @@ export async function submitCustomerReviewAction(formData: FormData): Promise<Su
   }
 
   let isVerified = false;
-  let finalWebOrderId: string | undefined = webOrderId;
+  let finalWebOrderId: string | undefined = undefined;
   let finalProductName = productName;
 
-  // Si proporcionó orden o id de orden, verificar existencia en la base de datos
-  if (webOrderId || orderNumber) {
+  // Verificar autenticidad real del pedido (evitar spoofing de códigos secuenciales WEB-2026-0001)
+  if (webOrderId || (orderNumber && customerEmail)) {
     const existingOrder = await prisma.webOrder.findFirst({
       where: {
-        OR: [
-          ...(webOrderId ? [{ id: webOrderId }] : []),
-          ...(orderNumber ? [{ number: orderNumber }] : []),
-        ],
+        type: "SALE",
+        ...(webOrderId
+          ? { id: webOrderId }
+          : {
+              number: orderNumber,
+              customerEmail: { equals: customerEmail, mode: "insensitive" },
+            }),
       },
       include: {
         items: true,
@@ -80,9 +83,9 @@ export async function submitCustomerReviewAction(formData: FormData): Promise<Su
         customerEmail: customerEmail || null,
         rating,
         comment,
-        city: city || "República Dominicana",
-        productName: finalProductName || null,
-        orderNumber: orderNumber || null,
+        city: city.slice(0, 60) || "República Dominicana",
+        productName: finalProductName ? finalProductName.slice(0, 120) : null,
+        orderNumber: isVerified ? orderNumber || null : null,
         isVerified,
         status: "APPROVED",
         webOrderId: finalWebOrderId || null,
@@ -109,18 +112,30 @@ export async function toggleReviewLikeAction(
   reviewId: string,
   delta: 1 | -1 = 1,
 ): Promise<{ success: boolean; likes?: number; error?: string }> {
+  const safeDelta = delta === -1 ? -1 : 1;
+
   if (!reviewId || reviewId.startsWith("temp-") || reviewId.startsWith("yt-")) {
-    return { success: true, likes: Math.max(0, delta) };
+    return { success: true, likes: Math.max(0, safeDelta) };
+  }
+
+  const rl = checkRateLimit(`review-like:${reviewId}`, 20, 60 * 1000);
+  if (!rl.ok) {
+    return { success: false, error: "Demasiadas interacciones seguidas" };
   }
 
   try {
+    const current = await prisma.customerReview.findUnique({
+      where: { id: reviewId },
+      select: { likes: true },
+    });
+    if (!current) {
+      return { success: false, error: "Testimonio no encontrado" };
+    }
+
+    const nextLikes = Math.max(0, current.likes + safeDelta);
     const updated = await prisma.customerReview.update({
       where: { id: reviewId },
-      data: {
-        likes: {
-          increment: delta,
-        },
-      },
+      data: { likes: nextLikes },
       select: { likes: true },
     });
 
@@ -145,8 +160,8 @@ export async function submitReviewReplyAction(
   }
 
   const reply = replyText.trim();
-  if (!reply || reply.length < 3) {
-    return { success: false, error: "La respuesta debe tener al menos 3 caracteres." };
+  if (!reply || reply.length < 3 || reply.length > 800) {
+    return { success: false, error: "La respuesta debe tener entre 3 y 800 caracteres." };
   }
 
   try {

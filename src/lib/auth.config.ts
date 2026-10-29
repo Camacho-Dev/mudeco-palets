@@ -6,7 +6,7 @@ import { homeForRole, isAdmin, isStaff } from "@/lib/rbac";
 /** Config Edge-compatible (sin Prisma/bcrypt) para middleware */
 export const authConfig = {
   trustHost: true,
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt", maxAge: 12 * 60 * 60 },
   pages: {
     signIn: "/login",
   },

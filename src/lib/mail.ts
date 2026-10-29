@@ -4,6 +4,21 @@ import { buildInvoicePdf } from "@/lib/pdf/invoice-pdf";
 import { webOrderTypeLabel } from "@/lib/web-order-labels";
 import { siteUrl } from "@/lib/store-info";
 
+function escapeHtml(raw: string | null | undefined): string {
+  if (!raw) return "";
+  return String(raw)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function cleanHeader(raw: string | null | undefined): string {
+  if (!raw) return "";
+  return String(raw).replace(/[\r\n]+/g, " ").trim();
+}
+
 function smtpConfigured() {
   return !!(
     process.env.SMTP_HOST &&
@@ -57,15 +72,17 @@ export async function notifyStaffNewWebOrder(webOrderId: string) {
     process.env.SMTP_USER ||
     "noreply@mudecopalets.com";
   const typeLabel = webOrderTypeLabel(order);
-  const panelUrl = `${siteUrl()}/pedidos-web/${order.id}`;
-  const notesPreview = (order.notes || "").slice(0, 800);
+  const panelUrl = `${siteUrl()}/pedidos-web/${encodeURIComponent(order.id)}`;
+  const notesPreview = (order.notes || "")
+    .replace(/\[COMPROBANTE_PAGO:\s*\{[\s\S]*?\}\]/g, "[Comprobante adjunto]")
+    .slice(0, 800);
 
   try {
     const tx = await transporter();
     const info = await tx.sendMail({
-      from: `"${company?.name || "Mudeco Palets"}" <${from}>`,
+      from: `"${cleanHeader(company?.name || "Mudeco Palets")}" <${cleanHeader(from)}>`,
       to,
-      subject: `[Web] ${typeLabel} ${order.number} — ${order.customerName}`,
+      subject: cleanHeader(`[Web] ${typeLabel} ${order.number} — ${order.customerName}`),
       text: `Nuevo ${typeLabel} desde la tienda web.
 
 Pedido: ${order.number}
@@ -80,17 +97,17 @@ ${notesPreview || "(sin notas)"}
 Abrir en el panel:
 ${panelUrl}
 `,
-      html: `<p>Nuevo <strong>${typeLabel}</strong> desde la tienda web.</p>
+      html: `<p>Nuevo <strong>${escapeHtml(typeLabel)}</strong> desde la tienda web.</p>
         <ul>
-          <li><strong>Pedido:</strong> ${order.number}</li>
-          <li><strong>Cliente:</strong> ${order.customerName}</li>
-          <li><strong>Email:</strong> ${order.customerEmail}</li>
-          <li><strong>Teléfono:</strong> ${order.customerPhone || "—"}</li>
+          <li><strong>Pedido:</strong> ${escapeHtml(order.number)}</li>
+          <li><strong>Cliente:</strong> ${escapeHtml(order.customerName)}</li>
+          <li><strong>Email:</strong> ${escapeHtml(order.customerEmail)}</li>
+          <li><strong>Teléfono:</strong> ${escapeHtml(order.customerPhone || "—")}</li>
           <li><strong>Total:</strong> RD$ ${order.total.toFixed(2)}</li>
         </ul>
         <p><strong>Notas</strong></p>
-        <pre style="white-space:pre-wrap;font-family:inherit">${notesPreview || "(sin notas)"}</pre>
-        <p><a href="${panelUrl}">Abrir en el panel</a></p>`,
+        <pre style="white-space:pre-wrap;font-family:inherit">${escapeHtml(notesPreview || "(sin notas)")}</pre>
+        <p><a href="${escapeHtml(panelUrl)}">Abrir en el panel</a></p>`,
     });
     const previewUrl = nodemailer.getTestMessageUrl(info);
     if (previewUrl) {
@@ -141,13 +158,13 @@ export async function sendInvoiceEmail(invoiceId: string) {
 
   const tx = await transporter();
   const info = await tx.sendMail({
-    from: `"${company.name}" <${from}>`,
+    from: `"${cleanHeader(company.name)}" <${cleanHeader(from)}>`,
     to,
-    subject: `Factura ${invoice.number} — ${company.name}`,
+    subject: cleanHeader(`Factura ${invoice.number} — ${company.name}`),
     text: `Hola ${invoice.customer.name},\n\nGracias por tu compra en ${company.name}.\nAdjuntamos la factura ${invoice.number} por un total de RD$ ${invoice.total.toFixed(2)}.\n\nSaludos.`,
-    html: `<p>Hola <strong>${invoice.customer.name}</strong>,</p>
-      <p>Gracias por tu compra en <strong>${company.name}</strong>.</p>
-      <p>Adjuntamos la factura <strong>${invoice.number}</strong> por un total de <strong>RD$ ${invoice.total.toFixed(2)}</strong>.</p>
+    html: `<p>Hola <strong>${escapeHtml(invoice.customer.name)}</strong>,</p>
+      <p>Gracias por tu compra en <strong>${escapeHtml(company.name)}</strong>.</p>
+      <p>Adjuntamos la factura <strong>${escapeHtml(invoice.number)}</strong> por un total de <strong>RD$ ${invoice.total.toFixed(2)}</strong>.</p>
       <p>Saludos.</p>`,
     attachments: [
       {
@@ -181,16 +198,16 @@ export async function sendPasswordResetEmail(
 
   const tx = await transporter();
   const info = await tx.sendMail({
-    from: `"${companyName}" <${from}>`,
+    from: `"${cleanHeader(companyName)}" <${cleanHeader(from)}>`,
     to: toEmail,
-    subject: `Código de recuperación de contraseña — ${companyName}`,
+    subject: cleanHeader(`Código de recuperación de contraseña — ${companyName}`),
     text: `Hola ${userName},\n\nTu código de seguridad para restablecer tu contraseña en ${companyName} es:\n\n${code}\n\nEste código es válido por 15 minutos.\nSi no solicitaste este cambio, puedes ignorar este mensaje.`,
     html: `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:24px;border:1px solid #e5d8c8;border-radius:12px;background:#faf7f2;color:#1b1511">
-      <p style="font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:#b0894f;font-weight:bold;margin:0 0 8px">${companyName}</p>
+      <p style="font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:#b0894f;font-weight:bold;margin:0 0 8px">${escapeHtml(companyName)}</p>
       <h2 style="margin:0 0 12px;font-size:20px">Recuperación de contraseña</h2>
-      <p style="font-size:14px;line-height:1.5">Hola <strong>${userName}</strong>, usa el siguiente código de 6 dígitos para crear una nueva contraseña:</p>
+      <p style="font-size:14px;line-height:1.5">Hola <strong>${escapeHtml(userName)}</strong>, usa el siguiente código de 6 dígitos para crear una nueva contraseña:</p>
       <div style="margin:20px 0;padding:16px;text-align:center;background:#16120e;color:#d4af37;font-size:28px;font-weight:bold;letter-spacing:0.25em;border-radius:10px">
-        ${code}
+        ${escapeHtml(code)}
       </div>
       <p style="font-size:12px;color:#6e5a4f">Este código vence en 15 minutos. Si no solicitaste este cambio, ignora este correo.</p>
     </div>`,

@@ -29,6 +29,11 @@ const securityHeaders = [
     key: "X-XSS-Protection",
     value: "1; mode=block",
   },
+  {
+    key: "Content-Security-Policy",
+    value:
+      "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self' https://checkout.stripe.com https://accounts.google.com;",
+  },
 ];
 
 const nextConfig: NextConfig = {
@@ -53,6 +58,16 @@ const nextConfig: NextConfig = {
   ],
   async headers() {
     return [
+      {
+        source: "/uploads/:path*",
+        headers: [
+          ...securityHeaders,
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+          },
+        ],
+      },
       {
         source: "/:path*",
         headers: securityHeaders,

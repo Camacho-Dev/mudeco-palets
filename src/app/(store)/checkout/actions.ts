@@ -28,7 +28,11 @@ function parseCustomer(fd: FormData): CheckoutCustomer {
   }
   const fulfillmentLabel =
     fulfillment === "delivery" ? "Entrega a domicilio" : "Retiro en taller";
-  const extraNotes = String(fd.get("notes") || "").trim();
+  const extraNotes = String(fd.get("notes") || "")
+    .replace(/\[COMPROBANTE_PAGO:\s*\{[\s\S]*?\}\]/gi, "")
+    .replace(/\[COMPROBANTE:[^\]]+\]/gi, "")
+    .trim()
+    .slice(0, 1500);
   const notes = [`[${fulfillmentLabel}]`, extraNotes || null]
     .filter(Boolean)
     .join("\n");

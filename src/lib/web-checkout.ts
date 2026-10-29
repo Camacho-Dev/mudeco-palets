@@ -63,24 +63,38 @@ async function upsertWebCustomer(data: CheckoutCustomer) {
 
 async function resolveLines(cart: CartLineInput[]) {
   if (!cart.length) throw new Error("El carrito está vacío");
-  const lines = [];
+  if (cart.length > 50) {
+    throw new Error("El carrito supera el límite máximo de 50 artículos distintos");
+  }
+
+  const sanitized: { productId: string; qty: number }[] = [];
   for (const row of cart) {
-    const qty = Number(row.quantity);
-    if (!row.productId || !(qty > 0)) continue;
-    const product = await prisma.product.findFirst({
-      where: { id: row.productId, active: true, kind: "FINISHED" },
-    });
+    const rawQty = Number(row.quantity);
+    if (!row.productId || !Number.isFinite(rawQty) || rawQty < 1) continue;
+    const qty = Math.min(100, Math.floor(rawQty));
+    sanitized.push({ productId: String(row.productId).trim(), qty });
+  }
+  if (!sanitized.length) throw new Error("El carrito está vacío");
+
+  const uniqueIds = Array.from(new Set(sanitized.map((r) => r.productId)));
+  const products = await prisma.product.findMany({
+    where: { id: { in: uniqueIds }, active: true, kind: "FINISHED" },
+  });
+  const byId = new Map(products.map((p) => [p.id, p]));
+
+  const lines = [];
+  for (const row of sanitized) {
+    const product = byId.get(row.productId);
     if (!product) throw new Error("Hay un producto no disponible");
     lines.push({
       productId: product.id,
       description: product.name,
-      quantity: qty,
+      quantity: row.qty,
       unitPrice: product.price,
       taxRate: product.taxRate,
-      lineTotal: roundMoney(qty * product.price),
+      lineTotal: roundMoney(row.qty * product.price),
     });
   }
-  if (!lines.length) throw new Error("El carrito está vacío");
   return lines;
 }
 

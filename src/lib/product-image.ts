@@ -22,10 +22,23 @@ const CATEGORY_FALLBACK: Record<string, string> = {
   "a medida": "/brand/store-craft.jpg",
 };
 
+export function isSafeImageUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  const trimmed = url.trim();
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//")) return true;
+  if (trimmed.startsWith("https://") || trimmed.startsWith("http://")) return true;
+  if (/^data:image\/(jpeg|jpg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(trimmed)) {
+    return true;
+  }
+  return false;
+}
+
 export function productImage(
   product: { imageUrl?: string | null; category?: string | null; name?: string },
 ) {
-  if (product.imageUrl) return product.imageUrl;
+  if (product.imageUrl && isSafeImageUrl(product.imageUrl)) {
+    return product.imageUrl.trim();
+  }
   const cat = (product.category || "").toLowerCase().trim();
   const name = (product.name || "").toLowerCase();
   if (CATEGORY_FALLBACK[cat]) return CATEGORY_FALLBACK[cat];

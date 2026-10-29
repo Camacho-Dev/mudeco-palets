@@ -10,6 +10,9 @@ export async function GET(
 ) {
   const { id } = await params;
   const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
 
   const invoice = await prisma.invoice.findUnique({
     where: { id },
@@ -19,24 +22,27 @@ export async function GET(
     return NextResponse.json({ error: "No encontrada" }, { status: 404 });
   }
 
-  let authorized = Boolean(session?.user?.id && isStaff(session.user.role));
+  let authorized = isStaff(session.user.role);
 
   if (
     !authorized &&
-    session?.user?.email &&
+    session.user.email &&
     invoice.customer.email &&
     session.user.email.toLowerCase() === invoice.customer.email.toLowerCase()
   ) {
     authorized = true;
   }
 
-  if (!authorized) {
+  if (!authorized && session.user.email) {
     const url = new URL(req.url);
     const orderId = (url.searchParams.get("orderId") || "").trim();
-    // Solo permitir descarga sin sesión de staff si se provee explícitamente el orderId correcto
     if (orderId) {
       const webOrder = await prisma.webOrder.findFirst({
-        where: { id: orderId, invoiceId: id },
+        where: {
+          id: orderId,
+          invoiceId: id,
+          customerEmail: { equals: session.user.email, mode: "insensitive" },
+        },
       });
       if (webOrder) {
         authorized = true;
@@ -45,7 +51,7 @@ export async function GET(
   }
 
   if (!authorized) {
-    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    return NextResponse.json({ error: "No autorizado" }, { status: 403 });
   }
 
   const company = (await prisma.companySettings.findUnique({
@@ -76,6 +82,7 @@ export async function GET(
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `attachment; filename="${invoice.number}.pdf"`,
+      "Cache-Control": "private, no-store",
     },
   });
 }
