@@ -45,16 +45,16 @@ async function main() {
     update: {
       name: "Mudeco Palets",
       slogan: "Muebles a la medida",
-      email: "ventas@mudecopalets.com",
+      email: "mudecopalets@gmail.com",
     },
     create: {
       id: "default",
       name: "Mudeco Palets",
       slogan: "Muebles a la medida",
       taxId: process.env.COMPANY_TAX_ID || "130000000",
-      address: "Santo Domingo, República Dominicana",
-      phone: "809-555-0100",
-      email: "ventas@mudecopalets.com",
+      address: "Prolongación Avenida 27 de Febrero, Región Ozama, Santo Domingo Oeste, República Dominicana",
+      phone: "+1 (809) 704-7519",
+      email: "mudecopalets@gmail.com",
     },
   });
 

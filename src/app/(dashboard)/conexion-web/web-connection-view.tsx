@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import {
-  Activity,
   AlertTriangle,
   ArrowRight,
   Boxes,
@@ -22,7 +21,6 @@ import {
   ShieldCheck,
   ShoppingBag,
   Sparkles,
-  Truck,
   Wrench,
   Zap,
 } from "lucide-react";
@@ -98,7 +96,7 @@ export function WebConnectionView({
   const [revalidateMsg, setRevalidateMsg] = useState<string | null>(null);
   const [revalidateTime, setRevalidateTime] = useState<string | null>(null);
 
-  const [diagnosticResult, setDiagnosticResult] = useState<any | null>(null);
+  const [diagnosticResult, setDiagnosticResult] = useState<Awaited<ReturnType<typeof runCatalogDiagnostics>> | null>(null);
   const [isDiagnosing, setIsDiagnosing] = useState(false);
 
   const [stripeStatus, setStripeStatus] = useState(initialStripe);
@@ -120,8 +118,9 @@ export function WebConnectionView({
         setRevalidateMsg(res.message);
         setRevalidateTime(res.timestamp);
         setTimeout(() => setRevalidateMsg(null), 8000);
-      } catch (err: any) {
-        setRevalidateMsg(`Error al revalidar: ${err.message}`);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Error inesperado";
+        setRevalidateMsg(`Error al revalidar: ${msg}`);
       }
     });
   }
@@ -132,8 +131,9 @@ export function WebConnectionView({
     try {
       const res = await runCatalogDiagnostics();
       setDiagnosticResult(res);
-    } catch (err: any) {
-      alert(`Error en diagnóstico: ${err.message}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error inesperado";
+      setRevalidateMsg(`Error en diagnóstico: ${msg}`);
     } finally {
       setIsDiagnosing(false);
     }
@@ -145,8 +145,9 @@ export function WebConnectionView({
     try {
       const res = await checkStripeStatus();
       setStripeStatus(res);
-    } catch (err: any) {
-      alert(`Error verificando Stripe: ${err.message}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error inesperado";
+      setRevalidateMsg(`Error verificando Stripe: ${msg}`);
     } finally {
       setIsCheckingStripe(false);
     }
@@ -163,14 +164,15 @@ export function WebConnectionView({
         number: res.orderNumber,
         message: res.message,
       });
-    } catch (err: any) {
-      alert(`Error creando pedido de prueba: ${err.message}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error inesperado";
+      setRevalidateMsg(`Error creando pedido de prueba: ${msg}`);
     } finally {
       setIsCreatingTest(false);
     }
   }
 
-  const rawPhone = company?.phone?.replace(/\D/g, "") || "18095550199";
+  const rawPhone = company?.phone?.replace(/\D/g, "") || "18097047519";
   const whatsappTestUrl = `https://wa.me/${rawPhone}?text=${encodeURIComponent(
     `Hola ${company?.name || "Mudeco Palets"}, estoy probando el enlace de conexión web directa con atención al cliente.`
   )}`;
@@ -478,7 +480,7 @@ export function WebConnectionView({
                 </span>
               </div>
               <p className="mt-2 text-xs text-[var(--muted)] leading-relaxed">
-                Canal directo de contacto en la web. Permite a los clientes pedir cotizaciones de muebles a medida, reparaciones o enviar comprobantes de transferencia.
+                Canal directo de contacto en la web. Permite a los clientes pedir cotizaciones de muebles a medida o enviar comprobantes de transferencia.
               </p>
               <div className="mt-3 text-xs bg-white p-2 rounded-lg border border-[var(--border)] text-[var(--wood-900)]">
                 Línea configurada: <strong>{company?.phone || "No establecida"}</strong>
@@ -600,7 +602,7 @@ export function WebConnectionView({
             </div>
           ) : (
             <div className="mt-4 space-y-3">
-              {diagnosticResult.issues.map((issue: any, idx: number) => (
+              {diagnosticResult.issues.map((issue, idx: number) => (
                 <div
                   key={idx}
                   className={`rounded-xl border p-4 text-xs ${
@@ -622,7 +624,7 @@ export function WebConnectionView({
                   </div>
                   <p className="mt-1 text-xs opacity-80">{issue.description}</p>
                   <div className="mt-2 flex flex-wrap gap-1.5">
-                    {issue.items.map((item: any) => (
+                    {issue.items.map((item) => (
                       <Link
                         key={item.id}
                         href={`/productos/${item.id}`}
@@ -655,6 +657,7 @@ export function WebConnectionView({
             <div className="flex items-center gap-2">
               <a
                 href="/api/export/pedidos-web"
+                download
                 className="btn btn-secondary inline-flex items-center gap-1.5 text-xs"
                 title="Exportar pedidos en CSV para Excel"
               >
@@ -702,7 +705,7 @@ export function WebConnectionView({
                         </p>
                       </td>
                       <td className="px-3 py-2.5 text-[var(--muted)]">
-                        {webOrderTypeLabel(o as any)}
+                        {webOrderTypeLabel(o)}
                       </td>
                       <td className="px-3 py-2.5">
                         <span

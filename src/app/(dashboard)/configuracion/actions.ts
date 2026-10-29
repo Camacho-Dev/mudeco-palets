@@ -76,5 +76,71 @@ export async function createNcfSeries(fd: FormData) {
     summary: `Serie NCF ${type} creada (${prefix})`,
   });
   revalidatePath("/configuracion");
+  revalidatePath("/panel");
   redirect("/configuracion");
+}
+
+export async function toggleNcfSeriesActive(id: string) {
+  await requireAdmin();
+  const series = await prisma.ncfSeries.findUnique({ where: { id } });
+  if (!series) throw new Error("Serie NCF no encontrada");
+
+  const updated = await prisma.ncfSeries.update({
+    where: { id },
+    data: { active: !series.active },
+  });
+
+  await writeAudit({
+    action: "UPDATE",
+    entity: "NcfSeries",
+    entityId: id,
+    summary: `Serie NCF ${updated.type} (${updated.prefix}) ${updated.active ? "activada" : "desactivada"}`,
+  });
+
+  revalidatePath("/configuracion");
+  revalidatePath("/panel");
+}
+
+export async function updateNcfSeriesSeq(fd: FormData) {
+  await requireAdmin();
+  const id = String(fd.get("id") || "");
+  const nextSeq = Number(fd.get("nextSeq") || 1);
+  const maxSeq = Number(fd.get("maxSeq") || 99999999);
+
+  if (!id || nextSeq < 1 || maxSeq < nextSeq) {
+    throw new Error("Secuencia NCF inválida");
+  }
+
+  const updated = await prisma.ncfSeries.update({
+    where: { id },
+    data: { nextSeq, maxSeq },
+  });
+
+  await writeAudit({
+    action: "UPDATE",
+    entity: "NcfSeries",
+    entityId: id,
+    summary: `Secuencia NCF ${updated.type} actualizada: siguiente ${nextSeq}, máx ${maxSeq}`,
+  });
+
+  revalidatePath("/configuracion");
+  revalidatePath("/panel");
+}
+
+export async function deleteNcfSeries(id: string) {
+  await requireAdmin();
+  const existing = await prisma.ncfSeries.findUnique({ where: { id } });
+  if (!existing) return;
+
+  await prisma.ncfSeries.delete({ where: { id } });
+
+  await writeAudit({
+    action: "DELETE",
+    entity: "NcfSeries",
+    entityId: id,
+    summary: `Serie NCF eliminada: ${existing.type} (${existing.prefix})`,
+  });
+
+  revalidatePath("/configuracion");
+  revalidatePath("/panel");
 }

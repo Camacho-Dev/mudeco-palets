@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { submitServiceRequest } from "@/app/(store)/reparaciones/actions";
+import { submitContactRequest } from "@/app/(store)/contacto/actions";
 
 export function ContactForm() {
   const [error, setError] = useState("");
@@ -15,7 +15,7 @@ export function ContactForm() {
     fd.set("piece", "Consulta web");
     start(async () => {
       try {
-        await submitServiceRequest(fd);
+        await submitContactRequest(fd);
       } catch (err) {
         const dig =
           err && typeof err === "object" && "digest" in err

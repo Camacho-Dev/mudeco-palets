@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireAdmin } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { createEmployee } from "../actions";
-import { ArrowLeft, User, Briefcase, Wallet, Shield, Phone, MapPin, Calendar } from "lucide-react";
+import { ArrowLeft, User, Briefcase, Wallet, Shield } from "lucide-react";
 
 export default async function NuevoEmpleadoPage() {
   await requireAdmin();

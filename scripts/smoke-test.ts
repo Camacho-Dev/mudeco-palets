@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
-import { calcInvoiceTotals, resolvePaymentStatus } from "../src/lib/invoice-calc";
+import { calcInvoiceTotals, resolvePaymentStatus, resolveInvoiceStatusWithCredits } from "../src/lib/invoice-calc";
 import { checkRateLimit } from "../src/lib/rate-limit";
-import { isAdmin, canVoidInvoice } from "../src/lib/rbac";
+import { isAdmin, isStaff, canVoidInvoice, homeForRole } from "../src/lib/rbac";
 
 function testTotals() {
   const t = calcInvoiceTotals([
@@ -17,12 +17,21 @@ function testPaymentStatus() {
   assert.equal(resolvePaymentStatus(100, 0, "ISSUED"), "ISSUED");
   assert.equal(resolvePaymentStatus(100, 40, "ISSUED"), "PARTIAL");
   assert.equal(resolvePaymentStatus(100, 100, "PARTIAL"), "PAID");
+  assert.equal(resolveInvoiceStatusWithCredits(100, 50, 50, "PARTIAL"), "PAID");
 }
 
 function testRbac() {
   assert.equal(isAdmin("ADMIN"), true);
+  assert.equal(isAdmin("VENDEDOR"), false);
+  assert.equal(isAdmin("CLIENTE"), false);
+  assert.equal(isStaff("ADMIN"), true);
+  assert.equal(isStaff("VENDEDOR"), true);
+  assert.equal(isStaff("CLIENTE"), false);
   assert.equal(canVoidInvoice("VENDEDOR"), false);
   assert.equal(canVoidInvoice("ADMIN"), true);
+  assert.equal(homeForRole("ADMIN"), "/panel");
+  assert.equal(homeForRole("VENDEDOR"), "/vender");
+  assert.equal(homeForRole("CLIENTE"), "/");
 }
 
 function testRateLimit() {

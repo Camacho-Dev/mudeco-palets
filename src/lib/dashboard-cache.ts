@@ -12,6 +12,17 @@ export const getCachedAuthSession = cache(async () => {
   return await auth();
 });
 
+export type PendingWebOrderSummary = {
+  id: string;
+  number: string;
+  customerName: string;
+  total: number;
+  type: string;
+  serviceKind: string | null;
+  status: string;
+  createdAt: Date;
+};
+
 export const getCachedPendingWebOrders = cache(async () => {
   try {
     const [count, recent] = await withDbRetry(
@@ -44,7 +55,7 @@ export const getCachedPendingWebOrders = cache(async () => {
             },
           }),
         ]),
-      { fallback: [0, []] as [number, any[]] },
+      { fallback: [0, []] as [number, PendingWebOrderSummary[]] },
     );
     return { count, recent };
   } catch {

@@ -50,3 +50,9 @@ next-env.d.ts
 
 # neon
 .neon
+
+.vercel
+.env*
+
+*.zip
+cpanel-deploy.zip

@@ -2,13 +2,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
-import { PageHeader } from "@/components/page-header";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { completeWorkOrder, cancelWorkOrder } from "../actions";
 import { ConfirmForm } from "@/components/confirm-form";
 import { PrintActionButton } from "@/components/print-action-button";
 import {
-  Hammer,
   Clock,
   CheckCircle2,
   XCircle,
@@ -18,7 +16,6 @@ import {
   User,
   Calendar,
   ArrowLeft,
-  Package,
 } from "lucide-react";
 
 export default async function WorkOrderDetailPage({

@@ -2,8 +2,15 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
-import { updateCompany, createNcfSeries } from "./actions";
+import {
+  updateCompany,
+  createNcfSeries,
+  toggleNcfSeriesActive,
+  updateNcfSeriesSeq,
+  deleteNcfSeries,
+} from "./actions";
 import { formatDate } from "@/lib/format";
+import { ConfirmForm } from "@/components/confirm-form";
 
 export default async function ConfiguracionPage() {
   await requireAdmin();
@@ -105,7 +112,7 @@ export default async function ConfiguracionPage() {
       <div>
         <PageHeader
           title="Series NCF"
-          description="Comprobantes fiscales RD (B01, B02…)"
+          description="Comprobantes fiscales RD (B01, B02, B14, B15…)"
         />
         <form action={createNcfSeries} className="card mb-4 max-w-xl space-y-3 p-6">
           <div className="grid gap-3 sm:grid-cols-2">
@@ -144,11 +151,11 @@ export default async function ConfiguracionPage() {
             <thead>
               <tr>
                 <th>Tipo</th>
-                <th>Prefijo</th>
-                <th>Siguiente</th>
-                <th>Máx</th>
+                <th>Nombre / Prefijo</th>
+                <th>Secuencia (Siguiente / Máx)</th>
                 <th>Vence</th>
-                <th>Activa</th>
+                <th>Estado</th>
+                <th className="text-right">Acciones</th>
               </tr>
             </thead>
             <tbody>
@@ -161,12 +168,72 @@ export default async function ConfiguracionPage() {
               ) : (
                 series.map((s) => (
                   <tr key={s.id}>
-                    <td>{s.type}</td>
-                    <td>{s.prefix}</td>
-                    <td>{s.nextSeq}</td>
-                    <td>{s.maxSeq}</td>
+                    <td className="font-mono font-bold">{s.type}</td>
+                    <td>
+                      <div className="font-medium text-[var(--wood-950)]">{s.name}</div>
+                      <div className="text-xs font-mono text-[var(--muted)]">
+                        Prefijo: {s.prefix}
+                      </div>
+                    </td>
+                    <td>
+                      <form action={updateNcfSeriesSeq} className="flex items-center gap-1.5">
+                        <input type="hidden" name="id" value={s.id} />
+                        <input
+                          name="nextSeq"
+                          type="number"
+                          min={1}
+                          defaultValue={s.nextSeq}
+                          className="input h-8 w-24 font-mono text-xs"
+                          title="Siguiente correlativo"
+                        />
+                        <span className="text-xs text-[var(--muted)]">/</span>
+                        <input
+                          name="maxSeq"
+                          type="number"
+                          min={1}
+                          defaultValue={s.maxSeq}
+                          className="input h-8 w-28 font-mono text-xs"
+                          title="Máximo autorizado"
+                        />
+                        <button type="submit" className="btn btn-ghost text-xs py-1 px-2">
+                          Guardar
+                        </button>
+                      </form>
+                    </td>
                     <td>{s.expiresAt ? formatDate(s.expiresAt) : "—"}</td>
-                    <td>{s.active ? "Sí" : "No"}</td>
+                    <td>
+                      {s.active ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+                          Activa
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-stone-200 px-2 py-0.5 text-xs font-semibold text-stone-700">
+                          Inactiva
+                        </span>
+                      )}
+                    </td>
+                    <td className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <form action={toggleNcfSeriesActive.bind(null, s.id)}>
+                          <button type="submit" className="btn btn-ghost text-xs py-1 px-2">
+                            {s.active ? "Desactivar" : "Activar"}
+                          </button>
+                        </form>
+                        <ConfirmForm
+                          action={deleteNcfSeries.bind(null, s.id)}
+                          title="Eliminar serie NCF"
+                          message={`¿Eliminar la serie NCF ${s.type} (${s.prefix})?`}
+                          isDestructive
+                        >
+                          <button
+                            type="submit"
+                            className="btn btn-ghost text-xs py-1 px-2 text-rose-600 hover:bg-rose-50"
+                          >
+                            Eliminar
+                          </button>
+                        </ConfirmForm>
+                      </div>
+                    </td>
                   </tr>
                 ))
               )}

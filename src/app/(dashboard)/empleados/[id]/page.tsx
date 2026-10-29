@@ -2,25 +2,17 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
-import { PageHeader } from "@/components/page-header";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { updateEmployee, toggleEmployeeActive, setEmployeePassword } from "../actions";
 import { ConfirmForm } from "@/components/confirm-form";
 import { PrintActionButton } from "@/components/print-action-button";
 import {
   ArrowLeft,
-  User,
-  Briefcase,
-  Wallet,
   Shield,
-  Phone,
   MessageCircle,
   Calendar,
   Lock,
-  Building2,
-  HardHat,
   FileText,
-  AlertCircle,
   Factory,
 } from "lucide-react";
 
@@ -49,13 +41,19 @@ export default async function EmpleadoDetailPage({
       },
       invoices: {
         orderBy: { issueDate: "desc" },
-        take: 10,
+        take: 50,
         include: { customer: true },
       },
     },
   });
 
   if (!emp) notFound();
+
+  const validInvoices = emp.invoices.filter((i) =>
+    ["ISSUED", "PARTIAL", "PAID"].includes(i.status),
+  );
+  const totalSoldByEmp = validInvoices.reduce((acc, i) => acc + i.subtotal, 0);
+  const commissionEarned = totalSoldByEmp * (emp.commissionRate || 0);
 
   const initials = emp.name
     .split(" ")
@@ -176,13 +174,13 @@ export default async function EmpleadoDetailPage({
 
         <div className="card p-5">
           <p className="text-xs font-semibold tracking-wide text-[var(--muted)] uppercase">
-            Comisión por Ventas
+            Comisión por Ventas ({((emp.commissionRate || 0) * 100).toFixed(1)}%)
           </p>
           <p className="font-display mt-1 text-2xl font-bold text-blue-900">
-            {((emp.commissionRate || 0) * 100).toFixed(1)}%
+            {formatCurrency(commissionEarned)}
           </p>
           <p className="mt-1 text-xs text-[var(--muted)]">
-            Sobre facturas cobradas
+            Sobre {formatCurrency(totalSoldByEmp)} vendidos
           </p>
         </div>
 

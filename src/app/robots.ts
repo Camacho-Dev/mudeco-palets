@@ -12,7 +12,6 @@ export default function robots(): MetadataRoute.Robots {
           "/",
           "/catalogo",
           "/producto/",
-          "/reparaciones",
           "/nosotros",
           "/contacto",
           "/terminos",

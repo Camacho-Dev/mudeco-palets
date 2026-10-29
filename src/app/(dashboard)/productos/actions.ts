@@ -7,6 +7,8 @@ import { canDeactivateProduct, canAdjustStock } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { invalidateScoredProductsCache } from "@/lib/recommendations";
+import { invalidateStoreCompanyCache } from "@/lib/store";
 
 const productSchema = z.object({
   name: z.string().min(1),
@@ -50,12 +52,20 @@ function formDataToProduct(fd: FormData) {
 }
 
 function revalidateProducts(productId?: string) {
-  revalidatePath("/productos");
-  revalidatePath("/inventario");
-  revalidatePath("/vender");
-  revalidatePath("/");
-  revalidatePath("/catalogo");
-  if (productId) revalidatePath(`/producto/${productId}`);
+  invalidateScoredProductsCache();
+  invalidateStoreCompanyCache();
+  try {
+    revalidatePath("/", "layout");
+    revalidatePath("/productos");
+    revalidatePath("/inventario");
+    revalidatePath("/vender");
+    revalidatePath("/");
+    revalidatePath("/catalogo");
+    revalidatePath("/contenido-web");
+    if (productId) revalidatePath(`/producto/${productId}`);
+  } catch (err) {
+    console.error("Error al revalidar productos:", err);
+  }
 }
 
 export async function createProduct(fd: FormData) {

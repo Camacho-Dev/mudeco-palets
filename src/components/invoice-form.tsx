@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useFormStatus } from "react-dom";
+import { AlertTriangle, X } from "lucide-react";
 import { formatCurrency, roundMoney } from "@/lib/format";
 import { CustomerSearchSelect } from "@/components/customer-search-select";
 
@@ -40,6 +42,32 @@ type Initial = {
   lines?: Omit<Line, "key">[];
 };
 
+function InvoiceSubmitButtons() {
+  const { pending } = useFormStatus();
+  return (
+    <div className="flex flex-wrap gap-3">
+      <button
+        type="submit"
+        name="action"
+        value="draft"
+        disabled={pending}
+        className="btn btn-secondary disabled:opacity-60"
+      >
+        {pending ? "Guardando…" : "Guardar borrador"}
+      </button>
+      <button
+        type="submit"
+        name="action"
+        value="issue"
+        disabled={pending}
+        className="btn btn-primary disabled:opacity-60"
+      >
+        {pending ? "Emitiendo factura…" : "Guardar y emitir"}
+      </button>
+    </div>
+  );
+}
+
 export function InvoiceForm({
   customers,
   products,
@@ -58,6 +86,7 @@ export function InvoiceForm({
       : "",
   );
   const [applyTax, setApplyTax] = useState(initial?.applyTax !== false);
+  const [stockWarning, setStockWarning] = useState<string | null>(null);
   const [lines, setLines] = useState<Line[]>(() => {
     if (initial?.lines?.length) {
       return initial.lines.map((l, i) => ({
@@ -111,10 +140,13 @@ export function InvoiceForm({
     }
     const unlimited = p.sku === "CUS-001";
     if (!unlimited && (p.stock ?? 0) <= 0) {
-      alert(`No hay stock de “${p.name}”. No se puede agregar a la factura.`);
+      setStockWarning(
+        `No hay stock disponible de “${p.name}”. No se puede agregar a la factura.`,
+      );
       updateLine(key, { productId: "" });
       return;
     }
+    setStockWarning(null);
     updateLine(key, {
       productId: p.id,
       description: p.name,
@@ -143,6 +175,23 @@ export function InvoiceForm({
 
   return (
     <form action={action} className="space-y-6">
+      {stockWarning ? (
+        <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-xs font-medium text-amber-900">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
+            <span>{stockWarning}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setStockWarning(null)}
+            className="text-amber-700 hover:text-amber-950"
+            aria-label="Cerrar aviso"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      ) : null}
+
       <div className="card grid gap-4 p-6 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label className="label" htmlFor="customerId">
@@ -393,24 +442,7 @@ export function InvoiceForm({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-3">
-        <button
-          type="submit"
-          name="action"
-          value="draft"
-          className="btn btn-secondary"
-        >
-          Guardar borrador
-        </button>
-        <button
-          type="submit"
-          name="action"
-          value="issue"
-          className="btn btn-primary"
-        >
-          Guardar y emitir
-        </button>
-      </div>
+      <InvoiceSubmitButtons />
     </form>
   );
 }

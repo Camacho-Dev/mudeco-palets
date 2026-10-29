@@ -4,6 +4,20 @@ import { formatCurrency } from "@/lib/format";
 import { productImage } from "@/lib/product-image";
 import type { StoreProduct } from "@/lib/store";
 
+function formatCategoryName(cat: string): string {
+  const map: Record<string, string> = {
+    "BASE DE CAMA": "Bases de Cama",
+    "MESA DE COMEDOR": "Mesas de Comedor",
+    "MESA DE CENTRO": "Mesas de Centro",
+    "GAVETEROS": "Gaveteros",
+    "MESA DE NOCHE": "Mesas de Noche",
+    "REPISA DE TV": "Repisas de TV",
+    "BANCO": "Bancos",
+    "REPISA DE ENTRADA": "Repisas de Entrada",
+  };
+  return map[cat.toUpperCase()] || cat;
+}
+
 export function ProductCard({
   product,
   tone = "light",
@@ -16,6 +30,7 @@ export function ProductCard({
   const src = productImage(product);
   const dark = tone === "dark";
   const inStock = product.stock > 0;
+  const categoryLabel = formatCategoryName(product.category);
 
   return (
     <Link
@@ -28,29 +43,10 @@ export function ProductCard({
         }`}
       >
         {badge ? (
-          <span className="absolute top-2.5 left-2.5 z-10 rounded-sm bg-black/90 px-2.5 py-1 text-[0.58rem] font-bold tracking-[0.18em] text-[#d4af37] border border-[#d4af37]/45 uppercase shadow-md backdrop-blur-md">
+          <span className="absolute top-2.5 left-2.5 z-10 rounded-[2px] bg-[#16120f]/90 px-2.5 py-1 text-[0.58rem] font-bold tracking-[0.2em] text-[#d4af37] border border-[#d4af37]/45 uppercase shadow-md backdrop-blur-md">
             {badge}
           </span>
         ) : null}
-
-        {/* Live availability indicator */}
-        <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5 rounded-full bg-black/75 px-2 py-0.5 text-[0.58rem] font-medium tracking-wider backdrop-blur-md border border-white/10">
-          <span className="relative flex h-1.5 w-1.5">
-            <span
-              className={`absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping ${
-                inStock ? "bg-emerald-400" : "bg-amber-400"
-              }`}
-            />
-            <span
-              className={`relative inline-flex h-1.5 w-1.5 rounded-full ${
-                inStock ? "bg-emerald-400" : "bg-amber-400"
-              }`}
-            />
-          </span>
-          <span className="text-white/80">
-            {inStock ? "En taller" : "A medida"}
-          </span>
-        </div>
 
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -73,13 +69,13 @@ export function ProductCard({
       <div className="space-y-1.5 px-4 py-4">
         <p
           className={`text-[0.62rem] font-semibold tracking-[0.18em] uppercase ${
-            dark ? "text-[#c9a15a]/85" : "text-[var(--muted)]"
+            dark ? "text-[#c9a15a]/85" : "text-[#8a7260]"
           }`}
         >
-          {product.category}
+          {categoryLabel}
         </p>
         <h3
-          className={`font-display text-xl leading-snug transition-colors duration-200 ${
+          className={`font-display text-xl leading-snug transition-colors duration-200 line-clamp-1 ${
             dark
               ? "text-white group-hover:text-[#c9a15a]"
               : "text-[var(--wood-950)] group-hover:text-[#8a6a3a]"
@@ -87,7 +83,7 @@ export function ProductCard({
         >
           {product.name}
         </h3>
-        <div className="flex items-baseline justify-between gap-3 pt-1 border-t border-white/[0.06]">
+        <div className="flex items-baseline justify-between gap-3 pt-1 border-t border-black/[0.06] dark:border-white/[0.06]">
           <p
             className={`text-sm font-semibold tracking-wide ${
               dark ? "text-[#c9a15a]" : "text-[var(--wood-800)]"

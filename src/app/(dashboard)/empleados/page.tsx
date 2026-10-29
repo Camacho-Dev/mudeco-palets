@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
+import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
@@ -15,10 +16,6 @@ import {
   Phone,
   MessageCircle,
   Plus,
-  ShieldCheck,
-  UserCheck,
-  Building2,
-  Truck,
   ArrowRight,
 } from "lucide-react";
 
@@ -46,7 +43,9 @@ export default async function EmpleadosPage({
   const query = (q || "").trim();
   const departmentFilter = (dept || "").trim().toUpperCase();
 
-  const whereClause: any = {};
+  const whereClause: Prisma.UserWhereInput = {
+    role: { in: ["ADMIN", "VENDEDOR"] },
+  };
   if (query) {
     whereClause.OR = [
       { name: { contains: query, mode: "insensitive" } },
@@ -75,6 +74,7 @@ export default async function EmpleadosPage({
       },
     }),
     prisma.user.findMany({
+      where: { role: { in: ["ADMIN", "VENDEDOR"] } },
       select: {
         id: true,
         active: true,

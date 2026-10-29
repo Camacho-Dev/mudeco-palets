@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { PlusCircle, SlidersHorizontal, X, Check, Loader2 } from "lucide-react";
+import { SlidersHorizontal, X, Check, Loader2 } from "lucide-react";
 import { quickStockAdjust } from "./actions";
 
 type ProductOption = {
@@ -57,8 +57,9 @@ export function QuickAdjustDialog({
             setNote("");
           }, 1200);
         }
-      } catch (err: any) {
-        setFeedback({ ok: false, message: err?.message || "Error al aplicar ajuste" });
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Error al aplicar ajuste";
+        setFeedback({ ok: false, message: msg });
       }
     });
   };

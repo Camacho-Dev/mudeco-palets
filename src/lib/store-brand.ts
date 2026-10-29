@@ -19,7 +19,7 @@ export const STORE_CATEGORIES = [
 
 export const STORE_SOCIAL = {
   facebook: "https://www.facebook.com/mudecopalets",
-  instagram: "https://www.instagram.com/mudecopalets",
+  instagram: "https://www.instagram.com/mudeco_palets/?hl=es",
   tiktok: "https://www.tiktok.com/@mudecopalets",
 } as const;
 

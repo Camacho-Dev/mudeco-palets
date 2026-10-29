@@ -6,7 +6,7 @@ import { WebMediaManager } from "./web-media-manager";
 import { Activity, Globe, ExternalLink, ShoppingBag } from "lucide-react";
 
 export const metadata = {
-  title: "Fotos de la Web",
+  title: "Fotos y Precios de la Web",
 };
 
 const DEFAULT_GALLERY = [
@@ -23,9 +23,26 @@ const DEFAULT_GALLERY = [
 export default async function ContenidoWebPage() {
   await requireAdmin();
 
-  const company = await prisma.companySettings.findUnique({
-    where: { id: "default" },
-  });
+  const [company, products] = await Promise.all([
+    prisma.companySettings.findUnique({
+      where: { id: "default" },
+    }),
+    prisma.product.findMany({
+      where: { kind: "FINISHED" },
+      orderBy: [{ active: "desc" }, { updatedAt: "desc" }],
+      select: {
+        id: true,
+        name: true,
+        sku: true,
+        category: true,
+        price: true,
+        stock: true,
+        imageUrl: true,
+        active: true,
+        description: true,
+      },
+    }),
+  ]);
 
   let gallery = DEFAULT_GALLERY;
   if (company?.galleryImages) {
@@ -33,50 +50,6 @@ export default async function ContenidoWebPage() {
       const parsed = JSON.parse(company.galleryImages);
       if (Array.isArray(parsed) && parsed.length > 0) {
         gallery = parsed;
-      }
-    } catch {
-      // fallback
-    }
-  }
-
-  let beforeAfterItems = [
-    {
-      id: "mesa",
-      title: "Mesa de centro rústica",
-      category: "Restauración artesanal",
-      description: "Madera de palets de pino seleccionados, cepillada, curada contra plagas y sellada con aceite natural mate.",
-      beforeImg: "/brand/store-workshop.jpg",
-      afterImg: "/brand/cat-mesa.jpg",
-      beforeLabel: "Antes · Madera en bruto",
-      afterLabel: "Después · Ebanistería fina",
-    },
-    {
-      id: "tv",
-      title: "Consola de TV moderna",
-      category: "Fabricación a medida",
-      description: "Diseño minimalista con compartimentos ocultos y ensamble de caja y espiga para máxima rigidez.",
-      beforeImg: "/brand/store-craft.jpg",
-      afterImg: "/brand/cat-tv.jpg",
-      beforeLabel: "Antes · Vetas sin curar",
-      afterLabel: "Después · Acabado satinado",
-    },
-    {
-      id: "banco",
-      title: "Banco industrial reforzado",
-      category: "Mueble de uso intensivo",
-      description: "Estructura robusta de doble capa con acabado resistente a la intemperie y tono roble envejecido.",
-      beforeImg: "/brand/store-workshop.jpg",
-      afterImg: "/brand/cat-banco.jpg",
-      beforeLabel: "Antes · Palet desarmado",
-      afterLabel: "Después · Barniz protector",
-    },
-  ];
-
-  if (company?.beforeAfterJson) {
-    try {
-      const parsed = JSON.parse(company.beforeAfterJson);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        beforeAfterItems = parsed;
       }
     } catch {
       // fallback
@@ -95,14 +68,13 @@ export default async function ContenidoWebPage() {
     promoMesaImage: company?.promoMesaImage || "/brand/cat-mesa.jpg",
     promoTvImage: company?.promoTvImage || "/brand/cat-tv.jpg",
     galleryImages: gallery.slice(0, 8),
-    beforeAfterItems,
   };
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Fotos y Contenido de la Web"
-        description="Administra y sube las imágenes, portadas y fotografías que se muestran en la tienda pública"
+        title="Fotos y Precios de la Tienda Web"
+        description="Gestiona las fotos y precios de los muebles de la web, portadas principales y galería pública"
         action={
           <div className="flex flex-wrap items-center gap-2">
             <Link
@@ -135,7 +107,10 @@ export default async function ContenidoWebPage() {
         }
       />
 
-      <WebMediaManager initialData={initialData} />
+      <WebMediaManager
+        initialData={initialData}
+        initialProducts={products}
+      />
     </div>
   );
 }

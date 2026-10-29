@@ -26,7 +26,9 @@ export default async function UsuariosPage({
             { role: { contains: query, mode: "insensitive" } },
           ],
         }
-      : undefined,
+      : {
+          role: { in: ["ADMIN", "VENDEDOR"] },
+        },
     orderBy: { createdAt: "asc" },
   });
 
@@ -37,7 +39,7 @@ export default async function UsuariosPage({
         description={
           query
             ? `Resultados para “${query}”`
-            : "Empleados y administradores del sistema"
+            : "Empleados y administradores del sistema (usa el buscador para consultar cuentas de clientes web)"
         }
         action={
           <div className="flex flex-wrap gap-2">
@@ -57,7 +59,7 @@ export default async function UsuariosPage({
         }
       >
         <ListSearchBar
-          placeholder="Buscar por nombre, email o rol…"
+          placeholder="Buscar por nombre, email o rol (ej. CLIENTE)…"
           ariaLabel="Buscar usuarios"
         />
       </Suspense>
@@ -87,15 +89,23 @@ export default async function UsuariosPage({
               users.map((u) => (
                 <tr key={u.id}>
                   <td className="font-medium text-[var(--wood-950)]">
-                    <Link href={`/empleados/${u.id}`} className="hover:underline">
-                      {u.name}
-                    </Link>
+                    {u.role === "CLIENTE" ? (
+                      <span>{u.name}</span>
+                    ) : (
+                      <Link href={`/empleados/${u.id}`} className="hover:underline">
+                        {u.name}
+                      </Link>
+                    )}
                   </td>
                   <td className="text-xs text-[var(--muted)]">{u.email}</td>
                   <td>
                     {u.role === "ADMIN" ? (
                       <span className="inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-semibold text-purple-800">
                         Administrador
+                      </span>
+                    ) : u.role === "CLIENTE" ? (
+                      <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-900">
+                        Cliente Web
                       </span>
                     ) : (
                       <span className="inline-flex items-center rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-semibold text-stone-800">

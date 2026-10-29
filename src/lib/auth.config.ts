@@ -1,7 +1,7 @@
 import type { NextAuthConfig } from "next-auth";
 import { NextResponse } from "next/server";
 import { isAdminPath, isPublicPath } from "@/lib/sensitive";
-import { homeForRole, isAdmin } from "@/lib/rbac";
+import { homeForRole, isAdmin, isStaff } from "@/lib/rbac";
 
 /** Config Edge-compatible (sin Prisma/bcrypt) para middleware */
 export const authConfig = {
@@ -43,8 +43,16 @@ export const authConfig = {
 
       if (isPublicPath(pathname) || isLogin) {
         if (isLoggedIn && isLogin) {
+          const callback = request.nextUrl.searchParams.get("callbackUrl");
+          const safeCallback =
+            callback &&
+            callback.startsWith("/") &&
+            !callback.startsWith("//") &&
+            callback !== "/login"
+              ? callback
+              : null;
           return NextResponse.redirect(
-            new URL(homeForRole(role), request.nextUrl.origin),
+            new URL(safeCallback || homeForRole(role), request.nextUrl.origin),
           );
         }
         return true;
@@ -54,6 +62,11 @@ export const authConfig = {
         const url = new URL("/login", request.nextUrl.origin);
         url.searchParams.set("callbackUrl", pathname);
         return NextResponse.redirect(url);
+      }
+
+      // Bloquear clientes web (rol CLIENTE) de entrar al sistema ERP interno
+      if (!isStaff(role)) {
+        return NextResponse.redirect(new URL("/", request.nextUrl.origin));
       }
 
       if (isAdminPath(pathname) && !isAdmin(role)) {

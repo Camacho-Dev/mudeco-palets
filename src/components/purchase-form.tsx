@@ -1,8 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import { useFormStatus } from "react-dom";
 import { Plus, Trash2 } from "lucide-react";
 import { formatCurrency, roundMoney } from "@/lib/format";
+
+function PurchaseSubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="btn btn-primary disabled:opacity-60"
+    >
+      {pending ? "Registrando orden…" : "Crear orden de compra"}
+    </button>
+  );
+}
 
 type ProductOption = {
   id: string;
@@ -126,7 +140,6 @@ export function PurchaseForm({
 
         <div className="space-y-2">
           {lines.map((line, index) => {
-            const p = byId.get(line.productId);
             const lineTotal =
               (typeof line.quantity === "number" ? line.quantity : 0) *
               (typeof line.unitCost === "number" ? line.unitCost : 0);
@@ -223,9 +236,7 @@ export function PurchaseForm({
       </div>
 
       <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
-        <button type="submit" className="btn btn-primary">
-          Crear orden de compra
-        </button>
+        <PurchaseSubmitButton />
       </div>
     </form>
   );

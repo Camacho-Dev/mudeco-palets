@@ -26,10 +26,10 @@ Ambos sistemas operan sobre una única base de datos centralizada, permitiendo q
 - Diseño visual moderno en tonos oscuros y madera rústica, 100% responsivo para teléfonos y computadoras.
 - Catálogo interactivo con buscador en tiempo real, categorías y filtros de piezas populares.
 - Algoritmo de recomendación que detecta las piezas más vendidas y con mayor rotación.
-- Comparador táctil deslizante de "Antes y Después" para proyectos de restauración.
+- Sección interactiva de testimonios en tiempo real con compras verificadas y respuestas oficiales del taller.
 - Módulo de cotización de proyectos personalizados con envío directo a taller.
-- Carrito de compras con cálculo automático del 18% de ITBIS.
-- Checkout con validación algorítmica de tarjetas de crédito y soporte para transferencias bancarias con adjunto de comprobante.
+- Carrito de compras con cálculo automático del 18% de ITBIS e historial de "Mis Pedidos" por cliente.
+- Checkout con soporte para pagos en línea (Stripe), pago en local y transferencias bancarias con adjunto de comprobante y seguimiento en vivo.
 - Botón flotante concierge de WhatsApp conectado directamente al taller.
 
 ### B. Sistema de Facturación y Administración ERP

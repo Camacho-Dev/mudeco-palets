@@ -1,12 +1,17 @@
 export const ROLES = {
   ADMIN: "ADMIN",
   VENDEDOR: "VENDEDOR",
+  CLIENTE: "CLIENTE",
 } as const;
 
 export type Role = (typeof ROLES)[keyof typeof ROLES];
 
 export function isAdmin(role?: string | null) {
   return role === ROLES.ADMIN;
+}
+
+export function isStaff(role?: string | null) {
+  return role === ROLES.ADMIN || role === ROLES.VENDEDOR;
 }
 
 export function canVoidInvoice(role?: string | null) {
@@ -63,5 +68,7 @@ export function canAccessAdminArea(role?: string | null) {
 }
 
 export function homeForRole(role?: string | null) {
-  return isAdmin(role) ? "/panel" : "/vender";
+  if (role === "ADMIN") return "/panel";
+  if (role === "VENDEDOR") return "/vender";
+  return "/";
 }

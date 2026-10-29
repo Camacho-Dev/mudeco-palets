@@ -2,6 +2,20 @@ import Link from "next/link";
 import { BrandLogo } from "@/components/logo";
 import { STORE_HOURS, storeWhatsApp } from "@/lib/store-info";
 import { STORE_CATEGORIES, STORE_SOCIAL } from "@/lib/store-brand";
+import { ShieldCheck, Truck, CreditCard, Ruler } from "lucide-react";
+
+function formatCategory(cat: string) {
+  if (!cat) return "";
+  return cat
+    .toLowerCase()
+    .split(" ")
+    .map((word) => {
+      if (["de", "a", "y", "en", "con"].includes(word)) return word;
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ")
+    .replace(/^./, (str) => str.toUpperCase());
+}
 
 export function StoreFooter({
   company,
@@ -12,6 +26,7 @@ export function StoreFooter({
     phone: string;
     email: string;
     address: string;
+    taxId?: string | null;
   };
 }) {
   const wa = storeWhatsApp(company.phone);
@@ -72,14 +87,6 @@ export function StoreFooter({
               </Link>
             </li>
             <li>
-              <Link
-                href="/reparaciones"
-                className="transition hover:text-white"
-              >
-                Reparaciones
-              </Link>
-            </li>
-            <li>
               <Link href="/nosotros" className="transition hover:text-white">
                 Nosotros
               </Link>
@@ -102,7 +109,7 @@ export function StoreFooter({
                   href={`/catalogo?cat=${encodeURIComponent(cat)}`}
                   className="transition hover:text-white"
                 >
-                  {cat}
+                  {formatCategory(cat)}
                 </Link>
               </li>
             ))}
@@ -161,21 +168,80 @@ export function StoreFooter({
           </ul>
         </div>
       </div>
-      <div className="border-t border-white/[0.08] px-4 py-6 text-center text-[0.7rem] tracking-wide text-white/40">
-        <div>
-          © {new Date().getFullYear()} {company.name} · Todos los derechos
-          reservados ·{" "}
-          <Link href="/privacidad" className="hover:text-white transition">
-            Privacidad
-          </Link>{" "}
-          ·{" "}
-          <Link href="/terminos" className="hover:text-white transition">
-            Términos
-          </Link>
+      {/* Franja de Confianza y Métodos de Pago */}
+      <div className="border-t border-white/[0.08] bg-[#0c0c0c] py-8">
+        <div className="mx-auto max-w-[1760px] px-4 sm:px-8 lg:px-12 xl:px-16">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 text-xs">
+            <div className="flex items-start gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#c9a15a]/10 text-[#c9a15a] border border-[#c9a15a]/25">
+                <ShieldCheck className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="font-semibold text-white uppercase tracking-wider text-[0.68rem]">
+                  Garantía de Taller
+                </p>
+                <p className="mt-1 text-white/50 text-[0.72rem] leading-relaxed">
+                  Madera de pino 100% curada contra humedad y plagas. Ensamble reforzado para décadas de uso.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#c9a15a]/10 text-[#c9a15a] border border-[#c9a15a]/25">
+                <Truck className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="font-semibold text-white uppercase tracking-wider text-[0.68rem]">
+                  Envíos & Retiro en Taller
+                </p>
+                <p className="mt-1 text-white/50 text-[0.72rem] leading-relaxed">
+                  Retiro directo en Santo Domingo Oeste o entrega coordinada en Gran Santo Domingo y todo el país.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#c9a15a]/10 text-[#c9a15a] border border-[#c9a15a]/25">
+                <CreditCard className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="font-semibold text-white uppercase tracking-wider text-[0.68rem]">
+                  Transferencias & Pagos
+                </p>
+                <p className="mt-1 text-white/50 text-[0.72rem] leading-relaxed">
+                  Banco Popular, Banreservas, Banco BHD y pago contra entrega / en taller coordinado.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#c9a15a]/10 text-[#c9a15a] border border-[#c9a15a]/25">
+                <Ruler className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="font-semibold text-white uppercase tracking-wider text-[0.68rem]">
+                  Diseño a la Medida
+                </p>
+                <p className="mt-1 text-white/50 text-[0.72rem] leading-relaxed">
+                  ¿Viste un modelo en fotos o Pinterest? Envíanos tus medidas para cotizarte sin compromiso.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
-        <p className="mt-2.5 text-[0.68rem] tracking-[0.22em] text-[#c9a15a] uppercase font-semibold">
-          DESARROLLADOR FULL STACK · BRAYAN CAMACHO
-        </p>
+      </div>
+
+      <div className="border-t border-white/[0.08] px-4 py-5 text-center text-[0.7rem] tracking-wide text-white/35">
+        © {new Date().getFullYear()} {company.name} ·{" "}
+        {company.taxId ? `RNC ${company.taxId}` : "República Dominicana"} · Todos los derechos
+        reservados ·{" "}
+        <Link href="/privacidad" className="hover:text-white transition">
+          Privacidad
+        </Link>{" "}
+        ·{" "}
+        <Link href="/terminos" className="hover:text-white transition">
+          Términos
+        </Link>
       </div>
     </footer>
   );

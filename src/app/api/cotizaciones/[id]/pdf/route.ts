@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { buildQuotePdf } from "@/lib/pdf/quote-pdf";
+import { isStaff } from "@/lib/rbac";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -10,12 +11,29 @@ export async function GET(
   const { id } = await params;
   const session = await auth();
 
-  let authorized = Boolean(session?.user?.id);
+  const quote = await prisma.quote.findUnique({
+    where: { id },
+    include: { customer: true, items: true },
+  });
+  if (!quote) {
+    return NextResponse.json({ error: "No encontrada" }, { status: 404 });
+  }
+
+  let authorized = Boolean(session?.user?.id && isStaff(session.user.role));
+
+  if (
+    !authorized &&
+    session?.user?.email &&
+    quote.customer.email &&
+    session.user.email.toLowerCase() === quote.customer.email.toLowerCase()
+  ) {
+    authorized = true;
+  }
 
   if (!authorized) {
     const url = new URL(req.url);
     const orderId = (url.searchParams.get("orderId") || "").trim();
-    // Solo permitir descarga sin sesión si se provee explícitamente el orderId correcto
+    // Solo permitir descarga sin sesión de staff si se provee explícitamente el orderId correcto
     if (orderId) {
       const webOrder = await prisma.webOrder.findFirst({
         where: { id: orderId, quoteId: id },
@@ -28,14 +46,6 @@ export async function GET(
 
   if (!authorized) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-  }
-
-  const quote = await prisma.quote.findUnique({
-    where: { id },
-    include: { customer: true, items: true },
-  });
-  if (!quote) {
-    return NextResponse.json({ error: "No encontrada" }, { status: 404 });
   }
 
   const company = (await prisma.companySettings.findUnique({

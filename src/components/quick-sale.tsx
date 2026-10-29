@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition, useEffect } from "react";
+import { useMemo, useState, useTransition, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { formatCurrency, roundMoney } from "@/lib/format";
 import {
@@ -68,15 +68,18 @@ export function QuickSale({
 }) {
   const router = useRouter();
 
-  const makeDefaultDraft = (id: string, name: string): InvoiceDraft => ({
-    id,
-    name,
-    customerId: customers[0]?.id || "",
-    cart: [],
-    delivery: false,
-    deliveryFee: "",
-    applyTax: true,
-  });
+  const makeDefaultDraft = useCallback(
+    (id: string, name: string): InvoiceDraft => ({
+      id,
+      name,
+      customerId: customers[0]?.id || "",
+      cart: [],
+      delivery: false,
+      deliveryFee: "",
+      applyTax: true,
+    }),
+    [customers]
+  );
 
   const [drafts, setDrafts] = useState<InvoiceDraft[]>([
     makeDefaultDraft("draft-1", "Factura 1"),
@@ -122,7 +125,7 @@ export function QuickSale({
       drafts[0] ||
       makeDefaultDraft("draft-1", "Factura 1")
     );
-  }, [drafts, activeDraftId]);
+  }, [drafts, activeDraftId, makeDefaultDraft]);
 
   const customerId = activeDraft.customerId;
   const cart = activeDraft.cart;

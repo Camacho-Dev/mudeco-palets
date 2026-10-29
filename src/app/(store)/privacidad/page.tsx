@@ -13,7 +13,7 @@ export default function PrivacidadPage() {
         <div className="mt-8 space-y-4 text-[var(--muted)] leading-relaxed">
           <p>
             En Mudeco Palets usamos tus datos (nombre, email, teléfono y
-            dirección) solo para atender pedidos, cotizaciones, reparaciones y
+            dirección) solo para atender pedidos, cotizaciones y
             consultas hechas por la web.
           </p>
           <p>

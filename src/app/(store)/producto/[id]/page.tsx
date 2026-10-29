@@ -10,6 +10,10 @@ import { AddToCartButton } from "@/components/store/add-to-cart-button";
 import { ProductCard } from "@/components/store/product-card";
 import { STORE_LOGISTICS, siteUrl, storeWhatsApp } from "@/lib/store-info";
 import { getRelatedRecommendations } from "@/lib/recommendations";
+import { MessageCircle } from "lucide-react";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const getProduct = cache(async (id: string) => {
   return prisma.product.findFirst({
@@ -82,7 +86,7 @@ export default async function ProductoPage({
 
       <div className="mt-8 grid gap-10 lg:grid-cols-2 lg:gap-14">
         <Reveal>
-          <div className="relative aspect-[4/5] overflow-hidden bg-[#ebe2d6]">
+          <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-[#e2d5c5] bg-[#ebe2d6] shadow-sm">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={src}
@@ -91,7 +95,7 @@ export default async function ProductoPage({
               fetchPriority="high"
             />
             {!realPhoto ? (
-              <p className="absolute bottom-3 left-3 rounded-sm bg-[#2f2018]/75 px-2.5 py-1 text-[0.65rem] tracking-wide text-white/85 uppercase">
+              <p className="absolute bottom-3 left-3 rounded-lg bg-[#2f2018]/80 px-3 py-1 text-[0.65rem] font-medium tracking-wide text-white/90 uppercase backdrop-blur-xs">
                 Imagen de referencia
               </p>
             ) : null}
@@ -155,21 +159,16 @@ export default async function ProductoPage({
           ) : null}
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <AddToCartButton product={product} />
+            <AddToCartButton product={product} showQuantity={true} />
             <a
               href={wa}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-[4px] border border-emerald-600/40 bg-emerald-50/60 px-5 py-3 text-[0.72rem] font-bold tracking-[0.12em] text-emerald-800 uppercase transition hover:bg-emerald-100 hover:border-emerald-600"
+              className="inline-flex items-center gap-2 rounded-[4px] border border-emerald-600/40 bg-emerald-50/70 px-5 py-3 text-[0.72rem] font-bold tracking-[0.12em] text-emerald-800 uppercase transition hover:bg-emerald-100 hover:border-emerald-600 shadow-sm active:scale-95"
             >
-              WhatsApp
+              <MessageCircle className="h-4 w-4" />
+              <span>Consultar por WhatsApp</span>
             </a>
-            <Link
-              href="/contacto"
-              className="inline-flex items-center rounded-[4px] border border-[var(--border)] bg-white px-5 py-3 text-[0.72rem] font-semibold tracking-[0.12em] text-[var(--wood-950)] uppercase transition hover:bg-[#faf6f1] hover:border-[var(--wood-700)]"
-            >
-              Contacto
-            </Link>
           </div>
 
           {/* Micro trust strip */}

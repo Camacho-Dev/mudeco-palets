@@ -26,13 +26,16 @@ export async function createUser(fd: FormData) {
     commissionRate: fd.get("commissionRate") || 0,
   });
 
+  const rawRate = data.commissionRate ?? 0;
+  const normalizedRate = rawRate > 1 ? rawRate / 100 : rawRate;
+
   const user = await prisma.user.create({
     data: {
       name: data.name,
       email: data.email,
       passwordHash: await bcrypt.hash(data.password, 10),
       role: data.role,
-      commissionRate: data.commissionRate ?? 0,
+      commissionRate: normalizedRate,
     },
   });
 
@@ -43,6 +46,7 @@ export async function createUser(fd: FormData) {
     summary: `Usuario creado: ${user.email} (${user.role})`,
   });
   revalidatePath("/usuarios");
+  revalidatePath("/empleados");
   redirect("/usuarios");
 }
 
@@ -98,4 +102,5 @@ export async function toggleUserActive(id: string) {
     summary: `Usuario ${updated.active ? "activado" : "desactivado"}: ${updated.email}`,
   });
   revalidatePath("/usuarios");
+  revalidatePath("/empleados");
 }

@@ -3,13 +3,59 @@ import { productImage } from "@/lib/product-image";
 
 export { productImage };
 
-let cachedCompany: { data: any; expiresAt: number } | null = null;
+export type StoreCompany = {
+  name: string;
+  slogan: string;
+  taxId: string | null;
+  phone: string;
+  email: string;
+  address: string;
+  heroImage: string;
+  heroBadge: string;
+  heroTitle: string;
+  heroSubtitle: string;
+  workshopImage: string;
+  craftImage: string;
+  promoMesaImage: string;
+  promoTvImage: string;
+  galleryImages: string | null;
+  beforeAfterJson: string | null;
+};
+
+let cachedCompany: { data: StoreCompany; expiresAt: number } | null = null;
+let cachedCategories: { data: string[]; expiresAt: number } | null = null;
 
 export function invalidateStoreCompanyCache() {
   cachedCompany = null;
+  cachedCategories = null;
 }
 
-export async function getStoreCompany() {
+export async function getStoreCategories(): Promise<string[]> {
+  const now = Date.now();
+  if (cachedCategories && cachedCategories.expiresAt > now) {
+    return cachedCategories.data;
+  }
+  try {
+    const dbCats = await withDbRetry(
+      () =>
+        prisma.product.findMany({
+          where: { active: true, kind: "FINISHED" },
+          select: { category: true },
+          distinct: ["category"],
+          orderBy: { category: "asc" },
+        }),
+      { fallback: [] as { category: string }[] },
+    );
+    const data = dbCats.map((c) => c.category).filter(Boolean);
+    const ttl = process.env.NODE_ENV === "production" ? 60_000 : 30_000;
+    cachedCategories = { data, expiresAt: now + ttl };
+    return data;
+  } catch {
+    return [];
+  }
+}
+
+export async function getStoreCompany(): Promise<StoreCompany> {
   const now = Date.now();
   if (cachedCompany && cachedCompany.expiresAt > now) {
     return cachedCompany.data;
@@ -26,11 +72,12 @@ export async function getStoreCompany() {
     const result = {
       name: company?.name || "Mudeco Palets",
       slogan: company?.slogan || "Muebles a la medida",
+      taxId: company?.taxId || process.env.COMPANY_TAX_ID || null,
       phone: company?.phone || "+1 (809) 704-7519",
-      email: company?.email || "Mudecopalets@gmail.com",
+      email: company?.email || "mudecopalets@gmail.com",
       address:
         company?.address ||
-        "Santo Domingo Oeste, Santo Domingo, República Dominicana",
+        "Prolongación Avenida 27 de Febrero, Región Ozama, Santo Domingo Oeste, República Dominicana",
       heroImage: company?.heroImage || "/brand/store-hero.jpg",
       heroBadge: company?.heroBadge || "Taller artesanal · República Dominicana",
       heroTitle: company?.heroTitle || "Muebles de madera recuperada con alma de taller",
@@ -44,15 +91,18 @@ export async function getStoreCompany() {
       galleryImages: company?.galleryImages || null,
       beforeAfterJson: company?.beforeAfterJson || null,
     };
-    cachedCompany = { data: result, expiresAt: now + 60_000 };
+    const ttl = process.env.NODE_ENV === "production" ? 60_000 : 30_000;
+    cachedCompany = { data: result, expiresAt: now + ttl };
     return result;
   } catch {
     return {
       name: "Mudeco Palets",
       slogan: "Muebles a la medida",
+      taxId: process.env.COMPANY_TAX_ID || null,
       phone: "+1 (809) 704-7519",
-      email: "Mudecopalets@gmail.com",
-      address: "Santo Domingo Oeste, Santo Domingo, República Dominicana",
+      email: "mudecopalets@gmail.com",
+      address:
+        "Prolongación Avenida 27 de Febrero, Región Ozama, Santo Domingo Oeste, República Dominicana",
       heroImage: "/brand/store-hero.jpg",
       heroBadge: "Taller artesanal · República Dominicana",
       heroTitle: "Muebles de madera recuperada con alma de taller",
@@ -87,4 +137,6 @@ export type StoreProduct = {
   widthCm: number | null;
   heightCm: number | null;
   depthCm: number | null;
+  createdAt?: Date | string;
 };
+

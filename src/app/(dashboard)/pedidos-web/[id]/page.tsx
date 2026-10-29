@@ -8,7 +8,8 @@ import { formatCurrency, formatDate } from "@/lib/format";
 import { whatsappLink } from "@/lib/store";
 import { productImage } from "@/lib/product-image";
 import { PrintActionButton } from "@/components/print-action-button";
-import { MapPin, Factory, ExternalLink } from "lucide-react";
+import { MapPin, Factory, ExternalLink, FileText, CheckCircle2, Clock, Eye } from "lucide-react";
+import { extractReceiptFromNotes } from "@/lib/order-receipt";
 import {
   WEB_STATUS_COLORS,
   WEB_STATUS_LABEL,
@@ -47,6 +48,13 @@ export default async function PedidoWebDetailPage({
   if (!order) notFound();
 
   const open = isWebOrderPending(order.status);
+  const receipt = extractReceiptFromNotes(order.notes);
+  const isTransfer = order.notes?.includes("Transferencia bancaria") || order.paymentMode === "TRANSFER";
+  const cleanNotes = (order.notes || "")
+    .replace(/\[COMPROBANTE_PAGO:\s*\{[\s\S]*?\}\]/g, "")
+    .replace(/\[COMPROBANTE:[^\]]+\]/g, "")
+    .trim();
+
   const canConvert =
     !!order.quoteId &&
     order.quote &&
@@ -56,11 +64,9 @@ export default async function PedidoWebDetailPage({
   const waMessage =
     order.type === "SALE"
       ? `Hola ${order.customerName}, te escribimos de Mudeco Palets para dar seguimiento a tu compra web ${order.number} (Total: RD$ ${order.total.toFixed(2)}).`
-      : order.serviceKind === "REPAIR"
-        ? `Hola ${order.customerName}, recibimos tu solicitud de reparación ${order.number} en Mudeco Palets. Nos gustaría coordinar la evaluación de tu mueble.`
-        : order.serviceKind === "CUSTOM_QUOTE"
-          ? `Hola ${order.customerName}, recibimos tu solicitud de mueble a medida ${order.number} en Mudeco Palets. Revisamos los detalles para avanzar con tu diseño.`
-          : `Hola ${order.customerName}, te escribimos de Mudeco Palets con relación a tu pedido / consulta ${order.number}.`;
+      : order.serviceKind === "CUSTOM_QUOTE"
+        ? `Hola ${order.customerName}, recibimos tu solicitud de mueble a medida ${order.number} en Mudeco Palets. Revisamos los detalles para avanzar con tu diseño.`
+        : `Hola ${order.customerName}, te escribimos de Mudeco Palets con relación a tu pedido / consulta ${order.number}.`;
 
   const wa = order.customerPhone
     ? whatsappLink(order.customerPhone, waMessage)
@@ -286,13 +292,77 @@ export default async function PedidoWebDetailPage({
         </div>
       </div>
 
-      {order.notes ? (
+      {/* Comprobante de pago bancario adjunto por el cliente */}
+      {receipt ? (
+        <div className="card mb-4 border-2 border-emerald-400 bg-emerald-50/60 p-5 shadow-sm">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5 min-w-0">
+              {receipt.mimeType === "application/pdf" || receipt.name.toLowerCase().endsWith(".pdf") ? (
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-700 shadow-sm border border-red-200">
+                  <FileText className="h-7 w-7" />
+                </div>
+              ) : (
+                <a
+                  href={receipt.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-emerald-300 bg-white shadow-sm hover:opacity-90 transition block"
+                  title="Abrir imagen de comprobante"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={receipt.url}
+                    alt={receipt.name}
+                    className="h-full w-full object-cover"
+                  />
+                </a>
+              )}
+              <div className="min-w-0">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-900 border border-emerald-200">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700" />
+                  Comprobante bancario adjunto por el cliente
+                </span>
+                <p className="mt-1 text-sm font-bold text-[var(--wood-950)] truncate">
+                  {receipt.name}
+                </p>
+                <p className="text-xs text-[var(--muted)]">
+                  Subido el {new Date(receipt.uploadedAt).toLocaleString("es-DO")}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <a
+                href={receipt.url}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-secondary text-xs inline-flex items-center gap-1.5 bg-white border-emerald-300 shadow-sm text-emerald-950 hover:bg-emerald-50"
+              >
+                <Eye className="h-3.5 w-3.5 text-emerald-700" />
+                <span>Ver comprobante</span>
+                <ExternalLink className="h-3 w-3 opacity-60" />
+              </a>
+            </div>
+          </div>
+        </div>
+      ) : isTransfer ? (
+        <div className="card mb-4 border border-amber-300 bg-amber-50/60 p-4">
+          <div className="flex items-center gap-2 text-xs text-amber-900 font-medium">
+            <Clock className="h-4 w-4 text-amber-700 shrink-0" />
+            <span>
+              Pago por transferencia bancaria: En espera de que el cliente adjunte comprobante.
+            </span>
+          </div>
+        </div>
+      ) : null}
+
+      {cleanNotes ? (
         <div className="card mb-4 p-5">
           <p className="mb-2 text-xs font-semibold tracking-wide text-[var(--muted)] uppercase">
             Mensaje / historial de notas
           </p>
           <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-[var(--wood-800)]">
-            {order.notes}
+            {cleanNotes}
           </pre>
         </div>
       ) : null}

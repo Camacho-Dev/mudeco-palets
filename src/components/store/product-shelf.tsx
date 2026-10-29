@@ -6,7 +6,6 @@ import { ChevronLeft, ChevronRight, Star, ShoppingBag, Check } from "lucide-reac
 import { formatCurrency } from "@/lib/format";
 import { productImage } from "@/lib/product-image";
 import { useCart } from "@/components/store/cart-context";
-import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 
 export type ShelfProduct = {
@@ -35,7 +34,6 @@ function Stars() {
 }
 
 function ShelfCard({ product }: { product: ShelfProduct }) {
-  const { data: session } = useSession();
   const { addItem, items } = useCart();
   const [added, setAdded] = useState(false);
   const inCart = items.find((i) => i.productId === product.id)?.quantity ?? 0;
@@ -44,14 +42,6 @@ function ShelfCard({ product }: { product: ShelfProduct }) {
   const src = productImage(product);
 
   const handleAdd = () => {
-    if (!session?.user) {
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(
-          new CustomEvent("mudeco:welcome", { detail: { reason: "cart" } }),
-        );
-      }
-      return;
-    }
     if (!canAdd) return;
     const ok = addItem(
       {
@@ -81,25 +71,6 @@ function ShelfCard({ product }: { product: ShelfProduct }) {
               {product.badge}
             </span>
           ) : null}
-
-          {/* Live availability indicator */}
-          <div className="absolute top-2 right-2 z-10 flex items-center gap-1 rounded-full bg-black/75 px-1.5 py-0.5 text-[0.52rem] font-medium backdrop-blur-md border border-white/10">
-            <span className="relative flex h-1.5 w-1.5">
-              <span
-                className={`absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping ${
-                  product.stock > 0 ? "bg-emerald-400" : "bg-amber-400"
-                }`}
-              />
-              <span
-                className={`relative inline-flex h-1.5 w-1.5 rounded-full ${
-                  product.stock > 0 ? "bg-emerald-400" : "bg-amber-400"
-                }`}
-              />
-            </span>
-            <span className="text-white/80">
-              {product.stock > 0 ? "En taller" : "A medida"}
-            </span>
-          </div>
 
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

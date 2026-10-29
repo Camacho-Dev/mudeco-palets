@@ -8,7 +8,6 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useSession } from "next-auth/react";
 
 export type CartItem = {
   productId: string;
@@ -37,9 +36,6 @@ const CartContext = createContext<CartContextValue | null>(null);
 const KEY = "mudeco_cart_v1";
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
-  const isAuthenticated = status === "authenticated" && Boolean(session?.user);
-
   const [items, setItems] = useState<CartItem[]>([]);
   const [ready, setReady] = useState(false);
 
@@ -60,18 +56,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = useCallback(
     (item: Omit<CartItem, "quantity">, qty = 1, maxQty?: number): boolean => {
-      // Bloqueo estricto: no permitir agregar al carrito si no se ha iniciado sesión
-      if (!isAuthenticated) {
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(
-            new CustomEvent("mudeco:welcome", {
-              detail: { reason: "cart" },
-            }),
-          );
-        }
-        return false;
-      }
-
       setItems((prev) => {
         const found = prev.find((p) => p.productId === item.productId);
         if (found) {
@@ -89,7 +73,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       });
       return true;
     },
-    [isAuthenticated],
+    [],
   );
 
   const setQty = useCallback(

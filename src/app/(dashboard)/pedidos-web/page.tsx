@@ -24,7 +24,6 @@ const TYPE_FILTERS = [
   { key: "", label: "Todos" },
   { key: "sale", label: "Ventas" },
   { key: "cart_quote", label: "Cotiz. carrito" },
-  { key: "REPAIR", label: "Reparaciones" },
   { key: "CUSTOM_QUOTE", label: "A medida" },
   { key: "CONTACT", label: "Consultas" },
 ] as const;
@@ -117,7 +116,7 @@ export default async function PedidosWebPage({
         description={
           query
             ? `Resultados para “${query}”`
-            : `${pendingCount} pendientes · Compras, reparaciones, cotizaciones y consultas`
+            : `${pendingCount} pendientes · Compras, cotizaciones y consultas`
         }
         action={
           <div className="flex flex-wrap items-center gap-2">
@@ -149,6 +148,7 @@ export default async function PedidosWebPage({
             </Link>
             <a
               href="/api/export/pedidos-web"
+              download
               className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
               title="Descargar pedidos en formato CSV para Excel"
             >

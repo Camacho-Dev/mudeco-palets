@@ -339,3 +339,14 @@ table.data tr:hover td {
   display: none;
 }
 
+/* Ocultar botón N de Next.js dev indicator */
+nextjs-portal,
+[data-nextjs-dev-indicator],
+[data-next-badge],
+#next-logo {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+

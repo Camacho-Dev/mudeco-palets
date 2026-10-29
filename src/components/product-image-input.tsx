@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FolderOpen, X, RefreshCw, Eye } from "lucide-react";
+import { FolderOpen, X, RefreshCw } from "lucide-react";
 
 export function ProductImageInput({
   defaultValue = "",

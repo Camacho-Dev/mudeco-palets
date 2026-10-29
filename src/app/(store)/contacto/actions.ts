@@ -8,18 +8,13 @@ import {
 } from "@/lib/web-checkout";
 import { checkRateLimit } from "@/lib/rate-limit";
 
-export async function submitServiceRequest(fd: FormData) {
+export async function submitContactRequest(fd: FormData) {
   const name = String(fd.get("name") || "").trim();
   const email = String(fd.get("email") || "").trim();
   const phone = String(fd.get("phone") || "").trim();
-  const kindRaw = String(fd.get("kind") || "repair");
-  const kind: ServiceRequestKind =
-    kindRaw === "quote"
-      ? "quote"
-      : kindRaw === "contact"
-        ? "contact"
-        : "repair";
-  const piece = String(fd.get("piece") || "").trim();
+  const kindRaw = String(fd.get("kind") || "contact");
+  const kind: ServiceRequestKind = kindRaw === "quote" ? "quote" : "contact";
+  const piece = String(fd.get("piece") || "Consulta web").trim();
   const description = String(fd.get("description") || "").trim();
   const photoNote = String(fd.get("photoNote") || "").trim() || undefined;
 
@@ -52,11 +47,6 @@ export async function submitServiceRequest(fd: FormData) {
   revalidatePath("/cotizaciones");
   revalidatePath("/clientes");
   revalidatePath("/panel");
-  const ok =
-    kind === "repair"
-      ? "reparacion"
-      : kind === "contact"
-        ? "consulta"
-        : "cotizacion";
+  const ok = kind === "contact" ? "consulta" : "cotizacion";
   redirect(`/pedido/${order.id}?ok=${ok}`);
 }

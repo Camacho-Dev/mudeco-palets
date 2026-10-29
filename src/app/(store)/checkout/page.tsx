@@ -38,42 +38,57 @@ export default function CheckoutHubPage({
   searchParams: Promise<{ cancel?: string }>;
 }) {
   return (
-    <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
       <Reveal>
-        <p className="text-[0.7rem] font-semibold tracking-[0.2em] text-[var(--muted)] uppercase">
-          Pedido
+        <p className="text-[0.68rem] font-bold tracking-[0.22em] text-[#b0894f] uppercase">
+          Finalizar Pedido
         </p>
-        <h1 className="font-display mt-2 text-4xl text-[var(--wood-950)]">
-          ¿Cómo quieres continuar?
+        <h1 className="font-display mt-2 text-3xl sm:text-4xl text-[var(--wood-950)]">
+          ¿Cómo deseas procesar tu orden?
         </h1>
-        <p className="mt-2 max-w-xl text-[var(--muted)]">
-          Elige una opción. Cada una abre su propia página.
+        <p className="mt-2 max-w-xl text-sm text-[var(--muted)]">
+          Selecciona la modalidad de pago o cotización que prefieras.
         </p>
       </Reveal>
       <CancelNote searchParams={searchParams} />
-      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {options.map((opt) => (
           <Link
             key={opt.href}
             href={opt.href}
-            className="group border border-[var(--border)] bg-white p-6 transition hover:-translate-y-0.5 hover:border-[var(--wood-700)] hover:shadow-md"
+            className={`group relative flex flex-col justify-between rounded-2xl border p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-md ${
+              opt.featured
+                ? "border-[#c9a15a] bg-white shadow-xs ring-1 ring-[#c9a15a]/25"
+                : "border-[#e2d5c5] bg-white hover:border-[#b0894f]"
+            }`}
           >
-            <opt.icon className="h-6 w-6 text-[#b0894f]" strokeWidth={1.75} />
-            <h2 className="font-display mt-4 text-xl text-[var(--wood-950)]">
-              {opt.title}
-            </h2>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--muted)]">
-              {opt.desc}
-            </p>
-            <p className="mt-4 text-[0.7rem] font-semibold tracking-[0.12em] text-[var(--wood-800)] uppercase group-hover:underline">
-              Continuar →
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#faf6f1] border border-[#e5d8c8] text-[#b0894f]">
+                  <opt.icon className="h-5 w-5" strokeWidth={1.75} />
+                </span>
+                {opt.featured ? (
+                  <span className="rounded-full bg-[#c9a15a]/20 px-2.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider text-[#8a6524]">
+                    Recomendado
+                  </span>
+                ) : null}
+              </div>
+              <h2 className="font-display mt-4 text-xl text-[var(--wood-950)]">
+                {opt.title}
+              </h2>
+              <p className="mt-2 text-xs leading-relaxed text-[var(--muted)]">
+                {opt.desc}
+              </p>
+            </div>
+            <p className="mt-6 text-[0.7rem] font-bold tracking-[0.14em] text-[#8a6a3a] uppercase group-hover:underline">
+              Seleccionar →
             </p>
           </Link>
         ))}
       </div>
       <Link
         href="/carrito"
-        className="mt-8 inline-block text-sm text-[var(--muted)] underline-offset-2 hover:underline"
+        className="mt-8 inline-block text-xs font-semibold text-[var(--muted)] underline-offset-2 hover:text-[var(--wood-950)] hover:underline"
       >
         ← Volver al carrito
       </Link>

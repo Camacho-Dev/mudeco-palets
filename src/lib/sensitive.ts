@@ -27,10 +27,10 @@ export const PUBLIC_PREFIXES = [
   "/producto",
   "/contacto",
   "/nosotros",
-  "/reparaciones",
   "/carrito",
   "/checkout",
   "/pedido",
+  "/mis-pedidos",
   "/privacidad",
   "/terminos",
 ] as const;

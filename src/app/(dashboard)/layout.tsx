@@ -1,12 +1,15 @@
 import { Sidebar, SidebarMobilePanel } from "@/components/sidebar";
 import { MobileNav } from "@/components/mobile-nav";
 import { DashboardTopbar } from "@/components/dashboard-topbar";
+import { requireSession } from "@/lib/session";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  await requireSession();
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />

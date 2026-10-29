@@ -48,40 +48,40 @@ export function WhatsAppShareButton({
   function buildMessage(): string {
     const formattedTotal = formatCurrency(total);
     if (type === "invoice") {
-      const ncfText = ncf ? `\n📄 *NCF:* ${ncf}` : "";
+      const ncfText = ncf ? `\n*NCF:* ${ncf}` : "";
       return (
-        `🪵 *${companyName} · Factura de Compra*\n\n` +
+        `*${companyName} · Factura de Compra*\n\n` +
         `Hola *${customerName}*,\n` +
         `Te compartimos el comprobante de tu compra en nuestro taller artesanal:\n\n` +
-        `📋 *Factura:* ${number}${ncfText}\n` +
-        `💰 *Monto Total:* ${formattedTotal}\n\n` +
+        `*Factura:* ${number}${ncfText}\n` +
+        `*Monto Total:* ${formattedTotal}\n\n` +
         `Agradecemos tu preferencia por nuestros muebles en madera recuperada con alma de taller.\n` +
-        `Si tienes alguna consulta sobre tu entrega o acabado, ¡estamos a tu orden!`
+        `Si tienes alguna consulta sobre tu entrega o acabado, estamos a tu orden.`
       );
     }
 
     if (type === "creditNote") {
-      const invRef = invoiceNumber ? `\n📄 *Factura origen:* ${invoiceNumber}` : "";
+      const invRef = invoiceNumber ? `\n*Factura origen:* ${invoiceNumber}` : "";
       return (
-        `🪵 *${companyName} · Nota de Crédito*\n\n` +
+        `*${companyName} · Nota de Crédito*\n\n` +
         `Hola *${customerName}*,\n` +
         `Te compartimos el comprobante de Nota de Crédito por ajuste o devolución:\n\n` +
-        `📋 *Nota de Crédito:* ${number}${invRef}\n` +
-        `💰 *Monto Acreditado:* ${formattedTotal}\n\n` +
+        `*Nota de Crédito:* ${number}${invRef}\n` +
+        `*Monto Acreditado:* ${formattedTotal}\n\n` +
         `El valor ha sido acreditado conforme a las políticas de nuestro taller artesanal.\n` +
         `Si tienes alguna duda, estamos a tu disposición.`
       );
     }
 
     const validityText = validUntil
-      ? `\n⏳ *Válida hasta:* ${formatDate(validUntil)}`
+      ? `\n*Válida hasta:* ${formatDate(validUntil)}`
       : "";
     return (
-      `🪵 *${companyName} · Cotización de Proyecto*\n\n` +
+      `*${companyName} · Cotización de Proyecto*\n\n` +
       `Hola *${customerName}*,\n` +
       `Te presentamos la cotización personalizada para tu proyecto de mobiliario artesanal a la medida:\n\n` +
-      `📋 *Cotización:* ${number}\n` +
-      `💰 *Presupuesto Estimado:* ${formattedTotal}${validityText}\n\n` +
+      `*Cotización:* ${number}\n` +
+      `*Presupuesto Estimado:* ${formattedTotal}${validityText}\n\n` +
       `Cada pieza es fabricada a mano con materiales nobles y acabados profesionales. Quedamos atentos para afinar cualquier detalle e iniciar tu fabricación en el taller.`
     );
   }

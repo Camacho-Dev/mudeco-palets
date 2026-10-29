@@ -10,7 +10,7 @@ import {
   STOCK_REASON_LABELS,
   STOCK_REASON_COLORS,
 } from "@/lib/format";
-import { ExternalLink, Layers, ArrowUpRight } from "lucide-react";
+import { ExternalLink, ArrowUpRight } from "lucide-react";
 import { QuickAdjustDialog } from "./quick-adjust-dialog";
 
 export default async function InventarioPage({

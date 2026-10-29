@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, FileText, LayoutDashboard, Search, Warehouse } from "lucide-react";
+import { FileText, LayoutDashboard, Search, Warehouse } from "lucide-react";
 
 export default function DashboardNotFound() {
   return (

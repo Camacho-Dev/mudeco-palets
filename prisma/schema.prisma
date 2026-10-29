@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-1.0.x", "rhel-openssl-3.0.x", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -287,6 +288,7 @@ model WebOrder {
   quoteId          String?
   quote            Quote?         @relation(fields: [quoteId], references: [id])
   items            WebOrderItem[]
+  reviews          CustomerReview[]
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
@@ -308,6 +310,30 @@ model WebOrderItem {
 
   @@index([webOrderId])
   @@index([productId])
+}
+
+model CustomerReview {
+  id              String    @id @default(cuid())
+  customerName    String
+  customerEmail   String?
+  rating          Int       @default(5)
+  comment         String
+  city            String?   @default("Santo Domingo")
+  productName     String?
+  orderNumber     String?
+  isVerified      Boolean   @default(true)
+  likes           Int       @default(0)
+  dislikes        Int       @default(0)
+  isPinned        Boolean   @default(false)
+  officialReply   String?
+  officialReplyAt DateTime?
+  status          String    @default("APPROVED")
+  webOrderId      String?
+  webOrder        WebOrder? @relation(fields: [webOrderId], references: [id], onDelete: SetNull)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([status, createdAt])
 }
 
 model CreditNote {

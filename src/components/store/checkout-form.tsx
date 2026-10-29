@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
+import { useSession } from "next-auth/react";
 import { useCart } from "@/components/store/cart-context";
 import { formatCurrency } from "@/lib/format";
 import { submitWebCheckout } from "@/app/(store)/checkout/actions";
@@ -37,6 +38,7 @@ export function CheckoutForm({
   mode: "online" | "local" | "quote" | "transfer";
   stripeReady?: boolean;
 }) {
+  const { data: session } = useSession();
   const { items, clear } = useCart();
   const [error, setError] = useState("");
   const [fulfillment, setFulfillment] = useState<"pickup" | "delivery">(
@@ -97,23 +99,28 @@ export function CheckoutForm({
   }
 
   return (
-    <form className="grid gap-10 lg:grid-cols-2" onSubmit={onSubmit}>
-      <div className="space-y-4">
-        <h2 className="font-display text-2xl text-[var(--wood-950)]">
-          {copy.title}
-        </h2>
-        <p className="text-sm text-[var(--muted)]">{copy.hint}</p>
+    <form className="grid gap-8 lg:grid-cols-12" onSubmit={onSubmit}>
+      <div className="space-y-5 rounded-2xl border border-[#e2d5c5] bg-white p-6 shadow-sm sm:p-8 lg:col-span-7">
+        <div>
+          <span className="text-[0.68rem] font-bold tracking-[0.2em] text-[#b0894f] uppercase">
+            Datos del pedido
+          </span>
+          <h2 className="font-display mt-1 text-2xl sm:text-3xl text-[var(--wood-950)]">
+            {copy.title}
+          </h2>
+          <p className="mt-1 text-sm text-[var(--muted)]">{copy.hint}</p>
+        </div>
 
         <div>
-          <p className="label">Entrega</p>
-          <div className="mt-1 grid grid-cols-2 gap-2">
+          <p className="label">Modalidad de entrega</p>
+          <div className="mt-1.5 grid grid-cols-2 gap-2.5">
             <button
               type="button"
               onClick={() => setFulfillment("pickup")}
-              className={`rounded-sm border px-3 py-2.5 text-left text-sm transition ${
+              className={`rounded-xl border px-4 py-3 text-left text-sm font-medium transition cursor-pointer ${
                 fulfillment === "pickup"
-                  ? "border-[var(--wood-800)] bg-[var(--wood-800)] text-white"
-                  : "border-[var(--border)] bg-white"
+                  ? "border-[var(--wood-900)] bg-[var(--wood-900)] text-white shadow-xs"
+                  : "border-[var(--border)] bg-[#faf7f2] text-[var(--wood-900)] hover:border-[#b0894f]"
               }`}
             >
               Retiro en taller
@@ -121,10 +128,10 @@ export function CheckoutForm({
             <button
               type="button"
               onClick={() => setFulfillment("delivery")}
-              className={`rounded-sm border px-3 py-2.5 text-left text-sm transition ${
+              className={`rounded-xl border px-4 py-3 text-left text-sm font-medium transition cursor-pointer ${
                 fulfillment === "delivery"
-                  ? "border-[var(--wood-800)] bg-[var(--wood-800)] text-white"
-                  : "border-[var(--border)] bg-white"
+                  ? "border-[var(--wood-900)] bg-[var(--wood-900)] text-white shadow-xs"
+                  : "border-[var(--border)] bg-[#faf7f2] text-[var(--wood-900)] hover:border-[#b0894f]"
               }`}
             >
               Entrega a domicilio
@@ -139,34 +146,54 @@ export function CheckoutForm({
 
         <div>
           <label className="label" htmlFor="name">
-            Nombre completo
+            Nombre completo *
           </label>
-          <input id="name" name="name" required className="input" />
+          <input
+            id="name"
+            name="name"
+            required
+            defaultValue={session?.user?.name ?? ""}
+            placeholder="Tu nombre y apellido"
+            className="input"
+          />
         </div>
         <div>
           <label className="label" htmlFor="email">
-            Email
+            Correo electrónico *
           </label>
           <input
             id="email"
             name="email"
             type="email"
             required
+            defaultValue={session?.user?.email ?? ""}
+            placeholder="ejemplo@correo.com"
             className="input"
           />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className="label" htmlFor="phone">
-              Teléfono *
+              Teléfono / WhatsApp *
             </label>
-            <input id="phone" name="phone" required className="input" />
+            <input
+              id="phone"
+              name="phone"
+              required
+              placeholder="809-000-0000"
+              className="input"
+            />
           </div>
           <div>
             <label className="label" htmlFor="taxId">
-              RNC / Cédula
+              RNC / Cédula (opcional)
             </label>
-            <input id="taxId" name="taxId" className="input" />
+            <input
+              id="taxId"
+              name="taxId"
+              placeholder="Para comprobante fiscal"
+              className="input"
+            />
           </div>
         </div>
         <div>
@@ -182,65 +209,79 @@ export function CheckoutForm({
             className="input"
             placeholder={
               fulfillment === "delivery"
-                ? "Sector, calle, referencia…"
-                : "Opcional"
+                ? "Sector, calle, número, referencia…"
+                : "Opcional para retiro en taller"
             }
           />
         </div>
         <div>
           <label className="label" htmlFor="notes">
-            Notas
+            Notas o especificaciones de medidas
           </label>
-          <textarea id="notes" name="notes" rows={3} className="input" />
+          <textarea
+            id="notes"
+            name="notes"
+            rows={3}
+            placeholder="Tono de madera preferido, horario de recepción o detalles adicionales…"
+            className="input"
+          />
         </div>
 
-        <p className="rounded-sm bg-[#f4ebe3] px-3 py-2 text-xs leading-relaxed text-[var(--wood-800)]">
+        <p className="rounded-xl border border-[#e5d8c8] bg-[#faf6f1] px-4 py-3 text-xs leading-relaxed text-[var(--wood-800)]">
           {STORE_LOGISTICS.payments} {STORE_LOGISTICS.leadTime}
         </p>
       </div>
 
-      <div>
-        <h2 className="font-display text-2xl text-[var(--wood-950)]">
-          Resumen
-        </h2>
-        <ul className="mt-4 space-y-2 border border-[var(--border)] bg-white p-4 text-sm">
-          {items.map((i) => (
-            <li key={i.productId} className="flex justify-between gap-3">
-              <span>
-                {i.name} × {i.quantity}
-              </span>
-              <span>{formatCurrency(i.price * i.quantity)}</span>
+      <div className="lg:col-span-5">
+        <div className="sticky top-28 rounded-2xl border border-[#e2d5c5] bg-white p-6 shadow-sm sm:p-7">
+          <h2 className="font-display text-2xl text-[var(--wood-950)]">
+            Resumen de tu compra
+          </h2>
+          <ul className="mt-4 divide-y divide-[#efe6d8] text-sm">
+            {items.map((i) => (
+              <li key={i.productId} className="flex justify-between gap-3 py-2.5">
+                <span className="text-[var(--wood-900)]">
+                  {i.name} <strong className="text-xs text-[var(--muted)]">× {i.quantity}</strong>
+                </span>
+                <span className="font-medium text-[var(--wood-950)]">
+                  {formatCurrency(i.price * i.quantity)}
+                </span>
+              </li>
+            ))}
+            <li className="flex justify-between pt-3 text-[var(--muted)]">
+              <span>Subtotal</span>
+              <span>{formatCurrency(totals.subtotal)}</span>
             </li>
-          ))}
-          <li className="flex justify-between border-t border-[var(--border)] pt-2 text-[var(--muted)]">
-            <span>ITBIS</span>
-            <span>{formatCurrency(totals.tax)}</span>
-          </li>
-          <li className="flex justify-between text-base font-semibold">
-            <span>Total</span>
-            <span>{formatCurrency(totals.total)}</span>
-          </li>
-        </ul>
+            <li className="flex justify-between py-1.5 text-[var(--muted)]">
+              <span>ITBIS (18%)</span>
+              <span>{formatCurrency(totals.tax)}</span>
+            </li>
+            <li className="flex justify-between border-t border-[var(--border)] pt-3 text-base font-bold text-[var(--wood-950)]">
+              <span>Total a pagar</span>
+              <span className="text-lg text-[#8a6a3a]">{formatCurrency(totals.total)}</span>
+            </li>
+          </ul>
 
-        {error ? (
-          <p className="mt-4 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">
-            {error}
-          </p>
-        ) : null}
+          {error ? (
+            <p className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs font-medium text-rose-700">
+              {error}
+            </p>
+          ) : null}
 
-        <button
-          type="submit"
-          disabled={pending || (mode === "online" && !stripeReady)}
-          className="store-cta store-cta-primary mt-6 w-full disabled:opacity-60"
-        >
-          {pending ? "Procesando…" : copy.submit}
-        </button>
-        <Link
-          href="/checkout"
-          className="mt-4 block text-center text-sm text-[var(--muted)] underline-offset-2 hover:underline"
-        >
-          ← Elegir otra opción
-        </Link>
+          <button
+            type="submit"
+            disabled={pending || (mode === "online" && !stripeReady)}
+            className="store-cta store-cta-primary mt-6 w-full rounded-xl disabled:opacity-60 cursor-pointer"
+          >
+            {pending ? "Procesando pedido…" : copy.submit}
+          </button>
+          <Link
+            href="/checkout"
+            className="mt-4 block text-center text-xs font-medium text-[var(--muted)] underline-offset-2 hover:text-[var(--wood-950)] hover:underline"
+          >
+            ← Elegir otro método de pago
+          </Link>
+        </div>
       </div>
     </form>
   );

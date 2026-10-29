@@ -52,16 +52,11 @@ export function WelcomeModal({
     try {
       if (typeof window !== "undefined") {
         const params = new URLSearchParams(window.location.search);
-        if (params.get("welcome") === "0") return;
-
-        // Si ya eligió "Iniciar sesión más tarde" en esta pestaña/sesión, no volver a mostrar en cada clic
-        const later = sessionStorage.getItem("mudeco_login_later");
-        if (later === "true") return;
+        if (params.get("welcome") === "1") {
+          setOpen(true);
+        }
       }
     } catch {}
-
-    // Si no ha iniciado sesión y no ha elegido omitir, mostrar el modal de acceso
-    setOpen(true);
   }, [isUserLoggedIn]);
 
   // Permitir reabrir con evento global si se requiere (ej. al intentar comprar o agregar al carrito)
@@ -421,11 +416,20 @@ export function WelcomeModal({
                     transition: { duration: 0.18 },
                   },
                 }}
-                className="mt-3 pt-2.5 border-t border-white/10 text-center text-[0.68rem] text-white/45"
+                className="mt-3 pt-2.5 border-t border-white/10 text-center text-[0.72rem] text-white/60 space-y-1.5"
               >
-                <span>Puedes explorar el catálogo y cotizar como invitado sin registrarte.</span>
-                <p className="mt-2 text-[0.6rem] tracking-[0.16em] text-[#c9a15a]/80 uppercase font-medium">
-                  DESARROLLADOR FULL STACK · BRAYAN CAMACHO
+                <p>
+                  ¿No tienes cuenta?{" "}
+                  <a
+                    href="/login?tab=register"
+                    onClick={handleDismiss}
+                    className="font-semibold text-[#c9a15a] hover:underline"
+                  >
+                    Regístrate gratis aquí
+                  </a>
+                </p>
+                <p className="text-[0.66rem] text-white/40">
+                  También puedes explorar el catálogo y cotizar como invitado.
                 </p>
               </motion.div>
             </motion.div>

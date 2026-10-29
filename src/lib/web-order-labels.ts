@@ -18,15 +18,12 @@ export function webOrderTypeLabel(order: {
 }) {
   const kind =
     order.serviceKind ||
-    (order.notes?.includes("[REPARACIÓN]")
-      ? "REPAIR"
-      : order.notes?.includes("[CONSULTA]")
-        ? "CONTACT"
-        : order.notes?.includes("[COTIZACIÓN A MEDIDA]")
-          ? "CUSTOM_QUOTE"
-          : null);
+    (order.notes?.includes("[CONSULTA]")
+      ? "CONTACT"
+      : order.notes?.includes("[COTIZACIÓN A MEDIDA]")
+        ? "CUSTOM_QUOTE"
+        : null);
 
-  if (kind === "REPAIR") return "Reparación";
   if (kind === "CONTACT") return "Consulta web";
   if (kind === "CUSTOM_QUOTE") return "Cotización a medida";
   if (order.type === "QUOTE") return "Cotización (carrito)";

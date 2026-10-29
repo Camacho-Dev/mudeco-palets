@@ -14,7 +14,7 @@ export default function TerminosPage() {
         <div className="mt-8 space-y-4 text-[var(--muted)] leading-relaxed">
           <p>
             Los precios publicados incluyen o detallan ITBIS según la ficha.
-            Piezas a medida y reparaciones requieren cotización previa.
+            Las piezas a medida requieren cotización previa.
           </p>
           <p>{STORE_LOGISTICS.pickup}</p>
           <p>{STORE_LOGISTICS.delivery}</p>

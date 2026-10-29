@@ -7,15 +7,17 @@ import { StoreProviders } from "@/components/store/store-providers";
 import { CartProvider } from "@/components/store/cart-context";
 import { getStoreCompany } from "@/lib/store";
 import { siteUrl } from "@/lib/store-info";
+import { auth } from "@/lib/auth";
+import { LoginPromptBanner } from "@/components/store/login-prompt-banner";
 import "@/components/store/store.css";
 
-// Revalidación periódica cada 60s (ISR) para carga instantánea de la tienda
-export const revalidate = 60;
+// Revalidación dinámica instantánea de la tienda
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const storeDisplay = Cormorant_Garamond({
   variable: "--font-store-display",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
 });
 
 const storeBody = Inter({
@@ -32,14 +34,14 @@ export const metadata: Metadata = {
     template: "%s · Mudeco Palets",
   },
   description:
-    "Diseño, creatividad y sostenibilidad. Muebles únicos hechos con madera recuperada en República Dominicana. Catálogo, reparaciones y cotizaciones a medida.",
+    "Diseño, creatividad y sostenibilidad. Muebles únicos hechos con madera recuperada en República Dominicana. Catálogo exclusivo y cotizaciones a medida.",
   openGraph: {
     type: "website",
     locale: "es_DO",
     siteName: "Mudeco Palets",
     title: "Mudeco Palets — Muebles de madera recuperada",
     description:
-      "Muebles de madera recuperada. Catálogo, reparaciones y proyectos a medida en Santo Domingo.",
+      "Muebles de madera recuperada. Catálogo exclusivo y proyectos a medida en Santo Domingo.",
     url: base,
     images: [
       {
@@ -59,14 +61,16 @@ export const metadata: Metadata = {
   },
 };
 
-import { WelcomeModal } from "@/components/store/welcome-modal";
-
 export default async function StoreLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const company = await getStoreCompany();
+  const [company, session] = await Promise.all([
+    getStoreCompany(),
+    auth().catch(() => null),
+  ]);
+  const isLoggedIn = !!session?.user;
 
   return (
     <StoreProviders>
@@ -74,7 +78,7 @@ export default async function StoreLayout({
         <div
           className={`${storeDisplay.variable} ${storeBody.variable} store-shell flex min-h-screen flex-col`}
         >
-          <WelcomeModal />
+          <LoginPromptBanner isLoggedIn={isLoggedIn} />
           <StoreHeader />
           <main className="flex-1">{children}</main>
           <StoreFooter company={company} />

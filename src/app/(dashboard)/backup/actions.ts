@@ -5,6 +5,63 @@ import { requireAdmin } from "@/lib/session";
 import { writeAudit } from "@/lib/audit";
 import { revalidatePath } from "next/cache";
 
+type BackupPayload = {
+  customers?: Array<{
+    id?: string;
+    name?: string;
+    taxId?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    address?: string | null;
+    creditLimit?: number;
+  }>;
+  suppliers?: Array<{
+    id?: string;
+    name?: string;
+    taxId?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    address?: string | null;
+  }>;
+  products?: Array<{
+    id?: string;
+    sku?: string | null;
+    name?: string;
+    description?: string | null;
+    kind?: string;
+    category?: string;
+    price?: number;
+    cost?: number;
+    taxRate?: number;
+    unit?: string;
+    stock?: number;
+    minStock?: number;
+    active?: boolean;
+    imageUrl?: string | null;
+    widthCm?: number | null;
+    heightCm?: number | null;
+    depthCm?: number | null;
+  }>;
+  ncfSeries?: Array<{
+    id?: string;
+    type?: string;
+    name?: string;
+    prefix?: string;
+    nextSeq?: number;
+    maxSeq?: number;
+    expiresAt?: string | null;
+    active?: boolean;
+  }>;
+  settings?: {
+    name?: string;
+    slogan?: string;
+    taxId?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    address?: string | null;
+  } | null;
+};
+
 export async function restoreBackup(fd: FormData): Promise<{ ok: boolean; message: string }> {
   await requireAdmin();
   const file = fd.get("backupFile") as File | null;
@@ -13,9 +70,9 @@ export async function restoreBackup(fd: FormData): Promise<{ ok: boolean; messag
   }
 
   const text = await file.text();
-  let data: any;
+  let data: BackupPayload;
   try {
-    data = JSON.parse(text);
+    data = JSON.parse(text) as BackupPayload;
   } catch {
     throw new Error("El archivo no contiene un formato JSON válido");
   }
@@ -27,6 +84,7 @@ export async function restoreBackup(fd: FormData): Promise<{ ok: boolean; messag
   let restoredCustomers = 0;
   let restoredProducts = 0;
   let restoredSuppliers = 0;
+  let restoredNcf = 0;
 
   // Restaurar clientes
   if (Array.isArray(data.customers)) {
@@ -118,6 +176,35 @@ export async function restoreBackup(fd: FormData): Promise<{ ok: boolean; messag
     }
   }
 
+  // Restaurar series NCF
+  if (Array.isArray(data.ncfSeries)) {
+    for (const s of data.ncfSeries) {
+      if (!s.id || !s.type || !s.prefix) continue;
+      await prisma.ncfSeries.upsert({
+        where: { id: s.id },
+        create: {
+          id: s.id,
+          type: s.type,
+          name: s.name || s.type,
+          prefix: s.prefix,
+          nextSeq: Number(s.nextSeq) || 1,
+          maxSeq: Number(s.maxSeq) || 99999999,
+          expiresAt: s.expiresAt ? new Date(s.expiresAt) : null,
+          active: s.active ?? true,
+        },
+        update: {
+          name: s.name || s.type,
+          prefix: s.prefix,
+          nextSeq: Number(s.nextSeq) || 1,
+          maxSeq: Number(s.maxSeq) || 99999999,
+          expiresAt: s.expiresAt ? new Date(s.expiresAt) : null,
+          active: s.active ?? true,
+        },
+      });
+      restoredNcf++;
+    }
+  }
+
   // Restaurar configuración de empresa
   if (data.settings && typeof data.settings === "object") {
     await prisma.companySettings.upsert({
@@ -145,7 +232,7 @@ export async function restoreBackup(fd: FormData): Promise<{ ok: boolean; messag
   await writeAudit({
     action: "RESTORE",
     entity: "System",
-    summary: `Restauración de catálogo y clientes: ${restoredProducts} productos, ${restoredCustomers} clientes, ${restoredSuppliers} proveedores`,
+    summary: `Restauración: ${restoredProducts} productos, ${restoredCustomers} clientes, ${restoredSuppliers} proveedores, ${restoredNcf} series NCF`,
   });
 
   revalidatePath("/clientes");
@@ -156,6 +243,6 @@ export async function restoreBackup(fd: FormData): Promise<{ ok: boolean; messag
 
   return {
     ok: true,
-    message: `Restauración exitosa: ${restoredProducts} productos, ${restoredCustomers} clientes y ${restoredSuppliers} proveedores sincronizados.`,
+    message: `Restauración exitosa: ${restoredProducts} productos, ${restoredCustomers} clientes, ${restoredSuppliers} proveedores y ${restoredNcf} series NCF sincronizados.`,
   };
 }

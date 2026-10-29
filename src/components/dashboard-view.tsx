@@ -23,6 +23,7 @@ import {
   Calculator,
   Clock,
   ExternalLink,
+  FileText,
   Globe,
   Image as ImageIcon,
   MessageSquare,
@@ -35,7 +36,6 @@ import {
   ShoppingCart,
   TrendingUp,
   Wallet,
-  Wrench,
   Zap,
 } from "lucide-react";
 import type { BusinessAnalytics } from "@/lib/analytics";
@@ -240,7 +240,7 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
                   Aviso DGII: Secuencia de comprobantes fiscales por vencer o agotarse ({kpis.ncfAlertsCount})
                 </p>
                 <div className="mt-1 flex flex-wrap gap-2 text-xs text-amber-800">
-                  {kpis.ncfAlerts.map((a: any) => (
+                  {kpis.ncfAlerts.map((a) => (
                     <span
                       key={a.id}
                       className="inline-flex items-center gap-1 rounded bg-amber-200/80 px-2 py-0.5 font-medium"
@@ -335,22 +335,22 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
             </Link>
 
             <Link
-              href="/pedidos-web?tipo=REPAIR"
+              href="/pedidos-web?tipo=CUSTOM_QUOTE"
               className="group relative flex flex-col justify-between rounded-xl border border-[var(--border)] bg-[#fbf7f2] p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#b0894f] hover:bg-white hover:shadow-md"
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold tracking-wide text-[var(--muted)] uppercase group-hover:text-[var(--wood-900)]">
-                  Reparaciones
+                  Cotizaciones
                 </span>
                 <div className="rounded-lg bg-[#5c4334]/10 p-1.5 text-[var(--wood-800)] transition-transform group-hover:scale-110">
-                  <Wrench className="h-4 w-4" />
+                  <FileText className="h-4 w-4" />
                 </div>
               </div>
               <p className="font-display mt-2 text-3xl font-bold text-[var(--wood-950)]">
                 {kpis.webRepairsCount}
               </p>
               <p className="mt-2 text-xs font-medium text-[#b0894f] group-hover:underline">
-                Solicitudes de taller →
+                A medida →
               </p>
             </Link>
 
@@ -465,11 +465,11 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
                       </span>
                       {o.serviceKind ? (
                         <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[0.62rem] font-medium text-amber-900">
-                          {o.serviceKind === "REPAIR"
-                            ? "Reparación"
-                            : o.serviceKind === "CUSTOM_QUOTE"
-                              ? "A medida"
-                              : "Consulta"}
+                          {o.serviceKind === "CUSTOM_QUOTE"
+                            ? "A medida"
+                            : o.serviceKind === "CONTACT"
+                              ? "Consulta"
+                              : "Web"}
                         </span>
                       ) : (
                         <span className="rounded bg-stone-100 px-1.5 py-0.5 text-[0.62rem] font-medium text-stone-800">

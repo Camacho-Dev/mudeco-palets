@@ -146,9 +146,9 @@ export async function createWebQuote(
   return { order, quote, customer };
 }
 
-export type ServiceRequestKind = "repair" | "quote" | "contact";
+export type ServiceRequestKind = "quote" | "contact";
 
-/** Cotización sin carrito: reparación, proyecto a medida o consulta */
+/** Cotización sin carrito: proyecto a medida o consulta */
 export async function createWebServiceRequest(
   customerData: CheckoutCustomer,
   kind: ServiceRequestKind,
@@ -161,12 +161,7 @@ export async function createWebServiceRequest(
   const description = detail.description.trim();
   if (!description) throw new Error("Describe el trabajo que necesitas");
 
-  const label =
-    kind === "repair"
-      ? "Reparación"
-      : kind === "contact"
-        ? "Consulta"
-        : "Cotización a medida";
+  const label = kind === "contact" ? "Consulta" : "Cotización a medida";
   const piece = detail.piece?.trim();
   const lineDesc = piece
     ? `${label}: ${piece}`

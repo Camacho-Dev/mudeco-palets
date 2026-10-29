@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/logo";
-import { ArrowLeft, Home, ShoppingBag, Search } from "lucide-react";
+import { Home, ShoppingBag } from "lucide-react";
 
 export default function NotFound() {
   return (

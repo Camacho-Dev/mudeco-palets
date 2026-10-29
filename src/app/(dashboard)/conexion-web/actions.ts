@@ -5,16 +5,20 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import { writeAudit } from "@/lib/audit";
 import { isStripeConfigured } from "@/lib/stripe";
+import { invalidateScoredProductsCache } from "@/lib/recommendations";
+import { invalidateStoreCompanyCache } from "@/lib/store";
 
 /** Forzar revalidación de todas las rutas de la tienda pública y del panel */
 export async function revalidateWebStoreCache() {
   const session = await requireAdmin();
 
+  invalidateScoredProductsCache();
+  invalidateStoreCompanyCache();
+
   // Revalidar todas las páginas públicas de la tienda
   revalidatePath("/", "layout");
   revalidatePath("/");
   revalidatePath("/catalogo");
-  revalidatePath("/reparaciones");
   revalidatePath("/contacto");
   revalidatePath("/nosotros");
   revalidatePath("/carrito");
@@ -165,9 +169,9 @@ export async function createDiagnosticWebOrder() {
 
   const unitPrice = sampleProduct ? sampleProduct.price : 2500;
   const quantity = 1;
-  const total = unitPrice * quantity;
-  const subtotal = +(total / 1.18).toFixed(2);
-  const tax = +(total - subtotal).toFixed(2);
+  const subtotal = +(unitPrice * quantity).toFixed(2);
+  const tax = +(subtotal * 0.18).toFixed(2);
+  const total = +(subtotal + tax).toFixed(2);
 
   const testOrder = await prisma.webOrder.create({
     data: {
@@ -191,7 +195,7 @@ export async function createDiagnosticWebOrder() {
             quantity,
             unitPrice,
             taxRate: 0.18,
-            lineTotal: total,
+            lineTotal: subtotal,
           },
         ],
       },

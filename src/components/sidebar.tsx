@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { auth, signOut } from "@/lib/auth";
+import { signOut } from "@/lib/auth";
 import {
   LayoutDashboard,
   Users,
@@ -30,7 +30,6 @@ import {
 import { BrandLogo } from "@/components/logo";
 import { isAdmin } from "@/lib/rbac";
 import { GlobalSearch } from "@/components/global-search";
-import { prisma } from "@/lib/prisma";
 import {
   getCachedAuthSession,
   getCachedPendingWebOrders,
@@ -60,7 +59,7 @@ const adminNav = [
   { href: "/usuarios", label: "Usuarios y roles", icon: UserCog },
   { href: "/exportar", label: "Exportar", icon: Download },
   { href: "/backup", label: "Respaldo", icon: DatabaseBackup },
-  { href: "/contenido-web", label: "Fotos de la web", icon: Image },
+  { href: "/contenido-web", label: "Fotos y precios web", icon: Image },
   { href: "/configuracion", label: "Empresa", icon: Settings },
   { href: "/auditoria", label: "Historial", icon: ScrollText },
 ];
@@ -195,9 +194,6 @@ export async function Sidebar() {
             Cerrar sesión
           </button>
         </form>
-        <p className="mt-3 text-center text-[0.6rem] tracking-[0.16em] text-[#c9a15a]/80 uppercase font-medium">
-          DESARROLLADOR FULL STACK · BRAYAN CAMACHO
-        </p>
       </div>
     </aside>
   );
@@ -238,11 +234,26 @@ export async function SidebarMobilePanel() {
         </div>
       </div>
       <div className="border-t border-white/10 p-4 text-sm">
-        <p>{session?.user?.name}</p>
-        <p className="text-xs text-white/50">{session?.user?.email}</p>
-        <p className="mt-3 text-center text-[0.6rem] tracking-[0.16em] text-[#c9a15a]/80 uppercase font-medium">
-          DESARROLLADOR FULL STACK · BRAYAN CAMACHO
+        <p className="truncate font-medium">{session?.user?.name}</p>
+        <p className="truncate text-xs text-white/50">{session?.user?.email}</p>
+        <p className="mt-1 text-[0.65rem] tracking-wide text-white/35 uppercase">
+          {admin ? "Administrador" : "Empleado"}
         </p>
+        <form
+          action={async () => {
+            "use server";
+            await signOut({ redirectTo: "/login" });
+          }}
+          className="mt-3"
+        >
+          <button
+            type="submit"
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-white/70 transition hover:bg-white/10 hover:text-white cursor-pointer"
+          >
+            <LogOut className="h-4 w-4" />
+            Cerrar sesión
+          </button>
+        </form>
       </div>
     </div>
   );

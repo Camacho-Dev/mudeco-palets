@@ -30,7 +30,7 @@ const standardExports = [
   {
     type: "pedidos-web",
     label: "Pedidos de la Tienda Online",
-    desc: "Ventas por carrito, cotizaciones a medida y reparaciones",
+    desc: "Ventas por carrito y cotizaciones a medida",
     icon: Globe,
   },
   {

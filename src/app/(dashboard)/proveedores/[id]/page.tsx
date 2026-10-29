@@ -7,15 +7,8 @@ import { updateSupplier } from "../actions";
 import { formatCurrency, formatDate } from "@/lib/format";
 import {
   Truck,
-  Phone,
-  Mail,
-  MapPin,
-  FileText,
-  DollarSign,
-  Package,
   ArrowLeft,
   MessageCircle,
-  ExternalLink,
 } from "lucide-react";
 
 export default async function ProveedorDetailPage({
@@ -258,10 +251,6 @@ export default async function ProveedorDetailPage({
                   </tr>
                 ) : (
                   s.purchases.map((p) => {
-                    const itemCount = p.items.reduce(
-                      (acc, i) => acc + i.quantity,
-                      0,
-                    );
                     const itemNames = p.items
                       .map((i) => `${i.quantity} ${i.product.unit} ${i.product.name}`)
                       .slice(0, 2)

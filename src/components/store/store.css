@@ -289,7 +289,7 @@
   background: var(--store-gold-hover);
 }
 
-/* Benefit cards with gold border (reparaciones) */
+/* Benefit cards with gold border */
 .store-benefit-gold {
   border: 1px solid rgba(201, 161, 90, 0.35);
   background: #111111;
@@ -425,4 +425,89 @@
 
 .store-service-form .store-submit:disabled {
   opacity: 0.6;
+}
+
+/* Luxury Range Slider Bar */
+.price-slider-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 1.5rem;
+  pointer-events: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background: transparent;
+  margin: 0;
+  z-index: 20;
+}
+
+.price-slider-input:focus {
+  outline: none;
+}
+
+.price-slider-input::-webkit-slider-thumb {
+  pointer-events: auto;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 3px solid #c9a15a;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(201, 161, 90, 0.35);
+  cursor: grab;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.price-slider-input::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(201, 161, 90, 0.3);
+  border-color: #b0894f;
+}
+
+.price-slider-input::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.22);
+  background: #fbf9f5;
+  border-color: #8f6b28;
+  box-shadow: 0 4px 16px rgba(201, 161, 90, 0.4), 0 0 0 4px rgba(201, 161, 90, 0.3);
+}
+
+.price-slider-input::-moz-range-thumb {
+  pointer-events: auto;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: #ffffff;
+  border: 3px solid #c9a15a;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(201, 161, 90, 0.35);
+  cursor: grab;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.price-slider-input::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 3px rgba(201, 161, 90, 0.3);
+  border-color: #b0894f;
+}
+
+.price-slider-input::-moz-range-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.22);
+  background: #fbf9f5;
+  border-color: #8f6b28;
+  box-shadow: 0 4px 16px rgba(201, 161, 90, 0.4), 0 0 0 4px rgba(201, 161, 90, 0.3);
+}
+
+/* Ocultar botón N de Next.js dev indicator */
+nextjs-portal,
+[data-nextjs-dev-indicator],
+[data-next-badge],
+#next-logo {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }

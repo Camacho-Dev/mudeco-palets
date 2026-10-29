@@ -10,7 +10,7 @@ const QUICK_TAGS = [
   { label: "Centros TV", query: "REPISA DE TV", isCategory: true },
   { label: "Mesas de noche", query: "MESA DE NOCHE", isCategory: true },
   { label: "Bancos", query: "BANCO", isCategory: true },
-  { label: "A medida", href: "/reparaciones" },
+  { label: "A medida", href: "/contacto" },
 ];
 
 export function HeroSearchBar() {

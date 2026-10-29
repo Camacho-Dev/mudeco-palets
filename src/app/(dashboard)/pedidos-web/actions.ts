@@ -6,6 +6,7 @@ import { requireSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { writeAudit } from "@/lib/audit";
 import { nextInvoiceNumber } from "@/lib/invoice-number";
+import { calcInvoiceTotals } from "@/lib/invoice-calc";
 import { restoreStock } from "@/lib/stock";
 
 const ALLOWED = new Set([
@@ -282,7 +283,7 @@ export async function convertWebOrderDirectToInvoice(id: string) {
     });
   }
 
-  // 2. Líneas de factura
+  // 2. Líneas de factura con cálculo estándar de ITBIS (18% sobre subtotal neto)
   const number = await nextInvoiceNumber();
   let itemsData: {
     productId?: string | null;
@@ -293,45 +294,34 @@ export async function convertWebOrderDirectToInvoice(id: string) {
     lineTotal: number;
   }[] = [];
 
-  let subtotal = 0;
-  let tax = 0;
-  let total = 0;
-
   if (order.items && order.items.length > 0) {
     itemsData = order.items.map((i) => {
-      const lineSubtotal = i.quantity * i.unitPrice;
       const rate = i.taxRate ?? 0.18;
-      const calculatedLineTax = lineSubtotal * (rate / (1 + rate));
-      subtotal += lineSubtotal - calculatedLineTax;
-      tax += calculatedLineTax;
-      total += lineSubtotal;
+      const lineTotal = Math.round(i.quantity * i.unitPrice * 100) / 100;
       return {
         productId: i.productId,
         description: i.description || i.product?.name || "Artículo de catálogo web",
         quantity: i.quantity,
         unitPrice: i.unitPrice,
         taxRate: rate,
-        lineTotal: i.lineTotal || lineSubtotal,
+        lineTotal,
       };
     });
   } else {
-    const fallbackTotal = order.total > 0 ? order.total : 0;
-    const base = fallbackTotal > 0 ? +(fallbackTotal / 1.18).toFixed(2) : 0;
-    const fallbackTax = fallbackTotal > 0 ? +(fallbackTotal - base).toFixed(2) : 0;
-    subtotal = base;
-    tax = fallbackTax;
-    total = fallbackTotal;
+    const base = order.subtotal > 0 ? order.subtotal : order.total > 0 ? +(order.total / 1.18).toFixed(2) : 0;
     itemsData = [
       {
         productId: null,
         description: `Servicio / Pedido web ${order.number}${order.serviceKind ? ` (${order.serviceKind})` : ""}`,
         quantity: 1,
-        unitPrice: fallbackTotal,
+        unitPrice: base,
         taxRate: 0.18,
-        lineTotal: fallbackTotal,
+        lineTotal: base,
       },
     ];
   }
+
+  const totals = calcInvoiceTotals(itemsData, { applyTax: true });
 
   const invoice = await prisma.invoice.create({
     data: {
@@ -341,9 +331,9 @@ export async function convertWebOrderDirectToInvoice(id: string) {
       customerId,
       userId: session.user.id,
       notes: `Generada desde pedido web ${order.number} (${order.customerEmail}).\n${order.notes || ""}`,
-      subtotal: Math.round(subtotal * 100) / 100,
-      tax: Math.round(tax * 100) / 100,
-      total: Math.round(total * 100) / 100,
+      subtotal: totals.subtotal,
+      tax: totals.tax,
+      total: totals.total,
       items: {
         create: itemsData,
       },
@@ -374,4 +364,3 @@ export async function convertWebOrderDirectToInvoice(id: string) {
   revalidatePath("/panel");
   redirect(`/facturas/${invoice.id}`);
 }
-

@@ -123,7 +123,8 @@ export async function getScoredProducts(): Promise<ProductWithRecommendation[]> 
     };
   });
 
-  cachedScored = { data: result, expiresAt: now + 60_000 };
+  const ttl = process.env.NODE_ENV === "production" ? 60_000 : 20_000;
+  cachedScored = { data: result, expiresAt: now + ttl };
   return result;
 }
 

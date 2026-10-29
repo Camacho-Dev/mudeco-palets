@@ -1,8 +1,15 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { isAdmin } from "@/lib/rbac";
+import { isAdmin, isStaff } from "@/lib/rbac";
 
 export async function requireSession() {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/login");
+  if (!isStaff(session.user.role)) redirect("/");
+  return session;
+}
+
+export async function requireAuthenticatedUser() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
   return session;

@@ -1,34 +1,33 @@
 import Link from "next/link";
 import {
   ArrowRight,
-
   Leaf,
   Hammer,
   Award,
   Home,
   Table2,
   Tv,
-  Wrench,
   Ruler,
-  Star,
-  Quote,
   Camera,
-  CheckCircle2,
   Sparkles,
   MessageCircle,
-  ShieldCheck,
   Layers,
+  Target,
+  Eye,
+  Gem,
+  Compass,
 } from "lucide-react";
 import { FadeUp, Reveal } from "@/components/store/store-motion";
 import { ProductShelf } from "@/components/store/product-shelf";
-import { BeforeAfterSlider, type Transformation } from "@/components/store/before-after-slider";
-import { prisma, withDbRetry } from "@/lib/prisma";
+import { withDbRetry } from "@/lib/prisma";
 import { STORE_SOCIAL } from "@/lib/store-brand";
 import { getScoredProducts } from "@/lib/recommendations";
 import { getStoreCompany } from "@/lib/store";
 import { storeWhatsApp } from "@/lib/store-info";
-import { auth } from "@/lib/auth";
 import { HeroSearchBar } from "@/components/store/hero-search-bar";
+import { getApprovedReviews } from "@/lib/reviews";
+import { CustomerReviewsSection } from "@/components/store/customer-reviews-section";
+import { auth } from "@/lib/auth";
 
 
 const TRUST = [
@@ -82,37 +81,6 @@ const CRAFT_STEPS = [
 ] as const;
 
 
-const PROMO_TILES = [
-  {
-    title: "Reparaciones",
-    text: "Segunda vida a tu mueble",
-    href: "/reparaciones",
-    image: "/brand/store-workshop.jpg",
-    icon: Wrench,
-  },
-  {
-    title: "A medida",
-    text: "Diseño personalizado",
-    href: "/reparaciones",
-    image: "/brand/store-craft.jpg",
-    icon: Ruler,
-  },
-  {
-    title: "Colección rústica",
-    text: "Comedores y mesas nobles",
-    href: "/catalogo?cat=MESA%20DE%20COMEDOR",
-    image: "/brand/cat-mesa.jpg",
-    icon: Table2,
-  },
-  {
-    title: "Centros TV",
-    text: "Piezas con carácter",
-    href: "/catalogo?cat=REPISA%20DE%20TV",
-    image: "/brand/cat-tv.jpg",
-    icon: Tv,
-  },
-] as const;
-
 const GALLERY = [
   "/brand/store-hero.jpg",
   "/brand/cat-mesa.jpg",
@@ -124,25 +92,14 @@ const GALLERY = [
   "/brand/store-workshop.jpg",
 ] as const;
 
-const REVIEWS = [
-  {
-    name: "María L.",
-    text: "La mesa quedó espectacular. Se nota el trabajo a mano y la solidez de los acabados. Es el centro de atención de mi sala.",
-  },
-  {
-    name: "Carlos R.",
-    text: "Repararon un mueble que creíamos perdido. La restauración respetó las vetas naturales y el resultado superó las expectativas.",
-  },
-  {
-    name: "Andrea P.",
-    text: "Pedimos a medida un centro de entretenimiento y respetaron cada centímetro. Entrega puntual y trato impecable.",
-  },
-] as const;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export default async function StoreHomePage() {
-  const [company, scoredProducts, session] = await Promise.all([
+  const [company, scoredProducts, approvedReviews, session] = await Promise.all([
     getStoreCompany(),
     withDbRetry(() => getScoredProducts(), { fallback: [] }),
+    getApprovedReviews(15),
     auth().catch(() => null),
   ]);
 
@@ -155,32 +112,46 @@ export default async function StoreHomePage() {
 
   const promoTiles = [
     {
-      title: "Reparaciones",
-      text: "Segunda vida a tu mueble",
-      href: "/reparaciones",
-      image: company.workshopImage,
-      icon: Wrench,
+      title: "Bases de Cama",
+      text: "41 modelos · Rústicas y King",
+      href: "/catalogo?cat=BASE%20DE%20CAMA",
+      image: "/uploads/mueble_20261026_181238_0.jpeg",
+      icon: Home,
     },
     {
-      title: "A medida",
-      text: "Diseño personalizado",
-      href: "/reparaciones",
-      image: company.craftImage,
-      icon: Ruler,
-    },
-    {
-      title: "Colección rústica",
-      text: "Comedores y mesas nobles",
+      title: "Mesas de Comedor",
+      text: "15 modelos · Pino curado 6-8 puestos",
       href: "/catalogo?cat=MESA%20DE%20COMEDOR",
-      image: company.promoMesaImage,
+      image: company.promoMesaImage || "/uploads/mueble_b2_021.jpeg",
       icon: Table2,
     },
     {
-      title: "Centros TV",
-      text: "Piezas con carácter",
+      title: "Mesas de Centro",
+      text: "15 modelos · Diseños artesanales",
+      href: "/catalogo?cat=MESA%20DE%20CENTRO",
+      image: "/uploads/mueble_b2_036.jpeg",
+      icon: Sparkles,
+    },
+    {
+      title: "Gaveteros & Cómodas",
+      text: "12 modelos · Almacenamiento rústico",
+      href: "/catalogo?cat=GAVETEROS",
+      image: "/uploads/mueble_b2_061.jpeg",
+      icon: Layers,
+    },
+    {
+      title: "Centros & Repisas TV",
+      text: "10 modelos · Madera maciza",
       href: "/catalogo?cat=REPISA%20DE%20TV",
-      image: company.promoTvImage,
+      image: company.promoTvImage || "/uploads/mueble_b2_073.jpeg",
       icon: Tv,
+    },
+    {
+      title: "Proyectos a Medida",
+      text: "Diseño & medidas personalizadas",
+      href: "/contacto",
+      image: "/uploads/mueble_b2_090.jpeg",
+      icon: Ruler,
     },
   ];
 
@@ -190,16 +161,6 @@ export default async function StoreHomePage() {
       const parsed = JSON.parse(company.galleryImages);
       if (Array.isArray(parsed) && parsed.length > 0) {
         gallery = parsed;
-      }
-    } catch {}
-  }
-
-  let transformations: Transformation[] | undefined = undefined;
-  if (company.beforeAfterJson) {
-    try {
-      const parsed = JSON.parse(company.beforeAfterJson);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        transformations = parsed;
       }
     } catch {}
   }
@@ -246,14 +207,6 @@ export default async function StoreHomePage() {
               {/* Columna Izquierda: Mensaje editorial y llamadas a la acción */}
               <div className="lg:col-span-7 xl:col-span-7">
                 <FadeUp>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/35 bg-black/60 px-3.5 py-1 text-[0.62rem] font-semibold tracking-[0.2em] text-[#c9a15a] uppercase backdrop-blur-md mb-4 shadow-sm">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#c9a15a] opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#c9a15a]"></span>
-                    </span>
-                    {company.heroBadge}
-                  </div>
-
                   <h1 className="font-display max-w-2xl text-[clamp(2.3rem,4.2vw,4.2rem)] leading-[1.05] text-white">
                     {company.heroTitle}
                   </h1>
@@ -272,7 +225,7 @@ export default async function StoreHomePage() {
                     </Link>
 
                     <Link
-                      href="/reparaciones"
+                      href="/contacto"
                       className="inline-flex items-center gap-2 border border-white/20 bg-white/[0.04] px-7 py-3.5 text-xs font-medium tracking-[0.14em] text-white uppercase backdrop-blur-sm transition-all duration-300 hover:border-[#c9a15a]/60 hover:bg-white/[0.08]"
                     >
                       Cotizar a medida
@@ -362,7 +315,7 @@ export default async function StoreHomePage() {
               </Link>
             </div>
           </Reveal>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {promoTiles.map((tile, i) => (
               <Reveal key={tile.title} delay={i * 0.05}>
                 <Link
@@ -421,34 +374,6 @@ export default async function StoreHomePage() {
         />
       </div>
 
-      {/* —— Antes y después con slider interactivo —— */}
-      <section className="border-y border-white/[0.06] bg-[#111111]/90 py-16">
-        <div className="mx-auto max-w-[1760px] px-4 sm:px-8 lg:px-12 xl:px-16">
-          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <p className="text-[0.65rem] font-medium tracking-[0.24em] text-[#c9a15a] uppercase">
-                Maestría y oficio
-              </p>
-              <h2 className="font-display mt-1 text-2xl text-white sm:text-3xl md:text-4xl">
-                El arte de la transformación
-              </h2>
-              <p className="mt-2 text-sm text-white/60 max-w-xl">
-                Compara en tiempo real cómo convertimos palets industriales y madera descartada en piezas finas de ebanistería.
-              </p>
-            </div>
-            <Link
-              href="/reparaciones"
-              className="group inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-[#c9a15a] uppercase transition hover:text-[#e4be78]"
-            >
-              Ver proceso de taller
-              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
-
-          <BeforeAfterSlider initialItems={transformations} />
-        </div>
-      </section>
-
       {/* —— El Proceso Mudeco: Del Palet a la Obra de Arte —— */}
       <section className="border-b border-white/[0.06] bg-[#0c0c0c] py-20">
         <div className="mx-auto max-w-[1760px] px-4 sm:px-8 lg:px-12 xl:px-16">
@@ -490,50 +415,160 @@ export default async function StoreHomePage() {
         </div>
       </section>
 
-      {/* —— Opiniones de clientes con acabado editorial —— */}
-      <section className="mx-auto max-w-[1760px] px-4 py-20 sm:px-8 lg:px-12 xl:px-16">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <p className="text-[0.65rem] font-medium tracking-[0.24em] text-[#c9a15a] uppercase">
-            Testimonios
-          </p>
-          <h2 className="font-display mt-2 text-2xl text-white sm:text-3xl md:text-4xl">
-            La confianza de nuestros clientes
-          </h2>
-        </div>
+      {/* —— Sección Manifiesto & Propósito: Misión, Visión y Valores —— */}
+      <section className="relative overflow-hidden border-b border-white/[0.06] bg-[#0d0d0d] py-24 text-white">
+        {/* Glow de fondo */}
+        <div className="pointer-events-none absolute -top-40 right-0 h-[480px] w-[480px] rounded-full bg-[#c9a15a]/5 blur-[120px]" />
+        <div className="pointer-events-none absolute -bottom-40 left-0 h-[480px] w-[480px] rounded-full bg-[#c9a15a]/5 blur-[120px]" />
 
-        <div className="grid gap-5 md:grid-cols-3">
-          {REVIEWS.map((r, i) => (
-            <Reveal key={r.name} delay={i * 0.08}>
-              <blockquote className="group relative h-full flex flex-col justify-between border border-white/[0.08] bg-[#141414] p-6 transition-all duration-300 hover:border-[#c9a15a]/40 hover:bg-[#181818] hover:-translate-y-1 hover:shadow-[0_12px_32px_rgba(0,0,0,0.5)]">
-                <Quote className="h-6 w-6 text-[#c9a15a]/30 mb-3" />
-                <p className="text-sm leading-relaxed text-[#d7d7d7]/90 italic flex-1">
-                  "{r.text}"
+        <div className="relative mx-auto max-w-[1760px] px-4 sm:px-8 lg:px-12 xl:px-16">
+          {/* Cabecera Editorial con Historia de Marca */}
+          <div className="grid gap-12 lg:grid-cols-12 lg:items-center mb-16">
+            <div className="lg:col-span-7 space-y-4">
+              <Reveal>
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/30 bg-[#c9a15a]/10 px-3.5 py-1 text-[0.62rem] font-bold tracking-[0.22em] text-[#c9a15a] uppercase">
+                  <Sparkles className="h-3 w-3" />
+                  Filosofía & Compromiso Sostenible
+                </div>
+                <h2 className="font-display mt-4 text-3xl sm:text-4xl lg:text-5xl leading-tight text-white">
+                  Diseño con propósito: convirtiendo el descarte en arte
+                </h2>
+                <p className="mt-5 text-base sm:text-lg leading-relaxed text-white/70">
+                  Somos una marca revolucionaria en el diseño de muebles sostenibles que transforma madera reciclada en piezas únicas, funcionales y llenas de historia. Fusionando la autenticidad artesanal con la innovación circular, creamos soluciones que no solo embellecen tus espacios, sino que también inspiran un estilo de vida más consciente.
                 </p>
-                <div className="mt-5 pt-4 border-t border-white/[0.06] flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-bold tracking-wide text-white">
-                      {r.name}
-                    </p>
-                    <div className="flex items-center gap-1 text-[0.6rem] text-emerald-400 mt-0.5">
-                      <CheckCircle2 className="h-3 w-3" />
-                      <span>Compra verificada</span>
+                <p className="text-sm text-white/50 leading-relaxed">
+                  Cada mueble cuenta una historia de transformación, posicionando a Mudeco como un referente del diseño con propósito en República Dominicana y América Latina.
+                </p>
+              </Reveal>
+            </div>
+
+            <div className="lg:col-span-5">
+              <Reveal delay={0.12}>
+                <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#141414] p-3 shadow-2xl transition duration-500 hover:border-[#c9a15a]/40">
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={company.craftImage || "/brand/store-craft.jpg"}
+                      alt="Taller de ebanistería circular Mudeco Palets"
+                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="h-2 w-2 rounded-full bg-[#c9a15a] animate-pulse" />
+                        <span className="text-xs font-semibold tracking-wider text-white uppercase">
+                          Taller Artesanal Santo Domingo
+                        </span>
+                      </div>
+                      <span className="rounded-md border border-[#c9a15a]/40 bg-black/60 px-2 py-0.5 text-[0.65rem] font-medium text-[#c9a15a] backdrop-blur-md">
+                        100% Madera Curada
+                      </span>
                     </div>
                   </div>
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: 5 }).map((_, idx) => (
-                      <Star
-                        key={idx}
-                        className="h-3 w-3 fill-[#c9a15a] text-[#c9a15a]"
-                        strokeWidth={1.5}
-                      />
-                    ))}
+                </div>
+              </Reveal>
+            </div>
+          </div>
+
+          {/* Tarjetas de los 3 Pilares: Misión, Visión y Valores */}
+          <div className="grid gap-6 md:grid-cols-3">
+            {/* Pilar 1: Misión */}
+            <Reveal delay={0.08}>
+              <div className="group relative flex h-full flex-col justify-between rounded-2xl border border-white/[0.08] bg-[#121212]/90 p-8 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#c9a15a]/50 hover:bg-[#151515] hover:shadow-[0_20px_40px_rgba(0,0,0,0.6),0_0_20px_rgba(201,161,90,0.08)]">
+                <div>
+                  <div className="mb-6 flex items-center justify-between">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#c9a15a]/30 bg-[#c9a15a]/10 text-[#c9a15a] transition duration-300 group-hover:bg-[#c9a15a] group-hover:text-black">
+                      <Target className="h-6 w-6" strokeWidth={1.75} />
+                    </div>
+                    <span className="text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a]/80 uppercase">
+                      Pilar 01
+                    </span>
+                  </div>
+                  <h3 className="font-display text-2xl text-white group-hover:text-[#c9a15a] transition-colors">
+                    Nuestra Misión
+                  </h3>
+                  <p className="mt-4 text-sm leading-relaxed text-white/70">
+                    Transformamos materiales reciclados en muebles funcionales y estéticamente atractivos, ofreciendo soluciones de diseño sostenible que reducen el impacto ambiental. Cada pieza, única y con carácter, enriquece los espacios de nuestros clientes, aportando historia y conciencia ecológica a su entorno.
+                  </p>
+                </div>
+                <div className="mt-6 border-t border-white/[0.06] pt-4 flex items-center gap-2 text-xs text-[#c9a15a]">
+                  <Leaf className="h-3.5 w-3.5" />
+                  <span>Sostenibilidad en acción</span>
+                </div>
+              </div>
+            </Reveal>
+
+            {/* Pilar 2: Visión */}
+            <Reveal delay={0.16}>
+              <div className="group relative flex h-full flex-col justify-between rounded-2xl border border-white/[0.08] bg-[#121212]/90 p-8 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#c9a15a]/50 hover:bg-[#151515] hover:shadow-[0_20px_40px_rgba(0,0,0,0.6),0_0_20px_rgba(201,161,90,0.08)]">
+                <div>
+                  <div className="mb-6 flex items-center justify-between">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#c9a15a]/30 bg-[#c9a15a]/10 text-[#c9a15a] transition duration-300 group-hover:bg-[#c9a15a] group-hover:text-black">
+                      <Eye className="h-6 w-6" strokeWidth={1.75} />
+                    </div>
+                    <span className="text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a]/80 uppercase">
+                      Pilar 02
+                    </span>
+                  </div>
+                  <h3 className="font-display text-2xl text-white group-hover:text-[#c9a15a] transition-colors">
+                    Nuestra Visión
+                  </h3>
+                  <p className="mt-4 text-sm leading-relaxed text-white/70">
+                    Ser la empresa líder en la transformación de madera recuperada en América Latina, revolucionando el mobiliario y demostrando que sostenibilidad, diseño innovador y calidad superior pueden coexistir. Buscamos inspirar un cambio cultural hacia el consumo consciente y la valoración de lo artesanal.
+                  </p>
+                </div>
+                <div className="mt-6 border-t border-white/[0.06] pt-4 flex items-center gap-2 text-xs text-[#c9a15a]">
+                  <Compass className="h-3.5 w-3.5" />
+                  <span>Liderazgo en diseño circular</span>
+                </div>
+              </div>
+            </Reveal>
+
+            {/* Pilar 3: Valores */}
+            <Reveal delay={0.24}>
+              <div className="group relative flex h-full flex-col justify-between rounded-2xl border border-white/[0.08] bg-[#121212]/90 p-8 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#c9a15a]/50 hover:bg-[#151515] hover:shadow-[0_20px_40px_rgba(0,0,0,0.6),0_0_20px_rgba(201,161,90,0.08)]">
+                <div>
+                  <div className="mb-6 flex items-center justify-between">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#c9a15a]/30 bg-[#c9a15a]/10 text-[#c9a15a] transition duration-300 group-hover:bg-[#c9a15a] group-hover:text-black">
+                      <Gem className="h-6 w-6" strokeWidth={1.75} />
+                    </div>
+                    <span className="text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a]/80 uppercase">
+                      Pilar 03
+                    </span>
+                  </div>
+                  <h3 className="font-display text-2xl text-white group-hover:text-[#c9a15a] transition-colors">
+                    Nuestros Valores
+                  </h3>
+                  <div className="mt-4 space-y-2.5 text-xs text-white/75">
+                    <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5 transition hover:bg-white/[0.04]">
+                      <span className="font-semibold text-white">Sostenibilidad Integral:</span> Cerrando ciclos y reduciendo la huella ecológica.
+                    </div>
+                    <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5 transition hover:bg-white/[0.04]">
+                      <span className="font-semibold text-white">Autenticidad Artesanal:</span> Celebrando la imperfección y singularidad de la madera.
+                    </div>
+                    <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5 transition hover:bg-white/[0.04]">
+                      <span className="font-semibold text-white">Innovación Circular:</span> Convirtiendo descartes en piezas de alto valor estético.
+                    </div>
+                    <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5 transition hover:bg-white/[0.04]">
+                      <span className="font-semibold text-white">Calidad Perdurable:</span> Uniendo tradición ebanista con durabilidad para siempre.
+                    </div>
                   </div>
                 </div>
-              </blockquote>
+                <div className="mt-6 border-t border-white/[0.06] pt-4 flex items-center gap-2 text-xs text-[#c9a15a]">
+                  <Award className="h-3.5 w-3.5" />
+                  <span>Ética y maestría en cada corte</span>
+                </div>
+              </div>
             </Reveal>
-          ))}
+          </div>
         </div>
       </section>
+
+      {/* —— Testimonios de clientes en tiempo real y compras verificadas —— */}
+      <CustomerReviewsSection
+        initialReviews={approvedReviews}
+        userSession={session?.user}
+      />
 
       {/* —— Banner VIP Proyectos Especiales y a Medida —— */}
       <section className="mx-auto max-w-[1760px] px-4 py-8 sm:px-8 lg:px-12 xl:px-16">
@@ -565,10 +600,10 @@ export default async function StoreHomePage() {
                 Cotizar por WhatsApp
               </a>
               <Link
-                href="/reparaciones"
+                href="/contacto"
                 className="store-cta store-cta-ghost text-center"
               >
-                Formulario de taller
+                Formulario de contacto
               </Link>
             </div>
           </div>
@@ -593,7 +628,7 @@ export default async function StoreHomePage() {
               className="group inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-[#c9a15a] uppercase hover:text-[#d4b06e] transition"
             >
               <Camera className="h-3.5 w-3.5" />
-              <span>@mudecopalets</span>
+              <span>@mudeco_palets</span>
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
             </a>
           </div>

@@ -44,7 +44,6 @@ type Company = {
 };
 
 const BRAND = "#3d2a1f";
-const ACCENT = "#b0894f";
 
 const styles = StyleSheet.create({
   page: {
