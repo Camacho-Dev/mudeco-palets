@@ -28,6 +28,10 @@ export const metadata: Metadata = {
     siteName: "Mudeco Palets",
     images: [{ url: "/brand/store-hero.jpg", width: 1200, height: 630 }],
   },
+  icons: {
+    icon: "/brand/logo.png",
+    apple: "/brand/logo.png",
+  },
 };
 
 export default function RootLayout({

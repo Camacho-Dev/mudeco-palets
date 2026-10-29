@@ -65,6 +65,24 @@ export default async function StoreLayout({
   children: React.ReactNode;
 }) {
   const company = await getStoreCompany();
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FurnitureStore",
+    name: company.name,
+    description:
+      "Taller artesanal de muebles en madera recuperada y diseños a medida en República Dominicana.",
+    url: base,
+    telephone: company.phone,
+    email: company.email,
+    priceRange: "RD$",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: company.address,
+      addressLocality: "Santo Domingo Oeste",
+      addressCountry: "DO",
+    },
+    image: `${base}/brand/store-hero.jpg`,
+  };
 
   return (
     <StoreProviders>
@@ -72,6 +90,12 @@ export default async function StoreLayout({
         <div
           className={`${storeDisplay.variable} ${storeBody.variable} store-shell flex min-h-screen flex-col`}
         >
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(orgJsonLd).replace(/</g, "\\u003c"),
+            }}
+          />
           <StoreHeader />
           <main className="flex-1">{children}</main>
           <StoreFooter company={company} />

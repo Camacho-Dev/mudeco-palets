@@ -24,11 +24,11 @@ export default function NotFound() {
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
           <Link
-            href="/panel"
+            href="/"
             className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[#3d2a1f] px-5 py-3 text-sm font-semibold text-[#faf6f1] shadow-md hover:bg-[#2c1d14] transition"
           >
             <Home className="h-4 w-4" />
-            <span>Ir al Panel de control</span>
+            <span>Volver al Inicio</span>
           </Link>
           <Link
             href="/catalogo"

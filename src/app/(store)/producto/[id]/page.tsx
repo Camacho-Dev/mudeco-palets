@@ -79,8 +79,44 @@ export default async function ProductoPage({
     `Hola, me interesa el mueble "${product.name}" (${formatCurrency(product.price)}). ¿Está disponible?`,
   );
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description:
+      product.description ||
+      `${product.name} fabricado artesanalmente en madera recuperada por ${company.name}.`,
+    sku: product.sku,
+    category: formatStoreCategory(product.category),
+    image: src.startsWith("http") ? src : `${siteUrl()}${src}`,
+    brand: {
+      "@type": "Brand",
+      name: company.name,
+    },
+    offers: {
+      "@type": "Offer",
+      url: `${siteUrl()}/producto/${product.id}`,
+      priceCurrency: "DOP",
+      price: product.price.toFixed(2),
+      availability:
+        product.stock > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/PreOrder",
+      seller: {
+        "@type": "Organization",
+        name: company.name,
+      },
+    },
+  };
+
   return (
     <div className="mx-auto max-w-[1560px] px-4 py-10 sm:px-8 lg:px-12 xl:px-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
+      />
       <div className="flex items-center gap-2 text-[0.75rem] tracking-[0.12em] text-[var(--muted)] uppercase">
         <Link
           href="/catalogo"

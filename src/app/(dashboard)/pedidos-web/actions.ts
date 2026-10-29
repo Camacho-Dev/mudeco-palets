@@ -8,6 +8,7 @@ import { writeAudit } from "@/lib/audit";
 import { nextInvoiceNumber } from "@/lib/invoice-number";
 import { calcInvoiceBalance, calcInvoiceTotals } from "@/lib/invoice-calc";
 import { deductStock, restoreInvoiceNetStock } from "@/lib/stock";
+import { notifyCustomerWebOrderStatus } from "@/lib/mail";
 
 const ALLOWED = new Set([
   "PENDING",
@@ -91,6 +92,8 @@ export async function updateWebOrderStatus(id: string, fd: FormData) {
     userEmail: session.user?.email,
     userName: session.user?.name,
   });
+
+  void notifyCustomerWebOrderStatus(id, status);
 
   revalidatePath("/pedidos-web");
   revalidatePath(`/pedidos-web/${id}`);
@@ -190,6 +193,8 @@ export async function cancelWebOrder(id: string) {
     userName: session.user?.name,
   });
 
+  void notifyCustomerWebOrderStatus(id, "CANCELLED");
+
   revalidatePath("/pedidos-web");
   revalidatePath(`/pedidos-web/${id}`);
   revalidatePath("/panel");
@@ -209,6 +214,7 @@ export async function markWebOrderDone(id: string) {
     where: { id },
     data: { status: "DONE" },
   });
+  void notifyCustomerWebOrderStatus(id, "DONE");
   revalidatePath("/pedidos-web");
   revalidatePath(`/pedidos-web/${id}`);
   revalidatePath("/panel");
@@ -220,6 +226,7 @@ export async function markWebOrderInProgress(id: string) {
     where: { id },
     data: { status: "IN_PROGRESS" },
   });
+  void notifyCustomerWebOrderStatus(id, "IN_PROGRESS");
   revalidatePath("/pedidos-web");
   revalidatePath(`/pedidos-web/${id}`);
   revalidatePath("/panel");

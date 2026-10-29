@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { WEB_STATUS_LABEL, webOrderTypeLabel } from "@/lib/web-order-labels";
 import { extractReceiptFromNotes } from "@/lib/order-receipt";
+import { AccountSettingsCard } from "@/components/store/account-settings-card";
 import {
   Package,
   FileDown,
@@ -74,6 +75,11 @@ export default async function MisPedidosPage() {
       </div>
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-8">
+        <AccountSettingsCard
+          initialName={session.user.name || "Cliente"}
+          email={session.user.email}
+        />
+
         {orders.length === 0 ? (
           <div className="rounded-2xl border border-[#e2d5c5] bg-white p-12 text-center shadow-xs space-y-4">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#e5d8c8] bg-[#faf6f1] text-[#b0894f]">
