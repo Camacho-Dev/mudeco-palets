@@ -1,21 +1,10 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/logo";
 import { STORE_HOURS, storeWhatsApp } from "@/lib/store-info";
-import { STORE_CATEGORIES, STORE_SOCIAL } from "@/lib/store-brand";
+import { STORE_CATEGORIES, STORE_SOCIAL, formatStoreCategory } from "@/lib/store-brand";
 import { ShieldCheck, Truck, CreditCard, Ruler } from "lucide-react";
 
-function formatCategory(cat: string) {
-  if (!cat) return "";
-  return cat
-    .toLowerCase()
-    .split(" ")
-    .map((word) => {
-      if (["de", "a", "y", "en", "con"].includes(word)) return word;
-      return word.charAt(0).toUpperCase() + word.slice(1);
-    })
-    .join(" ")
-    .replace(/^./, (str) => str.toUpperCase());
-}
+const formatCategory = formatStoreCategory;
 
 export function StoreFooter({
   company,
@@ -102,8 +91,8 @@ export function StoreFooter({
           <p className="mb-4 text-[0.65rem] font-semibold tracking-[0.18em] text-white/40 uppercase">
             Categorías
           </p>
-          <ul className="max-h-48 space-y-2 overflow-y-auto text-sm text-white/70">
-            {STORE_CATEGORIES.slice(0, 10).map((cat) => (
+          <ul className="space-y-2 text-sm text-white/70">
+            {STORE_CATEGORIES.map((cat) => (
               <li key={cat}>
                 <Link
                   href={`/catalogo?cat=${encodeURIComponent(cat)}`}
@@ -113,7 +102,7 @@ export function StoreFooter({
                 </Link>
               </li>
             ))}
-            <li>
+            <li className="pt-1">
               <Link
                 href="/catalogo"
                 className="text-[#c9a15a] transition hover:text-white"

@@ -17,10 +17,11 @@ export async function StoreHeader() {
       }
     : null;
 
-  // Menú de categorías: las del sitio real + las que existan en el ERP
-  const categories = Array.from(
-    new Set([...STORE_CATEGORIES, ...fromDb]),
-  ).sort((a, b) => a.localeCompare(b, "es"));
+  // Mostrar solo las categorías reales que tienen productos activos en el inventario
+  const sourceCategories = fromDb.length > 0 ? fromDb : [...STORE_CATEGORIES];
+  const categories = Array.from(new Set(sourceCategories)).sort((a, b) =>
+    a.localeCompare(b, "es"),
+  );
 
   return <StoreHeaderClient user={user} categories={categories} />;
 }

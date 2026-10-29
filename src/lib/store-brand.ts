@@ -1,21 +1,40 @@
-/** Categorías y datos tomados del sitio actual mudecopalets.com */
+/** Categorías reales activas del catálogo artesanal de Mudeco Palets */
 export const STORE_CATEGORIES = [
-  "BANCO",
   "BASE DE CAMA",
-  "BASE MONTESSORI",
-  "BUTACAS",
-  "GAVETEROS",
-  "MESA DE CENTRO",
   "MESA DE COMEDOR",
+  "MESA DE CENTRO",
+  "GAVETEROS",
   "MESA DE NOCHE",
-  "MUEBLES",
-  "REPISA DE 3 GAVETAS",
-  "REPISA DE ENTRADA",
   "REPISA DE TV",
-  "SILLA HARAGANA",
-  "VINERA",
-  "VIURO",
+  "BANCO",
+  "REPISA DE ENTRADA",
 ] as const;
+
+const CATEGORY_LABELS: Record<string, string> = {
+  "BASE DE CAMA": "Bases de Cama",
+  "MESA DE COMEDOR": "Mesas de Comedor",
+  "MESA DE CENTRO": "Mesas de Centro",
+  GAVETEROS: "Gaveteros",
+  "MESA DE NOCHE": "Mesas de Noche",
+  "REPISA DE TV": "Repisas de TV",
+  BANCO: "Bancos",
+  "REPISA DE ENTRADA": "Repisas de Entrada",
+};
+
+export function formatStoreCategory(cat: string): string {
+  if (!cat) return "";
+  const upper = cat.trim().toUpperCase();
+  if (CATEGORY_LABELS[upper]) return CATEGORY_LABELS[upper];
+  return cat
+    .toLowerCase()
+    .split(" ")
+    .map((word) => {
+      if (["de", "a", "y", "en", "con"].includes(word)) return word;
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ")
+    .replace(/^./, (str) => str.toUpperCase());
+}
 
 export const STORE_SOCIAL = {
   facebook: "https://www.facebook.com/mudecopalets",

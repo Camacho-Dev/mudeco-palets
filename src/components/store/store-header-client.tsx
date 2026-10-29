@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BrandLogo } from "@/components/logo";
 import { HeaderAuth } from "@/components/store/header-auth";
 import { CartLink } from "@/components/store/cart-link";
+import { formatStoreCategory } from "@/lib/store-brand";
 import {
   Menu,
   X,
@@ -19,22 +20,10 @@ import {
   Users,
   Search,
   ArrowRight,
-  Sparkles,
   Package,
 } from "lucide-react";
 
-function formatCategory(cat: string) {
-  if (!cat) return "";
-  return cat
-    .toLowerCase()
-    .split(" ")
-    .map((word) => {
-      if (["de", "a", "y", "en", "con"].includes(word)) return word;
-      return word.charAt(0).toUpperCase() + word.slice(1);
-    })
-    .join(" ")
-    .replace(/^./, (str) => str.toUpperCase());
-}
+const formatCategory = formatStoreCategory;
 
 const primaryNav = [
   { href: "/", label: "Inicio", icon: Home },
@@ -61,8 +50,19 @@ export function StoreHeaderClient({
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const catsTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [mounted, setMounted] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  const openCatsMenu = () => {
+    if (catsTimerRef.current) clearTimeout(catsTimerRef.current);
+    catsTimerRef.current = setTimeout(() => setCatsOpen(true), 110);
+  };
+
+  const closeCatsMenu = () => {
+    if (catsTimerRef.current) clearTimeout(catsTimerRef.current);
+    catsTimerRef.current = setTimeout(() => setCatsOpen(false), 120);
+  };
 
   useEffect(() => setMounted(true), []);
   useEffect(() => {
@@ -222,10 +222,10 @@ export function StoreHeaderClient({
   return (
     <>
       <header
-        className={`fixed top-0 right-0 left-0 z-50 border-b border-white/[0.08] text-white transition-[background,backdrop-filter] duration-300 ${
+        className={`fixed top-0 right-0 left-0 z-50 border-b border-white/[0.08] text-white transition-[background,box-shadow] duration-300 ${
           scrolled
-            ? "bg-[#0f0f0f]/88 backdrop-blur-[20px]"
-            : "bg-[#0f0f0f]/72 backdrop-blur-[20px]"
+            ? "bg-[#0f0f0f]/98 shadow-[0_8px_30px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+            : "bg-[#111111]/94 backdrop-blur-xl"
         }`}
       >
         <div className="relative mx-auto flex h-[90px] max-w-[1760px] items-center px-4 sm:px-8 lg:px-12 xl:px-16">
@@ -247,56 +247,51 @@ export function StoreHeaderClient({
                 <div
                   key={item.href}
                   className="relative"
-                  onMouseEnter={() => setCatsOpen(true)}
-                  onMouseLeave={() => setCatsOpen(false)}
+                  onMouseEnter={openCatsMenu}
+                  onMouseLeave={closeCatsMenu}
                 >
-                  <button
-                    type="button"
-                    className="store-nav-link inline-flex items-center gap-1 px-3 py-2"
-                    aria-expanded={catsOpen}
-                    aria-current={active(item.href) ? "page" : undefined}
-                    onClick={() => setCatsOpen((v) => !v)}
-                  >
-                    Catálogo
-                    <ChevronDown className="h-3.5 w-3.5 opacity-60" />
-                  </button>
+                  <div className="inline-flex items-center">
+                    <Link
+                      href="/catalogo"
+                      className="store-nav-link inline-flex items-center gap-1.5 px-3 py-2"
+                      aria-current={active(item.href) ? "page" : undefined}
+                      onClick={() => setCatsOpen(false)}
+                    >
+                      <span>Catálogo</span>
+                      <ChevronDown
+                        className={`h-3.5 w-3.5 opacity-60 transition-transform duration-200 ${
+                          catsOpen ? "rotate-180 text-[#c9a15a] opacity-100" : ""
+                        }`}
+                      />
+                    </Link>
+                  </div>
                   <AnimatePresence>
                     {catsOpen && (
                       <div className="absolute top-full left-1/2 z-50 pt-2 -translate-x-1/2">
                         <motion.div
-                          initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                          initial={{ opacity: 0, y: 6, scale: 0.98 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 6, scale: 0.98 }}
-                          transition={{ duration: 0.18, ease: "easeOut" }}
-                          className="w-[720px] overflow-hidden rounded-2xl border border-white/[0.12] bg-[#121212]/98 p-6 shadow-[0_24px_60px_rgba(0,0,0,0.92),0_0_25px_rgba(201,161,90,0.12)] backdrop-blur-2xl"
+                          exit={{ opacity: 0, y: 4, scale: 0.98 }}
+                          transition={{ duration: 0.16, ease: "easeOut" }}
+                          className="w-[440px] overflow-hidden rounded-xl border border-white/[0.1] bg-[#141414] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.85)]"
                         >
-                          {/* Banner superior */}
-                          <div className="mb-4 flex items-center justify-between border-b border-white/[0.08] pb-4">
-                            <div className="flex items-center gap-3">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#c9a15a]/30 bg-[#c9a15a]/10 text-[#c9a15a]">
-                                <LayoutGrid className="h-5 w-5" />
-                              </div>
-                              <div>
-                                <h4 className="font-display text-base font-medium tracking-wide text-white">
-                                  Colección & Piezas Artesanales
-                                </h4>
-                                <p className="text-xs text-white/50">
-                                  Muebles de madera curada de pino y palets industriales
-                                </p>
-                              </div>
-                            </div>
+                          {/* Cabecera compacta */}
+                          <div className="mb-2.5 flex items-center justify-between border-b border-white/[0.07] pb-2.5 px-1">
+                            <span className="text-[0.65rem] font-semibold tracking-[0.18em] text-white/45 uppercase">
+                              Categorías del Taller
+                            </span>
                             <Link
                               href="/catalogo"
                               onClick={() => setCatsOpen(false)}
-                              className="group inline-flex items-center gap-2 rounded-lg border border-[#c9a15a]/40 bg-[#c9a15a]/10 px-3.5 py-1.5 text-xs font-semibold tracking-wider text-[#c9a15a] uppercase transition duration-200 hover:border-[#c9a15a] hover:bg-[#c9a15a] hover:text-black"
+                              className="group inline-flex items-center gap-1 text-[0.68rem] font-semibold tracking-wider text-[#c9a15a] uppercase transition hover:text-[#e0be7e]"
                             >
-                              <span>Ver Todo</span>
-                              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                              <span>Ver todo</span>
+                              <ArrowRight className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5" />
                             </Link>
                           </div>
 
-                          {/* Cuadrícula de 3 columnas */}
-                          <div className="grid grid-cols-3 gap-x-2.5 gap-y-1">
+                          {/* Cuadrícula limpia de 2 columnas con las categorías reales */}
+                          <div className="grid grid-cols-2 gap-1">
                             {categories.map((cat) => {
                               const formatted = formatCategory(cat);
                               return (
@@ -304,33 +299,16 @@ export function StoreHeaderClient({
                                   key={cat}
                                   href={`/catalogo?cat=${encodeURIComponent(cat)}`}
                                   onClick={() => setCatsOpen(false)}
-                                  className="group flex items-center justify-between rounded-lg px-3 py-2 text-[13px] text-white/70 transition-all duration-200 hover:bg-white/[0.06] hover:text-white"
+                                  className="group flex items-center justify-between rounded-lg px-3 py-2 text-[13px] text-white/75 transition-colors duration-150 hover:bg-white/[0.06] hover:text-white"
                                 >
                                   <span className="flex items-center gap-2 truncate">
-                                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#c9a15a]/40 transition-colors duration-200 group-hover:bg-[#c9a15a]" />
-                                    <span className="truncate transition-transform duration-200 group-hover:translate-x-0.5">
-                                      {formatted}
-                                    </span>
+                                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#c9a15a]/45 transition-colors group-hover:bg-[#c9a15a]" />
+                                    <span className="truncate">{formatted}</span>
                                   </span>
-                                  <ArrowRight className="h-3 w-3 shrink-0 text-[#c9a15a] opacity-0 transition-all duration-200 group-hover:translate-x-0.5 group-hover:opacity-80" />
+                                  <ArrowRight className="h-3 w-3 shrink-0 text-[#c9a15a] opacity-0 transition-all duration-150 group-hover:translate-x-0.5 group-hover:opacity-90" />
                                 </Link>
                               );
                             })}
-                          </div>
-
-                          {/* Barra inferior de cotización */}
-                          <div className="mt-4 flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-2.5 text-xs text-white/60">
-                            <span className="flex items-center gap-2">
-                              <Sparkles className="h-3.5 w-3.5 text-[#c9a15a]" />
-                              <span>¿Buscas una medida especial para tu espacio?</span>
-                            </span>
-                            <Link
-                              href="/contacto"
-                              onClick={() => setCatsOpen(false)}
-                              className="font-medium text-[#c9a15a] transition hover:underline"
-                            >
-                              Cotizar a medida &rarr;
-                            </Link>
                           </div>
                         </motion.div>
                       </div>
