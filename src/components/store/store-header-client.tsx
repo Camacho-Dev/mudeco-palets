@@ -167,6 +167,7 @@ export function StoreHeaderClient({
                               <Link
                                 key={cat}
                                 href={`/catalogo?cat=${encodeURIComponent(cat)}`}
+                                prefetch={false}
                                 onClick={() => setOpen(false)}
                                 className="block px-2 py-2 text-sm text-white/65 transition hover:text-white"
                               >
@@ -298,6 +299,7 @@ export function StoreHeaderClient({
                                 <Link
                                   key={cat}
                                   href={`/catalogo?cat=${encodeURIComponent(cat)}`}
+                                  prefetch={false}
                                   onClick={() => setCatsOpen(false)}
                                   className="group flex items-center justify-between rounded-lg px-3 py-2 text-[13px] text-white/75 transition-colors duration-150 hover:bg-white/[0.06] hover:text-white"
                                 >

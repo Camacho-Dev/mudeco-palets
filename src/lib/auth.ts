@@ -3,7 +3,7 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkDualRateLimit } from "@/lib/rate-limit";
 import { z } from "zod";
 import { authConfig } from "@/lib/auth.config";
 
@@ -27,7 +27,13 @@ const providers: NextAuthConfig["providers"] = [
         email = "admin@empresa.com";
       }
 
-      const rl = checkRateLimit(`login:${email}`, 15, 15 * 60 * 1000);
+      const rl = await checkDualRateLimit({
+        scope: "auth-login",
+        identifier: email,
+        ipLimit: 20,
+        idLimit: 10,
+        windowMs: 15 * 60 * 1000,
+      });
       if (!rl.ok) return null;
 
       const user = await prisma.user.findFirst({

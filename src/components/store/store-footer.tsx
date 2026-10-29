@@ -96,6 +96,7 @@ export function StoreFooter({
               <li key={cat}>
                 <Link
                   href={`/catalogo?cat=${encodeURIComponent(cat)}`}
+                  prefetch={false}
                   className="transition hover:text-white"
                 >
                   {formatCategory(cat)}

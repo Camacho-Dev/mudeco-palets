@@ -85,6 +85,7 @@ function NavLinks({
             <Link
               key={item.href}
               href={item.href}
+              prefetch={false}
               className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 ${
                 item.accent
                   ? "bg-gradient-to-r from-[#b0894f] via-[#c49a5c] to-[#b0894f] font-semibold text-[#2c1d14] shadow-[0_2px_12px_rgba(176,137,79,0.35)] hover:shadow-[0_4px_18px_rgba(176,137,79,0.5)] hover:scale-[1.02]"
@@ -113,6 +114,7 @@ function NavLinks({
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={false}
                 className="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#faf6f1]/80 transition-all duration-200 hover:bg-white/10 hover:text-white hover:translate-x-1"
               >
                 <item.icon className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110 text-[#c4a574]" strokeWidth={2} />

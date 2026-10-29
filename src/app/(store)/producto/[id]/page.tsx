@@ -10,13 +10,16 @@ import { formatStoreCategory } from "@/lib/store-brand";
 import { AddToCartButton } from "@/components/store/add-to-cart-button";
 import { ProductCard } from "@/components/store/product-card";
 import { STORE_LOGISTICS, siteUrl, storeWhatsApp } from "@/lib/store-info";
-import { getRelatedRecommendations } from "@/lib/recommendations";
+import { getRelatedRecommendations, getScoredProducts } from "@/lib/recommendations";
 import { MessageCircle } from "lucide-react";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 30;
 
 const getProduct = cache(async (id: string) => {
+  const cachedList = await getScoredProducts().catch(() => []);
+  const fromCache = cachedList.find((p) => p.id === id);
+  if (fromCache) return fromCache;
+
   return prisma.product.findFirst({
     where: { id, active: true, kind: "FINISHED" },
   });

@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkDualRateLimit } from "@/lib/rate-limit";
 import { invalidateReviewsCache } from "@/lib/reviews";
 import { auth } from "@/lib/auth";
 import { isAdmin, isStaff } from "@/lib/rbac";
@@ -36,9 +36,15 @@ export async function submitCustomerReviewAction(formData: FormData): Promise<Su
 
   const rating = Math.min(5, Math.max(1, Math.round(Number.isFinite(ratingRaw) ? ratingRaw : 5)));
 
-  // Rate limit para prevenir spam (máximo 4 reseñas por email/nombre en 10 min)
-  const rlKey = customerEmail ? `review:${customerEmail}` : `review:name:${customerName.toLowerCase()}`;
-  const rl = checkRateLimit(rlKey, 4, 10 * 60 * 1000);
+  // Rate limit dual (por IP y por email/nombre) para prevenir spam con nombres rotativos
+  const rlKey = customerEmail || customerName.toLowerCase();
+  const rl = await checkDualRateLimit({
+    scope: "review",
+    identifier: rlKey,
+    ipLimit: 5,
+    idLimit: 3,
+    windowMs: 10 * 60 * 1000,
+  });
   if (!rl.ok) {
     return {
       success: false,
@@ -118,7 +124,13 @@ export async function toggleReviewLikeAction(
     return { success: true, likes: Math.max(0, safeDelta) };
   }
 
-  const rl = checkRateLimit(`review-like:${reviewId}`, 20, 60 * 1000);
+  const rl = await checkDualRateLimit({
+    scope: "review-like",
+    identifier: reviewId,
+    ipLimit: 15,
+    idLimit: 30,
+    windowMs: 60 * 1000,
+  });
   if (!rl.ok) {
     return { success: false, error: "Demasiadas interacciones seguidas" };
   }

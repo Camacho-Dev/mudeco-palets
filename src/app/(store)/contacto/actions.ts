@@ -6,7 +6,7 @@ import {
   createWebServiceRequest,
   type ServiceRequestKind,
 } from "@/lib/web-checkout";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkDualRateLimit } from "@/lib/rate-limit";
 
 export async function submitContactRequest(fd: FormData) {
   const name = String(fd.get("name") || "").trim();
@@ -27,8 +27,14 @@ export async function submitContactRequest(fd: FormData) {
   if (!phone) throw new Error("Teléfono requerido");
   if (!description) throw new Error("Describe lo que necesitas");
 
-  // Rate limiting por correo para mitigar flooding de solicitudes públicas
-  const rl = checkRateLimit(`service-req:${email.toLowerCase()}`, 6, 15 * 60 * 1000);
+  // Rate limiting dual (por IP y por correo) para mitigar flooding de solicitudes públicas con correos rotativos
+  const rl = await checkDualRateLimit({
+    scope: "service-req",
+    identifier: email,
+    ipLimit: 8,
+    idLimit: 5,
+    windowMs: 15 * 60 * 1000,
+  });
   if (!rl.ok) {
     throw new Error(
       "Has enviado varias solicitudes recientemente. Por favor espera unos minutos antes de intentar de nuevo.",

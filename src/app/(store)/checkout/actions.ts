@@ -12,7 +12,7 @@ import {
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { siteUrl } from "@/lib/store-info";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkDualRateLimit } from "@/lib/rate-limit";
 
 function parseCustomer(fd: FormData): CheckoutCustomer {
   const name = String(fd.get("name") || "").trim();
@@ -69,8 +69,14 @@ export async function submitWebCheckout(fd: FormData) {
   const mode = String(fd.get("mode") || "");
   const customer = parseCustomer(fd);
 
-  // Rate limiting por email / sesión para prevenir spam de pedidos y agotamiento de recursos
-  const rl = checkRateLimit(`checkout:${customer.email.toLowerCase()}`, 10, 15 * 60 * 1000);
+  // Rate limiting dual (por IP y por correo) para prevenir spam de pedidos y agotamiento de recursos
+  const rl = await checkDualRateLimit({
+    scope: "checkout",
+    identifier: customer.email,
+    ipLimit: 12,
+    idLimit: 8,
+    windowMs: 15 * 60 * 1000,
+  });
   if (!rl.ok) {
     throw new Error(
       "Has realizado demasiados intentos de pedido en poco tiempo. Por favor espera unos minutos antes de intentar de nuevo.",

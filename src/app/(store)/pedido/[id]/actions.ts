@@ -8,7 +8,7 @@ import { attachReceiptToNotes, type OrderReceipt } from "@/lib/order-receipt";
 import { writeAudit } from "@/lib/audit";
 import { auth } from "@/lib/auth";
 import { isStaff } from "@/lib/rbac";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkDualRateLimit } from "@/lib/rate-limit";
 
 function detectReceiptMime(
   buf: Buffer,
@@ -50,8 +50,14 @@ export async function uploadOrderReceiptAction(orderId: string, formData: FormDa
 
     const session = await auth().catch(() => null);
 
-    // Rate limit por pedido para evitar flooding o sobreescrituras masivas
-    const rl = checkRateLimit(`receipt-upload:${orderId}`, 5, 15 * 60 * 1000);
+    // Rate limit dual (por IP y por pedido) para evitar flooding o sobreescrituras masivas
+    const rl = await checkDualRateLimit({
+      scope: "receipt-upload",
+      identifier: orderId,
+      ipLimit: 8,
+      idLimit: 5,
+      windowMs: 15 * 60 * 1000,
+    });
     if (!rl.ok) {
       return {
         success: false,

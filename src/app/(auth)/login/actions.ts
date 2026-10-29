@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { writeAudit } from "@/lib/audit";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkDualRateLimit } from "@/lib/rate-limit";
 import { isEmailConfigured, sendPasswordResetEmail } from "@/lib/mail";
 import { z } from "zod";
 
@@ -32,7 +32,13 @@ export async function registerCustomer(payload: {
   const email = parsed.data.email.toLowerCase().trim();
   const name = parsed.data.name.trim();
 
-  const rl = checkRateLimit(`register:${email}`, 5, 15 * 60 * 1000);
+  const rl = await checkDualRateLimit({
+    scope: "register",
+    identifier: email,
+    ipLimit: 6,
+    idLimit: 4,
+    windowMs: 15 * 60 * 1000,
+  });
   if (!rl.ok) {
     return {
       success: false,
@@ -119,7 +125,13 @@ export async function requestPasswordResetCode(rawEmail: string) {
     return { success: false, error: "Ingresa un correo electrónico válido." };
   }
 
-  const rl = checkRateLimit(`reset-req:${email}`, 5, 15 * 60 * 1000);
+  const rl = await checkDualRateLimit({
+    scope: "reset-req",
+    identifier: email,
+    ipLimit: 8,
+    idLimit: 4,
+    windowMs: 15 * 60 * 1000,
+  });
   if (!rl.ok) {
     return {
       success: false,
@@ -184,7 +196,13 @@ export async function resetPasswordWithCode(payload: {
     };
   }
 
-  const rl = checkRateLimit(`reset-verify:${email}`, 6, 15 * 60 * 1000);
+  const rl = await checkDualRateLimit({
+    scope: "reset-verify",
+    identifier: email,
+    ipLimit: 10,
+    idLimit: 6,
+    windowMs: 15 * 60 * 1000,
+  });
   if (!rl.ok) {
     return {
       success: false,

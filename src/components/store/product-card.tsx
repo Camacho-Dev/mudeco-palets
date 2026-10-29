@@ -35,6 +35,7 @@ export function ProductCard({
   return (
     <Link
       href={`/producto/${product.id}`}
+      prefetch={false}
       className={dark ? "store-product-card-dark group" : "store-product-card group"}
     >
       <div
