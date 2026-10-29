@@ -3,9 +3,6 @@
 import { useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 
-
-
-
 type FinishedOption = {
   id: string;
   name: string;
@@ -30,12 +27,20 @@ export function WorkOrderForm({
   finished,
   materials,
   action,
+  defaultProductId = "",
+  defaultQuantity = 1,
+  defaultNotes = "",
 }: {
   finished: FinishedOption[];
   materials: MaterialOption[];
   action: (fd: FormData) => void;
+  defaultProductId?: string;
+  defaultQuantity?: number;
+  defaultNotes?: string;
 }) {
-  const [quantity, setQuantity] = useState<number>(1);
+  const [productId, setProductId] = useState<string>(defaultProductId);
+  const [quantity, setQuantity] = useState<number>(defaultQuantity);
+  const [notes, setNotes] = useState<string>(defaultNotes);
   const [rows, setRows] = useState<MaterialRow[]>([
     { key: "mat-1", materialId: "", materialQty: 1 },
   ]);
@@ -72,7 +77,14 @@ export function WorkOrderForm({
         <label className="label" htmlFor="productId">
           Mueble terminado a fabricar
         </label>
-        <select id="productId" name="productId" className="input" required>
+        <select
+          id="productId"
+          name="productId"
+          value={productId}
+          onChange={(e) => setProductId(e.target.value)}
+          className="input"
+          required
+        >
           <option value="">Seleccionar mueble…</option>
           {finished.map((p) => (
             <option key={p.id} value={p.id}>
@@ -106,6 +118,8 @@ export function WorkOrderForm({
         <textarea
           id="notes"
           name="notes"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
           className="input"
           rows={2}
           placeholder="Instrucciones especiales para el carpintero o taller…"

@@ -7,8 +7,6 @@ import { StoreProviders } from "@/components/store/store-providers";
 import { CartProvider } from "@/components/store/cart-context";
 import { getStoreCompany } from "@/lib/store";
 import { siteUrl } from "@/lib/store-info";
-import { auth } from "@/lib/auth";
-import { LoginPromptBanner } from "@/components/store/login-prompt-banner";
 import "@/components/store/store.css";
 
 // Revalidación dinámica instantánea de la tienda
@@ -66,11 +64,7 @@ export default async function StoreLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [company, session] = await Promise.all([
-    getStoreCompany(),
-    auth().catch(() => null),
-  ]);
-  const isLoggedIn = !!session?.user;
+  const company = await getStoreCompany();
 
   return (
     <StoreProviders>
@@ -78,7 +72,6 @@ export default async function StoreLayout({
         <div
           className={`${storeDisplay.variable} ${storeBody.variable} store-shell flex min-h-screen flex-col`}
         >
-          <LoginPromptBanner isLoggedIn={isLoggedIn} />
           <StoreHeader />
           <main className="flex-1">{children}</main>
           <StoreFooter company={company} />

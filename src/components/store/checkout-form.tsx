@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useSession } from "next-auth/react";
 import { useCart } from "@/components/store/cart-context";
 import { formatCurrency } from "@/lib/format";
@@ -31,6 +31,8 @@ const MODE_COPY = {
   },
 } as const;
 
+const DRAFT_KEY = "mudeco_checkout_draft_v1";
+
 export function CheckoutForm({
   mode,
   stripeReady = true,
@@ -44,8 +46,42 @@ export function CheckoutForm({
   const [fulfillment, setFulfillment] = useState<"pickup" | "delivery">(
     "pickup",
   );
+  const [phone, setPhone] = useState("");
+  const [taxId, setTaxId] = useState("");
+  const [address, setAddress] = useState("");
+  const [notes, setNotes] = useState("");
   const [pending, start] = useTransition();
   const copy = MODE_COPY[mode];
+
+  // Restaurar borrador de campos en sessionStorage para no perder datos al cambiar de modalidad
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(DRAFT_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.phone) setPhone(parsed.phone);
+        if (parsed.taxId) setTaxId(parsed.taxId);
+        if (parsed.address) setAddress(parsed.address);
+        if (parsed.notes) setNotes(parsed.notes);
+        if (parsed.fulfillment === "delivery" || parsed.fulfillment === "pickup") {
+          setFulfillment(parsed.fulfillment);
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({ phone, taxId, address, notes, fulfillment }),
+      );
+    } catch {
+      /* ignore */
+    }
+  }, [phone, taxId, address, notes, fulfillment]);
 
   const totals = useMemo(() => {
     const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
@@ -75,6 +111,11 @@ export function CheckoutForm({
     start(async () => {
       try {
         await submitWebCheckout(fd);
+        try {
+          sessionStorage.removeItem(DRAFT_KEY);
+        } catch {
+          /* ignore */
+        }
         clear();
       } catch (err) {
         const dig =
@@ -180,6 +221,8 @@ export function CheckoutForm({
               id="phone"
               name="phone"
               required
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               placeholder="809-000-0000"
               className="input"
             />
@@ -191,6 +234,8 @@ export function CheckoutForm({
             <input
               id="taxId"
               name="taxId"
+              value={taxId}
+              onChange={(e) => setTaxId(e.target.value)}
               placeholder="Para comprobante fiscal"
               className="input"
             />
@@ -206,6 +251,8 @@ export function CheckoutForm({
             id="address"
             name="address"
             required={fulfillment === "delivery"}
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
             className="input"
             placeholder={
               fulfillment === "delivery"
@@ -222,6 +269,8 @@ export function CheckoutForm({
             id="notes"
             name="notes"
             rows={3}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
             placeholder="Tono de madera preferido, horario de recepción o detalles adicionales…"
             className="input"
           />

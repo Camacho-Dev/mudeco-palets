@@ -23,6 +23,7 @@ import {
   Package,
   Sparkles,
   Phone,
+  MessageSquare,
 } from "lucide-react";
 
 export const metadata = { title: "Confirmación de Pedido · Mudeco Palets" };
@@ -94,9 +95,16 @@ export default async function PedidoPage({
       order.notes?.includes("Transferencia bancaria") ||
       order.notes?.includes("[Pago: Transferencia bancaria]"),
   );
-  const isContact = order.notes?.includes("[CONSULTA]");
+  const isContact =
+    order.serviceKind === "CONTACT" || Boolean(order.notes?.includes("[CONSULTA]"));
   const isPaid = order.status === "PAID" || ok === "online";
   const receipt = extractReceiptFromNotes(order.notes);
+  const cleanNotes = (order.notes || "")
+    .replace(/\[COMPROBANTE_PAGO:\s*\{[\s\S]*?\}\]/g, "")
+    .replace(/\[COMPROBANTE:[^\]]+\]/g, "")
+    .replace(/\[CONSULTA\]/g, "")
+    .replace(/\[COTIZACIÓN A MEDIDA\]/g, "")
+    .trim();
 
   const waTransfer = storeWhatsApp(
     company.phone,
@@ -138,12 +146,20 @@ export default async function PedidoPage({
 
       <div className="mx-auto max-w-3xl space-y-6">
         {/* ENCABEZADO DE ÉXITO LIMPIO */}
-        <div className=" rounded-2xl border border-[#e5d9c7] bg-white p-8 sm:p-10 text-center shadow-sm">
+        <div className="rounded-2xl border border-[#e5d9c7] bg-white p-8 sm:p-10 text-center shadow-sm">
           <AnimatedSuccessCheck
             title={mainTitle}
             subtitle={mainSubtitle}
             orderNumber={order.number}
-            statusLabel={isPaid ? "Pago confirmado" : "Pedido completado"}
+            statusLabel={
+              isPaid
+                ? "Pago confirmado"
+                : isContact
+                  ? "Consulta recibida"
+                  : order.type === "QUOTE"
+                    ? "Cotización registrada"
+                    : "Pedido completado"
+            }
             createdAt={order.createdAt}
           />
         </div>
@@ -202,19 +218,25 @@ export default async function PedidoPage({
           </div>
         )}
 
-        {/* RESUMEN DEL PEDIDO CON ESTILO ATELIER */}
+        {/* RESUMEN DEL PEDIDO O CONSULTA */}
         <div className="rounded-2xl border border-[#e5d9c7] bg-white p-6 shadow-sm sm:p-7">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 pb-4">
             <div className="flex items-center gap-2.5">
               <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#b0894f]/15 text-[#8b6534]">
-                <Package className="h-4.5 w-4.5" />
+                {isContact ? (
+                  <MessageSquare className="h-4.5 w-4.5" />
+                ) : (
+                  <Package className="h-4.5 w-4.5" />
+                )}
               </span>
               <div>
                 <h3 className="text-base font-bold text-[var(--wood-950)]">
-                  Resumen de la Orden
+                  {isContact ? "Resumen de tu Consulta" : "Resumen de la Orden"}
                 </h3>
                 <p className="text-xs text-[var(--muted)]">
-                  Detalles de cliente, destino y piezas en carpintería
+                  {isContact
+                    ? "Datos de contacto y mensaje enviado al taller"
+                    : "Detalles de cliente, destino y piezas en carpintería"}
                 </p>
               </div>
             </div>
@@ -243,20 +265,32 @@ export default async function PedidoPage({
               ) : null}
             </div>
 
-            <div className="space-y-2 rounded-xl bg-gradient-to-br from-stone-50/90 to-stone-50/40 p-4 border border-stone-200/80">
-              <p className="font-bold text-[var(--wood-900)] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                <MapPin className="h-3.5 w-3.5 text-[#b0894f]" />
-                Modalidad de Entrega
-              </p>
-              <p className="font-bold text-sm text-[var(--wood-950)]">{fulfillmentType}</p>
-              {order.customerAddress ? (
-                <p className="text-stone-600 leading-relaxed">{order.customerAddress}</p>
-              ) : (
-                <p className="text-stone-500">
-                  Retiro directo en nuestro taller artesanal: Carr. Sánchez Km 13, Haina, San Cristóbal.
+            {isContact ? (
+              <div className="space-y-2 rounded-xl bg-gradient-to-br from-stone-50/90 to-stone-50/40 p-4 border border-stone-200/80">
+                <p className="font-bold text-[var(--wood-900)] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                  <MessageSquare className="h-3.5 w-3.5 text-[#b0894f]" />
+                  Mensaje Enviado
                 </p>
-              )}
-            </div>
+                <p className="text-stone-700 leading-relaxed whitespace-pre-wrap">
+                  {cleanNotes || "Consulta general recibida por el taller."}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2 rounded-xl bg-gradient-to-br from-stone-50/90 to-stone-50/40 p-4 border border-stone-200/80">
+                <p className="font-bold text-[var(--wood-900)] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5 text-[#b0894f]" />
+                  Modalidad de Entrega
+                </p>
+                <p className="font-bold text-sm text-[var(--wood-950)]">{fulfillmentType}</p>
+                {order.customerAddress ? (
+                  <p className="text-stone-600 leading-relaxed">{order.customerAddress}</p>
+                ) : (
+                  <p className="text-stone-500 leading-relaxed">
+                    Retiro directo en nuestro taller artesanal: {company.address}.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* LÍNEAS DE PRODUCTOS */}
@@ -303,32 +337,36 @@ export default async function PedidoPage({
             </div>
           )}
 
-          {/* TOTALES */}
-          <div className="mt-5 border-t border-stone-200 pt-4 space-y-1.5 text-xs text-right">
-            <div className="flex justify-between text-stone-600">
-              <span>Subtotal neto</span>
-              <span className="font-mono">{formatCurrency(order.subtotal)}</span>
+          {/* TOTALES (solo cuando hay monto mayor a 0) */}
+          {order.total > 0 && (
+            <div className="mt-5 border-t border-stone-200 pt-4 space-y-1.5 text-xs text-right">
+              <div className="flex justify-between text-stone-600">
+                <span>Subtotal neto</span>
+                <span className="font-mono">{formatCurrency(order.subtotal)}</span>
+              </div>
+              <div className="flex justify-between text-stone-600">
+                <span>ITBIS (18%)</span>
+                <span className="font-mono">{formatCurrency(order.tax)}</span>
+              </div>
+              <div className="flex justify-between text-base font-bold text-[var(--wood-950)] border-t border-stone-200 pt-2.5">
+                <span>Total general</span>
+                <span className="font-mono text-lg text-emerald-800">{formatCurrency(order.total)}</span>
+              </div>
             </div>
-            <div className="flex justify-between text-stone-600">
-              <span>ITBIS (18%)</span>
-              <span className="font-mono">{formatCurrency(order.tax)}</span>
-            </div>
-            <div className="flex justify-between text-base font-bold text-[var(--wood-950)] border-t border-stone-200 pt-2.5">
-              <span>Total general</span>
-              <span className="font-mono text-lg text-emerald-800">{formatCurrency(order.total)}</span>
-            </div>
-          </div>
+          )}
         </div>
 
-        {/* CALIFICACIÓN Y TESTIMONIO EN TIEMPO REAL */}
-        <OrderReviewPrompt
-          orderId={order.id}
-          orderNumber={order.number}
-          customerName={order.customerName}
-          customerEmail={order.customerEmail}
-          productName={order.items[0]?.description}
-          city={order.customerAddress ? undefined : "Haina, San Cristóbal"}
-        />
+        {/* CALIFICACIÓN Y TESTIMONIO EN TIEMPO REAL (solo para ventas reales) */}
+        {order.type === "SALE" && (
+          <OrderReviewPrompt
+            orderId={order.id}
+            orderNumber={order.number}
+            customerName={order.customerName}
+            customerEmail={order.customerEmail}
+            productName={order.items[0]?.description}
+            city="Santo Domingo"
+          />
+        )}
 
         {/* ACCIONES Y BOTONES FINALES */}
         <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
@@ -341,6 +379,18 @@ export default async function PedidoPage({
             >
               <FileDown className="h-4 w-4 text-[#b0894f]" />
               <span>Descargar Factura PDF ({order.invoice.number})</span>
+            </a>
+          ) : null}
+
+          {order.quote ? (
+            <a
+              href={`/api/cotizaciones/${order.quote.id}/pdf?orderId=${order.id}`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-5 py-3 text-sm font-semibold text-[var(--wood-950)] shadow-xs transition hover:bg-[#fbf7f2] hover:border-[#b0894f]"
+            >
+              <FileDown className="h-4 w-4 text-[#b0894f]" />
+              <span>Descargar Cotización PDF ({order.quote.number})</span>
             </a>
           ) : null}
 

@@ -11,7 +11,7 @@ export async function DashboardTopbar() {
       <div className="mx-auto max-w-6xl flex items-center justify-between gap-4">
         {/* Lado izquierdo: indicador de estado o atajo rápido */}
         <div className="flex items-center gap-2 pl-10 md:pl-0">
-          <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
           <span className="text-xs font-semibold text-[var(--wood-900)] hidden sm:inline">
             Taller Mudeco Palets
           </span>

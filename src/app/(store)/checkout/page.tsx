@@ -1,42 +1,60 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { isStripeConfigured } from "@/lib/stripe";
 import { Reveal } from "@/components/store/store-motion";
 import { CreditCard, Store, FileText, Landmark } from "lucide-react";
 
 export const metadata = { title: "Checkout" };
 
-const options = [
+const baseOptions = [
   {
     href: "/checkout/transferencia",
     title: "Transferencia bancaria",
-    desc: "Popular, Banreservas y BHD. Confirmas y envías comprobante por WhatsApp.",
+    desc: "Popular, Banreservas y BHD. Confirmas y subes tu comprobante o lo envías por WhatsApp.",
     icon: Landmark,
     featured: true,
+    requiresStripe: false,
   },
   {
     href: "/checkout/local",
     title: "Pagar en el local",
     desc: "Reservamos tu pedido. Pagas al retirar en taller o contra entrega.",
     icon: Store,
+    featured: false,
+    requiresStripe: false,
   },
   {
     href: "/checkout/pagar",
     title: "Pagar en línea",
     desc: "Pago seguro con tarjeta. Recibes la factura por correo.",
     icon: CreditCard,
+    featured: false,
+    requiresStripe: true,
   },
   {
     href: "/checkout/cotizar",
     title: "Pedir cotización",
-    desc: "Sin pago. Te enviamos una propuesta formal de presupuesto.",
+    desc: "Sin pago inmediato. Te enviamos una propuesta formal de presupuesto.",
     icon: FileText,
+    featured: false,
+    requiresStripe: false,
   },
 ];
 
-export default function CheckoutHubPage({
+export default async function CheckoutHubPage({
   searchParams,
 }: {
   searchParams: Promise<{ cancel?: string }>;
 }) {
+  const session = await auth();
+  if (!session?.user) {
+    redirect("/login?callbackUrl=/checkout");
+  }
+
+  const stripeReady = isStripeConfigured();
+  const options = baseOptions.filter((o) => !o.requiresStripe || stripeReady);
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
       <Reveal>
@@ -51,7 +69,11 @@ export default function CheckoutHubPage({
         </p>
       </Reveal>
       <CancelNote searchParams={searchParams} />
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div
+        className={`mt-8 grid gap-4 sm:grid-cols-2 ${
+          options.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"
+        }`}
+      >
         {options.map((opt) => (
           <Link
             key={opt.href}

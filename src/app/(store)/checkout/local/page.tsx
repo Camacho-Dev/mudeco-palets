@@ -1,10 +1,17 @@
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
 import { CheckoutForm } from "@/components/store/checkout-form";
 import { Reveal } from "@/components/store/store-motion";
 import Link from "next/link";
 
 export const metadata = { title: "Pagar en el local" };
 
-export default function CheckoutLocalPage() {
+export default async function CheckoutLocalPage() {
+  const session = await auth();
+  if (!session?.user) {
+    redirect("/login?callbackUrl=/checkout/local");
+  }
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
       <Reveal>
@@ -22,7 +29,7 @@ export default function CheckoutLocalPage() {
         <CheckoutForm mode="local" />
       </div>
       <Link href="/checkout" className="mt-6 inline-block text-sm underline">
-        Otras opciones
+        ← Ver otros métodos de pago
       </Link>
     </div>
   );

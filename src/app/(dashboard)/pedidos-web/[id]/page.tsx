@@ -61,6 +61,18 @@ export default async function PedidoWebDetailPage({
     order.quote.status !== "CONVERTED" &&
     !order.invoiceId;
 
+  const firstItemWithProduct = order.items.find(
+    (it) => it.product && it.product.sku !== "CUS-001",
+  );
+  const fabParams = new URLSearchParams();
+  fabParams.set("orderNumber", order.number);
+  if (order.customerName) fabParams.set("customer", order.customerName);
+  if (firstItemWithProduct?.productId) {
+    fabParams.set("productId", firstItemWithProduct.productId);
+    fabParams.set("qty", String(firstItemWithProduct.quantity || 1));
+  }
+  const fabHref = `/fabricacion/nueva?${fabParams.toString()}`;
+
   const waMessage =
     order.type === "SALE"
       ? `Hola ${order.customerName}, te escribimos de Mudeco Palets para dar seguimiento a tu compra web ${order.number} (Total: RD$ ${order.total.toFixed(2)}).`
@@ -256,9 +268,9 @@ export default async function PedidoWebDetailPage({
           {/* Atajo de fabricación */}
           <div className="pt-2 border-t border-[var(--border)]">
             <Link
-              href={`/fabricacion/nueva`}
-              className="inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:text-[#b0894f]"
-              title="Abrir orden de fabricación para este pedido"
+              href={fabHref}
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--wood-800)] hover:text-[#b0894f]"
+              title="Abrir orden de fabricación precargada con este pedido"
             >
               <Factory className="h-3.5 w-3.5 text-[#b0894f]" />
               <span>Crear orden de fabricación en taller →</span>

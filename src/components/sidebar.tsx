@@ -94,11 +94,8 @@ function NavLinks({
               <item.icon className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
               <span className="flex-1">{item.label}</span>
               {item.href === "/pedidos-web" && webPending > 0 ? (
-                <span className="relative flex items-center">
-                  <span className="absolute -inset-0.5 rounded-full bg-[#b0894f] opacity-60 animate-ping" />
-                  <span className="relative rounded-full bg-[#b0894f] px-2 py-0.5 text-[0.62rem] font-bold text-[#3d2a1f] shadow-sm">
-                    {webPending > 99 ? "99+" : webPending}
-                  </span>
+                <span className="rounded-full bg-[#b0894f] px-2 py-0.5 text-[0.62rem] font-bold text-[#3d2a1f] shadow-sm">
+                  {webPending > 99 ? "99+" : webPending}
                 </span>
               ) : null}
             </Link>
@@ -129,7 +126,6 @@ function NavLinks({
   );
 }
 
-
 export async function Sidebar() {
   const [session, { count: webPending }] = await Promise.all([
     getCachedAuthSession(),
@@ -152,7 +148,7 @@ export async function Sidebar() {
       <div className="mx-3 mb-2 rounded-xl border border-white/10 bg-white/[0.05] p-3 text-xs">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="flex h-2 w-2 rounded-full bg-emerald-400" />
             <span className="text-[0.68rem] font-bold tracking-wider text-white/80 uppercase">
               Tienda online
             </span>
@@ -217,7 +213,7 @@ export async function SidebarMobilePanel() {
       <div className="mx-3 mb-2 rounded-xl border border-white/10 bg-white/[0.05] p-3 text-xs">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="flex h-2 w-2 rounded-full bg-emerald-400" />
             <span className="text-[0.68rem] font-bold tracking-wider text-white/80 uppercase">
               Tienda online
             </span>

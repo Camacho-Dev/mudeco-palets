@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
 import { CheckoutForm } from "@/components/store/checkout-form";
 import { Reveal } from "@/components/store/store-motion";
 import { getDominicanBanks } from "@/lib/store-info";
@@ -8,6 +10,11 @@ import Link from "next/link";
 export const metadata = { title: "Transferencia bancaria" };
 
 export default async function CheckoutTransferenciaPage() {
+  const session = await auth();
+  if (!session?.user) {
+    redirect("/login?callbackUrl=/checkout/transferencia");
+  }
+
   const company = await getStoreCompany();
   const banks = getDominicanBanks(company);
 
@@ -65,7 +72,7 @@ export default async function CheckoutTransferenciaPage() {
       <div className="mt-4 flex items-center gap-2 rounded-lg bg-[#fbf7f2] p-3 text-xs text-[var(--wood-800)] border border-[var(--border)]">
         <CheckCircle2 className="h-4 w-4 shrink-0 text-[#b0894f]" />
         <span>
-          Al completar este formulario, tu orden queda registrada y podrás enviarnos el comprobante de pago por WhatsApp con un solo clic.
+          Al completar este formulario, tu orden queda registrada y podrás adjuntar el comprobante bancario desde el resumen de tu pedido.
         </span>
       </div>
 

@@ -272,7 +272,7 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
           <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border)] pb-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
                 <p className="text-xs font-semibold tracking-[0.14em] text-[var(--brass)] uppercase">
                   Canal Web · Tienda Online
                 </p>

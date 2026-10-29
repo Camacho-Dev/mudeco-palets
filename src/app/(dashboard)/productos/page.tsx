@@ -6,42 +6,60 @@ import { PageHeader } from "@/components/page-header";
 import { ListSearchBar } from "@/components/invoice-search";
 import { formatCurrency } from "@/lib/format";
 import { productImage } from "@/lib/product-image";
+import { formatStoreCategory } from "@/lib/store-brand";
 import { ExternalLink } from "lucide-react";
 
 export default async function ProductosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; cat?: string }>;
 }) {
   await requireSession();
-  const { q } = await searchParams;
+  const { q, cat } = await searchParams;
   const query = (q || "").trim();
+  const categoryFilter = (cat || "").trim();
 
-  const products = await prisma.product.findMany({
-    where: {
-      kind: "FINISHED",
-      ...(query
-        ? {
-            OR: [
-              { id: { contains: query, mode: "insensitive" } },
-              { name: { contains: query, mode: "insensitive" } },
-              { sku: { contains: query, mode: "insensitive" } },
-              { category: { contains: query, mode: "insensitive" } },
-              { description: { contains: query, mode: "insensitive" } },
-            ],
-          }
-        : {}),
-    },
-    orderBy: [{ active: "desc" }, { category: "asc" }, { name: "asc" }],
-  });
+  const [products, allCategoryRows] = await Promise.all([
+    prisma.product.findMany({
+      where: {
+        kind: "FINISHED",
+        ...(categoryFilter
+          ? { category: { equals: categoryFilter, mode: "insensitive" } }
+          : {}),
+        ...(query
+          ? {
+              OR: [
+                { id: { contains: query, mode: "insensitive" } },
+                { name: { contains: query, mode: "insensitive" } },
+                { sku: { contains: query, mode: "insensitive" } },
+                { category: { contains: query, mode: "insensitive" } },
+                { description: { contains: query, mode: "insensitive" } },
+              ],
+            }
+          : {}),
+      },
+      orderBy: [{ active: "desc" }, { category: "asc" }, { name: "asc" }],
+    }),
+    prisma.product.findMany({
+      where: { kind: "FINISHED" },
+      select: { category: true },
+      distinct: ["category"],
+      orderBy: { category: "asc" },
+    }),
+  ]);
+
+  const allCategories = allCategoryRows
+    .map((r) => r.category)
+    .filter((c) => c && c.toLowerCase() !== "servicios")
+    .sort((a, b) => a.localeCompare(b, "es"));
 
   return (
     <div>
       <PageHeader
         title="Catálogo"
         description={
-          query
-            ? `Resultados para “${query}”`
+          query || categoryFilter
+            ? `Resultados filtrados${categoryFilter ? ` · ${formatStoreCategory(categoryFilter)}` : ""}${query ? ` · “${query}”` : ""}`
             : `${products.filter((p) => p.active).length} muebles activos visibles en la tienda online`
         }
         action={{ href: "/productos/nuevo", label: "Nuevo mueble" }}
@@ -63,33 +81,34 @@ export default async function ProductosPage({
           Categoría:
         </span>
         <Link
-          href="/productos"
+          href={query ? `/productos?q=${encodeURIComponent(query)}` : "/productos"}
           className={`rounded-full px-3 py-1 text-xs font-medium transition ${
-            !query
+            !categoryFilter
               ? "bg-[var(--wood-950)] text-white shadow-xs"
               : "bg-white text-[var(--wood-800)] hover:bg-stone-100 border border-stone-200"
           }`}
         >
           Todas
         </Link>
-        {Array.from(new Set(products.map((p) => p.category)))
-          .sort((a, b) => a.localeCompare(b, "es"))
-          .map((cat) => {
-            const active = query.toLowerCase() === cat.toLowerCase();
-            return (
-              <Link
-                key={cat}
-                href={`/productos?q=${encodeURIComponent(cat)}`}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition ${
-                  active
-                    ? "bg-[var(--wood-950)] text-white shadow-xs font-semibold"
-                    : "bg-white text-[var(--wood-800)] hover:bg-stone-100 border border-stone-200"
-                }`}
-              >
-                {cat}
-              </Link>
-            );
-          })}
+        {allCategories.map((c) => {
+          const active = categoryFilter.toLowerCase() === c.toLowerCase();
+          const params = new URLSearchParams();
+          params.set("cat", c);
+          if (query) params.set("q", query);
+          return (
+            <Link
+              key={c}
+              href={`/productos?${params.toString()}`}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+                active
+                  ? "bg-[var(--wood-950)] text-white shadow-xs font-semibold"
+                  : "bg-white text-[var(--wood-800)] hover:bg-stone-100 border border-stone-200"
+              }`}
+            >
+              {formatStoreCategory(c)}
+            </Link>
+          );
+        })}
       </div>
 
       <div className="table-wrap">
@@ -110,8 +129,8 @@ export default async function ProductosPage({
             {products.length === 0 ? (
               <tr>
                 <td colSpan={8} className="text-center text-[var(--muted)]">
-                  {query
-                    ? `No se encontraron muebles para “${query}”`
+                  {query || categoryFilter
+                    ? "No se encontraron muebles para los filtros seleccionados"
                     : "No hay muebles en el catálogo"}
                 </td>
               </tr>
@@ -137,7 +156,7 @@ export default async function ProductosPage({
                         {p.description ? ` · ${p.description}` : ""}
                       </div>
                     </td>
-                    <td>{p.category}</td>
+                    <td>{formatStoreCategory(p.category)}</td>
                     <td>{formatCurrency(p.price)}</td>
                     <td>
                       <span

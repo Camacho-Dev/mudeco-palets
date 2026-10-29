@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
 import { Reveal } from "@/components/store/store-motion";
 import { getStoreCompany, productImage } from "@/lib/store";
+import { formatStoreCategory } from "@/lib/store-brand";
 import { AddToCartButton } from "@/components/store/add-to-cart-button";
 import { ProductCard } from "@/components/store/product-card";
 import { STORE_LOGISTICS, siteUrl, storeWhatsApp } from "@/lib/store-info";
@@ -77,12 +78,21 @@ export default async function ProductoPage({
 
   return (
     <div className="mx-auto max-w-[1560px] px-4 py-10 sm:px-8 lg:px-12 xl:px-16">
-      <Link
-        href="/catalogo"
-        className="text-[0.75rem] tracking-[0.12em] text-[var(--muted)] uppercase transition hover:text-[var(--wood-950)]"
-      >
-        ← Catálogo
-      </Link>
+      <div className="flex items-center gap-2 text-[0.75rem] tracking-[0.12em] text-[var(--muted)] uppercase">
+        <Link
+          href="/catalogo"
+          className="transition hover:text-[var(--wood-950)]"
+        >
+          ← Catálogo
+        </Link>
+        <span>/</span>
+        <Link
+          href={`/catalogo?cat=${encodeURIComponent(product.category)}`}
+          className="text-[#8a6a3a] transition hover:underline"
+        >
+          {formatStoreCategory(product.category)}
+        </Link>
+      </div>
 
       <div className="mt-8 grid gap-10 lg:grid-cols-2 lg:gap-14">
         <Reveal>
@@ -104,9 +114,12 @@ export default async function ProductoPage({
 
         <Reveal delay={0.12} className="flex flex-col justify-center">
           <div className="flex items-center gap-2">
-            <span className="text-[0.68rem] font-bold tracking-[0.2em] text-[#b0894f] uppercase">
-              {product.category}
-            </span>
+            <Link
+              href={`/catalogo?cat=${encodeURIComponent(product.category)}`}
+              className="text-[0.68rem] font-bold tracking-[0.2em] text-[#b0894f] uppercase hover:underline"
+            >
+              {formatStoreCategory(product.category)}
+            </Link>
             {product.sku ? (
               <span className="text-[0.65rem] text-[var(--muted)]">· SKU {product.sku}</span>
             ) : null}
@@ -121,18 +134,11 @@ export default async function ProductoPage({
               {formatCurrency(product.price)}
             </span>
             <div className="flex items-center gap-1.5 text-xs">
-              <span className="relative flex h-2 w-2">
-                <span
-                  className={`absolute inline-flex h-full w-full rounded-full opacity-75 animate-ping ${
-                    product.stock > 0 ? "bg-emerald-500" : "bg-amber-500"
-                  }`}
-                />
-                <span
-                  className={`relative inline-flex h-2 w-2 rounded-full ${
-                    product.stock > 0 ? "bg-emerald-500" : "bg-amber-500"
-                  }`}
-                />
-              </span>
+              <span
+                className={`inline-flex h-2 w-2 rounded-full ${
+                  product.stock > 0 ? "bg-emerald-500" : "bg-amber-500"
+                }`}
+              />
               <span className="font-medium text-[var(--muted)]">
                 {product.stock > 0
                   ? `Disponible · ${product.stock} en taller`
@@ -225,7 +231,6 @@ export default async function ProductoPage({
           </dl>
         </Reveal>
       </div>
-
 
       {related.length > 0 ? (
         <section className="mt-20 border-t border-[var(--border)] pt-14">
