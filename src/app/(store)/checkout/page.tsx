@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { isStripeConfigured } from "@/lib/stripe";
-import { Reveal } from "@/components/store/store-motion";
+import { CheckoutStepBanner } from "@/components/store/checkout-step-banner";
 import { CreditCard, Store, FileText, Landmark } from "lucide-react";
 
 export const metadata = { title: "Checkout" };
@@ -56,24 +56,20 @@ export default async function CheckoutHubPage({
   const options = baseOptions.filter((o) => !o.requiresStripe || stripeReady);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
-      <Reveal>
-        <p className="text-[0.68rem] font-bold tracking-[0.22em] text-[#b0894f] uppercase">
-          Finalizar Pedido
-        </p>
-        <h1 className="font-display mt-2 text-3xl sm:text-4xl text-[var(--wood-950)]">
-          ¿Cómo deseas procesar tu orden?
-        </h1>
-        <p className="mt-2 max-w-xl text-sm text-[var(--muted)]">
-          Selecciona la modalidad de pago o cotización que prefieras.
-        </p>
-      </Reveal>
-      <CancelNote searchParams={searchParams} />
-      <div
-        className={`mt-8 grid gap-4 sm:grid-cols-2 ${
-          options.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"
-        }`}
-      >
+    <div>
+      <CheckoutStepBanner
+        step={2}
+        badge="Finalizar Pedido"
+        title="¿Cómo deseas procesar tu orden?"
+        subtitle="Selecciona la modalidad de pago o cotización que prefieras."
+      />
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+        <CancelNote searchParams={searchParams} />
+        <div
+          className={`mt-4 grid gap-4 sm:grid-cols-2 ${
+            options.length === 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"
+          }`}
+        >
         {options.map((opt) => (
           <Link
             key={opt.href}
@@ -114,6 +110,7 @@ export default async function CheckoutHubPage({
       >
         ← Volver al carrito
       </Link>
+      </div>
     </div>
   );
 }

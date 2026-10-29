@@ -382,12 +382,13 @@ export function CatalogExplorer({
                 setAvailability(e.target.value as AvailabilityOption)
               }
               style={{ paddingLeft: "2.2rem" }}
-              className="w-full h-11 rounded-xl border border-[#d8c8b4] bg-[#faf7f2] pr-7 text-xs font-medium text-[#1b1511] transition-all duration-200 focus:bg-white focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/25 focus:outline-none cursor-pointer"
+              className="w-full h-11 appearance-none rounded-xl border border-[#d8c8b4] bg-[#faf7f2] pr-8 text-xs font-semibold text-[#1b1511] transition-all duration-200 hover:border-[#c9a15a] focus:bg-white focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/25 focus:outline-none cursor-pointer"
             >
               <option value="all">Disponibilidad: Todas</option>
               <option value="in-stock">Listos para entrega</option>
               <option value="custom">Bajo pedido / A medida</option>
             </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8a7260]" />
           </div>
 
           {/* Ordenar por */}
@@ -397,7 +398,7 @@ export function CatalogExplorer({
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
               style={{ paddingLeft: "2.2rem" }}
-              className="w-full h-11 rounded-xl border border-[#d8c8b4] bg-[#faf7f2] pr-7 text-xs font-medium text-[#1b1511] transition-all duration-200 focus:bg-white focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/25 focus:outline-none cursor-pointer"
+              className="w-full h-11 appearance-none rounded-xl border border-[#d8c8b4] bg-[#faf7f2] pr-8 text-xs font-semibold text-[#1b1511] transition-all duration-200 hover:border-[#c9a15a] focus:bg-white focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/25 focus:outline-none cursor-pointer"
             >
               <option value="relevance">Ordenar: Destacados del taller</option>
               <option value="price-asc">Precio: Menor a mayor</option>
@@ -405,6 +406,7 @@ export function CatalogExplorer({
               <option value="newest">Más recientes</option>
               <option value="name">Nombre: A a Z</option>
             </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8a7260]" />
           </div>
 
           {/* Botón desplegable de Presupuesto */}

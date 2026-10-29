@@ -11,7 +11,7 @@ import { AddToCartButton } from "@/components/store/add-to-cart-button";
 import { ProductCard } from "@/components/store/product-card";
 import { STORE_LOGISTICS, siteUrl, storeWhatsApp } from "@/lib/store-info";
 import { getRelatedRecommendations, getScoredProducts } from "@/lib/recommendations";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Hammer, Truck, Clock, Sparkles, Ruler } from "lucide-react";
 
 export const revalidate = 30;
 
@@ -110,30 +110,43 @@ export default async function ProductoPage({
   };
 
   return (
-    <div className="mx-auto max-w-[1560px] px-4 py-10 sm:px-8 lg:px-12 xl:px-16">
+    <div className="bg-[#faf7f2]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
         }}
       />
-      <div className="flex items-center gap-2 text-[0.75rem] tracking-[0.12em] text-[var(--muted)] uppercase">
-        <Link
-          href="/catalogo"
-          className="transition hover:text-[var(--wood-950)]"
-        >
-          ← Catálogo
-        </Link>
-        <span>/</span>
-        <Link
-          href={`/catalogo?cat=${encodeURIComponent(product.category)}`}
-          className="text-[#8a6a3a] transition hover:underline"
-        >
-          {formatStoreCategory(product.category)}
-        </Link>
+
+      {/* Franja superior editorial con migas de pan */}
+      <div className="border-b border-[#c9a15a]/25 bg-[#14100d] text-white">
+        <div className="mx-auto flex max-w-[1560px] flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-8 lg:px-12 xl:px-16">
+          <div className="flex items-center gap-2 text-[0.72rem] font-medium tracking-[0.14em] text-white/65 uppercase">
+            <Link href="/catalogo" className="transition hover:text-white">
+              ← Catálogo
+            </Link>
+            <span className="text-white/30">/</span>
+            <Link
+              href={`/catalogo?cat=${encodeURIComponent(product.category)}`}
+              className="text-[#c9a15a] transition hover:underline"
+            >
+              {formatStoreCategory(product.category)}
+            </Link>
+            <span className="hidden text-white/30 sm:inline">/</span>
+            <span className="hidden truncate max-w-[260px] text-white/85 sm:inline">
+              {product.name}
+            </span>
+          </div>
+          {product.sku ? (
+            <span className="rounded-md border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[11px] text-white/70">
+              SKU · {product.sku}
+            </span>
+          ) : null}
+        </div>
       </div>
 
-      <div className="mt-8 grid gap-10 lg:grid-cols-2 lg:gap-14">
+      <div className="mx-auto max-w-[1560px] px-4 py-10 sm:px-8 lg:px-12 xl:px-16">
+      <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
         <Reveal>
           <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-[#e2d5c5] bg-[#ebe2d6] shadow-sm">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -197,7 +210,8 @@ export default async function ProductoPage({
           )}
 
           {dims ? (
-            <div className="mt-5 inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[#faf6f1] px-3.5 py-2 text-xs font-medium text-[var(--wood-900)]">
+            <div className="mt-5 inline-flex items-center gap-2 rounded-xl border border-[#e2d5c5] bg-white px-3.5 py-2 text-xs font-medium text-[var(--wood-900)] shadow-2xs">
+              <Ruler className="h-3.5 w-3.5 text-[#b0894f]" />
               <span className="text-[#8a6a3a] font-bold">Dimensiones:</span>
               <span>{dims} cm</span>
             </div>
@@ -209,7 +223,7 @@ export default async function ProductoPage({
               href={wa}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-[4px] border border-emerald-600/40 bg-emerald-50/70 px-5 py-3 text-[0.72rem] font-bold tracking-[0.12em] text-emerald-800 uppercase transition hover:bg-emerald-100 hover:border-emerald-600 shadow-sm active:scale-95"
+              className="inline-flex items-center gap-2 rounded-xl border border-emerald-600/40 bg-emerald-50/80 px-5 py-3.5 text-[0.72rem] font-bold tracking-[0.12em] text-emerald-800 uppercase transition hover:bg-emerald-100 hover:border-emerald-600 shadow-xs active:scale-95"
             >
               <MessageCircle className="h-4 w-4" />
               <span>Consultar por WhatsApp</span>
@@ -236,38 +250,48 @@ export default async function ProductoPage({
             </div>
           </div>
 
-          <dl className="mt-6 space-y-3.5 text-sm">
-            <div>
-              <dt className="font-bold tracking-wider text-[var(--wood-950)] uppercase text-[0.68rem]">
-                Materiales
-              </dt>
-              <dd className="mt-1 text-xs text-[var(--muted)]">
+          {/* Especificaciones en cuadrícula 2x2 */}
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-xl border border-[#e5d8c8] bg-white p-4 shadow-2xs">
+              <div className="flex items-center gap-2 text-[0.68rem] font-bold tracking-wider text-[var(--wood-950)] uppercase">
+                <Hammer className="h-3.5 w-3.5 text-[#b0894f]" />
+                <span>Materiales</span>
+              </div>
+              <p className="mt-1.5 text-xs leading-relaxed text-[var(--muted)]">
                 {STORE_LOGISTICS.materials}
-              </dd>
+              </p>
             </div>
-            <div>
-              <dt className="font-bold tracking-wider text-[var(--wood-950)] uppercase text-[0.68rem]">
-                Entrega y retiro
-              </dt>
-              <dd className="mt-1 text-xs text-[var(--muted)]">
+
+            <div className="rounded-xl border border-[#e5d8c8] bg-white p-4 shadow-2xs">
+              <div className="flex items-center gap-2 text-[0.68rem] font-bold tracking-wider text-[var(--wood-950)] uppercase">
+                <Truck className="h-3.5 w-3.5 text-[#b0894f]" />
+                <span>Entrega y retiro</span>
+              </div>
+              <p className="mt-1.5 text-xs leading-relaxed text-[var(--muted)]">
                 {STORE_LOGISTICS.pickup} {STORE_LOGISTICS.delivery}
-              </dd>
+              </p>
             </div>
-            <div>
-              <dt className="font-bold tracking-wider text-[var(--wood-950)] uppercase text-[0.68rem]">
-                Plazos de taller
-              </dt>
-              <dd className="mt-1 text-xs text-[var(--muted)]">
+
+            <div className="rounded-xl border border-[#e5d8c8] bg-white p-4 shadow-2xs">
+              <div className="flex items-center gap-2 text-[0.68rem] font-bold tracking-wider text-[var(--wood-950)] uppercase">
+                <Clock className="h-3.5 w-3.5 text-[#b0894f]" />
+                <span>Plazos de taller</span>
+              </div>
+              <p className="mt-1.5 text-xs leading-relaxed text-[var(--muted)]">
                 {STORE_LOGISTICS.leadTime}
-              </dd>
+              </p>
             </div>
-            <div>
-              <dt className="font-bold tracking-wider text-[var(--wood-950)] uppercase text-[0.68rem]">
-                Cuidado de la madera
-              </dt>
-              <dd className="mt-1 text-xs text-[var(--muted)]">{STORE_LOGISTICS.care}</dd>
+
+            <div className="rounded-xl border border-[#e5d8c8] bg-white p-4 shadow-2xs">
+              <div className="flex items-center gap-2 text-[0.68rem] font-bold tracking-wider text-[var(--wood-950)] uppercase">
+                <Sparkles className="h-3.5 w-3.5 text-[#b0894f]" />
+                <span>Cuidado de la madera</span>
+              </div>
+              <p className="mt-1.5 text-xs leading-relaxed text-[var(--muted)]">
+                {STORE_LOGISTICS.care}
+              </p>
             </div>
-          </dl>
+          </div>
         </Reveal>
       </div>
 
@@ -290,6 +314,7 @@ export default async function ProductoPage({
           </div>
         </section>
       ) : null}
+      </div>
     </div>
   );
 }

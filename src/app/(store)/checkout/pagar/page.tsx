@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { CheckoutForm } from "@/components/store/checkout-form";
+import { CheckoutStepBanner } from "@/components/store/checkout-step-banner";
 import { isStripeConfigured } from "@/lib/stripe";
-import { Reveal } from "@/components/store/store-motion";
 import Link from "next/link";
 
 export const metadata = { title: "Pagar en línea" };
@@ -17,24 +17,22 @@ export default async function CheckoutPagarPage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
-      <Reveal>
-        <p className="text-[0.7rem] font-semibold tracking-[0.2em] text-[var(--muted)] uppercase">
-          Checkout
-        </p>
-        <h1 className="font-display mt-2 text-4xl text-[var(--wood-950)]">
-          Pagar en línea
-        </h1>
-        <p className="mt-2 text-[var(--muted)]">
-          Completa tus datos para procesar el pago seguro.
-        </p>
-      </Reveal>
-      <div className="mt-10">
+    <div>
+      <CheckoutStepBanner
+        step={3}
+        badge="Checkout · Pago Seguro con Tarjeta"
+        title="Pagar en línea"
+        subtitle="Completa tus datos de entrega para procesar el pago en línea y recibir tu factura por correo."
+      />
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <CheckoutForm mode="online" stripeReady={true} />
+        <Link
+          href="/checkout"
+          className="mt-6 inline-block text-xs font-semibold text-[var(--wood-800)] underline-offset-2 hover:underline"
+        >
+          ← Ver otros métodos de pago
+        </Link>
       </div>
-      <Link href="/checkout" className="mt-6 inline-block text-sm underline">
-        ← Ver otros métodos de pago
-      </Link>
     </div>
   );
 }

@@ -2,21 +2,8 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 import { productImage } from "@/lib/product-image";
+import { formatStoreCategory } from "@/lib/store-brand";
 import type { StoreProduct } from "@/lib/store";
-
-function formatCategoryName(cat: string): string {
-  const map: Record<string, string> = {
-    "BASE DE CAMA": "Bases de Cama",
-    "MESA DE COMEDOR": "Mesas de Comedor",
-    "MESA DE CENTRO": "Mesas de Centro",
-    "GAVETEROS": "Gaveteros",
-    "MESA DE NOCHE": "Mesas de Noche",
-    "REPISA DE TV": "Repisas de TV",
-    "BANCO": "Bancos",
-    "REPISA DE ENTRADA": "Repisas de Entrada",
-  };
-  return map[cat.toUpperCase()] || cat;
-}
 
 export function ProductCard({
   product,
@@ -30,7 +17,7 @@ export function ProductCard({
   const src = productImage(product);
   const dark = tone === "dark";
   const inStock = product.stock > 0;
-  const categoryLabel = formatCategoryName(product.category);
+  const categoryLabel = formatStoreCategory(product.category);
 
   return (
     <Link
@@ -44,7 +31,7 @@ export function ProductCard({
         }`}
       >
         {badge ? (
-          <span className="absolute top-2.5 left-2.5 z-10 rounded-[2px] bg-[#16120f]/90 px-2.5 py-1 text-[0.58rem] font-bold tracking-[0.2em] text-[#d4af37] border border-[#d4af37]/45 uppercase shadow-md backdrop-blur-md">
+          <span className="absolute top-3 left-3 z-10 rounded-md bg-[#16120f]/92 px-2.5 py-1 text-[0.58rem] font-bold tracking-[0.2em] text-[#d4af37] border border-[#d4af37]/45 uppercase shadow-md backdrop-blur-md">
             {badge}
           </span>
         ) : null}
@@ -84,20 +71,32 @@ export function ProductCard({
         >
           {product.name}
         </h3>
-        <div className="flex items-baseline justify-between gap-3 pt-1 border-t border-black/[0.06] dark:border-white/[0.06]">
+        <div
+          className={`flex items-center justify-between gap-3 pt-2 border-t ${
+            dark ? "border-white/[0.08]" : "border-black/[0.06]"
+          }`}
+        >
           <p
-            className={`text-sm font-semibold tracking-wide ${
+            className={`text-sm font-bold tracking-wide ${
               dark ? "text-[#c9a15a]" : "text-[var(--wood-800)]"
             }`}
           >
             {formatCurrency(product.price)}
           </p>
-          <p className={`text-[0.68rem] ${dark ? "text-[#cfcfcf]/70" : "text-[var(--muted)]"}`}>
+          <span
+            className={`inline-flex items-center gap-1.5 text-[0.68rem] font-medium ${
+              dark ? "text-[#cfcfcf]/75" : "text-[var(--muted)]"
+            }`}
+          >
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                inStock ? "bg-emerald-500" : "bg-[#c9a15a]"
+              }`}
+            />
             {inStock ? "Listo para entrega" : "Bajo pedido"}
-          </p>
+          </span>
         </div>
       </div>
     </Link>
   );
 }
-

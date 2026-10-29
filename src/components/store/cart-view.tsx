@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCart } from "@/components/store/cart-context";
 import { useSession } from "next-auth/react";
 import { formatCurrency } from "@/lib/format";
+import { CheckoutStepBanner } from "@/components/store/checkout-step-banner";
 import { Minus, Plus, ShoppingBag, Trash2, ArrowRight } from "lucide-react";
 
 export function CartView() {
@@ -17,43 +18,53 @@ export function CartView() {
 
   if (!items.length) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-20 text-center sm:px-6">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-[#e2d5c5] bg-white shadow-xs">
-          <ShoppingBag className="h-7 w-7 text-[#b0894f]" />
+      <div className="min-h-[70vh]">
+        <CheckoutStepBanner
+          step={1}
+          badge="Tienda · Selección Artesanal"
+          title="Carrito de Compras"
+          subtitle="Revisa tus piezas antes de elegir la modalidad de pago o cotización."
+        />
+        <div className="mx-auto max-w-3xl px-4 py-20 text-center sm:px-6">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-[#e2d5c5] bg-white shadow-xs">
+            <ShoppingBag className="h-7 w-7 text-[#b0894f]" />
+          </div>
+          <h2 className="font-display mt-5 text-3xl sm:text-4xl text-[var(--wood-950)]">
+            Tu carrito está vacío
+          </h2>
+          <p className="mt-2 text-sm text-[var(--muted)] max-w-md mx-auto">
+            Explora el catálogo artesanal y agrega las piezas de madera que más te gusten.
+          </p>
+          <Link href="/catalogo" className="store-cta store-cta-primary mt-8 rounded-xl">
+            Ir al catálogo
+          </Link>
         </div>
-        <h1 className="font-display mt-5 text-3xl sm:text-4xl text-[var(--wood-950)]">
-          Tu carrito está vacío
-        </h1>
-        <p className="mt-2 text-sm text-[var(--muted)] max-w-md mx-auto">
-          Explora el catálogo artesanal y agrega las piezas de madera que más te gusten.
-        </p>
-        <Link href="/catalogo" className="store-cta store-cta-primary mt-8 rounded-xl">
-          Ir al catálogo
-        </Link>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
-      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#e5d8c8] pb-6">
-        <div>
-          <p className="text-[0.68rem] font-bold tracking-[0.22em] text-[#b0894f] uppercase">
-            Tienda · Selección Artesanal
+    <div>
+      <CheckoutStepBanner
+        step={1}
+        badge="Tienda · Selección Artesanal"
+        title="Carrito de Compras"
+        subtitle="Ajusta cantidades o continúa para elegir transferencia, pago en taller o cotización."
+      />
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#e5d8c8] pb-4">
+          <p className="text-xs font-semibold tracking-wider text-[var(--muted)] uppercase">
+            {items.length} {items.length === 1 ? "pieza seleccionada" : "piezas seleccionadas"}
           </p>
-          <h1 className="font-display mt-1.5 text-3xl sm:text-4xl text-[var(--wood-950)]">
-            Carrito de Compras
-          </h1>
+          <button
+            type="button"
+            onClick={clear}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-medium text-[var(--muted)] hover:border-rose-300 hover:text-rose-700 transition cursor-pointer"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            <span>Vaciar carrito</span>
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={clear}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-medium text-[var(--muted)] hover:border-rose-300 hover:text-rose-700 transition cursor-pointer"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-          <span>Vaciar carrito</span>
-        </button>
-      </div>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-12">
         <ul className="divide-y divide-[#efe6d8] overflow-hidden rounded-2xl border border-[#e2d5c5] bg-white shadow-xs lg:col-span-7">
@@ -169,6 +180,7 @@ export function CartView() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
