@@ -257,7 +257,7 @@ export default async function PedidoPage({
               </span>
             </div>
 
-            <div className="mt-5 grid gap-3.5 sm:grid-cols-3">
+            <div className="mt-5 grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
               {banks.map((b) => (
                 <BankAccountCard
                   key={b.bank}

@@ -26,7 +26,7 @@ export function BankAccountsGrid({ banks }: { banks: BankInfo[] }) {
   };
 
   return (
-    <div className="mt-8 grid gap-4 sm:grid-cols-3">
+    <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {banks.map((b) => {
         const isCopied = copiedAccount === b.accountNumber;
         return (

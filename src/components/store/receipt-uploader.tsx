@@ -428,9 +428,12 @@ export function BankAccountCard({
   }
 
   // Estilos de marca por banco dominicano
-  const isPopular = bank.toLowerCase().includes("popular");
-  const isBanreservas = bank.toLowerCase().includes("banreservas") || bank.toLowerCase().includes("reservas");
-  const isBHD = bank.toLowerCase().includes("bhd");
+  const lower = bank.toLowerCase();
+  const isAPAP = lower.includes("apap") || lower.includes("asociación popular") || lower.includes("asociacion popular");
+  const isPopular = !isAPAP && lower.includes("popular");
+  const isBanreservas = lower.includes("banreservas") || lower.includes("reservas");
+  const isBHD = lower.includes("bhd");
+  const isBanesco = lower.includes("banesco");
 
   const bankTheme = isPopular
     ? {
@@ -453,12 +456,26 @@ export function BankAccountCard({
             accent: "text-emerald-300",
             badge: "Banco BHD",
           }
-        : {
-            border: "border-stone-300",
-            headerBg: "bg-gradient-to-r from-[#2c221e] to-[#45362f]",
-            accent: "text-[#d4af37]",
-            badge: bank,
-          };
+        : isAPAP
+          ? {
+              border: "border-amber-900/30",
+              headerBg: "bg-gradient-to-r from-[#78350F] to-[#B45309]",
+              accent: "text-amber-300",
+              badge: "Asociación Popular (APAP)",
+            }
+          : isBanesco
+            ? {
+                border: "border-teal-900/30",
+                headerBg: "bg-gradient-to-r from-[#004D40] to-[#00695C]",
+                accent: "text-teal-300",
+                badge: "Banesco",
+              }
+            : {
+                border: "border-stone-300",
+                headerBg: "bg-gradient-to-r from-[#2c221e] to-[#45362f]",
+                accent: "text-[#d4af37]",
+                badge: bank,
+              };
 
   return (
     <motion.div

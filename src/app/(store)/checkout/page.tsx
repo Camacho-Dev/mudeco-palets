@@ -11,7 +11,7 @@ const baseOptions = [
   {
     href: "/checkout/transferencia",
     title: "Transferencia bancaria",
-    desc: "Popular, Banreservas y BHD. Confirmas y subes tu comprobante o lo envías por WhatsApp.",
+    desc: "Popular, Banreservas, BHD, APAP y Banesco. Confirmas y subes tu comprobante o lo envías por WhatsApp.",
     icon: Landmark,
     featured: true,
     requiresStripe: false,

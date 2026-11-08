@@ -199,7 +199,7 @@ export function StoreFooter({
                   Transferencias & Pagos
                 </p>
                 <p className="mt-1 text-white/50 text-[0.72rem] leading-relaxed">
-                  Banco Popular, Banreservas, Banco BHD y pago contra entrega / en taller coordinado.
+                  Banco Popular, Banreservas, BHD, APAP, Banesco y pago contra entrega / en taller coordinado.
                 </p>
               </div>
             </div>

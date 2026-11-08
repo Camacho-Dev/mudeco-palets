@@ -12,7 +12,7 @@ const MODE_COPY = {
   transfer: {
     title: "Transferencia bancaria",
     submit: "Confirmar pedido por transferencia",
-    hint: "Te mostramos las cuentas del Popular, Banreservas y BHD para transferir y enviar el comprobante.",
+    hint: "Te mostramos las cuentas oficiales del Popular, Banreservas, BHD, APAP y Banesco para transferir y enviar el comprobante.",
   },
   online: {
     title: "Pagar en línea",
