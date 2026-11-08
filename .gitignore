@@ -56,3 +56,5 @@ next-env.d.ts
 
 *.zip
 cpanel-deploy.zip
+/brag-output/
+

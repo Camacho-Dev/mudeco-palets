@@ -140,11 +140,11 @@ function GoogleIcon({ className = "w-5 h-5 shrink-0" }: { className?: string }) 
 /* =========================================================================
    CÓDIGO QR VECTORIAL CON MATRIZ ESTILIZADA
    ========================================================================= */
-function QrCodeGraphic() {
+function QrCodeGraphic({ className = "w-11 h-11 shrink-0 bg-white p-1 rounded-md shadow-sm" }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 100 100"
-      className="w-16 h-16 shrink-0 bg-white p-1 rounded-lg shadow-sm"
+      className={className}
       aria-label="Código QR de acceso móvil"
     >
       <rect x="5" y="5" width="28" height="28" rx="3" fill="#120e0b" />
@@ -641,7 +641,7 @@ function LoginForm() {
             </p>
 
             <div className="bg-white p-4 rounded-xl inline-block shadow-2xl mb-5">
-              <QrCodeGraphic />
+              <QrCodeGraphic className="w-28 h-28 shrink-0 bg-white p-1 rounded-lg" />
             </div>
 
             <div className="flex flex-col gap-2">
@@ -732,10 +732,8 @@ function LoginForm() {
 
             {/* Encabezado */}
             <div className="luxury-card-header">
-              <div className="luxury-mark-container">
-                <LogoMark className="h-9 w-9 text-[#d4af37]" />
-              </div>
               <div className="luxury-brand-line">
+                <LogoMark className="h-5 w-5 text-[#d4af37]" />
                 <span className="luxury-brand-name">MUDECO</span>
                 <span className="luxury-brand-rule" />
                 <span className="luxury-brand-sub">PALETS</span>
@@ -1013,10 +1011,8 @@ function LoginForm() {
 
             {/* Encabezado */}
             <div className="luxury-card-header">
-              <div className="luxury-mark-container">
-                <LogoMark className="h-9 w-9 text-[#d4af37]" />
-              </div>
               <div className="luxury-brand-line">
+                <LogoMark className="h-5 w-5 text-[#d4af37]" />
                 <span className="luxury-brand-name">MUDECO</span>
                 <span className="luxury-brand-rule" />
                 <span className="luxury-brand-sub">PALETS</span>
@@ -1272,12 +1268,12 @@ export default function LoginPage() {
           <div className="luxury-editorial-body">
             {/* Logo de marca superior */}
             <div className="luxury-brand-header">
-              <LogoMark className="h-10 w-10 text-[#d4af37]" />
+              <LogoMark className="h-8 w-8 text-[#d4af37]" />
               <div className="leading-tight">
-                <span className="block text-xl font-bold tracking-[0.25em] text-white uppercase font-serif">
+                <span className="block text-lg font-bold tracking-[0.25em] text-white uppercase font-serif">
                   MUDECO
                 </span>
-                <span className="block text-[0.65rem] tracking-[0.32em] text-[#c9a15a] uppercase">
+                <span className="block text-[0.6rem] tracking-[0.32em] text-[#c9a15a] uppercase">
                   PALETS
                 </span>
               </div>
@@ -1345,8 +1341,8 @@ export default function LoginPage() {
           <Suspense fallback={<div className="text-white/60 text-sm">Cargando acceso...</div>}>
             <LoginForm />
           </Suspense>
-          <div className="mt-5 flex items-center justify-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/45 px-3.5 py-1.5 backdrop-blur-md">
+          <div className="mt-2.5 flex items-center justify-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/45 px-3 py-1 backdrop-blur-md">
               <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#c9a15a]/20 text-[0.55rem] font-bold tracking-wider text-[#d4af37]">
                 BC
               </span>

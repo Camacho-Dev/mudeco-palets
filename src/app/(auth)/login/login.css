@@ -4,7 +4,7 @@
 
 .luxury-login-page {
   position: relative;
-  min-height: 100vh;
+  min-height: 100dvh;
   width: 100%;
   display: flex;
   align-items: center;
@@ -13,7 +13,7 @@
   color: #faf6f1;
   font-family: var(--font-body), system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
-  padding: 1.5rem;
+  padding: 0.75rem 1.5rem;
 }
 
 /* Partículas ambientales de taller en canvas */
@@ -59,13 +59,13 @@
   left: 0;
   right: 0;
   z-index: 30;
-  padding: 1.2rem 2rem;
+  padding: 0.7rem 1.75rem;
   width: 100%;
   pointer-events: none;
 }
 
 .luxury-header-nav-inner {
-  max-width: 1360px;
+  max-width: 1200px;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -83,11 +83,11 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 1360px;
-  min-height: 100vh;
-  padding-top: 3.6rem;
-  padding-bottom: 1rem;
-  gap: 2rem;
+  max-width: 1200px;
+  min-height: calc(100dvh - 1.5rem);
+  padding-top: 2.3rem;
+  padding-bottom: 0.25rem;
+  gap: 1.5rem;
   margin: 0 auto;
 }
 
@@ -96,7 +96,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    gap: 3.5rem;
+    gap: 2.5rem;
   }
 }
 
@@ -109,22 +109,22 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  max-width: 580px;
-  padding: 0.25rem 0;
+  max-width: 490px;
+  padding: 0.15rem 0;
 }
 
 .luxury-back-button {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.75rem;
+  gap: 0.4rem;
+  font-size: 0.68rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #faf6f1;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  padding: 0.55rem 1.15rem;
+  padding: 0.4rem 0.9rem;
   border-radius: 9999px;
   backdrop-filter: blur(12px);
   transition: all 0.25s ease;
@@ -148,14 +148,14 @@
 .luxury-brand-header {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  margin-bottom: 1rem;
+  gap: 0.65rem;
+  margin-bottom: 0.6rem;
   animation: luxuryFadeUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
 }
 
 .luxury-editorial-heading {
-  font-size: clamp(2rem, 3.4vw, 3.2rem);
-  line-height: 1.12;
+  font-size: clamp(1.7rem, 2.55vw, 2.45rem);
+  line-height: 1.1;
   font-weight: 400;
   color: #ffffff;
   letter-spacing: -0.02em;
@@ -165,12 +165,12 @@
 }
 
 .luxury-editorial-subheading {
-  margin-top: 0.85rem;
-  font-size: clamp(0.92rem, 1.2vw, 1.05rem);
+  margin-top: 0.5rem;
+  font-size: clamp(0.82rem, 1vw, 0.92rem);
   font-weight: 300;
-  line-height: 1.45;
+  line-height: 1.4;
   color: rgba(255, 255, 255, 0.72);
-  max-width: 480px;
+  max-width: 430px;
   animation: luxuryFadeUp 0.95s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
 }
 
@@ -178,20 +178,20 @@
 .luxury-artisan-seal {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
-  padding: 0.6rem 0.95rem;
-  border-radius: 0.85rem;
+  gap: 0.65rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.7rem;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(201, 161, 90, 0.28);
   backdrop-filter: blur(14px);
-  margin-top: 1.25rem;
-  max-width: 440px;
+  margin-top: 0.8rem;
+  max-width: 400px;
   animation: luxuryFadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.55s both;
 }
 
 .luxury-seal-badge {
-  width: 38px;
-  height: 38px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: 1px dashed rgba(201, 161, 90, 0.6);
   display: flex;
@@ -208,7 +208,7 @@
 }
 
 .luxury-seal-title {
-  font-size: 0.74rem;
+  font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -216,26 +216,26 @@
 }
 
 .luxury-seal-desc {
-  font-size: 0.66rem;
+  font-size: 0.6rem;
   color: rgba(255, 255, 255, 0.6);
-  margin-top: 0.1rem;
+  margin-top: 0.05rem;
 }
 
 .luxury-pillars-strip {
-  margin-top: 1.5rem;
+  margin-top: 0.9rem;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 1.35rem;
-  padding-top: 1.2rem;
+  gap: 1rem;
+  padding-top: 0.75rem;
   border-top: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .luxury-pillar-item {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  font-size: 0.78rem;
+  gap: 0.45rem;
+  font-size: 0.7rem;
   font-weight: 500;
   letter-spacing: 0.04em;
   color: rgba(255, 255, 255, 0.85);
@@ -246,8 +246,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: rgba(201, 161, 90, 0.12);
   border: 1px solid rgba(201, 161, 90, 0.3);
@@ -264,19 +264,19 @@
   align-items: center;
   justify-content: center;
   width: 100%;
-  max-width: 480px;
+  max-width: 405px;
   margin: 0 auto;
 }
 
 .luxury-checkout-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
+  gap: 0.45rem;
+  padding: 0.38rem 0.8rem;
   border-radius: 9999px;
   background: rgba(201, 161, 90, 0.15);
   border: 1px solid rgba(201, 161, 90, 0.45);
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   font-weight: 600;
   color: #faf6f1;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
@@ -287,7 +287,7 @@
 .luxury-flip-container {
   perspective: 1600px;
   width: 100%;
-  max-width: 480px;
+  max-width: 405px;
   position: relative;
   animation: luxuryCardEntrance 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
@@ -296,6 +296,7 @@
 .luxury-flip-inner {
   display: grid;
   grid-template-columns: 1fr;
+  align-items: start;
   width: 100%;
   transform-style: preserve-3d;
   transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
@@ -316,12 +317,12 @@
   -webkit-backface-visibility: hidden;
   background: rgba(18, 16, 14, 0.95);
   border: 1px solid rgba(201, 161, 90, 0.28);
-  border-radius: 1.75rem;
-  padding: 1.4rem 1.8rem 1.2rem;
+  border-radius: 1.35rem;
+  padding: 1rem 1.35rem 0.85rem;
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
-  box-shadow: 0 35px 85px rgba(0, 0, 0, 0.9),
-              0 0 60px rgba(201, 161, 90, 0.1);
+  box-shadow: 0 28px 68px rgba(0, 0, 0, 0.9),
+              0 0 50px rgba(201, 161, 90, 0.1);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -359,6 +360,11 @@
 
 .luxury-flip-container.is-flipped .luxury-card-front {
   pointer-events: none;
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-width: 0;
+  opacity: 0;
 }
 
 /* Cara Posterior (Registro) - pre-rotada 180° */
@@ -369,6 +375,11 @@
 
 .luxury-flip-container:not(.is-flipped) .luxury-card-back {
   pointer-events: none;
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-width: 0;
+  opacity: 0;
 }
 
 .luxury-flip-container.is-flipped .luxury-card-back {
@@ -386,92 +397,93 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.55rem;
   position: relative;
   z-index: 2;
 }
 
 .luxury-mark-container {
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.2rem;
   filter: drop-shadow(0 2px 10px rgba(212, 175, 55, 0.3));
 }
 
 .luxury-brand-line {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.65rem;
+  gap: 0.45rem;
+  margin-bottom: 0.3rem;
 }
 
 .luxury-brand-name {
-  font-size: 0.82rem;
+  font-size: 0.74rem;
   font-weight: 800;
-  letter-spacing: 0.26em;
+  letter-spacing: 0.24em;
   color: #faf6f1;
   text-transform: uppercase;
 }
 
 .luxury-brand-rule {
-  width: 16px;
+  width: 14px;
   height: 1px;
   background: rgba(201, 161, 90, 0.5);
 }
 
 .luxury-brand-sub {
-  font-size: 0.7rem;
+  font-size: 0.64rem;
   font-weight: 500;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.26em;
   color: #c9a15a;
   text-transform: uppercase;
 }
 
 .luxury-card-title {
-  font-size: 1.6rem;
+  font-size: 1.35rem;
   font-weight: 400;
   color: #ffffff;
   margin: 0;
   letter-spacing: -0.01em;
+  line-height: 1.15;
 }
 
 .luxury-card-subtitle {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: rgba(255, 255, 255, 0.6);
-  margin-top: 0.25rem;
+  margin-top: 0.15rem;
   font-weight: 300;
 }
 
 .luxury-gold-divider {
-  width: 44px;
+  width: 36px;
   height: 2px;
   background: #c9a15a;
   border-radius: 9999px;
-  margin-top: 0.65rem;
+  margin-top: 0.4rem;
 }
 
 /* Pestañas */
 .luxury-tabs {
   display: flex;
-  gap: 0.35rem;
-  padding: 0.2rem;
+  gap: 0.3rem;
+  padding: 0.18rem;
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.75rem;
-  margin-bottom: 0.85rem;
+  border-radius: 0.65rem;
+  margin-bottom: 0.55rem;
   position: relative;
   z-index: 2;
 }
 
 .luxury-tab {
   flex: 1;
-  padding: 0.45rem;
-  font-size: 0.74rem;
+  padding: 0.34rem;
+  font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-align: center;
   border: 0;
   background: transparent;
   color: rgba(255, 255, 255, 0.55);
-  border-radius: 0.55rem;
+  border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -492,16 +504,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
   width: 100%;
-  height: 44px;
-  border-radius: 0.65rem;
+  height: 38px;
+  border-radius: 0.6rem;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: #faf6f1;
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
@@ -528,12 +540,12 @@
 
 /* Alertas */
 .luxury-alert {
-  padding: 0.65rem 0.85rem;
-  border-radius: 0.65rem;
-  font-size: 0.76rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 0.55rem;
+  font-size: 0.72rem;
   text-align: center;
-  margin-bottom: 1rem;
-  line-height: 1.35;
+  margin-bottom: 0.55rem;
+  line-height: 1.3;
   animation: luxuryFadeUp 0.3s ease-out both;
   position: relative;
   z-index: 2;
@@ -555,7 +567,7 @@
 .luxury-form {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.48rem;
   position: relative;
   z-index: 2;
 }
@@ -570,19 +582,19 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.45rem 0.8rem;
-  border-radius: 0.65rem;
+  gap: 0.65rem;
+  padding: 0.38rem 0.7rem;
+  border-radius: 0.6rem;
   background: rgba(201, 161, 90, 0.1);
   border: 1px solid rgba(201, 161, 90, 0.28);
-  margin-bottom: 0.1rem;
+  margin-bottom: 0.05rem;
   animation: luxuryStepSlide 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .luxury-selected-email-content {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.45rem;
   min-width: 0;
 }
 
@@ -590,18 +602,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #c9a15a;
   color: #120e0b;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 800;
   flex-shrink: 0;
 }
 
 .luxury-selected-email-text {
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   font-weight: 500;
   color: #faf6f1;
   white-space: nowrap;
@@ -613,12 +625,12 @@
   background: transparent;
   border: 0;
   color: #c9a15a;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   cursor: pointer;
-  padding: 0.2rem 0.4rem;
+  padding: 0.15rem 0.35rem;
   border-radius: 4px;
   transition: all 0.2s ease;
   flex-shrink: 0;
@@ -633,10 +645,10 @@
 .luxury-field {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  height: 44px;
-  padding: 0 0.85rem;
-  border-radius: 0.65rem;
+  gap: 0.55rem;
+  height: 38px;
+  padding: 0 0.75rem;
+  border-radius: 0.6rem;
   border: 1px solid rgba(255, 255, 255, 0.16);
   background: rgba(8, 7, 6, 0.65);
   transition: all 0.2s ease;
@@ -664,7 +676,7 @@
   box-shadow: none !important;
   padding: 0 !important;
   margin: 0 !important;
-  font-size: 0.88rem !important;
+  font-size: 0.82rem !important;
   color: #faf6f1 !important;
   -webkit-text-fill-color: #faf6f1 !important;
   caret-color: #c9a15a;
@@ -688,8 +700,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border: 0;
   background: transparent;
   color: rgba(255, 255, 255, 0.45);
@@ -706,14 +718,14 @@
 .luxury-strength-container {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  margin-top: -0.25rem;
+  gap: 0.25rem;
+  margin-top: -0.15rem;
   padding: 0 0.2rem;
 }
 
 .luxury-strength-bars {
   display: flex;
-  gap: 0.35rem;
+  gap: 0.3rem;
   height: 3px;
   width: 100%;
 }
@@ -739,7 +751,7 @@
 }
 
 .luxury-strength-text {
-  font-size: 0.68rem;
+  font-size: 0.64rem;
   color: rgba(255, 255, 255, 0.5);
   display: flex;
   align-items: center;
@@ -751,14 +763,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.1rem 0.2rem;
-  font-size: 0.74rem;
+  padding: 0.05rem 0.15rem;
+  font-size: 0.7rem;
 }
 
 .luxury-checkbox-label {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.4rem;
   color: rgba(255, 255, 255, 0.68);
   cursor: pointer;
   user-select: none;
@@ -766,8 +778,8 @@
 
 .luxury-checkbox {
   accent-color: #c9a15a;
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   border-radius: 3px;
   cursor: pointer;
 }
@@ -776,7 +788,7 @@
   background: transparent;
   border: 0;
   color: rgba(201, 161, 90, 0.85);
-  font-size: 0.74rem;
+  font-size: 0.7rem;
   cursor: pointer;
   padding: 0;
   transition: color 0.2s ease;
@@ -792,19 +804,19 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  height: 44px;
-  margin-top: 0.25rem;
+  gap: 0.45rem;
+  height: 38px;
+  margin-top: 0.15rem;
   border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 0.65rem;
+  border-radius: 0.6rem;
   background: linear-gradient(135deg, #d4af37 0%, #b88f3e 100%);
   color: #120e0b;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   cursor: pointer;
-  box-shadow: 0 4px 18px rgba(212, 175, 55, 0.35);
+  box-shadow: 0 4px 16px rgba(212, 175, 55, 0.35);
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
@@ -852,12 +864,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
+  gap: 0.35rem;
   background: transparent;
   border: 0;
   color: rgba(255, 255, 255, 0.55);
-  font-size: 0.72rem;
-  padding: 0.25rem 0;
+  font-size: 0.68rem;
+  padding: 0.15rem 0;
   cursor: pointer;
   transition: color 0.2s ease;
 }
@@ -870,8 +882,8 @@
 .luxury-or-divider {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin: 0.85rem 0;
+  gap: 0.6rem;
+  margin: 0.35rem 0;
 }
 
 .luxury-or-line {
@@ -881,7 +893,7 @@
 }
 
 .luxury-or-text {
-  font-size: 0.72rem;
+  font-size: 0.66rem;
   color: rgba(255, 255, 255, 0.4);
   text-transform: lowercase;
 }
@@ -890,9 +902,9 @@
 .luxury-device-box {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.75rem 0.95rem;
-  border-radius: 0.85rem;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.7rem;
   background: rgba(12, 10, 8, 0.65);
   border: 1px solid rgba(255, 255, 255, 0.12);
   transition: all 0.25s ease;
@@ -912,9 +924,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 0.55rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 0.5rem;
   background: rgba(201, 161, 90, 0.12);
   border: 1px solid rgba(201, 161, 90, 0.25);
 }
@@ -925,17 +937,17 @@
 }
 
 .luxury-device-title {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 600;
   color: #faf6f1;
   margin: 0;
 }
 
 .luxury-device-desc {
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   color: rgba(255, 255, 255, 0.55);
-  margin-top: 0.15rem;
-  line-height: 1.3;
+  margin-top: 0.1rem;
+  line-height: 1.25;
 }
 
 /* Enlace para voltear tarjeta */
@@ -943,15 +955,15 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
+  gap: 0.3rem;
   background: transparent;
   border: 0;
   color: rgba(201, 161, 90, 0.9);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
   cursor: pointer;
-  padding: 0.35rem 0.75rem;
-  border-radius: 0.5rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 0.45rem;
   transition: all 0.2s ease;
 }
 
@@ -963,12 +975,12 @@
 /* Pie de tarjeta */
 .luxury-card-footer {
   text-align: center;
-  margin-top: 0.85rem;
-  font-size: 0.75rem;
+  margin-top: 0.45rem;
+  font-size: 0.7rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.2rem;
   position: relative;
   z-index: 2;
 }
@@ -991,11 +1003,11 @@
 .luxury-security-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.65rem;
+  gap: 0.35rem;
+  font-size: 0.6rem;
   color: rgba(255, 255, 255, 0.4);
   letter-spacing: 0.04em;
-  padding-top: 0.2rem;
+  padding-top: 0.1rem;
 }
 
 /* =========================================================================
