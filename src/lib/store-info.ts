@@ -50,6 +50,21 @@ function resolveBankAccount(envValue: string | undefined, fallback: string) {
   return trimmed;
 }
 
+const DEMO_RNC_PLACEHOLDERS = new Set([
+  "1-32-45678-9",
+  "132456789",
+  "130000000",
+  "1-30-00000-0",
+]);
+
+function resolveCleanRnc(taxId?: string | null) {
+  const raw = (taxId || process.env.COMPANY_TAX_ID || "").trim();
+  if (!raw || DEMO_RNC_PLACEHOLDERS.has(raw)) {
+    return "";
+  }
+  return raw;
+}
+
 /** Cuentas bancarias oficiales de Mudeco Palets en República Dominicana */
 export const DOMINICAN_BANKS = [
   {
@@ -57,7 +72,7 @@ export const DOMINICAN_BANKS = [
     type: "Cuenta Corriente en DOP",
     accountNumber: resolveBankAccount(process.env.BANK_POPULAR_ACCOUNT, "0854076668"),
     holder: "Martín González",
-    rnc: "1-32-45678-9",
+    rnc: "",
     color: "#0047ba",
   },
   {
@@ -65,7 +80,7 @@ export const DOMINICAN_BANKS = [
     type: "Cuenta de Ahorros en DOP",
     accountNumber: resolveBankAccount(process.env.BANK_BANRESERVAS_ACCOUNT, "9609158003"),
     holder: "Martín González",
-    rnc: "1-32-45678-9",
+    rnc: "",
     color: "#0072ce",
   },
   {
@@ -73,7 +88,7 @@ export const DOMINICAN_BANKS = [
     type: "Cuenta de Ahorros en DOP",
     accountNumber: resolveBankAccount(process.env.BANK_BHD_ACCOUNT, "14660720010"),
     holder: "Martín González",
-    rnc: "1-32-45678-9",
+    rnc: "",
     color: "#008852",
   },
   {
@@ -81,7 +96,7 @@ export const DOMINICAN_BANKS = [
     type: "Cuenta de Ahorros en DOP",
     accountNumber: resolveBankAccount(process.env.BANK_APAP_ACCOUNT, "1020930098"),
     holder: "Martín González",
-    rnc: "1-32-45678-9",
+    rnc: "",
     color: "#d97706",
   },
   {
@@ -89,7 +104,7 @@ export const DOMINICAN_BANKS = [
     type: "Cuenta de Ahorros en DOP",
     accountNumber: resolveBankAccount(process.env.BANK_BANESCO_ACCOUNT, "11200066282"),
     holder: "Martín González",
-    rnc: "1-32-45678-9",
+    rnc: "",
     color: "#006940",
   },
 ] as const;
@@ -99,7 +114,7 @@ export function getDominicanBanks(company?: {
   taxId?: string | null;
 }) {
   const holder = process.env.BANK_ACCOUNT_HOLDER || "Martín González";
-  const rnc = company?.taxId || process.env.COMPANY_TAX_ID || "1-32-45678-9";
+  const rnc = resolveCleanRnc(company?.taxId);
   return [
     {
       bank: "Banco Popular Dominicano",

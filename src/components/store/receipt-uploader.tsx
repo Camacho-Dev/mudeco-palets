@@ -534,10 +534,12 @@ export function BankAccountCard({
               {holder}
             </span>
           </p>
-          <p className="flex justify-between">
-            <span className="text-stone-700">RNC:</span>
-            <span className="font-mono font-semibold text-stone-900">{rnc}</span>
-          </p>
+          {rnc ? (
+            <p className="flex justify-between">
+              <span className="text-stone-700">RNC:</span>
+              <span className="font-mono font-semibold text-stone-900">{rnc}</span>
+            </p>
+          ) : null}
         </div>
       </div>
     </motion.div>

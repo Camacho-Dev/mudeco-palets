@@ -88,9 +88,11 @@ export function BankAccountsGrid({ banks }: { banks: BankInfo[] }) {
                 <strong className="text-[var(--wood-900)]">Titular:</strong>{" "}
                 {b.holder}
               </span>
-              <span>
-                <strong className="text-[var(--wood-900)]">RNC:</strong> {b.rnc}
-              </span>
+              {b.rnc ? (
+                <span>
+                  <strong className="text-[var(--wood-900)]">RNC:</strong> {b.rnc}
+                </span>
+              ) : null}
             </div>
           </div>
         );
