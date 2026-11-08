@@ -32,6 +32,8 @@ export async function updateMyAccountAction(formData: FormData): Promise<{
   }
 
   const name = String(formData.get("name") || "").trim();
+  const phone = String(formData.get("phone") || "").trim();
+  const address = String(formData.get("address") || "").trim();
   const currentPassword = String(formData.get("currentPassword") || "");
   const newPassword = String(formData.get("newPassword") || "");
 
@@ -44,7 +46,16 @@ export async function updateMyAccountAction(formData: FormData): Promise<{
     return { ok: false, error: "Cuenta no encontrada o inactiva." };
   }
 
-  const updateData: { name: string; passwordHash?: string } = { name };
+  const updateData: {
+    name: string;
+    phone?: string | null;
+    address?: string | null;
+    passwordHash?: string;
+  } = {
+    name,
+    phone: phone || null,
+    address: address || null,
+  };
 
   if (newPassword.trim().length > 0) {
     if (newPassword.length < 6 || newPassword.length > 128) {
@@ -73,12 +84,24 @@ export async function updateMyAccountAction(formData: FormData): Promise<{
     data: updateData,
   });
 
+  await prisma.customer
+    .updateMany({
+      where: { email: { equals: email, mode: "insensitive" } },
+      data: {
+        name,
+        ...(phone ? { phone } : {}),
+        ...(address ? { address } : {}),
+      },
+    })
+    .catch(() => null);
+
+  revalidatePath("/", "layout");
   revalidatePath("/mis-pedidos");
   return {
     ok: true,
     message: updateData.passwordHash
-      ? "Perfil y contraseña actualizados correctamente."
-      : "Nombre de perfil actualizado correctamente.",
+      ? "Perfil, datos de contacto y contraseña actualizados correctamente."
+      : "Datos de tu perfil actualizados correctamente.",
   };
 }
 

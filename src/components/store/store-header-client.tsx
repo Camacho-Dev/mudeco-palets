@@ -6,7 +6,10 @@ import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { BrandLogo } from "@/components/logo";
-import { HeaderAuth } from "@/components/store/header-auth";
+import {
+  HeaderAuth,
+  type CustomerProfileSummary,
+} from "@/components/store/header-auth";
 import { CartLink } from "@/components/store/cart-link";
 import { formatStoreCategory } from "@/lib/store-brand";
 import {
@@ -36,11 +39,7 @@ export function StoreHeaderClient({
   user,
   categories = [],
 }: {
-  user: {
-    name?: string | null;
-    email?: string | null;
-    role?: string | null;
-  } | null;
+  user: CustomerProfileSummary | null;
   categories?: string[];
 }) {
   const pathname = usePathname();
@@ -221,7 +220,7 @@ export function StoreHeaderClient({
                 </nav>
 
                 <div className="border-t border-white/[0.08] p-5">
-                  <HeaderAuth initialUser={user} />
+                  <HeaderAuth initialUser={user} variant="drawer" />
                 </div>
               </motion.aside>
             </div>

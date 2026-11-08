@@ -14,12 +14,15 @@ import {
   Sparkles,
   CheckCircle2,
   Upload,
+  Receipt,
+  MapPin,
+  Layers,
 } from "lucide-react";
 
 export const metadata = {
-  title: "Mis Pedidos · Mudeco Palets",
+  title: "Mi Perfil e Historial de Compras · Mudeco Palets",
   description:
-    "Consulta el estado de tus pedidos, cotizaciones y facturas en Mudeco Palets.",
+    "Consulta la información de tu perfil, tu historial completo de compras, cotizaciones y facturas en Mudeco Palets.",
 };
 
 export default async function MisPedidosPage() {
@@ -29,17 +32,58 @@ export default async function MisPedidosPage() {
   }
 
   const email = session.user.email.toLowerCase().trim();
-  const orders = await prisma.webOrder.findMany({
-    where: {
-      customerEmail: { equals: email, mode: "insensitive" },
-    },
-    include: {
-      items: true,
-      invoice: true,
-      quote: true,
-    },
-    orderBy: { createdAt: "desc" },
-  });
+  const [dbUser, orders] = await Promise.all([
+    prisma.user
+      .findUnique({
+        where: { email },
+        select: { name: true, phone: true, address: true },
+      })
+      .catch(() => null),
+    prisma.webOrder.findMany({
+      where: {
+        customerEmail: { equals: email, mode: "insensitive" },
+      },
+      include: {
+        items: true,
+        invoice: true,
+        quote: true,
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
+  const rawName = dbUser?.name || session.user.name || "";
+  const latestOrderWithName = orders.find(
+    (o) =>
+      o.customerName &&
+      o.customerName.trim().toLowerCase() !== "administrador" &&
+      o.customerName.trim().length > 1,
+  );
+  const displayName =
+    rawName.trim().toLowerCase() === "administrador"
+      ? latestOrderWithName?.customerName ||
+        email.split("@")[0].charAt(0).toUpperCase() +
+          email.split("@")[0].slice(1)
+      : rawName || "Cliente";
+
+  const phone =
+    dbUser?.phone ||
+    orders.find((o) => o.customerPhone && o.customerPhone.trim().length > 0)
+      ?.customerPhone ||
+    "";
+  const address =
+    dbUser?.address ||
+    orders.find((o) => o.customerAddress && o.customerAddress.trim().length > 0)
+      ?.customerAddress ||
+    "";
+
+  const validOrders = orders.filter((o) => o.status !== "CANCELLED");
+  const totalSpent = validOrders.reduce((acc, o) => acc + (o.total || 0), 0);
+  const totalPieces = validOrders.reduce(
+    (acc, o) =>
+      acc + o.items.reduce((sum, item) => sum + (item.quantity || 0), 0),
+    0,
+  );
 
   return (
     <div className="min-h-screen bg-[#faf7f2]">
@@ -50,13 +94,13 @@ export default async function MisPedidosPage() {
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/35 bg-[#c9a15a]/10 px-3.5 py-1 text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a] uppercase">
                 <Sparkles className="h-3 w-3" />
-                Cuenta de Cliente
+                Mi Perfil de Cliente
               </div>
               <h1 className="font-display mt-3 text-3xl sm:text-4xl md:text-5xl text-white">
-                Mis Pedidos y Cotizaciones
+                Mi Perfil e Historial de Compras
               </h1>
               <p className="mt-1.5 text-sm text-white/70">
-                Historial de órdenes asociadas a{" "}
+                Información personal, muebles adquiridos y facturas asociadas a{" "}
                 <span className="font-semibold text-[#c9a15a]">
                   {session.user.email}
                 </span>
@@ -75,10 +119,70 @@ export default async function MisPedidosPage() {
       </div>
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-8">
+        {/* Tarjeta de Perfil y Edición de Datos */}
         <AccountSettingsCard
-          initialName={session.user.name || "Cliente"}
+          initialName={displayName}
           email={session.user.email}
+          initialPhone={phone}
+          initialAddress={address}
         />
+
+        {/* KPIs de Resumen de Compras del Cliente */}
+        <div className="mb-8 grid gap-4 sm:grid-cols-3">
+          <div className="rounded-2xl border border-[#e2d5c5] bg-white p-5 shadow-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--muted)]">
+                Compras Realizadas
+              </span>
+              <Package className="h-4 w-4 text-[#b0894f]" />
+            </div>
+            <p className="mt-2 font-display text-2xl font-bold text-[var(--wood-950)]">
+              {orders.length}{" "}
+              <span className="text-sm font-normal text-[var(--muted)]">
+                {orders.length === 1 ? "orden registrada" : "órdenes registradas"}
+              </span>
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-[#e2d5c5] bg-white p-5 shadow-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--muted)]">
+                Muebles Adquiridos
+              </span>
+              <Layers className="h-4 w-4 text-[#b0894f]" />
+            </div>
+            <p className="mt-2 font-display text-2xl font-bold text-[var(--wood-950)]">
+              {totalPieces}{" "}
+              <span className="text-sm font-normal text-[var(--muted)]">
+                {totalPieces === 1 ? "pieza artesanal" : "piezas artesanales"}
+              </span>
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-[#e2d5c5] bg-white p-5 shadow-xs">
+            <div className="flex items-center justify-between">
+              <span className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--muted)]">
+                Total Comprado
+              </span>
+              <Receipt className="h-4 w-4 text-[#b0894f]" />
+            </div>
+            <p className="mt-2 font-mono text-2xl font-bold text-[#8a6a3a]">
+              {formatCurrency(totalSpent)}
+            </p>
+          </div>
+        </div>
+
+        {/* Sección de Historial de lo que ha comprado */}
+        <div id="historial" className="mb-4 flex items-center justify-between scroll-mt-28">
+          <div>
+            <h2 className="font-display text-2xl font-bold text-[var(--wood-950)]">
+              Historial de lo que has comprado
+            </h2>
+            <p className="text-xs text-[var(--muted)]">
+              Detalle de cada pedido, artículos comprados, estado de entrega y comprobantes.
+            </p>
+          </div>
+        </div>
 
         {orders.length === 0 ? (
           <div className="rounded-2xl border border-[#e2d5c5] bg-white p-12 text-center shadow-xs space-y-4">
@@ -86,7 +190,7 @@ export default async function MisPedidosPage() {
               <Package className="h-6 w-6" />
             </div>
             <h2 className="font-display text-2xl text-[var(--wood-950)]">
-              Aún no tienes pedidos registrados
+              Aún no tienes compras registradas
             </h2>
             <p className="mx-auto max-w-md text-sm text-[var(--muted)]">
               Explora nuestro catálogo de muebles de madera recuperada o
@@ -103,7 +207,7 @@ export default async function MisPedidosPage() {
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-5">
             {orders.map((order) => {
               const statusLabel =
                 WEB_STATUS_LABEL[order.status] || order.status;
@@ -160,11 +264,11 @@ export default async function MisPedidosPage() {
                           · {formatDate(order.createdAt)}
                         </span>
                       </div>
-                      {order.items.length > 0 ? (
-                        <p className="text-xs text-[var(--muted)]">
-                          {order.items.length}{" "}
-                          {order.items.length === 1 ? "pieza" : "piezas"} ·{" "}
-                          {order.items.map((i) => i.description).join(", ")}
+
+                      {order.customerAddress ? (
+                        <p className="flex items-center gap-1.5 text-xs text-[var(--muted)]">
+                          <MapPin className="h-3.5 w-3.5 text-[#b0894f]" />
+                          <span>Entrega: {order.customerAddress}</span>
                         </p>
                       ) : null}
                     </div>
@@ -172,7 +276,7 @@ export default async function MisPedidosPage() {
                     {order.total > 0 ? (
                       <div className="text-right">
                         <p className="text-[11px] uppercase tracking-wider text-[var(--muted)]">
-                          Total
+                          Total de la compra
                         </p>
                         <p className="font-mono text-lg font-bold text-[#8a6a3a]">
                           {formatCurrency(order.total)}
@@ -180,6 +284,45 @@ export default async function MisPedidosPage() {
                       </div>
                     ) : null}
                   </div>
+
+                  {/* Tabla de artículos comprados en este pedido */}
+                  {order.items.length > 0 ? (
+                    <div className="mt-4 overflow-hidden rounded-xl border border-[#efe6d8] bg-[#faf7f2]/60">
+                      <div className="grid grid-cols-12 border-b border-[#efe6d8] bg-[#f4ede2]/70 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--wood-800)]">
+                        <div className="col-span-7 sm:col-span-6">
+                          Mueble / Producto comprado
+                        </div>
+                        <div className="col-span-2 text-center">Cant.</div>
+                        <div className="hidden sm:col-span-2 sm:block text-right">
+                          Precio Unit.
+                        </div>
+                        <div className="col-span-3 sm:col-span-2 text-right">
+                          Subtotal
+                        </div>
+                      </div>
+                      <div className="divide-y divide-[#efe6d8]">
+                        {order.items.map((item) => (
+                          <div
+                            key={item.id}
+                            className="grid grid-cols-12 items-center px-4 py-2.5 text-xs"
+                          >
+                            <div className="col-span-7 sm:col-span-6 font-medium text-[var(--wood-950)] pr-2">
+                              {item.description}
+                            </div>
+                            <div className="col-span-2 text-center font-mono text-[var(--wood-800)]">
+                              {item.quantity}
+                            </div>
+                            <div className="hidden sm:col-span-2 sm:block text-right font-mono text-[var(--muted)]">
+                              {formatCurrency(item.unitPrice)}
+                            </div>
+                            <div className="col-span-3 sm:col-span-2 text-right font-mono font-semibold text-[var(--wood-950)]">
+                              {formatCurrency(item.lineTotal)}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
 
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
                     <div className="flex flex-wrap items-center gap-2">
