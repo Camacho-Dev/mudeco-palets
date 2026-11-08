@@ -33,7 +33,7 @@ export function HeaderAuth({
     const dest = homeForRole(user.role);
     return (
       <div className="flex items-center gap-2">
-        <span className="hidden max-w-[140px] truncate text-[0.7rem] font-medium text-white/70 lg:inline">
+        <span className="hidden max-w-[130px] truncate text-[0.7rem] font-medium text-white/70 xl:inline">
           {user.name || user.email}
         </span>
         <Link

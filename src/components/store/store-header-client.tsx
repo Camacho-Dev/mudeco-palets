@@ -240,7 +240,7 @@ export function StoreHeaderClient({
             : "bg-[#111111]/94 backdrop-blur-xl"
         }`}
       >
-        <div className="relative mx-auto flex h-[90px] max-w-[1760px] items-center px-4 sm:px-8 lg:px-12 xl:px-16">
+        <div className="relative mx-auto flex h-[90px] max-w-[1760px] items-center justify-between gap-4 px-4 sm:px-8 lg:px-10 xl:px-16">
           <Link
             href="/"
             className="relative z-10 shrink-0 transition duration-300 hover:opacity-90"
@@ -253,7 +253,7 @@ export function StoreHeaderClient({
             />
           </Link>
 
-          <nav className="absolute inset-x-0 top-0 hidden h-full items-center justify-center gap-1 md:flex lg:gap-2">
+          <nav className="hidden h-full flex-1 items-center justify-center gap-0.5 lg:flex xl:gap-2">
             {primaryNav.map((item) =>
               item.hasCats ? (
                 <div
@@ -341,7 +341,7 @@ export function StoreHeaderClient({
             )}
           </nav>
 
-          <div className="relative z-10 ml-auto flex items-center gap-2.5 sm:gap-3">
+          <div className="relative z-10 ml-auto flex shrink-0 items-center gap-2 sm:gap-2.5 lg:ml-0">
             <button
               type="button"
               onClick={() => setSearchOpen((v) => !v)}
@@ -362,7 +362,7 @@ export function StoreHeaderClient({
             </div>
             <button
               type="button"
-              className="inline-flex h-10 w-10 items-center justify-center border border-white/15 text-white/80 transition duration-300 hover:border-[#c9a15a]/50 hover:text-white md:hidden"
+              className="inline-flex h-10 w-10 items-center justify-center border border-white/15 text-white/80 transition duration-300 hover:border-[#c9a15a]/50 hover:text-white lg:hidden"
               aria-label="Abrir menú"
               aria-expanded={open}
               onClick={() => setOpen((v) => !v)}
