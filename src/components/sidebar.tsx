@@ -1,12 +1,10 @@
 import Link from "next/link";
-import { signOut } from "@/lib/auth";
 import {
   LayoutDashboard,
   Users,
   Package,
   FileText,
   CreditCard,
-  LogOut,
   Zap,
   Settings,
   Warehouse,
@@ -30,6 +28,7 @@ import {
 import { BrandLogo } from "@/components/logo";
 import { isAdmin } from "@/lib/rbac";
 import { GlobalSearch } from "@/components/global-search";
+import { DashboardLogoutButton } from "@/components/dashboard-logout-button";
 import {
   getCachedAuthSession,
   getCachedPendingWebOrders,
@@ -177,21 +176,7 @@ export async function Sidebar() {
         <p className="mt-1 text-[0.65rem] tracking-wide text-white/35 uppercase">
           {admin ? "Administrador" : "Empleado"}
         </p>
-        <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/login" });
-          }}
-          className="mt-3"
-        >
-          <button
-            type="submit"
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-white/60 transition hover:bg-white/8 hover:text-white"
-          >
-            <LogOut className="h-4 w-4" />
-            Cerrar sesión
-          </button>
-        </form>
+        <DashboardLogoutButton />
         <DeveloperCredit />
       </div>
     </aside>
@@ -259,21 +244,7 @@ export async function SidebarMobilePanel() {
         <p className="mt-1 text-[0.65rem] tracking-wide text-white/35 uppercase">
           {admin ? "Administrador" : "Empleado"}
         </p>
-        <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/login" });
-          }}
-          className="mt-3"
-        >
-          <button
-            type="submit"
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-white/70 transition hover:bg-white/10 hover:text-white cursor-pointer"
-          >
-            <LogOut className="h-4 w-4" />
-            Cerrar sesión
-          </button>
-        </form>
+        <DashboardLogoutButton />
         <DeveloperCredit />
       </div>
     </div>

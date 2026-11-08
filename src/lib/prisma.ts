@@ -7,7 +7,10 @@ function withConnectTimeout(url: string | undefined) {
     res = `${res}${res.includes("?") ? "&" : "?"}connect_timeout=15`;
   }
   if (!/[?&]connection_limit=/.test(res)) {
-    res = `${res}&connection_limit=10`;
+    res = `${res}&connection_limit=15`;
+  }
+  if (!/[?&]pool_timeout=/.test(res)) {
+    res = `${res}&pool_timeout=20`;
   }
   if (res.includes("pooler") && !/[?&]pgbouncer=/.test(res)) {
     res = `${res}&pgbouncer=true`;
@@ -25,9 +28,21 @@ export const prisma =
     },
   });
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+globalForPrisma.prisma = prisma;
 
-/** Reintenta si Neon está despertando (P1001 / P1017). */
+function isTransientDbError(err: unknown): boolean {
+  if (!err || typeof err !== "object") return false;
+  const code = "code" in err ? String((err as { code?: string }).code) : "";
+  if (code === "P1001" || code === "P1002" || code === "P1008" || code === "P1017" || code === "P2024") {
+    return true;
+  }
+  const msg = "message" in err ? String((err as { message?: string }).message) : "";
+  return /Can't reach database|closed the connection|Connection terminated|Timed out fetching a new connection|ECONNRESET|ETIMEDOUT/i.test(
+    msg,
+  );
+}
+
+/** Reintenta automáticamente si la conexión serverless de base de datos está despertando. */
 export async function withDbRetry<T>(
   fn: () => Promise<T>,
   opts?: { retries?: number; fallback?: T },
@@ -39,15 +54,11 @@ export async function withDbRetry<T>(
       return await fn();
     } catch (err) {
       last = err;
-      const code =
-        err && typeof err === "object" && "code" in err
-          ? String((err as { code?: string }).code)
-          : "";
-      if (code !== "P1001" && code !== "P1017") {
+      if (!isTransientDbError(err)) {
         if (opts && "fallback" in opts) return opts.fallback as T;
         throw err;
       }
-      await new Promise((r) => setTimeout(r, 800 * (i + 1)));
+      await new Promise((r) => setTimeout(r, 600 * (i + 1)));
     }
   }
   if (opts && "fallback" in opts) return opts.fallback as T;

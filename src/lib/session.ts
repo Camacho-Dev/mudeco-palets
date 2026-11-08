@@ -1,47 +1,77 @@
 import { cache } from "react";
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { prisma, withDbRetry } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { isAdmin, isStaff } from "@/lib/rbac";
+import { getCachedAuthSession } from "@/lib/dashboard-cache";
 
 const getVerifiedUser = cache(async (userId: string) => {
-  return prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      role: true,
-      active: true,
-    },
-  });
+  return withDbRetry(
+    () =>
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          role: true,
+          active: true,
+        },
+      }),
+    { retries: 3 },
+  );
 });
 
 export async function requireSession() {
-  const session = await auth();
+  const session = await getCachedAuthSession();
   if (!session?.user?.id) redirect("/login");
 
-  const dbUser = await getVerifiedUser(session.user.id);
-  if (!dbUser || !dbUser.active) redirect("/login");
+  try {
+    const dbUser = await getVerifiedUser(session.user.id);
+    if (!dbUser || !dbUser.active) redirect("/login");
 
-  session.user.role = dbUser.role;
-  session.user.name = dbUser.name;
-  session.user.email = dbUser.email;
+    session.user.role = dbUser.role;
+    session.user.name = dbUser.name;
+    session.user.email = dbUser.email;
+  } catch (err) {
+    // Si es un redirect de Next.js, propagarlo siempre
+    if (
+      err &&
+      typeof err === "object" &&
+      "digest" in err &&
+      String((err as { digest?: string }).digest).startsWith("NEXT_REDIRECT")
+    ) {
+      throw err;
+    }
+    // Si la BD está despertando en un cold-start tras un deploy pero el token JWT firmado es válido,
+    // conservar los datos del token para no tumbar el panel administrativo.
+    if (!session.user.role) redirect("/login");
+  }
 
-  if (!isStaff(dbUser.role)) redirect("/");
+  if (!isStaff(session.user.role)) redirect("/");
   return session;
 }
 
 export async function requireAuthenticatedUser() {
-  const session = await auth();
+  const session = await getCachedAuthSession();
   if (!session?.user?.id) redirect("/login");
 
-  const dbUser = await getVerifiedUser(session.user.id);
-  if (!dbUser || !dbUser.active) redirect("/login");
+  try {
+    const dbUser = await getVerifiedUser(session.user.id);
+    if (!dbUser || !dbUser.active) redirect("/login");
 
-  session.user.role = dbUser.role;
-  session.user.name = dbUser.name;
-  session.user.email = dbUser.email;
+    session.user.role = dbUser.role;
+    session.user.name = dbUser.name;
+    session.user.email = dbUser.email;
+  } catch (err) {
+    if (
+      err &&
+      typeof err === "object" &&
+      "digest" in err &&
+      String((err as { digest?: string }).digest).startsWith("NEXT_REDIRECT")
+    ) {
+      throw err;
+    }
+  }
   return session;
 }
 

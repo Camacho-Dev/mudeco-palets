@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma, withDbRetry } from "@/lib/prisma";
 import { roundMoney, PAYMENT_METHOD_LABELS } from "@/lib/format";
 import { buildDateRange, inRange, type DateRange } from "@/lib/date-range";
 
@@ -28,42 +28,115 @@ export async function getBusinessAnalytics(range?: DateRange) {
   const startOfYear = new Date(now.getFullYear(), 0, 1);
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
 
-  const [invoices, payments, products, materials, customers, webOrders, ncfSeries] = await Promise.all([
-    prisma.invoice.findMany({
-      where: { status: { in: [...SOLD_STATUSES] } },
-      include: {
-        items: { include: { product: true } },
-        payments: true,
-        creditNotes: true,
-        customer: true,
-      },
-      orderBy: { issueDate: "asc" },
-    }),
-    prisma.payment.findMany({
-      where: {
-        invoice: { status: { in: [...SOLD_STATUSES] } },
-      },
-      orderBy: { paidAt: "asc" },
-    }),
-    prisma.product.findMany({ where: { active: true, kind: "FINISHED" } }),
-    prisma.product.findMany({ where: { active: true, kind: "MATERIAL" } }),
-    prisma.customer.count(),
-    prisma.webOrder.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 200,
-      select: {
-        id: true,
-        number: true,
-        type: true,
-        status: true,
-        serviceKind: true,
-        total: true,
-        createdAt: true,
-        customerName: true,
-      },
-    }),
-    prisma.ncfSeries.findMany({ where: { active: true } }),
-  ]);
+  const [
+    invoices,
+    payments,
+    products,
+    materials,
+    customers,
+    webOrders,
+    ncfSeries,
+    company,
+  ] = await withDbRetry(() =>
+    Promise.all([
+      prisma.invoice.findMany({
+        where: { status: { in: [...SOLD_STATUSES] } },
+        select: {
+          id: true,
+          number: true,
+          status: true,
+          issueDate: true,
+          dueDate: true,
+          createdAt: true,
+          subtotal: true,
+          tax: true,
+          total: true,
+          customerId: true,
+          customer: {
+            select: { name: true },
+          },
+          items: {
+            select: {
+              productId: true,
+              description: true,
+              quantity: true,
+              lineTotal: true,
+              product: {
+                select: {
+                  name: true,
+                  cost: true,
+                  category: true,
+                },
+              },
+            },
+          },
+          payments: {
+            select: {
+              amount: true,
+            },
+          },
+          creditNotes: {
+            select: {
+              total: true,
+              tax: true,
+            },
+          },
+        },
+        orderBy: { issueDate: "asc" },
+      }),
+      prisma.payment.findMany({
+        where: {
+          invoice: { status: { in: [...SOLD_STATUSES] } },
+        },
+        select: {
+          amount: true,
+          method: true,
+          paidAt: true,
+        },
+        orderBy: { paidAt: "asc" },
+      }),
+      prisma.product.findMany({
+        where: { active: true, kind: "FINISHED" },
+        select: {
+          id: true,
+          sku: true,
+          name: true,
+          stock: true,
+          minStock: true,
+          cost: true,
+          price: true,
+        },
+      }),
+      prisma.product.findMany({
+        where: { active: true, kind: "MATERIAL" },
+        select: {
+          id: true,
+          name: true,
+          stock: true,
+          minStock: true,
+        },
+      }),
+      prisma.customer.count(),
+      prisma.webOrder.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 200,
+        select: {
+          id: true,
+          number: true,
+          type: true,
+          status: true,
+          serviceKind: true,
+          total: true,
+          createdAt: true,
+          customerName: true,
+        },
+      }),
+      prisma.ncfSeries.findMany({ where: { active: true } }),
+      prisma.companySettings.findUnique({
+        where: { id: "default" },
+      }),
+    ]),
+  );
 
   const in30Days = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
   const ncfAlerts = ncfSeries
@@ -298,24 +371,17 @@ export async function getBusinessAnalytics(range?: DateRange) {
   aging.d61_90 = roundMoney(aging.d61_90);
   aging.d90plus = roundMoney(aging.d90plus);
 
-  const recentInvoices = (
-    await prisma.invoice.findMany({
-      where:
-        period.from && period.to
-          ? { issueDate: { gte: period.from, lte: period.to } }
-          : undefined,
-      orderBy: { createdAt: "desc" },
-      take: 8,
-      include: { customer: true },
-    })
-  ).map((inv) => ({
-    id: inv.id,
-    number: inv.number,
-    status: inv.status,
-    total: inv.total,
-    issueDate: inv.issueDate.toISOString(),
-    customer: { name: inv.customer.name },
-  }));
+  const recentInvoices = [...periodInvoices]
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .slice(0, 8)
+    .map((inv) => ({
+      id: inv.id,
+      number: inv.number,
+      status: inv.status,
+      total: inv.total,
+      issueDate: inv.issueDate.toISOString(),
+      customer: { name: inv.customer.name },
+    }));
 
   const webPending = webOrders.filter((o) =>
     ["PENDING", "AWAITING_PAYMENT", "QUOTED", "IN_PROGRESS"].includes(o.status),
@@ -345,9 +411,7 @@ export async function getBusinessAnalytics(range?: DateRange) {
       : 0;
 
   return {
-    company: await prisma.companySettings.findUnique({
-      where: { id: "default" },
-    }),
+    company,
     period: {
       label: period.label,
       kind: period.kind,
