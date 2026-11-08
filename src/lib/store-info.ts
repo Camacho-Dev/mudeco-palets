@@ -50,13 +50,13 @@ function resolveBankAccount(envValue: string | undefined, fallback: string) {
   return trimmed;
 }
 
-/** Cuentas bancarias oficiales de Mudeco Palets SRL en República Dominicana */
+/** Cuentas bancarias oficiales de Mudeco Palets en República Dominicana */
 export const DOMINICAN_BANKS = [
   {
     bank: "Banco Popular Dominicano",
     type: "Cuenta Corriente en DOP",
     accountNumber: resolveBankAccount(process.env.BANK_POPULAR_ACCOUNT, "0854076668"),
-    holder: "Mudeco Palets SRL",
+    holder: "Martín González",
     rnc: "1-32-45678-9",
     color: "#0047ba",
   },
@@ -64,7 +64,7 @@ export const DOMINICAN_BANKS = [
     bank: "Banreservas (Banco de Reservas)",
     type: "Cuenta de Ahorros en DOP",
     accountNumber: resolveBankAccount(process.env.BANK_BANRESERVAS_ACCOUNT, "9609158003"),
-    holder: "Mudeco Palets SRL",
+    holder: "Martín González",
     rnc: "1-32-45678-9",
     color: "#0072ce",
   },
@@ -72,7 +72,7 @@ export const DOMINICAN_BANKS = [
     bank: "Banco BHD",
     type: "Cuenta de Ahorros en DOP",
     accountNumber: resolveBankAccount(process.env.BANK_BHD_ACCOUNT, "14660720010"),
-    holder: "Mudeco Palets SRL",
+    holder: "Martín González",
     rnc: "1-32-45678-9",
     color: "#008852",
   },
@@ -80,7 +80,7 @@ export const DOMINICAN_BANKS = [
     bank: "Asociación Popular (APAP)",
     type: "Cuenta de Ahorros en DOP",
     accountNumber: resolveBankAccount(process.env.BANK_APAP_ACCOUNT, "1020930098"),
-    holder: "Mudeco Palets SRL",
+    holder: "Martín González",
     rnc: "1-32-45678-9",
     color: "#d97706",
   },
@@ -88,7 +88,7 @@ export const DOMINICAN_BANKS = [
     bank: "Banesco Banco Múltiple",
     type: "Cuenta de Ahorros en DOP",
     accountNumber: resolveBankAccount(process.env.BANK_BANESCO_ACCOUNT, "11200066282"),
-    holder: "Mudeco Palets SRL",
+    holder: "Martín González",
     rnc: "1-32-45678-9",
     color: "#006940",
   },
@@ -98,10 +98,7 @@ export function getDominicanBanks(company?: {
   name?: string;
   taxId?: string | null;
 }) {
-  const rawName = company?.name || process.env.COMPANY_NAME || "Mudeco Palets SRL";
-  const holder = rawName.toLowerCase().includes("srl")
-    ? rawName
-    : "Mudeco Palets SRL";
+  const holder = process.env.BANK_ACCOUNT_HOLDER || "Martín González";
   const rnc = company?.taxId || process.env.COMPANY_TAX_ID || "1-32-45678-9";
   return [
     {
