@@ -32,7 +32,9 @@ export function siteUrl() {
   return (
     process.env.NEXT_PUBLIC_APP_URL ||
     process.env.AUTH_URL ||
-    "https://mudeco-palets.vercel.app"
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "https://mudeco-palets-smoky.vercel.app")
   ).replace(/\/$/, "");
 }
 

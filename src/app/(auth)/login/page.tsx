@@ -606,7 +606,7 @@ function LoginForm() {
 
             <div className="mt-4 pt-3 border-t border-white/10 flex flex-col gap-2">
               <a
-                href="https://wa.me/18097047519?text=Hola%20Mudeco%20Palets,%20necesito%20ayuda%20para%20restablecer%20el%20acceso%20a%20mi%20cuenta."
+                href={`https://wa.me/${(process.env.NEXT_PUBLIC_COMPANY_PHONE || "18097047519").replace(/\D/g, "")}?text=${encodeURIComponent("Hola Mudeco Palets, necesito ayuda para restablecer el acceso a mi cuenta.")}`}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-600/20 px-4 py-2 text-xs font-semibold text-emerald-300 hover:bg-emerald-600/30 transition"

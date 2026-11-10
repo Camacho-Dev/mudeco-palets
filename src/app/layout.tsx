@@ -17,7 +17,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL ||
       process.env.AUTH_URL ||
-      "https://mudeco-palets.vercel.app",
+      (process.env.VERCEL_PROJECT_PRODUCTION_URL
+        ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+        : "https://mudeco-palets-smoky.vercel.app"),
   ),
   title: "Mudeco Palets — Muebles de madera recuperada",
   description:
