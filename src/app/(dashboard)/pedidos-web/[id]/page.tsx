@@ -109,7 +109,7 @@ export default async function PedidoWebDetailPage({
             ) : !order.invoiceId ? (
               <ConfirmForm
                 action={convertWebOrderDirectToInvoice.bind(null, order.id)}
-                message="¿Generar factura borrador oficial en el ERP para este pedido web?"
+                message="¿Generar factura borrador oficial para este pedido web?"
               >
                 <button type="submit" className="btn btn-primary text-xs">
                   Generar factura
@@ -227,14 +227,14 @@ export default async function PedidoWebDetailPage({
               href={`/clientes/${order.customerId}`}
               className="inline-block pt-2 text-xs text-[var(--brass)] hover:underline"
             >
-              Ver ficha de cliente en ERP →
+              Ver ficha del cliente →
             </Link>
           ) : null}
         </div>
 
         <div className="card space-y-3 p-5 text-sm">
           <p className="text-xs font-semibold tracking-wide text-[var(--muted)] uppercase">
-            Seguimiento ERP & Taller
+            Seguimiento de Documentos & Taller
           </p>
           <p>Tipo: {webOrderTypeLabel(order)}</p>
           <p>Fecha de recepción: {formatDate(order.createdAt)}</p>
@@ -264,7 +264,7 @@ export default async function PedidoWebDetailPage({
             </p>
           ) : null}
           {!order.invoice && !order.quote ? (
-            <p className="text-[var(--muted)]">Sin documento ERP emitido aún</p>
+            <p className="text-[var(--muted)]">Sin factura ni cotización emitida aún</p>
           ) : null}
 
           {/* Atajo de fabricación */}

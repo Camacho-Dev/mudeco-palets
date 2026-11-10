@@ -256,11 +256,11 @@ export default async function PedidosWebPage({
               <th className="px-4 py-3">Cliente</th>
               <th className="px-4 py-3">Tipo</th>
               <th className="px-4 py-3">Estado</th>
-              <th className="px-4 py-3">Resumen</th>
+              <th className="px-4 py-3">Entrega / Nota</th>
               <th className="px-4 py-3">Total</th>
               <th className="px-4 py-3">Fecha</th>
-              <th className="px-4 py-3">ERP</th>
-              <th className="px-4 py-3">Acciones</th>
+              <th className="px-4 py-3">Factura / Cotiz.</th>
+              <th className="px-4 py-3 text-right">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -279,12 +279,51 @@ export default async function PedidosWebPage({
               filtered.map((o) => {
                 const open = isWebOrderPending(o.status);
                 const receipt = extractReceiptFromNotes(o.notes);
+                const isTransfer =
+                  o.paymentMode === "TRANSFER" ||
+                  o.notes?.includes("Transferencia bancaria");
                 const hasReceiptPending = Boolean(
-                  receipt && o.status !== "PAID" && o.status !== "DONE" && o.status !== "CANCELLED",
+                  receipt &&
+                    o.status !== "PAID" &&
+                    o.status !== "DONE" &&
+                    o.status !== "CANCELLED",
                 );
                 const hasReceiptApproved = Boolean(
                   receipt && (o.status === "PAID" || o.status === "DONE"),
                 );
+
+                let statusLabel = WEB_STATUS_LABEL[o.status] || o.status;
+                let statusBadgeClass =
+                  WEB_STATUS_COLORS[o.status] || "bg-stone-100 text-stone-700";
+
+                if (hasReceiptPending) {
+                  statusLabel = "Comprobante por validar";
+                  statusBadgeClass =
+                    "bg-amber-100 text-amber-900 border border-amber-300 font-semibold";
+                } else if (o.status === "AWAITING_PAYMENT" && !receipt) {
+                  statusLabel = "Esperando comprobante";
+                  statusBadgeClass =
+                    "bg-sky-50 text-sky-800 border border-sky-200";
+                } else if (o.status === "PENDING" && isTransfer) {
+                  statusLabel = "Esperando transferencia";
+                  statusBadgeClass =
+                    "bg-sky-50 text-sky-800 border border-sky-200";
+                } else if (o.status === "PENDING" && o.type === "QUOTE") {
+                  statusLabel = "Cotización pendiente";
+                  statusBadgeClass =
+                    "bg-orange-100 text-orange-900 border border-orange-200";
+                }
+
+                const isRetiro = o.notes?.includes("[Retiro en taller]");
+                const isEnvio = o.notes?.includes("[Envío a domicilio]");
+                const rawNoteClean = stripReceiptFromNotes(o.notes)
+                  .replace(/\[Pago:[^\]]+\]/g, "")
+                  .replace(/\[Retiro en taller\]/g, "")
+                  .replace(/\[Envío a domicilio\]/g, "")
+                  .replace(/\[CONSULTA\]/g, "")
+                  .replace(/\[COTIZACIÓN A MEDIDA\]/g, "")
+                  .trim();
+
                 const wa = o.customerPhone
                   ? whatsappLink(
                       o.customerPhone,
@@ -295,67 +334,79 @@ export default async function PedidosWebPage({
                 return (
                   <tr
                     key={o.id}
-                    className="border-b border-[var(--border)] last:border-0 hover:bg-[#fbf7f2]/70"
+                    className="border-b border-[var(--border)] last:border-0 hover:bg-[#fbf7f2]/70 transition-colors"
                   >
-                    <td className="px-4 py-3 font-medium">
+                    <td className="px-4 py-3 font-medium whitespace-nowrap">
                       <Link
                         href={`/pedidos-web/${o.id}`}
-                        className="underline-offset-2 hover:underline"
+                        className="font-semibold text-[var(--wood-950)] underline-offset-2 hover:underline hover:text-[#b0894f]"
                       >
                         {o.number}
                       </Link>
-                      {hasReceiptPending && (
-                        <div className="mt-1">
-                          <Link
-                            href={`/pedidos-web/${o.id}#comprobante`}
-                            className="inline-flex items-center gap-1 rounded bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-900 border border-amber-300 hover:bg-amber-200"
-                            title="Revisar foto y validar 3 confirmaciones"
-                          >
-                            <ShieldCheck className="h-3 w-3 text-amber-700" />
-                            <span>Comprobante por validar (3 pasos)</span>
-                          </Link>
-                        </div>
-                      )}
                       {hasReceiptApproved && (
-                        <div className="mt-1">
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-800">
-                            ✓ Comprobante validado
+                        <div className="mt-0.5">
+                          <span className="text-[10px] font-semibold text-emerald-800">
+                            ✓ Pago validado
                           </span>
                         </div>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <p>{o.customerName}</p>
-                      <p className="text-xs text-[var(--muted)]">
+                      <p className="font-medium text-[var(--wood-950)] leading-tight">
+                        {o.customerName}
+                      </p>
+                      <p className="text-xs text-[var(--muted)] leading-tight mt-0.5">
                         {o.customerEmail}
                         {o.customerPhone ? ` · ${o.customerPhone}` : ""}
                       </p>
                     </td>
-                    <td className="px-4 py-3">{webOrderTypeLabel(o)}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex rounded-md px-2 py-0.5 text-xs font-medium ${
-                          WEB_STATUS_COLORS[o.status] ||
-                          "bg-stone-100 text-stone-700"
-                        }`}
-                      >
-                        {WEB_STATUS_LABEL[o.status] || o.status}
-                      </span>
-                    </td>
-                    <td className="max-w-[180px] px-4 py-3 text-xs text-[var(--muted)]">
-                      <span className="line-clamp-2 whitespace-pre-wrap">
-                        {stripReceiptFromNotes(o.notes).replace(/^\[[^\]]+\]\s*/m, "") || "—"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">{formatCurrency(o.total)}</td>
                     <td className="px-4 py-3 whitespace-nowrap">
+                      <span className="text-xs text-[var(--wood-900)]">
+                        {webOrderTypeLabel(o)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-md px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ${statusBadgeClass}`}
+                      >
+                        {hasReceiptPending && (
+                          <ShieldCheck className="h-3.5 w-3.5 text-amber-700" />
+                        )}
+                        <span>{statusLabel}</span>
+                      </span>
+                    </td>
+                    <td className="max-w-[200px] px-4 py-3 text-xs">
+                      <div className="flex flex-col gap-1">
+                        {isRetiro && (
+                          <span className="inline-flex w-fit items-center rounded bg-stone-100 px-1.5 py-0.5 text-[10px] font-medium text-stone-700">
+                            Retiro en taller
+                          </span>
+                        )}
+                        {isEnvio && (
+                          <span className="inline-flex w-fit items-center rounded bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-700">
+                            Envío a domicilio
+                          </span>
+                        )}
+                        {rawNoteClean ? (
+                          <span className="line-clamp-2 text-[var(--muted)]">
+                            {rawNoteClean}
+                          </span>
+                        ) : (
+                          <span className="text-stone-300">—</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap font-semibold text-[var(--wood-950)]">
+                      {formatCurrency(o.total)}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-xs text-[var(--muted)]">
                       {formatDate(o.createdAt)}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 whitespace-nowrap text-xs">
                       {o.invoice ? (
                         <Link
                           href={`/facturas/${o.invoice.id}`}
-                          className="block underline"
+                          className="font-medium text-[#b0894f] hover:underline"
                         >
                           {o.invoice.number}
                         </Link>
@@ -363,7 +414,7 @@ export default async function PedidosWebPage({
                       {o.quote ? (
                         <Link
                           href={`/cotizaciones/${o.quote.id}`}
-                          className="block underline"
+                          className="font-medium text-[#b0894f] hover:underline"
                         >
                           {o.quote.number}
                         </Link>
@@ -372,76 +423,76 @@ export default async function PedidosWebPage({
                         <span className="text-[var(--muted)]">—</span>
                       ) : null}
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        <Link
-                          href={`/pedidos-web/${o.id}`}
-                          className="rounded-md border border-[var(--border)] bg-white px-2 py-1 text-xs font-medium hover:border-[var(--wood-700)]"
-                        >
-                          Ver
-                        </Link>
-                        {hasReceiptPending && (
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        {hasReceiptPending ? (
                           <Link
                             href={`/pedidos-web/${o.id}#comprobante`}
-                            className="inline-flex items-center gap-1 rounded-md border border-amber-400 bg-amber-500/15 px-2 py-1 text-xs font-bold text-amber-900 hover:bg-amber-500/25 transition shadow-2xs"
-                            title="Ver foto y realizar las 3 confirmaciones"
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 px-2.5 py-1 text-xs font-bold text-white shadow-2xs transition"
+                            title="Revisar foto del comprobante y confirmar los 3 pasos"
                           >
-                            <ShieldCheck className="h-3.5 w-3.5 text-amber-800" />
+                            <ShieldCheck className="h-3.5 w-3.5" />
                             <span>Validar</span>
                           </Link>
+                        ) : (
+                          <Link
+                            href={`/pedidos-web/${o.id}`}
+                            className="rounded-md border border-[var(--border)] bg-white px-2.5 py-1 text-xs font-medium text-[var(--wood-900)] hover:border-[#b0894f] hover:bg-stone-50 transition"
+                          >
+                            Ver
+                          </Link>
                         )}
-                        {wa ? (
+
+                        {wa && (
                           <a
                             href={wa}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-900 hover:bg-emerald-100"
+                            className="inline-flex items-center justify-center rounded-md border border-emerald-300 bg-emerald-50 px-2 py-1 text-[11px] font-semibold text-emerald-800 hover:bg-emerald-100 transition"
+                            title="Contactar al cliente por WhatsApp"
                           >
                             WhatsApp
                           </a>
-                        ) : o.customerEmail ? (
-                          <a
-                            href={`mailto:${o.customerEmail}?subject=${encodeURIComponent(`Pedido ${o.number} · Mudeco Palets`)}`}
-                            className="rounded-md border border-[var(--border)] bg-white px-2 py-1 text-xs font-medium hover:border-[var(--wood-700)]"
-                          >
-                            Email
-                          </a>
-                        ) : null}
-                        {open && o.status !== "IN_PROGRESS" ? (
-                          <form
-                            action={markWebOrderInProgress.bind(null, o.id)}
-                          >
-                            <button
-                              type="submit"
-                              className="rounded-md border border-[#b0894f]/40 bg-[#b0894f]/10 px-2 py-1 text-xs font-medium text-[var(--wood-900)] hover:bg-[#b0894f]/20"
+                        )}
+
+                        {open && (
+                          <div className="inline-flex items-center rounded-md border border-[var(--border)] bg-white p-0.5 shadow-2xs">
+                            {o.status !== "IN_PROGRESS" && (
+                              <form
+                                action={markWebOrderInProgress.bind(null, o.id)}
+                              >
+                                <button
+                                  type="submit"
+                                  className="rounded px-2 py-0.5 text-[11px] font-medium text-[var(--wood-800)] hover:bg-[#b0894f]/15 transition"
+                                  title="Marcar pedido en gestión"
+                                >
+                                  Gestión
+                                </button>
+                              </form>
+                            )}
+                            <form action={markWebOrderDone.bind(null, o.id)}>
+                              <button
+                                type="submit"
+                                className="rounded px-2 py-0.5 text-[11px] font-medium text-emerald-700 hover:bg-emerald-50 transition"
+                                title="Marcar pedido atendido"
+                              >
+                                Listo
+                              </button>
+                            </form>
+                            <ConfirmForm
+                              action={cancelWebOrder.bind(null, o.id)}
+                              message={`¿Cancelar el pedido ${o.number}?`}
                             >
-                              En gestión
-                            </button>
-                          </form>
-                        ) : null}
-                        {open ? (
-                          <form action={markWebOrderDone.bind(null, o.id)}>
-                            <button
-                              type="submit"
-                              className="rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-900 hover:bg-emerald-100"
-                            >
-                              Atendido
-                            </button>
-                          </form>
-                        ) : null}
-                        {open ? (
-                          <ConfirmForm
-                            action={cancelWebOrder.bind(null, o.id)}
-                            message={`¿Cancelar el pedido ${o.number}?`}
-                          >
-                            <button
-                              type="submit"
-                              className="rounded-md border border-red-200 bg-red-50 px-2 py-1 text-xs font-medium text-red-800 hover:bg-red-100"
-                            >
-                              Cancelar
-                            </button>
-                          </ConfirmForm>
-                        ) : null}
+                              <button
+                                type="submit"
+                                className="rounded px-1.5 py-0.5 text-[11px] font-medium text-stone-400 hover:text-red-700 transition"
+                                title="Cancelar pedido"
+                              >
+                                ✕
+                              </button>
+                            </ConfirmForm>
+                          </div>
+                        )}
                       </div>
                     </td>
                   </tr>
