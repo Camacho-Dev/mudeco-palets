@@ -3,13 +3,13 @@
 import { useState, useTransition } from "react";
 import {
   UserCog,
-  ChevronDown,
   CheckCircle2,
   AlertCircle,
   Lock,
   Phone,
   MapPin,
   Mail,
+  X,
 } from "lucide-react";
 import { updateMyAccountAction } from "@/app/(store)/mis-pedidos/actions";
 
@@ -18,11 +18,17 @@ export function AccountSettingsCard({
   email,
   initialPhone = "",
   initialAddress = "",
+  ordersCount = 0,
+  totalPieces = 0,
+  totalSpentFormatted = "RD$0.00",
 }: {
   initialName: string;
   email: string;
   initialPhone?: string;
   initialAddress?: string;
+  ordersCount?: number;
+  totalPieces?: number;
+  totalSpentFormatted?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -31,66 +37,120 @@ export function AccountSettingsCard({
     text: string;
   } | null>(null);
 
+  const initials =
+    initialName
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((p) => p[0]?.toUpperCase() || "")
+      .join("") || email.slice(0, 2).toUpperCase();
+
   return (
     <div
       id="perfil"
-      className="mb-8 scroll-mt-28 overflow-hidden rounded-2xl border border-[#e2d5c5] bg-white shadow-xs"
+      className="scroll-mt-28 overflow-hidden rounded-2xl border border-[#e5dacb] bg-white shadow-xs"
     >
-      <div className="flex flex-wrap items-center justify-between gap-4 px-6 py-5">
-        <div className="flex items-center gap-3.5">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-[#c9a15a]/40 bg-[#14100d] text-sm font-bold text-[#c9a15a]">
-            {initialName
-              .trim()
-              .split(/\s+/)
-              .slice(0, 2)
-              .map((p) => p[0]?.toUpperCase() || "")
-              .join("") || "MP"}
+      {/* Cabecera de la ficha del cliente */}
+      <div className="border-b border-[#f0e8dc] bg-[#14100d] px-6 py-6 text-white">
+        <div className="flex items-center gap-4">
+          <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-full border border-[#c9a15a]/50 bg-[#c9a15a]/15 font-display text-base font-semibold text-[#c9a15a]">
+            {initials}
           </div>
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="font-display text-lg font-bold text-[var(--wood-950)]">
-                {initialName}
-              </p>
-              <span className="rounded-full border border-[#c9a15a]/35 bg-[#faf6f1] px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#8f6a32]">
-                Cliente Verificado
-              </span>
-            </div>
-            <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[var(--muted)]">
-              <span className="inline-flex items-center gap-1.5">
-                <Mail className="h-3.5 w-3.5 text-[#b0894f]" />
-                {email}
-              </span>
-              {initialPhone ? (
-                <span className="inline-flex items-center gap-1.5">
-                  <Phone className="h-3.5 w-3.5 text-[#b0894f]" />
-                  {initialPhone}
-                </span>
-              ) : null}
-              {initialAddress ? (
-                <span className="inline-flex items-center gap-1.5">
-                  <MapPin className="h-3.5 w-3.5 text-[#b0894f]" />
-                  {initialAddress}
-                </span>
-              ) : null}
-            </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#c9a15a]">
+              Ficha de Cliente
+            </p>
+            <h2 className="mt-0.5 truncate font-display text-xl font-semibold text-white">
+              {initialName}
+            </h2>
+            <p className="truncate text-xs text-white/60">{email}</p>
           </div>
         </div>
 
+        {/* Resumen ejecutivo integrado */}
+        <div className="mt-5 grid grid-cols-3 divide-x divide-white/10 rounded-xl border border-white/10 bg-white/[0.03] py-3 text-center">
+          <div className="px-2">
+            <p className="text-[10px] uppercase tracking-wider text-white/45">
+              Pedidos
+            </p>
+            <p className="mt-0.5 font-mono text-sm font-semibold text-white">
+              {ordersCount}
+            </p>
+          </div>
+          <div className="px-2">
+            <p className="text-[10px] uppercase tracking-wider text-white/45">
+              Muebles
+            </p>
+            <p className="mt-0.5 font-mono text-sm font-semibold text-white">
+              {totalPieces}
+            </p>
+          </div>
+          <div className="px-2">
+            <p className="text-[10px] uppercase tracking-wider text-white/45">
+              Invertido
+            </p>
+            <p className="mt-0.5 truncate font-mono text-xs font-semibold text-[#c9a15a]">
+              {totalSpentFormatted}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Datos de contacto actuales */}
+      <div className="divide-y divide-[#f2ece2] px-6 py-4 text-xs">
+        <div className="flex items-center justify-between gap-3 py-2.5">
+          <span className="flex items-center gap-2 text-[var(--muted)]">
+            <Mail className="h-3.5 w-3.5 text-[#b0894f]" />
+            <span>Correo</span>
+          </span>
+          <span className="truncate font-medium text-[var(--wood-950)]">
+            {email}
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between gap-3 py-2.5">
+          <span className="flex items-center gap-2 text-[var(--muted)]">
+            <Phone className="h-3.5 w-3.5 text-[#b0894f]" />
+            <span>Teléfono</span>
+          </span>
+          <span className="font-medium text-[var(--wood-950)]">
+            {initialPhone || "No registrado"}
+          </span>
+        </div>
+
+        <div className="flex items-start justify-between gap-4 py-2.5">
+          <span className="flex shrink-0 items-center gap-2 text-[var(--muted)]">
+            <MapPin className="h-3.5 w-3.5 text-[#b0894f]" />
+            <span>Dirección</span>
+          </span>
+          <span className="text-right font-medium text-[var(--wood-950)]">
+            {initialAddress || "No registrada"}
+          </span>
+        </div>
+      </div>
+
+      {/* Botón para abrir/cerrar edición */}
+      <div className="border-t border-[#f0e8dc] bg-[#faf7f2] px-6 py-3.5">
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="inline-flex items-center gap-2 rounded-xl border border-[#dfd2c0] bg-[#faf6f1] px-4 py-2.5 text-xs font-bold uppercase tracking-[0.12em] text-[var(--wood-900)] transition hover:border-[#b0894f] hover:bg-white cursor-pointer"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#dfd2c0] bg-white px-4 py-2.5 text-xs font-semibold text-[var(--wood-900)] transition hover:border-[#b0894f] cursor-pointer"
         >
-          <UserCog className="h-4 w-4 text-[#b0894f]" />
-          <span>{open ? "Ocultar edición" : "Editar mi perfil y clave"}</span>
-          <ChevronDown
-            className={`h-4 w-4 transition-transform duration-200 ${
-              open ? "rotate-180" : ""
-            }`}
-          />
+          {open ? (
+            <>
+              <X className="h-3.5 w-3.5 text-[var(--muted)]" />
+              <span>Cerrar edición</span>
+            </>
+          ) : (
+            <>
+              <UserCog className="h-3.5 w-3.5 text-[#b0894f]" />
+              <span>Editar datos o contraseña</span>
+            </>
+          )}
         </button>
       </div>
 
+      {/* Formulario desplegable de edición */}
       {open && (
         <form
           onSubmit={(e) => {
@@ -121,86 +181,75 @@ export function AccountSettingsCard({
               }
             });
           }}
-          className="border-t border-[#efe6d8] bg-[#faf7f2]/70 px-6 py-5 space-y-4"
+          className="border-t border-[#efe6d8] bg-[#faf7f2]/80 px-6 py-5 space-y-3.5"
         >
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <div>
-              <label className="mb-1.5 block text-[0.68rem] font-bold tracking-[0.14em] text-[var(--wood-900)] uppercase">
-                Nombre completo
-              </label>
-              <input
-                name="name"
-                defaultValue={initialName}
-                required
-                minLength={2}
-                maxLength={100}
-                placeholder="Tu nombre y apellido"
-                className="w-full rounded-xl border border-[#dfd2c0] bg-white px-3.5 py-2.5 text-sm text-[var(--wood-950)] focus:border-[#c9a15a] focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1.5 flex items-center gap-1 text-[0.68rem] font-bold tracking-[0.14em] text-[var(--wood-900)] uppercase">
-                <Phone className="h-3 w-3 text-[#b0894f]" />
-                Teléfono / WhatsApp
-              </label>
-              <input
-                name="phone"
-                defaultValue={initialPhone}
-                maxLength={40}
-                placeholder="Ej. 809-555-0000"
-                className="w-full rounded-xl border border-[#dfd2c0] bg-white px-3.5 py-2.5 text-sm text-[var(--wood-950)] focus:border-[#c9a15a] focus:outline-none"
-              />
-            </div>
-
-            <div className="sm:col-span-2 lg:col-span-1">
-              <label className="mb-1.5 flex items-center gap-1 text-[0.68rem] font-bold tracking-[0.14em] text-[var(--wood-900)] uppercase">
-                <MapPin className="h-3 w-3 text-[#b0894f]" />
-                Dirección de entrega habitual
-              </label>
-              <input
-                name="address"
-                defaultValue={initialAddress}
-                maxLength={200}
-                placeholder="Sector, calle, número, ciudad..."
-                className="w-full rounded-xl border border-[#dfd2c0] bg-white px-3.5 py-2.5 text-sm text-[var(--wood-950)] focus:border-[#c9a15a] focus:outline-none"
-              />
-            </div>
+          <div>
+            <label className="mb-1 block text-[11px] font-semibold text-[var(--wood-900)]">
+              Nombre completo
+            </label>
+            <input
+              name="name"
+              defaultValue={initialName}
+              required
+              minLength={2}
+              maxLength={100}
+              placeholder="Tu nombre y apellido"
+              className="w-full rounded-xl border border-[#dfd2c0] bg-white px-3.5 py-2 text-xs text-[var(--wood-950)] focus:border-[#c9a15a] focus:outline-none"
+            />
           </div>
 
-          <div className="grid gap-4 border-t border-[#efe6d8] pt-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-1.5 flex items-center gap-1 text-[0.68rem] font-bold tracking-[0.14em] text-[var(--wood-900)] uppercase">
-                <Lock className="h-3 w-3 text-[#b0894f]" />
-                Contraseña actual (opcional)
-              </label>
-              <input
-                name="currentPassword"
-                type="password"
-                autoComplete="current-password"
-                placeholder="Solo si deseas cambiar tu clave"
-                className="w-full rounded-xl border border-[#dfd2c0] bg-white px-3.5 py-2.5 text-sm text-[var(--wood-950)] focus:border-[#c9a15a] focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="mb-1.5 block text-[0.68rem] font-bold tracking-[0.14em] text-[var(--wood-900)] uppercase">
-                Nueva contraseña (opcional)
-              </label>
-              <input
-                name="newPassword"
-                type="password"
-                autoComplete="new-password"
-                minLength={6}
-                maxLength={128}
-                placeholder="Mínimo 6 caracteres"
-                className="w-full rounded-xl border border-[#dfd2c0] bg-white px-3.5 py-2.5 text-sm text-[var(--wood-950)] focus:border-[#c9a15a] focus:outline-none"
-              />
-            </div>
+          <div>
+            <label className="mb-1 block text-[11px] font-semibold text-[var(--wood-900)]">
+              Teléfono / WhatsApp
+            </label>
+            <input
+              name="phone"
+              defaultValue={initialPhone}
+              maxLength={40}
+              placeholder="Ej. 809-555-0000"
+              className="w-full rounded-xl border border-[#dfd2c0] bg-white px-3.5 py-2 text-xs text-[var(--wood-950)] focus:border-[#c9a15a] focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-[11px] font-semibold text-[var(--wood-900)]">
+              Dirección de entrega habitual
+            </label>
+            <input
+              name="address"
+              defaultValue={initialAddress}
+              maxLength={200}
+              placeholder="Sector, calle, número, ciudad..."
+              className="w-full rounded-xl border border-[#dfd2c0] bg-white px-3.5 py-2 text-xs text-[var(--wood-950)] focus:border-[#c9a15a] focus:outline-none"
+            />
+          </div>
+
+          <div className="border-t border-[#e8decb] pt-3 space-y-3">
+            <p className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--wood-900)]">
+              <Lock className="h-3 w-3 text-[#b0894f]" />
+              <span>Cambiar contraseña (opcional)</span>
+            </p>
+            <input
+              name="currentPassword"
+              type="password"
+              autoComplete="current-password"
+              placeholder="Contraseña actual"
+              className="w-full rounded-xl border border-[#dfd2c0] bg-white px-3.5 py-2 text-xs text-[var(--wood-950)] focus:border-[#c9a15a] focus:outline-none"
+            />
+            <input
+              name="newPassword"
+              type="password"
+              autoComplete="new-password"
+              minLength={6}
+              maxLength={128}
+              placeholder="Nueva contraseña (mín. 6 caracteres)"
+              className="w-full rounded-xl border border-[#dfd2c0] bg-white px-3.5 py-2 text-xs text-[var(--wood-950)] focus:border-[#c9a15a] focus:outline-none"
+            />
           </div>
 
           {feedback && (
             <div
-              className={`flex items-center gap-2 rounded-xl border px-3.5 py-2.5 text-xs font-medium ${
+              className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-medium ${
                 feedback.type === "ok"
                   ? "border-emerald-200 bg-emerald-50 text-emerald-800"
                   : "border-rose-200 bg-rose-50 text-rose-800"
@@ -215,15 +264,13 @@ export function AccountSettingsCard({
             </div>
           )}
 
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={pending}
-              className="rounded-xl bg-[#14100d] px-5 py-2.5 text-xs font-bold tracking-[0.14em] text-[#c9a15a] uppercase transition hover:bg-[#241d17] disabled:opacity-50 cursor-pointer"
-            >
-              {pending ? "Guardando..." : "Guardar cambios de perfil"}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={pending}
+            className="w-full rounded-xl bg-[#14100d] px-4 py-2.5 text-xs font-semibold tracking-wider text-[#c9a15a] uppercase transition hover:bg-[#241d17] disabled:opacity-50 cursor-pointer"
+          >
+            {pending ? "Guardando..." : "Guardar cambios"}
+          </button>
         </form>
       )}
     </div>

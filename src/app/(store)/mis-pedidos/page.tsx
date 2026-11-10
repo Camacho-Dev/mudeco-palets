@@ -11,18 +11,16 @@ import {
   FileDown,
   ArrowRight,
   ShoppingBag,
-  Sparkles,
   CheckCircle2,
   Upload,
-  Receipt,
   MapPin,
-  Layers,
+  Clock,
 } from "lucide-react";
 
 export const metadata = {
-  title: "Mi Perfil e Historial de Compras · Mudeco Palets",
+  title: "Mi Cuenta · Mudeco Palets",
   description:
-    "Consulta la información de tu perfil, tu historial completo de compras, cotizaciones y facturas en Mudeco Palets.",
+    "Consulta la información de tu perfil, tu historial de compras y tus facturas en Mudeco Palets.",
 };
 
 export default async function MisPedidosPage() {
@@ -52,30 +50,17 @@ export default async function MisPedidosPage() {
     }),
   ]);
 
-  const rawName = dbUser?.name || session.user.name || "";
-  const latestOrderWithName = orders.find(
-    (o) =>
-      o.customerName &&
-      o.customerName.trim().toLowerCase() !== "administrador" &&
-      o.customerName.trim().length > 1,
-  );
+  const rawName = (dbUser?.name || session.user.name || "").trim();
   const displayName =
-    rawName.trim().toLowerCase() === "administrador"
-      ? latestOrderWithName?.customerName ||
-        email.split("@")[0].charAt(0).toUpperCase() +
-          email.split("@")[0].slice(1)
-      : rawName || "Cliente";
+    rawName && rawName.toLowerCase() !== "administrador"
+      ? rawName
+      : email.split("@")[0].toLowerCase() === "admin"
+        ? "Titular de Cuenta"
+        : email.split("@")[0].charAt(0).toUpperCase() +
+          email.split("@")[0].slice(1);
 
-  const phone =
-    dbUser?.phone ||
-    orders.find((o) => o.customerPhone && o.customerPhone.trim().length > 0)
-      ?.customerPhone ||
-    "";
-  const address =
-    dbUser?.address ||
-    orders.find((o) => o.customerAddress && o.customerAddress.trim().length > 0)
-      ?.customerAddress ||
-    "";
+  const phone = dbUser?.phone || "";
+  const address = dbUser?.address || "";
 
   const validOrders = orders.filter((o) => o.status !== "CANCELLED");
   const totalSpent = validOrders.reduce((acc, o) => acc + (o.total || 0), 0);
@@ -86,300 +71,270 @@ export default async function MisPedidosPage() {
   );
 
   return (
-    <div className="min-h-screen bg-[#faf7f2]">
-      {/* Banner superior consistente con Catálogo y Contacto */}
-      <div className="relative overflow-hidden border-b border-[#c9a15a]/25 bg-[#14100d] text-[#faf6f1]">
-        <div className="relative mx-auto max-w-[1760px] px-4 py-12 sm:px-8 lg:px-12 xl:px-16">
-          <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="min-h-screen bg-[#f8f5ef]">
+      {/* Cabecera ejecutiva compacta */}
+      <div className="border-b border-[#c9a15a]/20 bg-[#14100d] text-[#faf6f1]">
+        <div className="mx-auto max-w-[1360px] px-4 py-8 sm:px-8 lg:px-10">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/35 bg-[#c9a15a]/10 px-3.5 py-1 text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a] uppercase">
-                <Sparkles className="h-3 w-3" />
-                Mi Perfil de Cliente
-              </div>
-              <h1 className="font-display mt-3 text-3xl sm:text-4xl md:text-5xl text-white">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#c9a15a]">
+                Espacio de Cliente
+              </p>
+              <h1 className="mt-1 font-display text-2xl sm:text-3xl text-white">
                 Mi Perfil e Historial de Compras
               </h1>
-              <p className="mt-1.5 text-sm text-white/70">
-                Información personal, muebles adquiridos y facturas asociadas a{" "}
-                <span className="font-semibold text-[#c9a15a]">
-                  {session.user.email}
-                </span>
-              </p>
             </div>
 
             <Link
               href="/catalogo"
-              className="inline-flex items-center gap-2 rounded-xl border border-[#c9a15a] bg-[#c9a15a] px-5 py-2.5 text-xs font-bold tracking-[0.14em] text-[#0a0a0a] uppercase transition hover:bg-[#d4b06e]"
+              className="inline-flex items-center gap-2 rounded-xl border border-[#c9a15a]/40 bg-[#c9a15a]/10 px-4 py-2 text-xs font-semibold tracking-wider text-[#c9a15a] uppercase transition hover:bg-[#c9a15a] hover:text-[#0f0f0f]"
             >
-              <ShoppingBag className="h-4 w-4" />
-              <span>Ir al Catálogo</span>
+              <ShoppingBag className="h-3.5 w-3.5" />
+              <span>Explorar Catálogo</span>
             </Link>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-8">
-        {/* Tarjeta de Perfil y Edición de Datos */}
-        <AccountSettingsCard
-          initialName={displayName}
-          email={session.user.email}
-          initialPhone={phone}
-          initialAddress={address}
-        />
-
-        {/* KPIs de Resumen de Compras del Cliente */}
-        <div className="mb-8 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl border border-[#e2d5c5] bg-white p-5 shadow-xs">
-            <div className="flex items-center justify-between">
-              <span className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--muted)]">
-                Compras Realizadas
-              </span>
-              <Package className="h-4 w-4 text-[#b0894f]" />
-            </div>
-            <p className="mt-2 font-display text-2xl font-bold text-[var(--wood-950)]">
-              {orders.length}{" "}
-              <span className="text-sm font-normal text-[var(--muted)]">
-                {orders.length === 1 ? "orden registrada" : "órdenes registradas"}
-              </span>
-            </p>
+      {/* Layout profesional de 2 columnas */}
+      <div className="mx-auto max-w-[1360px] px-4 py-8 sm:px-8 lg:px-10">
+        <div className="grid items-start gap-8 lg:grid-cols-12">
+          {/* Columna izquierda: Ficha del Perfil (Sticky) */}
+          <div className="lg:col-span-4 lg:sticky lg:top-28">
+            <AccountSettingsCard
+              initialName={displayName}
+              email={session.user.email}
+              initialPhone={phone}
+              initialAddress={address}
+              ordersCount={orders.length}
+              totalPieces={totalPieces}
+              totalSpentFormatted={formatCurrency(totalSpent)}
+            />
           </div>
 
-          <div className="rounded-2xl border border-[#e2d5c5] bg-white p-5 shadow-xs">
-            <div className="flex items-center justify-between">
-              <span className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--muted)]">
-                Muebles Adquiridos
-              </span>
-              <Layers className="h-4 w-4 text-[#b0894f]" />
+          {/* Columna derecha: Historial de Compras */}
+          <div id="historial" className="lg:col-span-8 scroll-mt-28">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <h2 className="font-display text-xl font-semibold text-[var(--wood-950)]">
+                  Historial de Compras
+                </h2>
+                <p className="text-xs text-[var(--muted)]">
+                  {orders.length === 0
+                    ? "Tus compras y cotizaciones aparecerán aquí"
+                    : `${orders.length} ${
+                        orders.length === 1
+                          ? "orden registrada en tu cuenta"
+                          : "órdenes registradas en tu cuenta"
+                      }`}
+                </p>
+              </div>
             </div>
-            <p className="mt-2 font-display text-2xl font-bold text-[var(--wood-950)]">
-              {totalPieces}{" "}
-              <span className="text-sm font-normal text-[var(--muted)]">
-                {totalPieces === 1 ? "pieza artesanal" : "piezas artesanales"}
-              </span>
-            </p>
-          </div>
 
-          <div className="rounded-2xl border border-[#e2d5c5] bg-white p-5 shadow-xs">
-            <div className="flex items-center justify-between">
-              <span className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[var(--muted)]">
-                Total Comprado
-              </span>
-              <Receipt className="h-4 w-4 text-[#b0894f]" />
-            </div>
-            <p className="mt-2 font-mono text-2xl font-bold text-[#8a6a3a]">
-              {formatCurrency(totalSpent)}
-            </p>
-          </div>
-        </div>
+            {orders.length === 0 ? (
+              <div className="rounded-2xl border border-[#e5dacb] bg-white p-12 text-center shadow-xs space-y-4">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-[#e5d8c8] bg-[#faf6f1] text-[#b0894f]">
+                  <Package className="h-5 w-5" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="font-display text-xl text-[var(--wood-950)]">
+                    Aún no registras compras
+                  </h3>
+                  <p className="mx-auto max-w-md text-xs text-[var(--muted)]">
+                    Cuando adquieras un mueble del catálogo o solicites una
+                    cotización a medida, podrás consultar su estado y descargar
+                    tu factura desde aquí.
+                  </p>
+                </div>
+                <div className="pt-2">
+                  <Link
+                    href="/catalogo"
+                    className="inline-flex items-center gap-2 rounded-xl bg-[#14100d] px-5 py-2.5 text-xs font-semibold tracking-wider text-[#c9a15a] uppercase transition hover:bg-[#241d17]"
+                  >
+                    <span>Ver Catálogo</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {orders.map((order) => {
+                  const statusLabel =
+                    WEB_STATUS_LABEL[order.status] || order.status;
+                  const isPaid =
+                    order.status === "PAID" ||
+                    order.status === "DONE" ||
+                    order.invoice?.status === "PAID";
+                  const isCancelled = order.status === "CANCELLED";
+                  const isTransfer = Boolean(
+                    order.notes?.includes("Transferencia bancaria") ||
+                      order.notes?.includes("[Pago: Transferencia bancaria]"),
+                  );
+                  const receipt = extractReceiptFromNotes(order.notes);
+                  const kindLabel = webOrderTypeLabel(order);
 
-        {/* Sección de Historial de lo que ha comprado */}
-        <div id="historial" className="mb-4 flex items-center justify-between scroll-mt-28">
-          <div>
-            <h2 className="font-display text-2xl font-bold text-[var(--wood-950)]">
-              Historial de lo que has comprado
-            </h2>
-            <p className="text-xs text-[var(--muted)]">
-              Detalle de cada pedido, artículos comprados, estado de entrega y comprobantes.
-            </p>
-          </div>
-        </div>
-
-        {orders.length === 0 ? (
-          <div className="rounded-2xl border border-[#e2d5c5] bg-white p-12 text-center shadow-xs space-y-4">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-[#e5d8c8] bg-[#faf6f1] text-[#b0894f]">
-              <Package className="h-6 w-6" />
-            </div>
-            <h2 className="font-display text-2xl text-[var(--wood-950)]">
-              Aún no tienes compras registradas
-            </h2>
-            <p className="mx-auto max-w-md text-sm text-[var(--muted)]">
-              Explora nuestro catálogo de muebles de madera recuperada o
-              solicita una cotización a medida para tu hogar o negocio.
-            </p>
-            <div className="pt-2">
-              <Link
-                href="/catalogo"
-                className="store-cta store-cta-primary rounded-xl"
-              >
-                <span>Ver Catálogo</span>
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-5">
-            {orders.map((order) => {
-              const statusLabel =
-                WEB_STATUS_LABEL[order.status] || order.status;
-              const isPaid =
-                order.status === "PAID" ||
-                order.status === "DONE" ||
-                order.invoice?.status === "PAID";
-              const isCancelled = order.status === "CANCELLED";
-              const isTransfer = Boolean(
-                order.notes?.includes("Transferencia bancaria") ||
-                  order.notes?.includes("[Pago: Transferencia bancaria]"),
-              );
-              const receipt = extractReceiptFromNotes(order.notes);
-              const kindLabel = webOrderTypeLabel(order);
-
-              return (
-                <div
-                  key={order.id}
-                  className="rounded-2xl border border-[#e2d5c5] bg-white p-6 shadow-xs transition hover:border-[#b0894f]"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-4 border-b border-[#efe6d8] pb-4">
-                    <div className="space-y-1.5">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-mono text-sm font-bold text-[var(--wood-950)]">
-                          {order.number}
-                        </span>
-                        <span className="rounded-md bg-[#faf6f1] border border-[#e5d8c8] px-2 py-0.5 text-[11px] font-medium text-[var(--wood-800)]">
-                          {kindLabel}
-                        </span>
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
-                            isPaid
-                              ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                              : isCancelled
-                                ? "bg-rose-50 text-rose-800 border border-rose-200"
-                                : "bg-amber-50 text-amber-900 border border-amber-200"
-                          }`}
-                        >
-                          {statusLabel}
-                        </span>
-                        {isTransfer && !isCancelled ? (
-                          receipt ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800 border border-emerald-200">
-                              <CheckCircle2 className="h-3 w-3 text-emerald-600" />
-                              Comprobante subido
-                            </span>
-                          ) : !isPaid ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100/80 px-2.5 py-0.5 text-[11px] font-semibold text-amber-900">
-                              Pendiente de comprobante
-                            </span>
-                          ) : null
-                        ) : null}
-                        <span className="text-xs text-[var(--muted)]">
-                          · {formatDate(order.createdAt)}
-                        </span>
-                      </div>
-
-                      {order.customerAddress ? (
-                        <p className="flex items-center gap-1.5 text-xs text-[var(--muted)]">
-                          <MapPin className="h-3.5 w-3.5 text-[#b0894f]" />
-                          <span>Entrega: {order.customerAddress}</span>
-                        </p>
-                      ) : null}
-                    </div>
-
-                    {order.total > 0 ? (
-                      <div className="text-right">
-                        <p className="text-[11px] uppercase tracking-wider text-[var(--muted)]">
-                          Total de la compra
-                        </p>
-                        <p className="font-mono text-lg font-bold text-[#8a6a3a]">
-                          {formatCurrency(order.total)}
-                        </p>
-                      </div>
-                    ) : null}
-                  </div>
-
-                  {/* Tabla de artículos comprados en este pedido */}
-                  {order.items.length > 0 ? (
-                    <div className="mt-4 overflow-hidden rounded-xl border border-[#efe6d8] bg-[#faf7f2]/60">
-                      <div className="grid grid-cols-12 border-b border-[#efe6d8] bg-[#f4ede2]/70 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--wood-800)]">
-                        <div className="col-span-7 sm:col-span-6">
-                          Mueble / Producto comprado
-                        </div>
-                        <div className="col-span-2 text-center">Cant.</div>
-                        <div className="hidden sm:col-span-2 sm:block text-right">
-                          Precio Unit.
-                        </div>
-                        <div className="col-span-3 sm:col-span-2 text-right">
-                          Subtotal
-                        </div>
-                      </div>
-                      <div className="divide-y divide-[#efe6d8]">
-                        {order.items.map((item) => (
-                          <div
-                            key={item.id}
-                            className="grid grid-cols-12 items-center px-4 py-2.5 text-xs"
-                          >
-                            <div className="col-span-7 sm:col-span-6 font-medium text-[var(--wood-950)] pr-2">
-                              {item.description}
-                            </div>
-                            <div className="col-span-2 text-center font-mono text-[var(--wood-800)]">
-                              {item.quantity}
-                            </div>
-                            <div className="hidden sm:col-span-2 sm:block text-right font-mono text-[var(--muted)]">
-                              {formatCurrency(item.unitPrice)}
-                            </div>
-                            <div className="col-span-3 sm:col-span-2 text-right font-mono font-semibold text-[var(--wood-950)]">
-                              {formatCurrency(item.lineTotal)}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ) : null}
-
-                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      {order.invoice ? (
-                        isPaid ? (
-                          <a
-                            href={`/api/facturas/${order.invoice.id}/pdf?orderId=${order.id}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border)] bg-[#faf7f2] px-3.5 py-2 text-xs font-semibold text-[var(--wood-900)] transition hover:border-[#b0894f] hover:bg-white"
-                          >
-                            <FileDown className="h-3.5 w-3.5 text-[#b0894f]" />
-                            <span>Factura PDF ({order.invoice.number})</span>
-                          </a>
-                        ) : (
-                          <span className="inline-flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50/70 px-3 py-1.5 text-[11px] font-medium text-amber-900">
-                            <span>Factura disponible al confirmar pago</span>
+                  return (
+                    <article
+                      key={order.id}
+                      className="overflow-hidden rounded-2xl border border-[#e5dacb] bg-white shadow-xs transition hover:border-[#cdb89c]"
+                    >
+                      {/* Cabecera sobria de la orden */}
+                      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f0e8dc] bg-[#faf7f2] px-5 py-3.5">
+                        <div className="flex flex-wrap items-center gap-2.5">
+                          <span className="font-mono text-xs font-bold text-[var(--wood-950)]">
+                            {order.number}
                           </span>
-                        )
-                      ) : null}
+                          <span className="text-xs text-[#cbbba4]">·</span>
+                          <span className="text-xs text-[var(--muted)]">
+                            {formatDate(order.createdAt)}
+                          </span>
+                          <span className="text-xs text-[#cbbba4]">·</span>
+                          <span className="text-xs font-medium text-[var(--wood-800)]">
+                            {kindLabel}
+                          </span>
+                        </div>
 
-                      {order.quote ? (
-                        <a
-                          href={`/api/cotizaciones/${order.quote.id}/pdf?orderId=${order.id}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--border)] bg-[#faf7f2] px-3.5 py-2 text-xs font-semibold text-[var(--wood-900)] transition hover:border-[#b0894f] hover:bg-white"
-                        >
-                          <FileDown className="h-3.5 w-3.5 text-[#b0894f]" />
-                          <span>Cotización PDF ({order.quote.number})</span>
-                        </a>
-                      ) : null}
+                        <div className="flex items-center gap-3">
+                          <span
+                            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
+                              isPaid
+                                ? "bg-emerald-50 text-emerald-800 border border-emerald-200/80"
+                                : isCancelled
+                                  ? "bg-rose-50 text-rose-800 border border-rose-200/80"
+                                  : "bg-[#f5ebd9] text-[#7a5824] border border-[#e3cfa8]"
+                            }`}
+                          >
+                            <span
+                              className={`h-1.5 w-1.5 rounded-full ${
+                                isPaid
+                                  ? "bg-emerald-600"
+                                  : isCancelled
+                                    ? "bg-rose-600"
+                                    : "bg-[#b0894f]"
+                              }`}
+                            />
+                            {statusLabel}
+                          </span>
 
-                      {isTransfer && !receipt && !isPaid && !isCancelled ? (
+                          {order.total > 0 && (
+                            <span className="font-mono text-sm font-bold text-[var(--wood-950)]">
+                              {formatCurrency(order.total)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Cuerpo: Artículos comprados */}
+                      <div className="px-5 py-4">
+                        {order.items.length > 0 ? (
+                          <div className="divide-y divide-[#f3ede3]">
+                            {order.items.map((item) => (
+                              <div
+                                key={item.id}
+                                className="flex items-center justify-between gap-4 py-2.5 first:pt-0 last:pb-0"
+                              >
+                                <div className="flex items-center gap-3 min-w-0">
+                                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[#e8decb] bg-[#faf7f2] font-mono text-xs font-semibold text-[var(--wood-800)]">
+                                    {item.quantity}x
+                                  </span>
+                                  <div className="min-w-0">
+                                    <p className="truncate text-xs sm:text-sm font-medium text-[var(--wood-950)]">
+                                      {item.description}
+                                    </p>
+                                    {item.quantity > 1 && (
+                                      <p className="font-mono text-[11px] text-[var(--muted)]">
+                                        {formatCurrency(item.unitPrice)} c/u
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                                <span className="shrink-0 font-mono text-xs sm:text-sm font-semibold text-[var(--wood-900)]">
+                                  {formatCurrency(item.lineTotal)}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-xs text-[var(--muted)]">
+                            Solicitud de cotización personalizada
+                          </p>
+                        )}
+
+                        {order.customerAddress && (
+                          <div className="mt-3 flex items-center gap-1.5 border-t border-[#f3ede3] pt-2.5 text-xs text-[var(--muted)]">
+                            <MapPin className="h-3.5 w-3.5 shrink-0 text-[#b0894f]" />
+                            <span>Dirección de entrega: {order.customerAddress}</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Pie de acciones de la orden */}
+                      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#f0e8dc] bg-[#fcfaf7] px-5 py-3">
+                        <div className="flex flex-wrap items-center gap-2 text-xs">
+                          {isTransfer && !isCancelled ? (
+                            receipt ? (
+                              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700">
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                                <span>Comprobante bancario adjuntado</span>
+                              </span>
+                            ) : !isPaid ? (
+                              <Link
+                                href={`/pedido/${order.id}`}
+                                className="inline-flex items-center gap-1.5 rounded-lg border border-[#d6b782] bg-[#faf2e3] px-3 py-1.5 text-xs font-semibold text-[#7a561e] transition hover:bg-[#f3e5ca]"
+                              >
+                                <Upload className="h-3.5 w-3.5" />
+                                <span>Adjuntar comprobante</span>
+                              </Link>
+                            ) : null
+                          ) : null}
+
+                          {order.invoice ? (
+                            isPaid ? (
+                              <a
+                                href={`/api/facturas/${order.invoice.id}/pdf?orderId=${order.id}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="inline-flex items-center gap-1.5 rounded-lg border border-[#dfd2c0] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--wood-900)] transition hover:border-[#b0894f]"
+                              >
+                                <FileDown className="h-3.5 w-3.5 text-[#b0894f]" />
+                                <span>Factura PDF ({order.invoice.number})</span>
+                              </a>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 text-[11px] text-[var(--muted)]">
+                                <Clock className="h-3.5 w-3.5 text-[#b0894f]" />
+                                <span>Factura disponible al validar pago</span>
+                              </span>
+                            )
+                          ) : null}
+
+                          {order.quote && (
+                            <a
+                              href={`/api/cotizaciones/${order.quote.id}/pdf?orderId=${order.id}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-[#dfd2c0] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--wood-900)] transition hover:border-[#b0894f]"
+                            >
+                              <FileDown className="h-3.5 w-3.5 text-[#b0894f]" />
+                              <span>Cotización PDF ({order.quote.number})</span>
+                            </a>
+                          )}
+                        </div>
+
                         <Link
                           href={`/pedido/${order.id}`}
-                          className="inline-flex items-center gap-1.5 rounded-xl bg-amber-600 px-3.5 py-2 text-xs font-semibold text-white transition hover:bg-amber-700"
+                          className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-[#14100d] px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-[#2a211b]"
                         >
-                          <Upload className="h-3.5 w-3.5" />
-                          <span>Subir comprobante bancario</span>
+                          <span>Ver pedido</span>
+                          <ArrowRight className="h-3.5 w-3.5 text-[#c9a15a]" />
                         </Link>
-                      ) : null}
-                    </div>
-
-                    <Link
-                      href={`/pedido/${order.id}`}
-                      className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--wood-900)] bg-[var(--wood-900)] px-4 py-2 text-xs font-semibold text-white transition hover:bg-[var(--wood-800)]"
-                    >
-                      <span>Ver detalles del pedido</span>
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
