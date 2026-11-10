@@ -3,10 +3,27 @@ import { NextResponse } from "next/server";
 import { isAdminPath, isPublicPath } from "@/lib/sensitive";
 import { homeForRole, isAdmin, isStaff } from "@/lib/rbac";
 
+const isProd = process.env.NODE_ENV === "production";
+
 /** Config Edge-compatible (sin Prisma/bcrypt) para middleware */
 export const authConfig = {
   trustHost: true,
-  session: { strategy: "jwt", maxAge: 12 * 60 * 60 },
+  session: {
+    strategy: "jwt",
+    maxAge: 12 * 60 * 60, // 12 horas
+    updateAge: 60 * 60, // rotación cada 1 hora
+  },
+  cookies: {
+    sessionToken: {
+      name: isProd ? "__Secure-authjs.session-token" : "authjs.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: isProd,
+      },
+    },
+  },
   pages: {
     signIn: "/login",
   },
@@ -30,6 +47,7 @@ export const authConfig = {
       const pathname = request.nextUrl.pathname;
       const isLoggedIn = !!auth;
       const isLogin = pathname.startsWith("/login");
+      const isAuthApi = pathname.startsWith("/api/auth");
       const isStripeWebhook = pathname.startsWith("/api/stripe/webhook");
       const isInvoicePdf =
         pathname.startsWith("/api/facturas/") && pathname.endsWith("/pdf");
@@ -39,7 +57,9 @@ export const authConfig = {
         (auth?.user as { role?: string } | undefined)?.role ||
         (auth as { role?: string } | null)?.role;
 
-      if (isStripeWebhook || isInvoicePdf || isQuotePdf) return true;
+      if (isAuthApi || isStripeWebhook || isInvoicePdf || isQuotePdf) {
+        return true;
+      }
 
       if (isPublicPath(pathname) || isLogin) {
         if (isLoggedIn && isLogin) {

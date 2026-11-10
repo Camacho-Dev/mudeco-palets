@@ -2,16 +2,17 @@
 
 import bcrypt from "bcryptjs";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/lib/auth";
+import { getVerifiedApiSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { checkDualRateLimit } from "@/lib/rate-limit";
+import { writeAudit } from "@/lib/audit";
 
 export async function updateMyAccountAction(formData: FormData): Promise<{
   ok: boolean;
   message?: string;
   error?: string;
 }> {
-  const session = await auth();
+  const session = await getVerifiedApiSession();
   if (!session?.user?.email) {
     return { ok: false, error: "Debes iniciar sesión." };
   }
@@ -31,9 +32,17 @@ export async function updateMyAccountAction(formData: FormData): Promise<{
     };
   }
 
-  const name = String(formData.get("name") || "").trim();
-  const phone = String(formData.get("phone") || "").trim();
-  const address = String(formData.get("address") || "").trim();
+  const name = String(formData.get("name") || "")
+    .replace(/[<>]/g, "")
+    .trim();
+  const phone = String(formData.get("phone") || "")
+    .replace(/[<>]/g, "")
+    .trim()
+    .slice(0, 40);
+  const address = String(formData.get("address") || "")
+    .replace(/[<>]/g, "")
+    .trim()
+    .slice(0, 250);
   const currentPassword = String(formData.get("currentPassword") || "");
   const newPassword = String(formData.get("newPassword") || "");
 
@@ -95,6 +104,18 @@ export async function updateMyAccountAction(formData: FormData): Promise<{
     })
     .catch(() => null);
 
+  await writeAudit({
+    action: updateData.passwordHash ? "PASSWORD_CHANGE" : "ACCOUNT_UPDATE",
+    entity: "User",
+    entityId: user.id,
+    summary: updateData.passwordHash
+      ? `Perfil y contraseña actualizados por ${user.email}`
+      : `Datos de perfil actualizados por ${user.email}`,
+    userId: user.id,
+    userEmail: user.email,
+    userName: name,
+  }).catch(() => undefined);
+
   revalidatePath("/", "layout");
   revalidatePath("/mis-pedidos");
   return {
@@ -104,4 +125,3 @@ export async function updateMyAccountAction(formData: FormData): Promise<{
       : "Datos de tu perfil actualizados correctamente.",
   };
 }
-

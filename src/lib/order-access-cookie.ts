@@ -3,13 +3,12 @@ import { cookies } from "next/headers";
 
 const COOKIE_NAME = "mudeco_recent_order";
 const MAX_AGE_SECONDS = 30 * 60; // 30 minutos
+const ephemeralDevSecret = crypto.randomBytes(32).toString("hex");
 
 function getSecret(): string {
-  return (
-    process.env.AUTH_SECRET ||
-    process.env.NEXTAUTH_SECRET ||
-    "mudeco-order-access-fallback-secret"
-  );
+  const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET;
+  if (secret && secret.length >= 16) return secret;
+  return ephemeralDevSecret;
 }
 
 function signOrderId(orderId: string): string {

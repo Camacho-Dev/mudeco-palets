@@ -8,9 +8,13 @@ import { z } from "zod";
 import { authConfig } from "@/lib/auth.config";
 
 const credentialsSchema = z.object({
-  email: z.string().min(1),
-  password: z.string().min(1),
+  email: z.string().min(1).max(160),
+  password: z.string().min(1).max(128),
 });
+
+// Hash dummy de costo 10 para mantener tiempo constante cuando el correo no existe (mitiga ataques de timing)
+const DUMMY_BCRYPT_HASH =
+  "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy";
 
 const providers: NextAuthConfig["providers"] = [
   Credentials({
@@ -44,13 +48,28 @@ const providers: NextAuthConfig["providers"] = [
           ],
         },
       });
-      if (!user || !user.active) return null;
+
+      if (!user || !user.active || !user.passwordHash) {
+        await bcrypt.compare(parsed.data.password, DUMMY_BCRYPT_HASH);
+        return null;
+      }
 
       const valid = await bcrypt.compare(
         parsed.data.password,
         user.passwordHash,
       );
-      if (!valid) return null;
+      if (!valid) {
+        const { writeAudit } = await import("@/lib/audit");
+        void writeAudit({
+          action: "LOGIN_FAILED",
+          entity: "System",
+          summary: `Intento fallido de inicio de sesión: ${user.email}`,
+          userId: user.id,
+          userEmail: user.email,
+          userName: user.name,
+        }).catch(() => undefined);
+        return null;
+      }
 
       return {
         id: user.id,
@@ -67,7 +86,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    })
+    }),
   );
 }
 
@@ -117,7 +136,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           userId: user.id,
           userEmail: user.email,
           userName: user.name,
-        });
+        }).catch(() => undefined);
       }
       return token;
     },
