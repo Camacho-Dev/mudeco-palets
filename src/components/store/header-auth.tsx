@@ -10,7 +10,6 @@ import {
   User,
   ChevronDown,
   ChevronRight,
-  LayoutDashboard,
   UserCircle2,
 } from "lucide-react";
 
@@ -107,8 +106,6 @@ export function HeaderAuth({
   const displayName = getDisplayCustomerName(user);
   const initials = getInitials(displayName, user.email);
   const ordersCount = user.ordersCount ?? 0;
-  const isStaff = user.role === "ADMIN" || user.role === "VENDEDOR";
-  const staffHref = user.role === "ADMIN" ? "/panel" : "/vender";
 
   if (variant === "drawer") {
     return (
@@ -140,18 +137,6 @@ export function HeaderAuth({
               </span>
             )}
           </Link>
-          {isStaff && (
-            <Link
-              href={staffHref}
-              className="flex items-center justify-between rounded-lg border border-white/15 px-3.5 py-2 text-xs font-medium text-white/80 transition hover:border-[#c9a15a]/50 hover:text-white"
-            >
-              <span className="flex items-center gap-2">
-                <LayoutDashboard className="h-3.5 w-3.5 text-[#c9a15a]" />
-                <span>Panel Administrativo</span>
-              </span>
-              <ChevronRight className="h-3.5 w-3.5 text-white/40" />
-            </Link>
-          )}
           <button
             type="button"
             onClick={async () => {
@@ -246,20 +231,6 @@ export function HeaderAuth({
                 <ChevronRight className="h-3.5 w-3.5 text-white/30 transition-transform group-hover:translate-x-0.5 group-hover:text-white/70" />
               </span>
             </Link>
-
-            {isStaff && (
-              <Link
-                href={staffHref}
-                onClick={() => setOpen(false)}
-                className="group flex items-center justify-between rounded-lg px-3 py-2.5 text-xs text-white/80 transition hover:bg-white/[0.06] hover:text-white"
-              >
-                <span className="flex items-center gap-2.5">
-                  <LayoutDashboard className="h-4 w-4 text-[#c9a15a]" />
-                  <span>Panel Administrativo</span>
-                </span>
-                <ChevronRight className="h-3.5 w-3.5 text-white/30 transition-transform group-hover:translate-x-0.5 group-hover:text-white/70" />
-              </Link>
-            )}
           </div>
 
           {/* Pie de cierre de sesión */}
