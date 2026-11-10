@@ -46,7 +46,12 @@ export function CheckoutForm({
   const [fulfillment, setFulfillment] = useState<"pickup" | "delivery">(
     "pickup",
   );
-  const [name, setName] = useState(session?.user?.name ?? "");
+  const cleanSessionName =
+    session?.user?.name &&
+    session.user.name.trim().toLowerCase() !== "administrador"
+      ? session.user.name
+      : "";
+  const [name, setName] = useState(cleanSessionName);
   const [email, setEmail] = useState(session?.user?.email ?? "");
   const [phone, setPhone] = useState("");
   const [taxId, setTaxId] = useState("");
@@ -57,7 +62,13 @@ export function CheckoutForm({
 
   // Auto-fill name/email when session loads asynchronously
   useEffect(() => {
-    if (session?.user?.name && !name) setName(session.user.name);
+    if (
+      session?.user?.name &&
+      session.user.name.trim().toLowerCase() !== "administrador" &&
+      !name
+    ) {
+      setName(session.user.name);
+    }
     if (session?.user?.email && !email) setEmail(session.user.email);
   }, [session?.user?.name, session?.user?.email, name, email]);
 

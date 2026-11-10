@@ -184,7 +184,7 @@ export function CartView() {
             <div className="rounded-xl bg-[#faf6f1] p-3.5 text-[11px] text-[var(--muted)] space-y-1.5 border border-[#e5d8c8]">
               <div className="flex items-center gap-2 font-medium text-[var(--wood-900)]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#b0894f]" />
-                <span>Transferencias seguras: Popular, Banreservas y BHD</span>
+                <span>Transferencias seguras: Popular, Banreservas, BHD, APAP y Banesco</span>
               </div>
               <div className="flex items-center gap-2 font-medium text-[var(--wood-900)]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#b0894f]" />

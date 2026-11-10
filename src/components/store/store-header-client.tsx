@@ -202,21 +202,6 @@ export function StoreHeaderClient({
                       Carrito
                     </span>
                   </Link>
-                  {user ? (
-                    <Link
-                      href="/mis-pedidos"
-                      onClick={() => setOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3.5 text-white/75 transition hover:bg-white/[0.04] hover:text-white"
-                    >
-                      <Package
-                        className="h-4 w-4 text-[#c9a15a]"
-                        strokeWidth={1.75}
-                      />
-                      <span className="text-[0.8rem] font-medium tracking-[0.14em] uppercase">
-                        Mis pedidos
-                      </span>
-                    </Link>
-                  ) : null}
                 </nav>
 
                 <div className="border-t border-white/[0.08] p-5">

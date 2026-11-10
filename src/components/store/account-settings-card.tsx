@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   UserCog,
   CheckCircle2,
@@ -30,6 +31,7 @@ export function AccountSettingsCard({
   totalPieces?: number;
   totalSpentFormatted?: string;
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [feedback, setFeedback] = useState<{
@@ -173,6 +175,7 @@ export function AccountSettingsCard({
                 ) as HTMLInputElement | null;
                 if (cur) cur.value = "";
                 if (nw) nw.value = "";
+                router.refresh();
               } else {
                 setFeedback({
                   type: "err",
