@@ -18,6 +18,11 @@ import {
   DollarSign,
   User,
   Calendar,
+  SlidersHorizontal,
+  ChevronDown,
+  ChevronUp,
+  Banknote,
+  Info,
 } from "lucide-react";
 import {
   approveReceiptPaymentAction,
@@ -31,6 +36,7 @@ export interface AdminReceiptVerifierProps {
   customerName: string;
   customerEmail: string;
   totalFormatted: string;
+  totalAmount?: number;
   receipt: {
     url: string;
     name: string;
@@ -45,10 +51,17 @@ export interface AdminReceiptVerifierProps {
 const REJECTION_PRESETS = [
   "Los fondos no se reflejan en el extracto bancario de la empresa.",
   "El comprobante está borroso o los datos no son legibles.",
-  "El monto transferido es menor al total requerido de la orden.",
+  "El monto transferido es menor al acordado para este pedido.",
   "La transferencia fue enviada a una cuenta no correspondiente a Mudeco Palets.",
   "Falta el número de confirmación o fecha de la transacción bancaria.",
 ];
+
+function formatMoney(amount: number) {
+  return `RD$ ${Number(amount || 0).toLocaleString("es-DO", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
 
 export function AdminReceiptVerifier({
   orderId,
@@ -57,6 +70,7 @@ export function AdminReceiptVerifier({
   customerName,
   customerEmail,
   totalFormatted,
+  totalAmount,
   receipt,
   invoiceNumber,
   validationNote,
@@ -71,6 +85,27 @@ export function AdminReceiptVerifier({
   // Campos adicionales opcionales
   const [bankReference, setBankReference] = useState("");
   const [staffNote, setStaffNote] = useState("");
+
+  // Menú desplegable de Opciones Avanzadas (Pago Parcial / Incompleto de Muebles)
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [isPartialPayment, setIsPartialPayment] = useState(false);
+  const [partialAmountInput, setPartialAmountInput] = useState<string>("");
+  const [balanceCondition, setBalanceCondition] = useState<string>(
+    "Contra entrega al retirar en taller",
+  );
+
+  // Cálculos de saldo y parciales
+  const numericTotal =
+    typeof totalAmount === "number" && totalAmount > 0
+      ? totalAmount
+      : parseFloat(totalFormatted.replace(/[^0-9.]/g, "")) || 0;
+
+  const parsedPartial = parseFloat(partialAmountInput) || 0;
+  const validPartial =
+    isPartialPayment && parsedPartial > 0 && parsedPartial < numericTotal - 0.01;
+  const remainingBalance = Math.max(0, numericTotal - parsedPartial);
+  const paidPercent =
+    numericTotal > 0 ? Math.min(100, (parsedPartial / numericTotal) * 100) : 0;
 
   // Estado del modal de imagen completa
   const [modalOpen, setModalOpen] = useState(false);
@@ -130,6 +165,9 @@ export function AdminReceiptVerifier({
         const res = await approveReceiptPaymentAction(orderId, {
           bankReference: bankReference.trim() || undefined,
           note: staffNote.trim() || undefined,
+          isPartial: validPartial,
+          partialAmount: validPartial ? parsedPartial : undefined,
+          balanceCondition: validPartial ? balanceCondition : undefined,
         });
         if (res.success) {
           setFeedback({ type: "success", message: res.message });
@@ -145,7 +183,7 @@ export function AdminReceiptVerifier({
           message:
             err instanceof Error
               ? err.message
-              : "Ocurrió un error inesperado al aprobar el pago.",
+              : "Ocurrió un error inesperado al procesar el pago.",
         });
       }
     });
@@ -435,12 +473,34 @@ export function AdminReceiptVerifier({
                 />
                 <div className="text-xs leading-relaxed">
                   <p className="font-bold flex items-center gap-1">
-                    <span>3. Monto exacto y cliente verificado</span>
+                    <span>
+                      {validPartial
+                        ? "3. Abono parcial verificado y cliente validado"
+                        : "3. Monto exacto y cliente verificado"}
+                    </span>
                   </p>
                   <p className="text-[11px] opacity-80 mt-0.5">
-                    El monto transferido cubre el valor total de{" "}
-                    <strong>{totalFormatted}</strong> y corresponde a la orden
-                    de <strong>{customerName}</strong>.
+                    {validPartial ? (
+                      <>
+                        El monto transferido es un abono inicial de{" "}
+                        <strong className="text-emerald-800">
+                          {formatMoney(parsedPartial)}
+                        </strong>{" "}
+                        ({paidPercent.toFixed(1)}% del pedido de muebles). Resta un
+                        balance pendiente de{" "}
+                        <strong className="text-amber-900">
+                          {formatMoney(remainingBalance)}
+                        </strong>{" "}
+                        que se cobrará <em>{balanceCondition.toLowerCase()}</em> a{" "}
+                        <strong>{customerName}</strong>.
+                      </>
+                    ) : (
+                      <>
+                        El monto transferido cubre el valor total de{" "}
+                        <strong>{totalFormatted}</strong> y corresponde a la orden
+                        de <strong>{customerName}</strong>.
+                      </>
+                    )}
                   </p>
                 </div>
               </label>
@@ -473,6 +533,194 @@ export function AdminReceiptVerifier({
                     className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs"
                   />
                 </div>
+              </div>
+            )}
+
+            {/* DROPDOWN / MENÚ DESPLEGABLE: OPCIONES AVANZADAS (PAGO INCOMPLETO / ABONO DE MUEBLES) */}
+            {!isPaid && !isCancelled && (
+              <div className="mt-3.5 rounded-xl border border-stone-200 bg-stone-50/60 overflow-hidden transition">
+                <button
+                  type="button"
+                  onClick={() => setShowAdvanced(!showAdvanced)}
+                  className="flex w-full items-center justify-between px-3.5 py-2.5 text-xs font-bold text-[var(--wood-900)] hover:bg-stone-100/80 transition select-none cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <SlidersHorizontal className="h-4 w-4 text-[#b0894f]" />
+                    <span>Opciones avanzadas</span>
+                    {validPartial ? (
+                      <span className="rounded-full bg-amber-100 border border-amber-300 px-2 py-0.5 text-[10px] font-bold text-amber-900">
+                        Abono activo: {formatMoney(parsedPartial)}
+                      </span>
+                    ) : (
+                      <span className="text-[11px] font-normal text-[var(--muted)]">
+                        (Si no pagó el total / Abono inicial de muebles)
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 text-[11px] font-semibold text-[#b0894f]">
+                    <span>{showAdvanced ? "Ocultar menú" : "Desplegar menú"}</span>
+                    {showAdvanced ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
+                  </div>
+                </button>
+
+                {showAdvanced && (
+                  <div className="border-t border-stone-200 bg-white p-3.5 space-y-3">
+                    <div className="flex items-start gap-2.5 rounded-lg bg-amber-50 p-2.5 border border-amber-200 text-xs text-amber-950">
+                      <Info className="h-4 w-4 text-amber-700 shrink-0 mt-0.5" />
+                      <div className="leading-relaxed">
+                        <p className="font-semibold">
+                          Manejo de Pago Incompleto / Abono de Inicial
+                        </p>
+                        <p className="text-[11px] text-amber-900 mt-0.5">
+                          Usa este menú si el cliente transfirió una parte del
+                          dinero (ej. 50% de inicial para comenzar a fabricar los
+                          muebles) y pagará el resto contra entrega o retiro en taller.
+                        </p>
+                      </div>
+                    </div>
+
+                    <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={isPartialPayment}
+                        onChange={(e) => {
+                          const checked = e.target.checked;
+                          setIsPartialPayment(checked);
+                          if (checked && !partialAmountInput) {
+                            setPartialAmountInput(
+                              Math.round(numericTotal * 0.5).toString(),
+                            );
+                          }
+                        }}
+                        className="h-4 w-4 rounded border-stone-300 text-[#b0894f] focus:ring-[#b0894f]"
+                      />
+                      <span className="text-xs font-bold text-stone-800">
+                        Registrar como Pago Parcial / Abono de Inicial
+                      </span>
+                    </label>
+
+                    {isPartialPayment && (
+                      <div className="space-y-3 pt-2 border-t border-stone-100">
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-xs font-semibold text-stone-700">
+                              Monto transferido según el comprobante (RD$):
+                            </label>
+                            <div className="flex items-center gap-1">
+                              <span className="text-[10px] text-stone-500 font-medium">
+                                Atajos:
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setPartialAmountInput(
+                                    Math.round(numericTotal * 0.3).toString(),
+                                  )
+                                }
+                                className="rounded bg-stone-100 border border-stone-200 px-1.5 py-0.5 text-[10px] font-semibold text-stone-700 hover:bg-stone-200"
+                              >
+                                30%
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setPartialAmountInput(
+                                    Math.round(numericTotal * 0.5).toString(),
+                                  )
+                                }
+                                className="rounded bg-stone-100 border border-stone-200 px-1.5 py-0.5 text-[10px] font-semibold text-stone-700 hover:bg-stone-200"
+                              >
+                                50%
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setPartialAmountInput(
+                                    Math.round(numericTotal * 0.7).toString(),
+                                  )
+                                }
+                                className="rounded bg-stone-100 border border-stone-200 px-1.5 py-0.5 text-[10px] font-semibold text-stone-700 hover:bg-stone-200"
+                              >
+                                70%
+                              </button>
+                            </div>
+                          </div>
+                          <div className="relative">
+                            <span className="absolute left-3 top-2.5 text-xs font-bold text-stone-400">
+                              RD$
+                            </span>
+                            <input
+                              type="number"
+                              step="0.01"
+                              min="1"
+                              max={numericTotal}
+                              value={partialAmountInput}
+                              onChange={(e) =>
+                                setPartialAmountInput(e.target.value)
+                              }
+                              placeholder="Ej. 15000"
+                              className="w-full rounded-lg border border-stone-300 bg-white pl-11 pr-3 py-2 text-xs font-bold text-[var(--wood-950)] focus:border-[#b0894f] focus:outline-none focus:ring-1 focus:ring-[#b0894f]"
+                            />
+                          </div>
+                        </div>
+
+                        {/* TARJETAS DE CÁLCULO DE BALANCE */}
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div className="rounded-lg border border-emerald-200 bg-emerald-50/70 p-2.5">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">
+                              Monto transferido (Abono)
+                            </p>
+                            <p className="mt-0.5 text-sm font-extrabold text-emerald-950">
+                              {formatMoney(parsedPartial)}
+                            </p>
+                            <p className="text-[10px] text-emerald-700">
+                              {paidPercent.toFixed(1)}% del total de muebles
+                            </p>
+                          </div>
+
+                          <div className="rounded-lg border border-amber-300 bg-amber-50/80 p-2.5">
+                            <p className="text-[10px] font-bold uppercase tracking-wider text-amber-900">
+                              Resta por cobrar (Pendiente)
+                            </p>
+                            <p className="mt-0.5 text-sm font-extrabold text-amber-950">
+                              {formatMoney(remainingBalance)}
+                            </p>
+                            <p className="text-[10px] text-amber-800">
+                              A cobrar antes de entregar
+                            </p>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-semibold text-stone-700 mb-1">
+                            Condición de cobro del restante:
+                          </label>
+                          <select
+                            value={balanceCondition}
+                            onChange={(e) =>
+                              setBalanceCondition(e.target.value)
+                            }
+                            className="w-full rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 text-xs text-stone-800"
+                          >
+                            <option value="Contra entrega al retirar en taller">
+                              Contra entrega al retirar en taller de Mudeco Palets
+                            </option>
+                            <option value="Contra entrega antes de descargar los muebles en destino">
+                              Contra entrega antes de descargar los muebles en destino
+                            </option>
+                            <option value="Transferencia obligatoria antes del despacho desde fábrica">
+                              Transferencia obligatoria antes del despacho desde fábrica
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -527,17 +775,30 @@ export function AdminReceiptVerifier({
                   <button
                     type="button"
                     onClick={handleApprove}
-                    disabled={!allChecksConfirmed || isPending}
+                    disabled={
+                      !allChecksConfirmed ||
+                      isPending ||
+                      (isPartialPayment && !validPartial)
+                    }
                     className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition shadow-sm cursor-pointer ${
-                      allChecksConfirmed && !isPending
-                        ? "bg-emerald-700 text-white hover:bg-emerald-800 active:scale-95 shadow-md"
+                      allChecksConfirmed &&
+                      !isPending &&
+                      (!isPartialPayment || validPartial)
+                        ? validPartial
+                          ? "bg-amber-600 text-white hover:bg-amber-700 active:scale-95 shadow-md"
+                          : "bg-emerald-700 text-white hover:bg-emerald-800 active:scale-95 shadow-md"
                         : "bg-stone-200 text-stone-400 cursor-not-allowed border border-stone-300"
                     }`}
                   >
                     {isPending ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        <span>Aprobando pago...</span>
+                        <span>Procesando pago...</span>
+                      </>
+                    ) : validPartial ? (
+                      <>
+                        <Banknote className="h-4 w-4" />
+                        <span>Confirmar Abono ({formatMoney(parsedPartial)})</span>
                       </>
                     ) : (
                       <>

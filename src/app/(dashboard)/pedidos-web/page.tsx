@@ -292,6 +292,11 @@ export default async function PedidosWebPage({
                   receipt && (o.status === "PAID" || o.status === "DONE"),
                 );
 
+                const isPartialAbono =
+                  o.invoice?.status === "PARTIAL" ||
+                  o.notes?.includes("Abono parcial") ||
+                  o.notes?.includes("Abono inicial");
+
                 let statusLabel = WEB_STATUS_LABEL[o.status] || o.status;
                 let statusBadgeClass =
                   WEB_STATUS_COLORS[o.status] || "bg-stone-100 text-stone-700";
@@ -300,6 +305,10 @@ export default async function PedidosWebPage({
                   statusLabel = "Comprobante por validar";
                   statusBadgeClass =
                     "bg-amber-100 text-amber-900 border border-amber-300 font-semibold";
+                } else if (isPartialAbono && o.status === "IN_PROGRESS") {
+                  statusLabel = "Abono recibido · En taller";
+                  statusBadgeClass =
+                    "bg-amber-100 text-amber-950 border border-amber-300 font-semibold";
                 } else if (o.status === "AWAITING_PAYMENT" && !receipt) {
                   statusLabel = "Esperando comprobante";
                   statusBadgeClass =
@@ -343,10 +352,17 @@ export default async function PedidosWebPage({
                       >
                         {o.number}
                       </Link>
-                      {hasReceiptApproved && (
+                      {hasReceiptApproved && !isPartialAbono && (
                         <div className="mt-0.5">
                           <span className="text-[10px] font-semibold text-emerald-800">
                             ✓ Pago validado
+                          </span>
+                        </div>
+                      )}
+                      {isPartialAbono && (
+                        <div className="mt-0.5">
+                          <span className="text-[10px] font-bold text-amber-800">
+                            ⚡ Abono inicial (Resta balance)
                           </span>
                         </div>
                       )}

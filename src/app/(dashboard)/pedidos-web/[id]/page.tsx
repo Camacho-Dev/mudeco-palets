@@ -315,6 +315,7 @@ export default async function PedidoWebDetailPage({
           customerName={order.customerName}
           customerEmail={order.customerEmail}
           totalFormatted={formatCurrency(order.total)}
+          totalAmount={order.total}
           receipt={receipt}
           invoiceNumber={order.invoice?.number}
           validationNote={

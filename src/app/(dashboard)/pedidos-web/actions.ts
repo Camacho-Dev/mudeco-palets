@@ -290,6 +290,9 @@ export async function approveReceiptPaymentAction(
   data?: {
     bankReference?: string;
     note?: string;
+    isPartial?: boolean;
+    partialAmount?: number;
+    balanceCondition?: string;
   },
 ): Promise<{ success: boolean; message: string; error?: string }> {
   const session = await requireSession();
@@ -388,39 +391,74 @@ export async function approveReceiptPaymentAction(
     });
   }
 
-  // 3. Registrar el pago oficial en la factura
-  const balance = calcInvoiceBalance(
+  // 3. Registrar el pago oficial en la factura (completo o abono parcial)
+  const currentBalance = calcInvoiceBalance(
     invoice.total,
     invoice.payments,
     invoice.creditNotes,
   );
 
-  const verificationStamp = `[Confirmación 3 Pasos Admin: Fondos validados en banco${
-    data?.bankReference ? ` | Ref: ${data.bankReference}` : ""
-  }${data?.note ? ` | Nota: ${data.note}` : ""}]`;
+  const isPartial = Boolean(
+    data?.isPartial &&
+      data.partialAmount &&
+      data.partialAmount > 0 &&
+      data.partialAmount < currentBalance - 0.01,
+  );
 
-  if (balance > 0.001) {
+  const paymentAmount = isPartial
+    ? Math.round(data!.partialAmount! * 100) / 100
+    : currentBalance;
+
+  const remainingBalance = Math.max(
+    0,
+    Math.round((currentBalance - paymentAmount) * 100) / 100,
+  );
+
+  const conditionText = data?.balanceCondition || "Contra entrega al retirar en taller";
+
+  const verificationStamp = isPartial
+    ? `[Confirmación 3 Pasos Admin: Abono parcial validado por RD$ ${paymentAmount.toFixed(
+        2,
+      )} | Resta balance de RD$ ${remainingBalance.toFixed(2)} (${conditionText})${
+        data?.bankReference ? ` | Ref: ${data.bankReference}` : ""
+      }${data?.note ? ` | Nota: ${data.note}` : ""}]`
+    : `[Confirmación 3 Pasos Admin: Fondos validados en banco${
+        data?.bankReference ? ` | Ref: ${data.bankReference}` : ""
+      }${data?.note ? ` | Nota: ${data.note}` : ""}]`;
+
+  if (paymentAmount > 0.001) {
     await prisma.payment.create({
       data: {
         invoiceId: invoice.id,
-        amount: balance,
+        amount: paymentAmount,
         method: "TRANSFER",
         notes: verificationStamp,
       },
     });
   }
 
+  // Si pagó completo -> PAID. Si fue abono parcial -> PARTIAL
+  const newInvoiceStatus = isPartial ? "PARTIAL" : "PAID";
   await prisma.invoice.update({
     where: { id: invoice.id },
-    data: { status: "PAID" },
+    data: { status: newInvoiceStatus },
   });
 
-  // 4. Actualizar estado de la orden web a PAID
-  const auditSummaryNote = `Comprobante verificado (3 confirmaciones) y pago de RD$ ${existing.total.toFixed(
-    2,
-  )} aprobado por ${session.user.name || session.user.email}${
-    data?.bankReference ? ` (Ref: ${data.bankReference})` : ""
-  }`;
+  // 4. Actualizar estado de la orden web
+  // Si fue abono parcial, pasa a "IN_PROGRESS" (taller/fabricación) con etiqueta de abono
+  const newOrderStatus = isPartial ? "IN_PROGRESS" : "PAID";
+
+  const auditSummaryNote = isPartial
+    ? `Abono parcial de RD$ ${paymentAmount.toFixed(
+        2,
+      )} validado (Resta RD$ ${remainingBalance.toFixed(2)} - ${conditionText}) por ${
+        session.user.name || session.user.email
+      }${data?.bankReference ? ` (Ref: ${data.bankReference})` : ""}`
+    : `Comprobante verificado (3 confirmaciones) y pago completo de RD$ ${existing.total.toFixed(
+        2,
+      )} aprobado por ${session.user.name || session.user.email}${
+        data?.bankReference ? ` (Ref: ${data.bankReference})` : ""
+      }`;
 
   const updatedNotes = [
     existing.notes || "",
@@ -434,13 +472,13 @@ export async function approveReceiptPaymentAction(
   await prisma.webOrder.update({
     where: { id },
     data: {
-      status: "PAID",
+      status: newOrderStatus,
       notes: updatedNotes,
     },
   });
 
   await writeAudit({
-    action: "RECEIPT_VERIFIED",
+    action: isPartial ? "RECEIPT_PARTIAL_APPROVED" : "RECEIPT_VERIFIED",
     entity: "WebOrder",
     entityId: id,
     summary: auditSummaryNote,
@@ -450,20 +488,28 @@ export async function approveReceiptPaymentAction(
   });
 
   void sendInvoiceEmail(invoice.id).catch(() => undefined);
-  void notifyCustomerWebOrderStatus(id, "PAID");
+  void notifyCustomerWebOrderStatus(id, newOrderStatus);
 
   revalidatePath("/pedidos-web");
   revalidatePath(`/pedidos-web/${id}`);
   revalidatePath(`/pedido/${id}`);
   revalidatePath("/mis-pedidos");
   revalidatePath("/facturas");
+  revalidatePath(`/facturas/${invoice.id}`);
   revalidatePath("/pagos");
   revalidatePath("/finanzas");
   revalidatePath("/panel");
 
   return {
     success: true,
-    message: `Pago verificado con éxito. Factura ${invoice.number} marcada como pagada y cliente notificado.`,
+    message: isPartial
+      ? `Abono de RD$ ${paymentAmount.toLocaleString("es-DO", {
+          minimumFractionDigits: 2,
+        })} registrado exitosamente. El pedido pasó a taller con un balance pendiente de RD$ ${remainingBalance.toLocaleString(
+          "es-DO",
+          { minimumFractionDigits: 2 },
+        )}.`
+      : "Pago bancario verificado y aprobado al 100%. Factura oficial emitida y enviada al cliente.",
   };
 }
 
