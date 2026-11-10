@@ -142,7 +142,15 @@ export function HeaderAuth({
             onClick={async () => {
               await signOut({ redirect: false });
               setUser(null);
-              router.refresh();
+              if (
+                pathname.startsWith("/pedido") ||
+                pathname.startsWith("/mis-pedidos") ||
+                pathname.startsWith("/checkout")
+              ) {
+                window.location.href = "/";
+              } else {
+                router.refresh();
+              }
             }}
             className="flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-xs font-medium text-white/55 transition hover:bg-white/5 hover:text-white cursor-pointer"
           >
@@ -241,7 +249,15 @@ export function HeaderAuth({
                 setOpen(false);
                 await signOut({ redirect: false });
                 setUser(null);
-                router.refresh();
+                if (
+                  pathname.startsWith("/pedido") ||
+                  pathname.startsWith("/mis-pedidos") ||
+                  pathname.startsWith("/checkout")
+                ) {
+                  window.location.href = "/";
+                } else {
+                  router.refresh();
+                }
               }}
               className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-white/55 transition hover:bg-rose-500/10 hover:text-rose-300 cursor-pointer"
             >

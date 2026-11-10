@@ -73,22 +73,21 @@ export async function uploadOrderReceiptAction(orderId: string, formData: FormDa
       return { success: false, error: "Pedido no encontrado en el sistema" };
     }
 
-    // Verificar autorización: Staff o el cliente dueño del pedido
-    const staffUser = Boolean(session?.user?.id && isStaff(session.user.role));
+    // Verificar autorización estricta: SOLO la cuenta titular del pedido puede subir o cambiar el comprobante desde la tienda
     const ownerUser = Boolean(
       session?.user?.email &&
         order.customerEmail &&
         session.user.email.toLowerCase() === order.customerEmail.toLowerCase(),
     );
-    if (!staffUser && !ownerUser) {
+    if (!ownerUser) {
       return {
         success: false,
-        error: "Debes iniciar sesión con la cuenta del pedido para adjuntar el comprobante.",
+        error: "Este pedido pertenece a otra cuenta. Inicia sesión con el correo titular del pedido.",
       };
     }
 
-    // Impedir modificar comprobantes de pedidos ya pagados, finalizados o cancelados (salvo Staff)
-    if (!staffUser && ["PAID", "DONE", "CANCELLED"].includes(order.status)) {
+    // Impedir modificar comprobantes de pedidos ya pagados, finalizados o cancelados
+    if (["PAID", "DONE", "CANCELLED"].includes(order.status)) {
       return {
         success: false,
         error: "Este pedido ya fue procesado y no admite nuevos comprobantes.",

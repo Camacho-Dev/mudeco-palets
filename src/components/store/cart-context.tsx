@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useSession } from "next-auth/react";
 
 export type CartItem = {
   productId: string;
@@ -34,26 +35,39 @@ type CartContextValue = {
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
-const KEY = "mudeco_cart_v1";
+const BASE_KEY = "mudeco_cart_v1";
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const { data: session, status } = useSession();
+  const userEmail = session?.user?.email?.trim().toLowerCase() || "";
+  const storageKey = userEmail ? `${BASE_KEY}:${userEmail}` : `${BASE_KEY}:guest`;
+
   const [items, setItems] = useState<CartItem[]>([]);
-  const [ready, setReady] = useState(false);
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
 
   useEffect(() => {
+    if (status === "loading") return;
     try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) setItems(JSON.parse(raw) as CartItem[]);
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        setItems(JSON.parse(raw) as CartItem[]);
+      } else {
+        setItems([]);
+      }
+    } catch {
+      setItems([]);
+    }
+    setLoadedKey(storageKey);
+  }, [storageKey, status]);
+
+  useEffect(() => {
+    if (loadedKey !== storageKey) return;
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(items));
     } catch {
       /* ignore */
     }
-    setReady(true);
-  }, []);
-
-  useEffect(() => {
-    if (!ready) return;
-    localStorage.setItem(KEY, JSON.stringify(items));
-  }, [items, ready]);
+  }, [items, loadedKey, storageKey]);
 
   const addItem = useCallback(
     (item: Omit<CartItem, "quantity" | "maxQty">, qty = 1, maxQty?: number): boolean => {

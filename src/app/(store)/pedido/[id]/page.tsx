@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getVerifiedApiSession } from "@/lib/session";
 import { hasRecentOrderAccessCookie } from "@/lib/order-access-cookie";
-import { isStaff } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
 import { getStripe, isStripeConfigured } from "@/lib/stripe";
@@ -70,16 +69,27 @@ export default async function PedidoPage({
   });
   if (!order) notFound();
 
-  const isViewerStaff = Boolean(session?.user?.id && isStaff(session.user.role));
   const isViewerOwner = Boolean(
     session?.user?.email &&
       order.customerEmail &&
       session.user.email.toLowerCase() === order.customerEmail.toLowerCase(),
   );
-  const hasRecentCookie = await hasRecentOrderAccessCookie(id);
-  const isAuthorizedViewer = isViewerStaff || isViewerOwner || hasRecentCookie;
 
-  // Exigir autorización (titular, staff o sesión que acaba de enviar la consulta/cotización)
+  // Si hay una sesión iniciada pero el pedido pertenece a OTRA cuenta de correo,
+  // bloquear inmediatamente y redirigir a /mis-pedidos de la cuenta actual (aislamiento total entre cuentas)
+  if (session?.user?.email && !isViewerOwner) {
+    redirect("/mis-pedidos");
+  }
+
+  // Si no hay sesión iniciada, solo permitir ver consultas/cotizaciones recién creadas en este navegador;
+  // cualquier orden de compra (SALE) exige iniciar sesión con la cuenta titular del pedido
+  const hasRecentGuestCookie =
+    !session?.user?.email &&
+    order.type !== "SALE" &&
+    (await hasRecentOrderAccessCookie(id));
+
+  const isAuthorizedViewer = isViewerOwner || hasRecentGuestCookie;
+
   if (!isAuthorizedViewer) {
     redirect(`/login?callbackUrl=${encodeURIComponent(`/pedido/${id}`)}`);
   }
@@ -220,8 +230,8 @@ export default async function PedidoPage({
           />
         )}
 
-        {/* ZONA DE CARGA DEL COMPROBANTE ADJUNTO (CLIENTE AUTENTICADO) */}
-        {isTransfer && isAuthorizedViewer && (
+        {/* ZONA DE CARGA DEL COMPROBANTE ADJUNTO (SOLO TITULAR DE LA CUENTA DEL PEDIDO) */}
+        {isTransfer && isViewerOwner && (
           <ReceiptUploader
             orderId={order.id}
             orderNumber={order.number}
