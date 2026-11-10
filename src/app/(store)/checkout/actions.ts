@@ -58,16 +58,20 @@ function parseCart(fd: FormData): CartLineInput[] {
   }));
 }
 
-import { auth } from "@/lib/auth";
+import { getVerifiedApiSession } from "@/lib/session";
+import { isStaff } from "@/lib/rbac";
 
 export async function submitWebCheckout(fd: FormData) {
-  const session = await auth();
+  const session = await getVerifiedApiSession();
   if (!session?.user) {
     redirect("/login?callbackUrl=/checkout");
   }
 
   const mode = String(fd.get("mode") || "");
   const customer = parseCustomer(fd);
+  if (session.user.email && !isStaff(session.user.role)) {
+    customer.email = session.user.email.toLowerCase().trim();
+  }
 
   // Rate limiting dual (por IP y por correo) para prevenir spam de pedidos y agotamiento de recursos
   const rl = await checkDualRateLimit({

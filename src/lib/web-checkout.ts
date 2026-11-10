@@ -34,12 +34,25 @@ async function webSalesUserId() {
   return admin.id;
 }
 
-async function upsertWebCustomer(data: CheckoutCustomer) {
+async function upsertWebCustomer(
+  data: CheckoutCustomer,
+  options?: { allowOverwrite?: boolean },
+) {
   const email = data.email.trim().toLowerCase();
   const existing = await prisma.customer.findFirst({
     where: { email: { equals: email, mode: "insensitive" } },
   });
   if (existing) {
+    if (options?.allowOverwrite === false) {
+      return prisma.customer.update({
+        where: { id: existing.id },
+        data: {
+          phone: existing.phone || data.phone?.trim() || null,
+          taxId: existing.taxId || data.taxId?.trim() || null,
+          address: existing.address || data.address?.trim() || null,
+        },
+      });
+    }
     return prisma.customer.update({
       where: { id: existing.id },
       data: {
@@ -204,7 +217,7 @@ export async function createWebServiceRequest(
     lineTotal: 0,
   };
 
-  const customer = await upsertWebCustomer(customerData);
+  const customer = await upsertWebCustomer(customerData, { allowOverwrite: false });
   const userId = await webSalesUserId();
   const [quoteNumber, webNumber] = await Promise.all([
     nextQuoteNumber(),

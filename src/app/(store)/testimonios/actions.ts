@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { checkDualRateLimit } from "@/lib/rate-limit";
 import { invalidateReviewsCache } from "@/lib/reviews";
-import { auth } from "@/lib/auth";
+import { getVerifiedApiSession } from "@/lib/session";
 import { isAdmin, isStaff } from "@/lib/rbac";
 import {
   MAX_REPLIES_PER_REVIEW,
@@ -64,17 +64,16 @@ export async function submitCustomerReviewAction(formData: FormData): Promise<Su
   let finalWebOrderId: string | undefined = undefined;
   let finalProductName = productName;
 
-  // Verificar autenticidad real del pedido (evitar spoofing de códigos secuenciales WEB-2026-0001)
-  if (webOrderId || (orderNumber && customerEmail)) {
+  // Verificar autenticidad real del pedido pagado/entregado y coincidencia con el titular
+  const session = await getVerifiedApiSession();
+  const effectiveEmail = (session?.user?.email || customerEmail || "").trim().toLowerCase();
+  if ((webOrderId || orderNumber) && effectiveEmail) {
     const existingOrder = await prisma.webOrder.findFirst({
       where: {
         type: "SALE",
-        ...(webOrderId
-          ? { id: webOrderId }
-          : {
-              number: orderNumber,
-              customerEmail: { equals: customerEmail, mode: "insensitive" },
-            }),
+        status: { in: ["PAID", "DONE"] },
+        customerEmail: { equals: effectiveEmail, mode: "insensitive" },
+        ...(webOrderId ? { id: webOrderId } : { number: orderNumber }),
       },
       include: {
         items: true,
@@ -179,7 +178,7 @@ export async function submitReviewReplyAction(
     };
   }
 
-  const session = await auth();
+  const session = await getVerifiedApiSession();
   const staff = Boolean(session?.user && isStaff(session.user.role));
 
   const reply = String(replyText || "").trim();
@@ -254,7 +253,7 @@ export async function deleteReviewReplyAction(
   reviewId: string,
   replyId: string,
 ): Promise<{ success: boolean; error?: string; replies?: ReviewReplyItem[] }> {
-  const session = await auth();
+  const session = await getVerifiedApiSession();
   if (!session?.user || !isAdmin(session.user.role)) {
     return { success: false, error: "Solo el administrador puede eliminar respuestas." };
   }
@@ -294,7 +293,7 @@ export async function deleteReviewReplyAction(
 export async function toggleReviewPinAction(
   reviewId: string,
 ): Promise<{ success: boolean; isPinned?: boolean; error?: string }> {
-  const session = await auth();
+  const session = await getVerifiedApiSession();
   if (!session?.user || !isAdmin(session.user.role)) {
     return { success: false, error: "Solo el administrador puede fijar comentarios." };
   }
@@ -326,7 +325,7 @@ export async function toggleReviewPinAction(
 export async function deleteReviewAction(
   reviewId: string,
 ): Promise<{ success: boolean; error?: string }> {
-  const session = await auth();
+  const session = await getVerifiedApiSession();
   if (!session?.user || !isAdmin(session.user.role)) {
     return { success: false, error: "Solo el administrador puede eliminar comentarios." };
   }

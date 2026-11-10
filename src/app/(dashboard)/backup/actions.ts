@@ -70,6 +70,9 @@ export async function restoreBackup(fd: FormData): Promise<{ ok: boolean; messag
   if (!file || file.size === 0) {
     throw new Error("Selecciona un archivo JSON de respaldo");
   }
+  if (file.size > 12 * 1024 * 1024) {
+    throw new Error("El archivo de respaldo excede el tamaño máximo permitido (12 MB)");
+  }
 
   const text = await file.text();
   let data: BackupPayload;

@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { invalidateScoredProductsCache } from "@/lib/recommendations";
 import { invalidateStoreCompanyCache } from "@/lib/store";
+import { isSafeImageUrl } from "@/lib/product-image";
 
 const productSchema = z.object({
   name: z.string().min(1),
@@ -32,6 +33,8 @@ function formDataToProduct(fd: FormData) {
   const width = String(fd.get("widthCm") || "");
   const height = String(fd.get("heightCm") || "");
   const depth = String(fd.get("depthCm") || "");
+  const rawImage = String(fd.get("imageUrl") || "").trim();
+  const safeImageUrl = rawImage && isSafeImageUrl(rawImage) ? rawImage : undefined;
   return productSchema.parse({
     name: String(fd.get("name") || ""),
     sku: String(fd.get("sku") || "") || undefined,
@@ -44,7 +47,7 @@ function formDataToProduct(fd: FormData) {
     stock: fd.get("stock") || 0,
     minStock: fd.get("minStock") || 2,
     active: fd.get("active") === "on" || fd.get("active") === "true",
-    imageUrl: String(fd.get("imageUrl") || "") || undefined,
+    imageUrl: safeImageUrl,
     widthCm: width ? Number(width) : undefined,
     heightCm: height ? Number(height) : undefined,
     depthCm: depth ? Number(depth) : undefined,

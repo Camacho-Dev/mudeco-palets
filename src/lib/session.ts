@@ -98,3 +98,25 @@ export async function assertAdmin() {
   }
   return session;
 }
+
+/**
+ * Verifica la sesión en Route Handlers (/api/*) y Server Actions mixtas,
+ * validando en la base de datos que el usuario siga activo y sincronizando su rol real.
+ */
+export async function getVerifiedApiSession() {
+  const session = await getCachedAuthSession();
+  if (!session?.user?.id) return null;
+
+  try {
+    const dbUser = await getVerifiedUser(session.user.id);
+    if (!dbUser || !dbUser.active) return null;
+
+    session.user.role = dbUser.role;
+    session.user.name = dbUser.name;
+    session.user.email = dbUser.email;
+    return session;
+  } catch {
+    if (!session.user.role) return null;
+    return session;
+  }
+}

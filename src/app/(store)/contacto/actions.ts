@@ -7,6 +7,7 @@ import {
   type ServiceRequestKind,
 } from "@/lib/web-checkout";
 import { checkDualRateLimit } from "@/lib/rate-limit";
+import { grantRecentOrderAccessCookie } from "@/lib/order-access-cookie";
 
 export async function submitContactRequest(fd: FormData) {
   const name = String(fd.get("name") || "").trim();
@@ -53,6 +54,7 @@ export async function submitContactRequest(fd: FormData) {
     { piece, description, photoNote },
   );
 
+  await grantRecentOrderAccessCookie(order.id);
   revalidatePath("/pedidos-web");
   revalidatePath("/cotizaciones");
   revalidatePath("/clientes");

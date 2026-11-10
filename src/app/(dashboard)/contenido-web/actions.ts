@@ -6,6 +6,7 @@ import { writeAudit } from "@/lib/audit";
 import { revalidatePath } from "next/cache";
 import { invalidateScoredProductsCache } from "@/lib/recommendations";
 import { invalidateStoreCompanyCache } from "@/lib/store";
+import { isSafeImageUrl } from "@/lib/product-image";
 
 function triggerStoreRevalidation(productId?: string) {
   invalidateScoredProductsCache();
@@ -85,7 +86,10 @@ export async function updateProductQuick(payload: {
 
   const dataToUpdate: Record<string, string | number | boolean | null> = {};
   if (payload.price !== undefined) dataToUpdate.price = Math.max(0, Number(payload.price));
-  if (payload.imageUrl !== undefined) dataToUpdate.imageUrl = payload.imageUrl ? payload.imageUrl.trim() : null;
+  if (payload.imageUrl !== undefined) {
+    const trimmed = payload.imageUrl ? payload.imageUrl.trim() : "";
+    dataToUpdate.imageUrl = trimmed && isSafeImageUrl(trimmed) ? trimmed : null;
+  }
   if (payload.name !== undefined) dataToUpdate.name = payload.name.trim();
   if (payload.category !== undefined) dataToUpdate.category = payload.category.trim();
   if (payload.active !== undefined) dataToUpdate.active = Boolean(payload.active);

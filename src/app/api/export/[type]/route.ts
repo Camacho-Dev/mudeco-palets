@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { getVerifiedApiSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/rbac";
 import { NextResponse } from "next/server";
@@ -32,7 +32,7 @@ export async function GET(
   _req: Request,
   ctx: { params: Promise<{ type: string }> },
 ) {
-  const session = await auth();
+  const session = await getVerifiedApiSession();
   if (!session?.user?.id || !isAdmin(session.user.role)) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
@@ -260,6 +260,8 @@ export async function GET(
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
       "Content-Disposition": `attachment; filename="${type}.csv"`,
+      "Cache-Control": "private, no-store, no-cache, must-revalidate",
+      "X-Content-Type-Options": "nosniff",
     },
   });
 }

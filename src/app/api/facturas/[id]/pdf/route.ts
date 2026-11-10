@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth";
+import { getVerifiedApiSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { buildInvoicePdf } from "@/lib/pdf/invoice-pdf";
 import { isStaff } from "@/lib/rbac";
@@ -9,7 +9,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
-  const session = await auth();
+  const session = await getVerifiedApiSession();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }

@@ -15,6 +15,8 @@ export const ADMIN_PREFIXES = [
   "/materiales",
   "/exportar",
   "/backup",
+  "/api/backup",
+  "/api/export",
   "/desbloquear",
   "/conexion-web",
   "/contenido-web",

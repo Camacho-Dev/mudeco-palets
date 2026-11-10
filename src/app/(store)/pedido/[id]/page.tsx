@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { getVerifiedApiSession } from "@/lib/session";
+import { hasRecentOrderAccessCookie } from "@/lib/order-access-cookie";
 import { isStaff } from "@/lib/rbac";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/format";
@@ -53,7 +54,7 @@ export default async function PedidoPage({
 }) {
   const { id } = await params;
   const { ok } = await searchParams;
-  const session = await auth();
+  const session = await getVerifiedApiSession();
 
   let order = await prisma.webOrder.findUnique({
     where: { id },
@@ -75,10 +76,11 @@ export default async function PedidoPage({
       order.customerEmail &&
       session.user.email.toLowerCase() === order.customerEmail.toLowerCase(),
   );
-  const isAuthorizedViewer = isViewerStaff || isViewerOwner;
+  const hasRecentCookie = await hasRecentOrderAccessCookie(id);
+  const isAuthorizedViewer = isViewerStaff || isViewerOwner || hasRecentCookie;
 
-  // Para órdenes de compra (que requieren cuenta al hacer checkout), exigir sesión del titular o staff
-  if (order.type === "SALE" && !isAuthorizedViewer) {
+  // Exigir autorización (titular, staff o sesión que acaba de enviar la consulta/cotización)
+  if (!isAuthorizedViewer) {
     redirect(`/login?callbackUrl=${encodeURIComponent(`/pedido/${id}`)}`);
   }
 

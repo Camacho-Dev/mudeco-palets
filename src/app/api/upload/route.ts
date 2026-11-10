@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getVerifiedApiSession } from "@/lib/session";
 import { isStaff } from "@/lib/rbac";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { writeFile, mkdir } from "fs/promises";
@@ -34,7 +34,7 @@ function detectImageMime(buf: Buffer): "image/jpeg" | "image/png" | "image/webp"
 
 export async function POST(req: Request) {
   try {
-    const session = await auth();
+    const session = await getVerifiedApiSession();
     if (!session?.user?.id || !isStaff(session.user.role)) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }

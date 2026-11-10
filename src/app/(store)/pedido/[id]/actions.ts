@@ -6,7 +6,7 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import { attachReceiptToNotes, type OrderReceipt } from "@/lib/order-receipt";
 import { writeAudit } from "@/lib/audit";
-import { auth } from "@/lib/auth";
+import { getVerifiedApiSession } from "@/lib/session";
 import { isStaff } from "@/lib/rbac";
 import { checkDualRateLimit } from "@/lib/rate-limit";
 
@@ -48,7 +48,7 @@ export async function uploadOrderReceiptAction(orderId: string, formData: FormDa
       return { success: false, error: "Identificador de pedido inválido" };
     }
 
-    const session = await auth().catch(() => null);
+    const session = await getVerifiedApiSession().catch(() => null);
 
     // Rate limit dual (por IP y por pedido) para evitar flooding o sobreescrituras masivas
     const rl = await checkDualRateLimit({
