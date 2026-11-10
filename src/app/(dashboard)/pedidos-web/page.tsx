@@ -7,8 +7,8 @@ import { ListSearchBar } from "@/components/invoice-search";
 import { ConfirmForm } from "@/components/confirm-form";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { whatsappLink } from "@/lib/store";
-import { ExternalLink, Globe, Image as ImageIcon, Download, Activity } from "lucide-react";
-import { stripReceiptFromNotes } from "@/lib/order-receipt";
+import { ExternalLink, Globe, Image as ImageIcon, Download, Activity, Eye, ShieldCheck } from "lucide-react";
+import { stripReceiptFromNotes, extractReceiptFromNotes } from "@/lib/order-receipt";
 import {
   WEB_STATUS_COLORS,
   WEB_STATUS_LABEL,
@@ -278,6 +278,13 @@ export default async function PedidosWebPage({
             ) : (
               filtered.map((o) => {
                 const open = isWebOrderPending(o.status);
+                const receipt = extractReceiptFromNotes(o.notes);
+                const hasReceiptPending = Boolean(
+                  receipt && o.status !== "PAID" && o.status !== "DONE" && o.status !== "CANCELLED",
+                );
+                const hasReceiptApproved = Boolean(
+                  receipt && (o.status === "PAID" || o.status === "DONE"),
+                );
                 const wa = o.customerPhone
                   ? whatsappLink(
                       o.customerPhone,
@@ -297,6 +304,25 @@ export default async function PedidosWebPage({
                       >
                         {o.number}
                       </Link>
+                      {hasReceiptPending && (
+                        <div className="mt-1">
+                          <Link
+                            href={`/pedidos-web/${o.id}#comprobante`}
+                            className="inline-flex items-center gap-1 rounded bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-900 border border-amber-300 hover:bg-amber-200"
+                            title="Revisar foto y validar 3 confirmaciones"
+                          >
+                            <ShieldCheck className="h-3 w-3 text-amber-700" />
+                            <span>Comprobante por validar (3 pasos)</span>
+                          </Link>
+                        </div>
+                      )}
+                      {hasReceiptApproved && (
+                        <div className="mt-1">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-800">
+                            ✓ Comprobante validado
+                          </span>
+                        </div>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <p>{o.customerName}</p>
@@ -354,6 +380,16 @@ export default async function PedidosWebPage({
                         >
                           Ver
                         </Link>
+                        {hasReceiptPending && (
+                          <Link
+                            href={`/pedidos-web/${o.id}#comprobante`}
+                            className="inline-flex items-center gap-1 rounded-md border border-amber-400 bg-amber-500/15 px-2 py-1 text-xs font-bold text-amber-900 hover:bg-amber-500/25 transition shadow-2xs"
+                            title="Ver foto y realizar las 3 confirmaciones"
+                          >
+                            <ShieldCheck className="h-3.5 w-3.5 text-amber-800" />
+                            <span>Validar</span>
+                          </Link>
+                        )}
                         {wa ? (
                           <a
                             href={wa}

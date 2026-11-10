@@ -282,6 +282,240 @@ export async function markWebOrderDone(id: string) {
   revalidatePath("/panel");
 }
 
+/**
+ * Protocolo de 3 confirmaciones para comprobar y aprobar el pago bancario de un pedido web
+ */
+export async function approveReceiptPaymentAction(
+  id: string,
+  data?: {
+    bankReference?: string;
+    note?: string;
+  },
+): Promise<{ success: boolean; message: string; error?: string }> {
+  const session = await requireSession();
+  const existing = await prisma.webOrder.findUnique({
+    where: { id },
+    include: {
+      invoice: {
+        include: { items: true, payments: true, creditNotes: true },
+      },
+      items: { include: { product: true } },
+    },
+  });
+  if (!existing) {
+    return { success: false, message: "", error: "Pedido no encontrado" };
+  }
+
+  // 1. Asegurar factura vinculada
+  let invoice = existing.invoice;
+  if (!invoice) {
+    let customerId = existing.customerId;
+    if (!customerId) {
+      const customer = await prisma.customer.create({
+        data: {
+          name: existing.customerName,
+          email: existing.customerEmail,
+          phone: existing.customerPhone,
+          taxId: existing.customerTaxId,
+          address: existing.customerAddress,
+        },
+      });
+      customerId = customer.id;
+    }
+
+    const number = await nextInvoiceNumber();
+    const itemsData =
+      existing.items.length > 0
+        ? existing.items.map((i) => ({
+            productId: i.productId,
+            description:
+              i.description || i.product?.name || "Artículo de catálogo web",
+            quantity: i.quantity,
+            unitPrice: i.unitPrice,
+            taxRate: i.taxRate ?? 0.18,
+            lineTotal: Math.round(i.quantity * i.unitPrice * 100) / 100,
+          }))
+        : [
+            {
+              productId: null,
+              description: `Servicio / Pedido web ${existing.number}`,
+              quantity: 1,
+              unitPrice:
+                existing.subtotal > 0
+                  ? existing.subtotal
+                  : +(existing.total / 1.18).toFixed(2),
+              taxRate: 0.18,
+              lineTotal:
+                existing.subtotal > 0
+                  ? existing.subtotal
+                  : +(existing.total / 1.18).toFixed(2),
+            },
+          ];
+
+    const totals = calcInvoiceTotals(itemsData, { applyTax: true });
+    invoice = await prisma.invoice.create({
+      data: {
+        number,
+        status: "DRAFT",
+        source: "WEB",
+        customerId,
+        userId: session.user.id,
+        notes: `Generada tras verificación de comprobante en pedido web ${existing.number}`,
+        subtotal: totals.subtotal,
+        tax: totals.tax,
+        total: totals.total,
+        items: { create: itemsData },
+      },
+      include: { items: true, payments: true, creditNotes: true },
+    });
+
+    await prisma.webOrder.update({
+      where: { id },
+      data: { invoiceId: invoice.id, customerId },
+    });
+  }
+
+  // 2. Si la factura estaba en borrador (DRAFT), emitirla y descontar stock
+  if (invoice.status === "DRAFT") {
+    await deductStock(
+      invoice.items.map((l) => ({ productId: l.productId, quantity: l.quantity })),
+      { refType: "Invoice", refId: invoice.id },
+      { allowBackorder: true },
+    );
+    await prisma.invoice.update({
+      where: { id: invoice.id },
+      data: { status: "ISSUED", issueDate: new Date() },
+    });
+  }
+
+  // 3. Registrar el pago oficial en la factura
+  const balance = calcInvoiceBalance(
+    invoice.total,
+    invoice.payments,
+    invoice.creditNotes,
+  );
+
+  const verificationStamp = `[Confirmación 3 Pasos Admin: Fondos validados en banco${
+    data?.bankReference ? ` | Ref: ${data.bankReference}` : ""
+  }${data?.note ? ` | Nota: ${data.note}` : ""}]`;
+
+  if (balance > 0.001) {
+    await prisma.payment.create({
+      data: {
+        invoiceId: invoice.id,
+        amount: balance,
+        method: "TRANSFER",
+        notes: verificationStamp,
+      },
+    });
+  }
+
+  await prisma.invoice.update({
+    where: { id: invoice.id },
+    data: { status: "PAID" },
+  });
+
+  // 4. Actualizar estado de la orden web a PAID
+  const auditSummaryNote = `Comprobante verificado (3 confirmaciones) y pago de RD$ ${existing.total.toFixed(
+    2,
+  )} aprobado por ${session.user.name || session.user.email}${
+    data?.bankReference ? ` (Ref: ${data.bankReference})` : ""
+  }`;
+
+  const updatedNotes = [
+    existing.notes || "",
+    `\n\n--- Verificación Bancaria (${new Date().toLocaleString(
+      "es-DO",
+    )}) ---\n${auditSummaryNote}`,
+  ]
+    .join("")
+    .trim();
+
+  await prisma.webOrder.update({
+    where: { id },
+    data: {
+      status: "PAID",
+      notes: updatedNotes,
+    },
+  });
+
+  await writeAudit({
+    action: "RECEIPT_VERIFIED",
+    entity: "WebOrder",
+    entityId: id,
+    summary: auditSummaryNote,
+    userId: session.user?.id,
+    userEmail: session.user?.email,
+    userName: session.user?.name,
+  });
+
+  void sendInvoiceEmail(invoice.id).catch(() => undefined);
+  void notifyCustomerWebOrderStatus(id, "PAID");
+
+  revalidatePath("/pedidos-web");
+  revalidatePath(`/pedidos-web/${id}`);
+  revalidatePath(`/pedido/${id}`);
+  revalidatePath("/mis-pedidos");
+  revalidatePath("/facturas");
+  revalidatePath("/pagos");
+  revalidatePath("/finanzas");
+  revalidatePath("/panel");
+
+  return {
+    success: true,
+    message: `Pago verificado con éxito. Factura ${invoice.number} marcada como pagada y cliente notificado.`,
+  };
+}
+
+/**
+ * Rechaza el comprobante bancario e instruye al cliente a subir uno nuevo
+ */
+export async function rejectReceiptPaymentAction(
+  id: string,
+  data: {
+    reason: string;
+  },
+): Promise<{ success: boolean; message: string; error?: string }> {
+  const session = await requireSession();
+  const existing = await prisma.webOrder.findUnique({ where: { id } });
+  if (!existing) {
+    return { success: false, message: "", error: "Pedido no encontrado" };
+  }
+
+  const stamp = new Date().toLocaleString("es-DO");
+  const who = session.user?.name || session.user?.email || "Administración";
+  const rejectionBlock = `\n\n[COMPROBANTE_RECHAZADO: ${data.reason} (Por ${who} el ${stamp})]`;
+
+  await prisma.webOrder.update({
+    where: { id },
+    data: {
+      status: "AWAITING_PAYMENT",
+      notes: `${existing.notes || ""}${rejectionBlock}`,
+    },
+  });
+
+  await writeAudit({
+    action: "RECEIPT_REJECTED",
+    entity: "WebOrder",
+    entityId: id,
+    summary: `Comprobante de ${existing.number} rechazado: ${data.reason}`,
+    userId: session.user?.id,
+    userEmail: session.user?.email,
+    userName: session.user?.name,
+  });
+
+  revalidatePath("/pedidos-web");
+  revalidatePath(`/pedidos-web/${id}`);
+  revalidatePath(`/pedido/${id}`);
+  revalidatePath("/mis-pedidos");
+
+  return {
+    success: true,
+    message:
+      "Comprobante rechazado. El pedido se mantiene en espera de un nuevo comprobante válido del cliente.",
+  };
+}
+
 export async function markWebOrderInProgress(id: string) {
   const session = await requireSession();
   const order = await prisma.webOrder.update({

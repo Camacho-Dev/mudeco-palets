@@ -10,6 +10,7 @@ import { productImage } from "@/lib/product-image";
 import { PrintActionButton } from "@/components/print-action-button";
 import { MapPin, Factory, ExternalLink, FileText, CheckCircle2, Clock, Eye } from "lucide-react";
 import { extractReceiptFromNotes } from "@/lib/order-receipt";
+import { AdminReceiptVerifier } from "@/components/admin-receipt-verifier";
 import { ReceiptViewerButton } from "@/components/receipt-viewer-button";
 import {
   WEB_STATUS_COLORS,
@@ -305,60 +306,29 @@ export default async function PedidoWebDetailPage({
         </div>
       </div>
 
-      {/* Comprobante de pago bancario adjunto por el cliente */}
+      {/* Comprobante de pago bancario con protocolo de 3 confirmaciones para el Admin */}
       {receipt ? (
-        <div className="card mb-4 border-2 border-emerald-400 bg-emerald-50/60 p-5 shadow-sm">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3.5 min-w-0">
-              {receipt.mimeType === "application/pdf" || receipt.name.toLowerCase().endsWith(".pdf") ? (
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-700 shadow-sm border border-red-200">
-                  <FileText className="h-7 w-7" />
-                </div>
-              ) : (
-                <a
-                  href={receipt.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border border-emerald-300 bg-white shadow-sm hover:opacity-90 transition block"
-                  title="Abrir imagen de comprobante"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={receipt.url}
-                    alt={receipt.name}
-                    className="h-full w-full object-cover"
-                  />
-                </a>
-              )}
-              <div className="min-w-0">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-900 border border-emerald-200">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700" />
-                  Comprobante bancario adjunto por el cliente
-                </span>
-                <p className="mt-1 text-sm font-bold text-[var(--wood-950)] truncate">
-                  {receipt.name}
-                </p>
-                <p className="text-xs text-[var(--muted)]">
-                  Subido el {new Date(receipt.uploadedAt).toLocaleString("es-DO")}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              <ReceiptViewerButton
-                url={receipt.url}
-                name={receipt.name}
-                mimeType={receipt.mimeType}
-              />
-            </div>
-          </div>
-        </div>
+        <AdminReceiptVerifier
+          orderId={order.id}
+          orderNumber={order.number}
+          orderStatus={order.status}
+          customerName={order.customerName}
+          customerEmail={order.customerEmail}
+          totalFormatted={formatCurrency(order.total)}
+          receipt={receipt}
+          invoiceNumber={order.invoice?.number}
+          validationNote={
+            order.notes?.includes("Verificación Bancaria") || order.notes?.includes("Confirmación 3 Pasos")
+              ? order.notes.split("--- Verificación Bancaria")[1]?.slice(0, 220) || null
+              : null
+          }
+        />
       ) : isTransfer ? (
-        <div className="card mb-4 border border-amber-300 bg-amber-50/60 p-4">
+        <div id="comprobante" className="card mb-4 border border-amber-300 bg-amber-50/60 p-4">
           <div className="flex items-center gap-2 text-xs text-amber-900 font-medium">
             <Clock className="h-4 w-4 text-amber-700 shrink-0" />
             <span>
-              Pago por transferencia bancaria: En espera de que el cliente adjunte comprobante.
+              Pago por transferencia bancaria: En espera de que el cliente adjunte comprobante desde la web.
             </span>
           </div>
         </div>
