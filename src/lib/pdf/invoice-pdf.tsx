@@ -13,6 +13,7 @@ import { formatCurrency, formatDate } from "@/lib/format";
 type PdfInvoice = {
   number: string;
   ncf: string | null;
+  ncfExpiresAt?: Date | null;
   issueDate: Date;
   dueDate: Date | null;
   notes: string | null;
@@ -138,6 +139,24 @@ function BrandMark() {
   );
 }
 
+function getDgiiDocumentTitle(ncf: string | null | undefined): string {
+  if (!ncf || ncf.startsWith("PENDING:")) return "FACTURA";
+  const clean = ncf.trim().toUpperCase();
+  if (clean.startsWith("B01") || clean.startsWith("E31")) {
+    return "FACTURA DE CRÉDITO FISCAL";
+  }
+  if (clean.startsWith("B02") || clean.startsWith("E32")) {
+    return "FACTURA DE CONSUMO";
+  }
+  if (clean.startsWith("B14") || clean.startsWith("E44")) {
+    return "COMPROBANTE REGÍMENES ESPECIALES";
+  }
+  if (clean.startsWith("B15") || clean.startsWith("E45")) {
+    return "COMPROBANTE GUBERNAMENTAL";
+  }
+  return "FACTURA CON VALOR FISCAL";
+}
+
 function InvoiceDocument({
   invoice,
   company,
@@ -145,6 +164,8 @@ function InvoiceDocument({
   invoice: PdfInvoice;
   company: Company;
 }) {
+  const docTitle = getDgiiDocumentTitle(invoice.ncf);
+  const hasIssuedNcf = Boolean(invoice.ncf && !invoice.ncf.startsWith("PENDING:"));
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -179,16 +200,30 @@ function InvoiceDocument({
             ) : null}
           </View>
           <View>
-            <Text style={styles.title}>FACTURA</Text>
-            <Text style={styles.muted}>{invoice.number}</Text>
-            {invoice.ncf && !invoice.ncf.startsWith("PENDING:") ? (
-              <Text style={styles.muted}>NCF: {invoice.ncf}</Text>
+            <Text style={styles.title}>{docTitle}</Text>
+            <Text style={[styles.muted, { textAlign: "right" }]}>
+              No. Interno: {invoice.number}
+            </Text>
+            {hasIssuedNcf ? (
+              <Text
+                style={[
+                  styles.muted,
+                  { textAlign: "right", fontFamily: "Helvetica-Bold", color: BRAND },
+                ]}
+              >
+                NCF: {invoice.ncf}
+              </Text>
             ) : null}
-            <Text style={styles.muted}>
-              Fecha: {formatDate(invoice.issueDate)}
+            {hasIssuedNcf && invoice.ncfExpiresAt ? (
+              <Text style={[styles.muted, { textAlign: "right", fontSize: 8.5 }]}>
+                Vencimiento secuencia: {formatDate(invoice.ncfExpiresAt)}
+              </Text>
+            ) : null}
+            <Text style={[styles.muted, { textAlign: "right" }]}>
+              Fecha de emisión: {formatDate(invoice.issueDate)}
             </Text>
             {invoice.dueDate ? (
-              <Text style={styles.muted}>
+              <Text style={[styles.muted, { textAlign: "right" }]}>
                 Vence: {formatDate(invoice.dueDate)}
               </Text>
             ) : null}

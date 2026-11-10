@@ -96,7 +96,17 @@ export async function GET(
     beforeAfterJson: null,
   };
 
-  const pdf = await buildInvoicePdf(invoice, company);
+  let ncfExpiresAt: Date | null = null;
+  if (invoice.ncf && !invoice.ncf.startsWith("PENDING:")) {
+    const prefix = invoice.ncf.trim().slice(0, 3).toUpperCase();
+    const ncfSeries = await prisma.ncfSeries.findFirst({
+      where: { OR: [{ prefix }, { type: prefix }] },
+      orderBy: { createdAt: "desc" },
+    });
+    ncfExpiresAt = ncfSeries?.expiresAt ?? null;
+  }
+
+  const pdf = await buildInvoicePdf({ ...invoice, ncfExpiresAt }, company);
 
   return new NextResponse(new Uint8Array(pdf), {
     headers: {

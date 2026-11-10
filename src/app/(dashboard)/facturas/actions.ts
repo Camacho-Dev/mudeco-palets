@@ -59,10 +59,43 @@ function revalidateSales(invoiceId?: string) {
   if (invoiceId) revalidatePath(`/facturas/${invoiceId}`);
 }
 
-async function resolveNcf(fd: FormData, issued: boolean) {
+async function assertCustomerTaxIdForNcf(
+  customerId: string,
+  ncfOrType: string | null | undefined,
+) {
+  if (!ncfOrType) return;
+  const clean = ncfOrType.replace(/^PENDING:/i, "").trim().toUpperCase();
+  if (
+    clean.startsWith("B01") ||
+    clean.startsWith("B14") ||
+    clean.startsWith("B15") ||
+    clean.startsWith("E31") ||
+    clean.startsWith("E44") ||
+    clean.startsWith("E45")
+  ) {
+    const customer = await prisma.customer.findUnique({
+      where: { id: customerId },
+      select: { taxId: true, name: true },
+    });
+    const digits = (customer?.taxId || "").replace(/\D/g, "");
+    if (digits.length !== 9 && digits.length !== 11) {
+      throw new Error(
+        `Norma DGII 06-2018: Para emitir un comprobante ${clean.slice(0, 3)} (Crédito Fiscal / Gubernamental / Régimen Especial), el cliente "${customer?.name || ""}" debe tener un RNC (9 dígitos) o Cédula (11 dígitos) válido registrado.`,
+      );
+    }
+  }
+}
+
+async function resolveNcf(fd: FormData, issued: boolean, customerId?: string) {
   const manual = String(fd.get("ncf") || "") || null;
-  if (manual && !manual.startsWith("PENDING:")) return manual;
+  if (manual && !manual.startsWith("PENDING:")) {
+    if (customerId) await assertCustomerTaxIdForNcf(customerId, manual);
+    return manual;
+  }
   const ncfType = String(fd.get("ncfType") || "") || null;
+  if (ncfType && customerId) {
+    await assertCustomerTaxIdForNcf(customerId, ncfType);
+  }
   if (issued && ncfType) return allocateNcf(ncfType);
   if (!issued && ncfType) return `PENDING:${ncfType}`;
   return null;
@@ -90,7 +123,7 @@ export async function createInvoice(fd: FormData) {
     await assertCreditAllows(customerId, totals.total);
   }
 
-  const ncf = await resolveNcf(fd, issued);
+  const ncf = await resolveNcf(fd, issued, customerId);
   const number = await nextInvoiceNumber();
 
   const invoice = await prisma.invoice.create({
@@ -164,7 +197,7 @@ export async function generateAndPrint(fd: FormData): Promise<string> {
   });
   await assertStockAvailable(lines);
   await assertCreditAllows(customerId, totals.total);
-  const ncf = await resolveNcf(fd, true);
+  const ncf = await resolveNcf(fd, true, customerId);
   const number = await nextInvoiceNumber();
 
   const invoice = await prisma.invoice.create({
@@ -236,7 +269,7 @@ export async function updateInvoice(id: string, fd: FormData) {
     await assertStockAvailable(lines);
     await assertCreditAllows(customerId, totals.total);
   }
-  const ncf = await resolveNcf(fd, issued);
+  const ncf = await resolveNcf(fd, issued, customerId);
 
   await prisma.$transaction([
     prisma.invoiceItem.deleteMany({ where: { invoiceId: id } }),
@@ -311,7 +344,10 @@ export async function issueInvoice(id: string) {
   let allocatedNcf = inv.ncf;
   if (inv.ncf?.startsWith("PENDING:")) {
     const pendingType = inv.ncf.slice("PENDING:".length);
+    await assertCustomerTaxIdForNcf(inv.customerId, pendingType);
     allocatedNcf = pendingType ? await allocateNcf(pendingType) : null;
+  } else if (inv.ncf) {
+    await assertCustomerTaxIdForNcf(inv.customerId, inv.ncf);
   }
 
   await prisma.invoice.update({

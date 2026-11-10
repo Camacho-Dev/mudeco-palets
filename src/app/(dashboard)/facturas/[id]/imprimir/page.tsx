@@ -23,6 +23,25 @@ export default async function ImprimirFacturaPage({
     where: { id: "default" },
   });
 
+  const hasIssuedNcf = Boolean(invoice.ncf && !invoice.ncf.startsWith("PENDING:"));
+  const ncfPrefix = hasIssuedNcf ? invoice.ncf!.trim().slice(0, 3).toUpperCase() : "";
+  const ncfSeries = ncfPrefix
+    ? await prisma.ncfSeries.findFirst({
+        where: { OR: [{ prefix: ncfPrefix }, { type: ncfPrefix }] },
+        orderBy: { createdAt: "desc" },
+      })
+    : null;
+  const dgiiTitle =
+    ncfPrefix === "B01" || ncfPrefix === "E31"
+      ? "Factura de Crédito Fiscal"
+      : ncfPrefix === "B02" || ncfPrefix === "E32"
+        ? "Factura de Consumo"
+        : ncfPrefix === "B14" || ncfPrefix === "E44"
+          ? "Comprobante Regímenes Especiales"
+          : ncfPrefix === "B15" || ncfPrefix === "E45"
+            ? "Comprobante Gubernamental"
+            : "Factura";
+
   return (
     <div className="mx-auto max-w-3xl">
       <PrintControls invoiceId={id} />
@@ -47,14 +66,21 @@ export default async function ImprimirFacturaPage({
             ) : null}
           </div>
           <div className="text-right">
-            <p className="text-xs font-semibold tracking-[0.2em] text-[var(--muted)] uppercase">
-              Factura
+            <p className="text-xs font-bold tracking-[0.16em] text-[var(--wood-900)] uppercase">
+              {dgiiTitle}
             </p>
             <p className="font-display text-2xl">{invoice.number}</p>
-            <p className="mt-2 text-sm">Fecha: {formatDate(invoice.issueDate)}</p>
-            {invoice.ncf && !invoice.ncf.startsWith("PENDING:") ? (
-              <p className="text-sm">NCF: {invoice.ncf}</p>
+            {hasIssuedNcf ? (
+              <p className="mt-1 font-mono text-sm font-bold text-[var(--wood-950)]">
+                NCF: {invoice.ncf}
+              </p>
             ) : null}
+            {hasIssuedNcf && ncfSeries?.expiresAt ? (
+              <p className="text-xs text-[var(--muted)]">
+                Vencimiento secuencia: {formatDate(ncfSeries.expiresAt)}
+              </p>
+            ) : null}
+            <p className="mt-1 text-sm">Fecha: {formatDate(invoice.issueDate)}</p>
             {invoice.dueDate ? (
               <p className="text-sm">Vence: {formatDate(invoice.dueDate)}</p>
             ) : null}
