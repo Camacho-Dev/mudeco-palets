@@ -149,6 +149,7 @@ export async function deductStock(
       reason: "SALE",
       refType: ref?.refType,
       refId: ref?.refId,
+      allowNegative: Boolean(options?.allowBackorder),
     });
   }
 }

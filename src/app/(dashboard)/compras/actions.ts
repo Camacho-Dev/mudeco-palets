@@ -82,7 +82,10 @@ export async function receivePurchase(id: string) {
     });
 
     // Calcular costo promedio ponderado si ya había stock positivo y costo previo
-    let nextCost = item.unitCost;
+    let nextCost =
+      item.unitCost > 0
+        ? item.unitCost
+        : (existingProduct?.cost ?? 0);
     if (
       existingProduct &&
       existingProduct.stock > 0 &&

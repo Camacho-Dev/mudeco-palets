@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useSession } from "next-auth/react";
 import { useCart } from "@/components/store/cart-context";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, roundMoney } from "@/lib/format";
 import { submitWebCheckout } from "@/app/(store)/checkout/actions";
 import { STORE_LOGISTICS } from "@/lib/store-info";
 import Link from "next/link";
@@ -103,12 +103,16 @@ export function CheckoutForm({
   }, [phone, taxId, address, notes, fulfillment]);
 
   const totals = useMemo(() => {
-    const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
-    const tax = items.reduce(
-      (s, i) => s + i.price * i.quantity * i.taxRate,
-      0,
+    const subtotal = roundMoney(
+      items.reduce((s, i) => s + roundMoney(i.price * i.quantity), 0),
     );
-    return { subtotal, tax, total: subtotal + tax };
+    const tax = roundMoney(
+      items.reduce(
+        (s, i) => s + roundMoney(roundMoney(i.price * i.quantity) * i.taxRate),
+        0,
+      ),
+    );
+    return { subtotal, tax, total: roundMoney(subtotal + tax) };
   }, [items]);
 
   const cartJson = JSON.stringify(

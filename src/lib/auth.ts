@@ -23,7 +23,7 @@ const providers: NextAuthConfig["providers"] = [
       if (!parsed.success) return null;
 
       let email = parsed.data.email.trim().toLowerCase();
-      if (email === "admin") {
+      if (email === "admin" || email === "administrador") {
         email = "admin@empresa.com";
       }
 

@@ -55,7 +55,7 @@ export default async function EditarClientePage({
   if (!customer) notFound();
 
   const totalBilled = customer.invoices
-    .filter((i) => i.status !== "CANCELLED" && i.status !== "DRAFT")
+    .filter((i) => i.status !== "VOIDED" && i.status !== "CANCELLED" && i.status !== "DRAFT")
     .reduce((s, i) => s + i.total, 0);
 
   const update = updateCustomer.bind(null, id);

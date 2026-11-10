@@ -3,18 +3,23 @@
 import Link from "next/link";
 import { useCart } from "@/components/store/cart-context";
 import { useSession } from "next-auth/react";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency, roundMoney } from "@/lib/format";
 import { CheckoutStepBanner } from "@/components/store/checkout-step-banner";
 import { Minus, Plus, ShoppingBag, Trash2, ArrowRight } from "lucide-react";
 
 export function CartView() {
   const { data: session } = useSession();
-  const { items, setQty, removeItem, subtotal, clear } = useCart();
-  const tax = items.reduce(
-    (s, i) => s + i.price * i.quantity * i.taxRate,
-    0,
+  const { items, setQty, removeItem, clear } = useCart();
+  const subtotal = roundMoney(
+    items.reduce((s, i) => s + roundMoney(i.price * i.quantity), 0),
   );
-  const total = subtotal + tax;
+  const tax = roundMoney(
+    items.reduce(
+      (s, i) => s + roundMoney(roundMoney(i.price * i.quantity) * i.taxRate),
+      0,
+    ),
+  );
+  const total = roundMoney(subtotal + tax);
 
   if (!items.length) {
     return (

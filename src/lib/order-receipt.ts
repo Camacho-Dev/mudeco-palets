@@ -67,6 +67,15 @@ export function extractReceiptFromNotes(notes: string | null | undefined): Order
   return null;
 }
 
+export function stripReceiptFromNotes(
+  existingNotes: string | null | undefined,
+): string {
+  return (existingNotes || "")
+    .replace(/\[COMPROBANTE_PAGO:\s*\{[\s\S]*?\}\]/g, "")
+    .replace(/\[COMPROBANTE:[^\]]+\]/g, "")
+    .trim();
+}
+
 /**
  * Añade o reemplaza la etiqueta de comprobante en el campo notes.
  */
@@ -74,10 +83,7 @@ export function attachReceiptToNotes(
   existingNotes: string | null | undefined,
   receipt: OrderReceipt,
 ): string {
-  const clean = (existingNotes || "")
-    .replace(/\[COMPROBANTE_PAGO:\s*\{[\s\S]*?\}\]/g, "")
-    .replace(/\[COMPROBANTE:[^\]]+\]/g, "")
-    .trim();
+  const clean = stripReceiptFromNotes(existingNotes);
 
   const tag = `[COMPROBANTE_PAGO: ${JSON.stringify(receipt)}]`;
   return clean ? `${clean}\n\n${tag}` : tag;

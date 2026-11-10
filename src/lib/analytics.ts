@@ -206,10 +206,13 @@ export async function getBusinessAnalytics(range?: DateRange) {
   );
 
   function invoiceCost(inv: (typeof invoices)[number]) {
-    return inv.items.reduce((s, item) => {
+    const rawCost = inv.items.reduce((s, item) => {
       const cost = item.product?.cost ?? 0;
       return s + cost * item.quantity;
     }, 0);
+    if (inv.total <= 0) return 0;
+    const netRatio = Math.min(1, Math.max(0, netInvoiceTotal(inv) / inv.total));
+    return rawCost * netRatio;
   }
 
   const costAll = roundMoney(invoices.reduce((s, i) => s + invoiceCost(i), 0));
@@ -391,8 +394,12 @@ export async function getBusinessAnalytics(range?: DateRange) {
     (o) => o.serviceKind === "CUSTOM_QUOTE",
   ).length;
   const webContacts = webOrders.filter((o) => o.serviceKind === "CONTACT").length;
-  const webSales = webOrders.filter((o) => o.type === "SALE").length;
-  const webQuotes = webOrders.filter((o) => o.type === "QUOTE").length;
+  const webSales = webOrders.filter(
+    (o) => o.type === "SALE" && o.status !== "CANCELLED",
+  ).length;
+  const webQuotes = webOrders.filter(
+    (o) => o.type === "QUOTE" && o.status !== "CANCELLED",
+  ).length;
   const webDone = webOrders.filter((o) =>
     ["DONE", "PAID"].includes(o.status),
   ).length;

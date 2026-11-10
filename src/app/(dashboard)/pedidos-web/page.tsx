@@ -8,6 +8,7 @@ import { ConfirmForm } from "@/components/confirm-form";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { whatsappLink } from "@/lib/store";
 import { ExternalLink, Globe, Image as ImageIcon, Download, Activity } from "lucide-react";
+import { stripReceiptFromNotes } from "@/lib/order-receipt";
 import {
   WEB_STATUS_COLORS,
   WEB_STATUS_LABEL,
@@ -317,7 +318,7 @@ export default async function PedidosWebPage({
                     </td>
                     <td className="max-w-[180px] px-4 py-3 text-xs text-[var(--muted)]">
                       <span className="line-clamp-2 whitespace-pre-wrap">
-                        {(o.notes || "—").replace(/^\[[^\]]+\]\s*/m, "")}
+                        {stripReceiptFromNotes(o.notes).replace(/^\[[^\]]+\]\s*/m, "") || "—"}
                       </span>
                     </td>
                     <td className="px-4 py-3">{formatCurrency(o.total)}</td>

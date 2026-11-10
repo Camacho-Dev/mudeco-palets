@@ -347,7 +347,7 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
                 </div>
               </div>
               <p className="font-display mt-2 text-3xl font-bold text-[var(--wood-950)]">
-                {kpis.webRepairsCount}
+                {kpis.webCustomQuotesCount || kpis.webQuotesCount}
               </p>
               <p className="mt-2 text-xs font-medium text-[#b0894f] group-hover:underline">
                 A medida →

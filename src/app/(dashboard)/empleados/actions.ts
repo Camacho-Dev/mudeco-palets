@@ -117,7 +117,7 @@ export async function updateEmployee(id: string, fd: FormData) {
   const role = rawRole === "ADMIN" ? "ADMIN" : "VENDEDOR";
   const salary = Math.max(0, Number(fd.get("salary") || 0));
   const commissionRateRaw = Math.max(0, Math.min(100, Number(fd.get("commissionRate") || 0)));
-  const commissionRate = commissionRateRaw > 1 ? commissionRateRaw / 100 : commissionRateRaw;
+  const commissionRate = commissionRateRaw / 100;
   const hireDateRaw = String(fd.get("hireDate") || "").trim();
   const hireDate = hireDateRaw ? new Date(hireDateRaw) : null;
   const emergencyContact = String(fd.get("emergencyContact") || "").trim() || null;

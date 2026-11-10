@@ -162,7 +162,10 @@ function InvoiceDocument({
                 {company.slogan}
               </Text>
             ) : null}
-            {company.taxId ? (
+            {company.taxId &&
+            !["130000000", "1-30-00000-0", "1-32-45678-9", "132456789"].includes(
+              company.taxId.trim(),
+            ) ? (
               <Text style={styles.muted}>RNC: {company.taxId}</Text>
             ) : null}
             {company.address ? (

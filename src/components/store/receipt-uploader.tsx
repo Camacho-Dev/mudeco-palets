@@ -76,8 +76,8 @@ export function ReceiptUploader({
       return;
     }
 
-    if (file.size > 15 * 1024 * 1024) {
-      setError("El archivo es demasiado grande (máximo 15 MB).");
+    if (file.size > 4.5 * 1024 * 1024) {
+      setError("El archivo supera el límite permitido de 4.5 MB.");
       return;
     }
 
@@ -140,6 +140,29 @@ export function ReceiptUploader({
 
   const isReceiptPdf =
     receipt?.mimeType === "application/pdf" || receipt?.name?.toLowerCase().endsWith(".pdf");
+
+  function openReceiptInNewTab(url: string) {
+    if (!url.startsWith("data:")) {
+      window.open(url, "_blank", "noopener,noreferrer");
+      return;
+    }
+    try {
+      const [header, base64] = url.split(",");
+      const mimeMatch = header.match(/data:([^;]+);base64/);
+      const mime = mimeMatch ? mimeMatch[1] : "application/octet-stream";
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      const blob = new Blob([bytes], { type: mime });
+      const blobUrl = URL.createObjectURL(blob);
+      window.open(blobUrl, "_blank", "noopener,noreferrer");
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    } catch {
+      setShowModal(true);
+    }
+  }
 
   return (
     <div className="relative overflow-hidden rounded-2xl border-2 border-[#d4af37]/40 bg-gradient-to-b from-white via-[#fffdfb] to-[#faf6ef] p-6 shadow-sm sm:p-7">
@@ -219,16 +242,19 @@ export function ReceiptUploader({
             </div>
 
             <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-              <a
-                href={receipt.url}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 text-xs font-bold text-emerald-900 border border-emerald-300 shadow-2xs hover:bg-emerald-50 hover:border-emerald-400 transition"
+              <button
+                type="button"
+                onClick={() =>
+                  isReceiptPdf
+                    ? openReceiptInNewTab(receipt.url)
+                    : setShowModal(true)
+                }
+                className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 text-xs font-bold text-emerald-900 border border-emerald-300 shadow-2xs hover:bg-emerald-50 hover:border-emerald-400 transition cursor-pointer"
               >
                 <Eye className="h-3.5 w-3.5 text-emerald-700" />
                 <span>Ver comprobante</span>
                 <ExternalLink className="h-3 w-3 opacity-60" />
-              </a>
+              </button>
 
               <button
                 type="button"
@@ -301,7 +327,7 @@ export function ReceiptUploader({
               )}
             </p>
             <p className="mt-1 text-xs text-[var(--muted)]">
-              Admite capturas JPG, PNG, WebP o documentos bancarios PDF (hasta 15 MB)
+              Admite capturas JPG, PNG, WebP o documentos bancarios PDF (hasta 4.5 MB)
             </p>
 
             {localPreview && (

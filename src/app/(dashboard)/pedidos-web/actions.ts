@@ -212,6 +212,52 @@ export async function cancelWebOrder(id: string) {
 
 export async function markWebOrderDone(id: string) {
   const session = await requireSession();
+  const existing = await prisma.webOrder.findUnique({
+    where: { id },
+    include: {
+      invoice: {
+        include: { items: true, payments: true, creditNotes: true },
+      },
+    },
+  });
+  if (!existing) throw new Error("Pedido no encontrado");
+
+  if (existing.invoice) {
+    const inv = existing.invoice;
+    if (inv.status === "DRAFT") {
+      await deductStock(
+        inv.items.map((l) => ({ productId: l.productId, quantity: l.quantity })),
+        { refType: "Invoice", refId: inv.id },
+        { allowBackorder: true },
+      );
+      await prisma.invoice.update({
+        where: { id: inv.id },
+        data: { status: "ISSUED", issueDate: new Date() },
+      });
+    }
+    if (["DRAFT", "ISSUED", "PARTIAL"].includes(inv.status)) {
+      const balance = calcInvoiceBalance(
+        inv.total,
+        inv.payments,
+        inv.creditNotes,
+      );
+      if (balance > 0.001) {
+        await prisma.payment.create({
+          data: {
+            invoiceId: inv.id,
+            amount: balance,
+            method: existing.paymentMode === "ONLINE" ? "CARD" : existing.paymentMode === "LOCAL" ? "CASH" : "TRANSFER",
+            notes: `Cobro completado al marcar atendido el Pedido Web ${existing.number}`,
+          },
+        });
+      }
+      await prisma.invoice.update({
+        where: { id: inv.id },
+        data: { status: "PAID" },
+      });
+    }
+  }
+
   const order = await prisma.webOrder.update({
     where: { id },
     data: { status: "DONE" },
@@ -230,6 +276,9 @@ export async function markWebOrderDone(id: string) {
   revalidatePath(`/pedidos-web/${id}`);
   revalidatePath(`/pedido/${id}`);
   revalidatePath("/mis-pedidos");
+  revalidatePath("/facturas");
+  revalidatePath("/pagos");
+  revalidatePath("/finanzas");
   revalidatePath("/panel");
 }
 
@@ -303,7 +352,7 @@ export async function convertWebQuoteToInvoice(id: string) {
 
   await prisma.webOrder.update({
     where: { id },
-    data: { invoiceId: invoice.id, status: "DONE" },
+    data: { invoiceId: invoice.id, status: "IN_PROGRESS" },
   });
 
   await writeAudit({

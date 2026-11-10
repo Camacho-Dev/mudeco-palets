@@ -88,7 +88,10 @@ export async function createCreditNote(fd: FormData) {
     );
   }
 
-  const totals = calcInvoiceTotals(lines, { applyTax: invoice.applyTax });
+  const totals = calcInvoiceTotals(lines, {
+    applyTax: invoice.applyTax,
+    deliveryFee: useFull ? invoice.deliveryFee : 0,
+  });
   // En monto parcial con ITBIS, asegurar que posibles diferencias de 1 centavo por redondeo cuadren con customAmount
   if (!useFull && customAmount > 0 && Math.abs(totals.total - customAmount) <= 0.02) {
     totals.total = Math.round(customAmount * 100) / 100;

@@ -67,13 +67,18 @@ async function resolveLines(cart: CartLineInput[]) {
     throw new Error("El carrito supera el límite máximo de 50 artículos distintos");
   }
 
-  const sanitized: { productId: string; qty: number }[] = [];
+  const qtyByProduct = new Map<string, number>();
   for (const row of cart) {
     const rawQty = Number(row.quantity);
     if (!row.productId || !Number.isFinite(rawQty) || rawQty < 1) continue;
-    const qty = Math.min(100, Math.floor(rawQty));
-    sanitized.push({ productId: String(row.productId).trim(), qty });
+    const pid = String(row.productId).trim();
+    const nextQty = Math.min(100, (qtyByProduct.get(pid) || 0) + Math.floor(rawQty));
+    qtyByProduct.set(pid, nextQty);
   }
+  const sanitized = Array.from(qtyByProduct.entries()).map(([productId, qty]) => ({
+    productId,
+    qty,
+  }));
   if (!sanitized.length) throw new Error("El carrito está vacío");
 
   const uniqueIds = Array.from(new Set(sanitized.map((r) => r.productId)));
@@ -432,14 +437,14 @@ export async function finalizeOnlinePaidOrder(webOrderId: string) {
 
   const inv = order.invoice;
 
-  // Pago + status updates en transacción atómica
+  // Pago + status updates en transacción atómica e idempotente ante concurrencia (webhook + redirect)
+  let transitionedFromDraft = false;
   const result = await prisma.$transaction(async (tx) => {
-    if (inv.status === "DRAFT") {
-      await tx.invoice.update({
-        where: { id: inv.id },
-        data: { status: "ISSUED" },
-      });
-    }
+    const draftUpdate = await tx.invoice.updateMany({
+      where: { id: inv.id, status: "DRAFT" },
+      data: { status: "ISSUED" },
+    });
+    transitionedFromDraft = draftUpdate.count > 0;
 
     const existingPay = await tx.payment.findFirst({
       where: { invoiceId: inv.id, method: "CARD" },
@@ -467,8 +472,8 @@ export async function finalizeOnlinePaidOrder(webOrderId: string) {
     });
   });
 
-  // Stock atómico fuera de la transacción DB (permite muebles bajo pedido con stock 0)
-  if (inv.status === "DRAFT") {
+  // Descontar stock únicamente en la ejecución que transicionó la factura de DRAFT a ISSUED
+  if (transitionedFromDraft) {
     await deductStock(
       inv.items.map((l) => ({
         productId: l.productId,

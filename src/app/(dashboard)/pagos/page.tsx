@@ -89,6 +89,7 @@ export default async function PagosPage({
     include: {
       customer: true,
       payments: true,
+      creditNotes: true,
     },
   });
 
@@ -155,7 +156,14 @@ export default async function PagosPage({
             ) : (
               openInvoices.map((inv) => {
                 const paid = inv.payments.reduce((s, p) => s + p.amount, 0);
-                const balance = Math.round((inv.total - paid) * 100) / 100;
+                const credited = (inv.creditNotes || []).reduce(
+                  (s, c) => s + c.total,
+                  0,
+                );
+                const balance = Math.max(
+                  0,
+                  Math.round((inv.total - paid - credited) * 100) / 100,
+                );
                 return (
                   <tr key={inv.id}>
                     <td className="font-medium">{inv.number}</td>

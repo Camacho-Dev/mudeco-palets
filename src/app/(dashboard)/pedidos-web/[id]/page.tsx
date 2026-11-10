@@ -10,6 +10,7 @@ import { productImage } from "@/lib/product-image";
 import { PrintActionButton } from "@/components/print-action-button";
 import { MapPin, Factory, ExternalLink, FileText, CheckCircle2, Clock, Eye } from "lucide-react";
 import { extractReceiptFromNotes } from "@/lib/order-receipt";
+import { ReceiptViewerButton } from "@/components/receipt-viewer-button";
 import {
   WEB_STATUS_COLORS,
   WEB_STATUS_LABEL,
@@ -344,16 +345,11 @@ export default async function PedidoWebDetailPage({
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
-              <a
-                href={receipt.url}
-                target="_blank"
-                rel="noreferrer"
-                className="btn btn-secondary text-xs inline-flex items-center gap-1.5 bg-white border-emerald-300 shadow-sm text-emerald-950 hover:bg-emerald-50"
-              >
-                <Eye className="h-3.5 w-3.5 text-emerald-700" />
-                <span>Ver comprobante</span>
-                <ExternalLink className="h-3 w-3 opacity-60" />
-              </a>
+              <ReceiptViewerButton
+                url={receipt.url}
+                name={receipt.name}
+                mimeType={receipt.mimeType}
+              />
             </div>
           </div>
         </div>

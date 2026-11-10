@@ -47,6 +47,9 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion", "date-fns"],
+    serverActions: {
+      bodySizeLimit: "6mb",
+    },
   },
   allowedDevOrigins: [
     "localhost:3000",

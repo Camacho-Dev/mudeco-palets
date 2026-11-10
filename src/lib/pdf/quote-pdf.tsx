@@ -174,7 +174,10 @@ function QuoteDocument({
                 {company.slogan}
               </Text>
             ) : null}
-            {company.taxId ? (
+            {company.taxId &&
+            !["130000000", "1-30-00000-0", "1-32-45678-9", "132456789"].includes(
+              company.taxId.trim(),
+            ) ? (
               <Text style={styles.muted}>RNC: {company.taxId}</Text>
             ) : null}
             {company.address ? (
@@ -254,7 +257,12 @@ function QuoteDocument({
         {quote.notes ? (
           <View style={styles.notesBox}>
             <Text style={[styles.label, { marginBottom: 2 }]}>Términos y Notas del Proyecto</Text>
-            <Text style={{ fontSize: 9, lineHeight: 1.4 }}>{quote.notes}</Text>
+            <Text style={{ fontSize: 9, lineHeight: 1.4 }}>
+              {quote.notes
+                .replace(/\[COMPROBANTE_PAGO:\s*\{[\s\S]*?\}\]/g, "")
+                .replace(/\[COMPROBANTE:[^\]]+\]/g, "")
+                .trim()}
+            </Text>
           </View>
         ) : null}
 
