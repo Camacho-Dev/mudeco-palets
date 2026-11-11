@@ -190,10 +190,10 @@ export default async function StoreHomePage() {
   return (
     <div className="bg-[#0a0a0a] text-white">
       {/* —— Hero principal FULL-WIDTH Edge-to-Edge —— */}
-      <section className="relative w-full overflow-hidden border-b border-white/[0.08] bg-[#0a0a0a]">
-        <div className="relative isolate min-h-[520px] sm:min-h-[580px] md:min-h-[640px] lg:min-h-[700px] xl:min-h-[740px] w-full overflow-hidden">
+      <section className="relative z-20 w-full border-b border-white/[0.08] bg-[#0a0a0a]">
+        <div className="relative min-h-[520px] sm:min-h-[580px] md:min-h-[640px] lg:min-h-[700px] xl:min-h-[740px] w-full">
           {/* Imagen de fondo estática de alta nitidez */}
-          <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={company.heroImage}
@@ -205,14 +205,14 @@ export default async function StoreHomePage() {
 
           {/* Iluminación atmosférica en gradientes multicapa */}
           <div
-            className="absolute inset-0"
+            className="absolute inset-0 pointer-events-none"
             style={{
               background:
                 "radial-gradient(circle at 20% 45%, rgba(201, 161, 90, 0.16), transparent 55%), linear-gradient(90deg, rgba(10,10,10,0.96) 0%, rgba(10,10,10,0.80) 48%, rgba(10,10,10,0.50) 100%)",
             }}
           />
 
-          <div className="relative z-10 mx-auto flex h-full min-h-[520px] sm:min-h-[580px] md:min-h-[640px] lg:min-h-[700px] xl:min-h-[740px] w-full max-w-[1920px] flex-col justify-center px-4 py-12 sm:px-8 md:px-12 lg:px-14 xl:px-16 2xl:px-20">
+          <div className="relative z-20 mx-auto flex h-full min-h-[520px] sm:min-h-[580px] md:min-h-[640px] lg:min-h-[700px] xl:min-h-[740px] w-full max-w-[1920px] flex-col justify-center px-4 py-12 sm:px-8 md:px-12 lg:px-14 xl:px-16 2xl:px-20">
             <div className="grid gap-10 lg:grid-cols-12 lg:gap-10 xl:gap-14 items-center">
               {/* Columna Izquierda: Mensaje editorial y llamadas a la acción */}
               <div className="lg:col-span-7 xl:col-span-7">
@@ -262,11 +262,9 @@ export default async function StoreHomePage() {
                 </FadeUp>
               </div>
 
-              {/* Columna Derecha: Únicamente el buscador profesional (ubicación marcada en rojo) */}
-              <div className="lg:col-span-5 xl:col-span-5 flex justify-center lg:justify-end">
-                <FadeUp delay={0.12}>
-                  <HeroSearchBar products={availableForSearch} />
-                </FadeUp>
+              {/* Columna Derecha: Únicamente el buscador profesional (con z-30 para sobreponerse sin ser recortado) */}
+              <div className="relative z-30 lg:col-span-5 xl:col-span-5 flex justify-center lg:justify-end">
+                <HeroSearchBar products={availableForSearch} />
               </div>
             </div>
           </div>
@@ -274,7 +272,7 @@ export default async function StoreHomePage() {
       </section>
 
       {/* —— Trust strip FULL-WIDTH —— */}
-      <section className="w-full border-b border-white/[0.08] bg-[#0c0c0c]">
+      <section className="relative z-10 w-full border-b border-white/[0.08] bg-[#0c0c0c]">
         <div className="mx-auto w-full max-w-[1920px] px-4 py-5 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
             {TRUST.map((t, idx) => (

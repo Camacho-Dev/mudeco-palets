@@ -161,7 +161,7 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.98 }}
             transition={{ duration: 0.18 }}
-            className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-white/15 bg-[#12110e]/98 backdrop-blur-2xl shadow-[0_25px_60px_rgba(0,0,0,0.85),0_0_30px_rgba(201,161,90,0.15)] text-white"
+            className="absolute left-0 right-0 top-full z-[100] mt-2 overflow-hidden rounded-2xl border border-[#c9a15a]/40 bg-[#12110e]/98 backdrop-blur-2xl shadow-[0_30px_80px_rgba(0,0,0,0.98),0_0_40px_rgba(201,161,90,0.25)] text-white"
           >
             {/* Cabecera del panel de búsqueda */}
             <div className="flex items-center justify-between border-b border-white/[0.08] px-4 py-2.5 bg-white/[0.02]">
@@ -178,7 +178,7 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
 
             {/* Lista de productos interactiva */}
             {filteredProducts.length > 0 ? (
-              <div className="max-h-[380px] overflow-y-auto divide-y divide-white/[0.05]">
+              <div className="max-h-[300px] sm:max-h-[340px] overflow-y-auto divide-y divide-white/[0.05]">
                 {filteredProducts.map((p) => {
                   const img = productImage(p);
                   return (
