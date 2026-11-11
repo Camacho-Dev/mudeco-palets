@@ -16,8 +16,6 @@ import {
   ShoppingBag,
   Leaf,
   ShieldCheck,
-  Home,
-  Smartphone,
   CheckCircle2,
   HelpCircle,
   X,
@@ -26,10 +24,9 @@ import {
   Shield,
   Award,
   Check,
-  ExternalLink,
-  Copy,
 } from "lucide-react";
 import { LogoMark } from "@/components/logo";
+import { WoodBrandStamp } from "@/components/brand/wood-brand-stamp";
 import {
   checkGoogleAuthStatus,
   registerCustomer,
@@ -138,61 +135,6 @@ function GoogleIcon({ className = "w-5 h-5 shrink-0" }: { className?: string }) 
 }
 
 /* =========================================================================
-   CÓDIGO QR VECTORIAL CON MATRIZ ESTILIZADA
-   ========================================================================= */
-function QrCodeGraphic({ className = "w-11 h-11 shrink-0 bg-white p-1 rounded-md shadow-sm" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 100 100"
-      className={className}
-      aria-label="Código QR de acceso móvil"
-    >
-      <rect x="5" y="5" width="28" height="28" rx="3" fill="#120e0b" />
-      <rect x="9" y="9" width="20" height="20" rx="2" fill="#ffffff" />
-      <rect x="13" y="13" width="12" height="12" rx="1.5" fill="#120e0b" />
-
-      <rect x="67" y="5" width="28" height="28" rx="3" fill="#120e0b" />
-      <rect x="71" y="9" width="20" height="20" rx="2" fill="#ffffff" />
-      <rect x="75" y="13" width="12" height="12" rx="1.5" fill="#120e0b" />
-
-      <rect x="5" y="67" width="28" height="28" rx="3" fill="#120e0b" />
-      <rect x="9" y="71" width="20" height="20" rx="2" fill="#ffffff" />
-      <rect x="13" y="75" width="12" height="12" rx="1.5" fill="#120e0b" />
-
-      <rect x="70" y="70" width="16" height="16" rx="2" fill="#120e0b" />
-      <rect x="73" y="73" width="10" height="10" rx="1.5" fill="#ffffff" />
-      <rect x="76" y="76" width="4" height="4" fill="#120e0b" />
-
-      <rect x="37" y="17" width="5" height="5" fill="#120e0b" />
-      <rect x="47" y="17" width="5" height="5" fill="#120e0b" />
-      <rect x="57" y="17" width="5" height="5" fill="#120e0b" />
-      <rect x="17" y="37" width="5" height="5" fill="#120e0b" />
-      <rect x="17" y="47" width="5" height="5" fill="#120e0b" />
-      <rect x="17" y="57" width="5" height="5" fill="#120e0b" />
-
-      <rect x="37" y="37" width="6" height="6" fill="#120e0b" />
-      <rect x="47" y="37" width="5" height="5" fill="#120e0b" />
-      <rect x="56" y="37" width="6" height="6" fill="#120e0b" />
-      <rect x="37" y="47" width="6" height="6" fill="#120e0b" />
-      <rect x="47" y="47" width="5" height="5" fill="#120e0b" />
-      <rect x="56" y="47" width="6" height="6" fill="#120e0b" />
-      <rect x="37" y="57" width="5" height="5" fill="#120e0b" />
-      <rect x="47" y="57" width="6" height="6" fill="#120e0b" />
-      <rect x="56" y="57" width="5" height="5" fill="#120e0b" />
-
-      <rect x="37" y="75" width="5" height="5" fill="#120e0b" />
-      <rect x="47" y="75" width="5" height="5" fill="#120e0b" />
-      <rect x="37" y="85" width="5" height="5" fill="#120e0b" />
-      <rect x="47" y="85" width="5" height="5" fill="#120e0b" />
-      <rect x="75" y="37" width="5" height="5" fill="#120e0b" />
-      <rect x="85" y="37" width="5" height="5" fill="#120e0b" />
-      <rect x="75" y="47" width="5" height="5" fill="#120e0b" />
-      <rect x="85" y="47" width="5" height="5" fill="#120e0b" />
-    </svg>
-  );
-}
-
-/* =========================================================================
    FORMULARIO PRINCIPAL DE LOGIN Y REGISTRO (CON GIRO 3D Y GOOGLE AUTH)
    ========================================================================= */
 function LoginForm() {
@@ -237,9 +179,7 @@ function LoginForm() {
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotError, setForgotError] = useState("");
   const [forgotPreviewUrl, setForgotPreviewUrl] = useState<string | null>(null);
-  const [showQrModal, setShowQrModal] = useState(false);
   const [showGoogleSetupModal, setShowGoogleSetupModal] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(false);
 
   // Estado de mouse para el spotlight reflectante en la tarjeta
   const cardRef = useRef<HTMLDivElement | null>(null);
@@ -439,13 +379,6 @@ function LoginForm() {
     }
   }
 
-  function handleCopyQuickLink() {
-    const url = window.location.origin + "/login";
-    navigator.clipboard.writeText(url);
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2500);
-  }
-
   return (
     <>
       {/* Modal Ayuda / Olvidó contraseña */}
@@ -619,52 +552,6 @@ function LoginForm() {
         </div>
       )}
 
-      {/* Modal Interactivo de Acceso QR Móvil */}
-      {showQrModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-sm rounded-2xl border border-[#c9a15a]/40 bg-[#16120e] p-6 text-center shadow-2xl">
-            <button
-              type="button"
-              onClick={() => setShowQrModal(false)}
-              className="absolute top-4 right-4 text-white/60 hover:text-white p-1"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <div className="mx-auto w-12 h-12 rounded-full bg-[#c9a15a]/15 border border-[#c9a15a]/40 flex items-center justify-center text-[#d4af37] mb-3">
-              <Smartphone className="h-6 w-6" />
-            </div>
-            <h3 className="text-base font-serif font-medium text-white mb-1">
-              Accede desde tu Teléfono
-            </h3>
-            <p className="text-xs text-white/65 mb-5 max-w-xs mx-auto">
-              Apunta la cámara de tu smartphone hacia el código para abrir la tienda e iniciar sesión instantáneamente.
-            </p>
-
-            <div className="bg-white p-4 rounded-xl inline-block shadow-2xl mb-5">
-              <QrCodeGraphic className="w-28 h-28 shrink-0 bg-white p-1 rounded-lg" />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={handleCopyQuickLink}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 border border-white/15 px-4 py-2.5 text-xs font-semibold text-white hover:bg-white/15 transition"
-              >
-                {copiedLink ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4 text-[#d4af37]" />}
-                <span>{copiedLink ? "¡Enlace copiado!" : "Copiar enlace de acceso"}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowQrModal(false)}
-                className="text-xs text-white/50 hover:text-white pt-1 transition"
-              >
-                Cerrar ventana
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Modal Informativo: Google OAuth Setup Assistant */}
       {showGoogleSetupModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
@@ -833,51 +720,6 @@ function LoginForm() {
                   <span>CONTINUAR</span>
                   <ArrowRight className="h-4 w-4" />
                 </button>
-
-                {/* Separador o */}
-                <div className="luxury-or-divider">
-                  <div className="luxury-or-line" />
-                  <span className="luxury-or-text">o</span>
-                  <div className="luxury-or-line" />
-                </div>
-
-                {/* Tarjeta Iniciar con tu dispositivo con QR Code (clickeable para ampliar) */}
-                <button
-                  type="button"
-                  onClick={() => setShowQrModal(true)}
-                  className="luxury-device-box"
-                  title="Haz clic para ver el código QR ampliado"
-                >
-                  <div className="luxury-device-icon-wrap">
-                    <Smartphone className="h-5 w-5 text-[#d4af37]" strokeWidth={1.5} />
-                  </div>
-                  <div className="luxury-device-info">
-                    <div className="flex items-center gap-1.5">
-                      <h4 className="luxury-device-title">Iniciar con tu dispositivo</h4>
-                      <ExternalLink className="h-3 w-3 text-[#c9a15a]/70" />
-                    </div>
-                    <p className="luxury-device-desc">
-                      Escanea el código QR desde tu móvil para acceso rápido.
-                    </p>
-                  </div>
-                  <QrCodeGraphic />
-                </button>
-
-                {/* Enlace para girar la tarjeta a Registro */}
-                <div className="text-center mt-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsFlipped(true);
-                      setError("");
-                      setSuccessMsg("");
-                    }}
-                    className="luxury-flip-trigger-link"
-                  >
-                    <span>¿No tienes una cuenta aún?</span>
-                    <strong className="text-[#d4af37] underline underline-offset-2">Crear cuenta nueva →</strong>
-                  </button>
-                </div>
               </form>
             ) : (
               /* PASO 2: Ingreso de Contraseña (con badge de correo y opción de editar) */
@@ -951,7 +793,7 @@ function LoginForm() {
                   {!loading && <ArrowRight className="h-4 w-4" />}
                 </button>
 
-                <div className="text-center">
+                <div className="text-center pt-1">
                   <button
                     type="button"
                     onClick={() => {
@@ -964,40 +806,19 @@ function LoginForm() {
                     <span>Volver a ingresar correo</span>
                   </button>
                 </div>
-
-                {/* Separador o */}
-                <div className="luxury-or-divider">
-                  <div className="luxury-or-line" />
-                  <span className="luxury-or-text">o</span>
-                  <div className="luxury-or-line" />
-                </div>
-
-                {/* Botón secundario Google en paso 2 */}
-                <button
-                  type="button"
-                  onClick={handleGoogleSignIn}
-                  disabled={googleLoading}
-                  className="luxury-google-btn"
-                >
-                  <GoogleIcon className="w-4 h-4 shrink-0" />
-                  <span>Acceder con Google</span>
-                </button>
               </form>
             )}
 
-            {/* Pie de ayuda y seguridad */}
+            {/* Pie de ayuda y seguridad limpio */}
             <div className="luxury-card-footer">
-              <div>
-                <span className="text-white/50 text-xs">¿Necesitas ayuda?</span>{" "}
-                <Link href="/contacto" className="luxury-support-link">
-                  <span>Contacta con soporte</span>
-                  <ArrowRight className="h-3 w-3 inline" />
-                </Link>
-              </div>
+              <Link href="/contacto" className="luxury-support-link">
+                <span>¿Necesitas ayuda? Contacta con soporte</span>
+                <ArrowRight className="h-3 w-3 inline ml-1" />
+              </Link>
 
               <div className="luxury-security-pill">
                 <Shield className="h-3 w-3 text-emerald-400" />
-                <span>Cifrado SSL 256-Bit · Acceso Seguro y Protegido</span>
+                <span>Cifrado SSL 256-Bit · Acceso Seguro</span>
               </div>
             </div>
           </div>
@@ -1240,11 +1061,11 @@ export default function LoginPage() {
       <div className="luxury-split-container">
         {/* Columna Izquierda (50% pantalla completa): Editorial y atmósfera de taller */}
         <section className="luxury-left-column">
-          {/* Fondo arquitectónico en alta resolución */}
+          {/* Fondo arquitectónico en alta resolución con veta de madera auténtica */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/brand/login-atelier-bg.jpg"
-            alt="Taller artesanal Mudeco Palets"
+            src="/brand/brand-wood-hero.jpg"
+            alt="Taller artesanal Mudeco Palets con marca de madera a fuego"
             className="luxury-bg-image"
           />
           <div className="luxury-bg-overlay" />
@@ -1262,60 +1083,35 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Contenido central editorial */}
-          <div className="relative z-10 my-auto py-8">
-            {/* Logo de marca superior */}
-            <div className="luxury-brand-header mb-6">
-              <LogoMark className="h-9 w-9 text-[#d4af37]" />
-              <div className="leading-tight">
-                <span className="block text-2xl font-bold tracking-[0.25em] text-white uppercase font-serif">
-                  MUDECO
-                </span>
-                <span className="block text-[0.68rem] tracking-[0.34em] text-[#c9a15a] uppercase font-semibold">
-                  PALETS
-                </span>
-              </div>
-            </div>
-
-            {/* Gran encabezado editorial */}
-            <h1 className="font-display text-4xl xl:text-5xl font-medium leading-[1.12] text-white max-w-lg">
+          {/* Contenido central editorial con Sello Grabado a Fuego Animado */}
+          <div className="relative z-10 my-auto py-6 flex flex-col items-center xl:items-start text-center xl:text-left">
+            <h1 className="font-display text-3xl xl:text-4xl font-medium leading-[1.15] text-white max-w-lg mb-2">
               Diseño, oficio y calidad en cada detalle
             </h1>
-
-            <p className="mt-4 text-base xl:text-lg text-white/75 leading-relaxed font-light max-w-md">
-              Muebles de madera recuperada con alma de taller artesanal. Piezas únicas y proyectos a medida para tu hogar o negocio.
+            <p className="text-sm xl:text-base text-white/70 leading-relaxed font-light max-w-md mb-6">
+              Muebles de madera recuperada y ebanistería circular en Santo Domingo.
             </p>
 
-            {/* Sello de Calidad Artesanal Dominicana */}
-            <div className="mt-8 flex items-center gap-3.5 rounded-2xl border border-[#c9a15a]/35 bg-[#14120e]/80 p-4 backdrop-blur-xl max-w-md shadow-lg">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#c9a15a]/40 bg-[#c9a15a]/15 text-[#d4af37]">
-                <Award className="h-6 w-6" />
-              </div>
-              <div className="min-w-0">
-                <span className="block text-xs font-bold uppercase tracking-wider text-[#f7e7ce]">
-                  Sello de Calidad Artesanal
-                </span>
-                <span className="mt-0.5 block text-xs text-white/60 leading-tight">
-                  100% Madera Sostenible curada contra humedad y plagas.
-                </span>
-              </div>
+            {/* Sello Oficial Grabado a Fuego con Animación 3D y Brasas Ardiendo */}
+            <div className="w-full max-w-[390px]">
+              <WoodBrandStamp size="md" showSubtitle={false} />
             </div>
 
-            {/* Pilares de confianza */}
-            <div className="mt-8 flex flex-wrap items-center gap-4 text-xs text-white/80">
-              <div className="flex items-center gap-2">
-                <Leaf className="h-4 w-4 text-[#c9a15a]" />
-                <span>Pino curado</span>
+            {/* Pilares discretos */}
+            <div className="mt-6 flex flex-wrap items-center justify-center xl:justify-start gap-4 text-xs text-white/75">
+              <div className="flex items-center gap-1.5">
+                <Leaf className="h-3.5 w-3.5 text-[#c9a15a]" />
+                <span>100% Pino curado</span>
               </div>
-              <span className="text-white/25">·</span>
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-[#c9a15a]" />
-                <span>Garantía estructural</span>
+              <span className="text-white/20">·</span>
+              <div className="flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-[#c9a15a]" />
+                <span>Garantía de taller</span>
               </div>
-              <span className="text-white/25">·</span>
-              <div className="flex items-center gap-2">
-                <Home className="h-4 w-4 text-[#c9a15a]" />
-                <span>Diseños a medida</span>
+              <span className="text-white/20">·</span>
+              <div className="flex items-center gap-1.5">
+                <Award className="h-3.5 w-3.5 text-[#c9a15a]" />
+                <span>Hecho a mano en RD</span>
               </div>
             </div>
           </div>

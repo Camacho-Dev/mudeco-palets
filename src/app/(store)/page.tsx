@@ -76,14 +76,14 @@ const CRAFT_STEPS = [
 
 
 const GALLERY = [
+  "/brand/brand-wood-hero.jpg",
+  "/brand/brand-wood-stamp.jpg",
   "/brand/store-hero.jpg",
   "/brand/cat-mesa.jpg",
   "/brand/cat-tv.jpg",
   "/brand/cat-noche.jpg",
   "/brand/cat-banco.jpg",
   "/brand/cat-vinera.jpg",
-  "/brand/store-craft.jpg",
-  "/brand/store-workshop.jpg",
 ] as const;
 
 export const dynamic = "force-dynamic";
@@ -449,8 +449,8 @@ export default async function StoreHomePage() {
                   <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={company.craftImage || "/brand/store-craft.jpg"}
-                      alt="Taller de ebanistería circular Mudeco Palets"
+                      src={company.craftImage || "/brand/brand-wood-stamp.jpg"}
+                      alt="Madera de palet con logo grabado a fuego Mudeco Palets"
                       className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
