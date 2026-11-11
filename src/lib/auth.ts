@@ -199,5 +199,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return token;
     },
+    async session({ session, token }) {
+      if (token?.id) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: { id: true, active: true, role: true, name: true, email: true },
+          });
+          if (!dbUser || !dbUser.active) {
+            return {
+              ...session,
+              user: undefined as any,
+              expires: new Date(0).toISOString(),
+            };
+          }
+          session.user.id = dbUser.id;
+          session.user.role = dbUser.role;
+          session.user.name = dbUser.name;
+          session.user.email = dbUser.email;
+        } catch {
+          session.user.id = token.id as string;
+          session.user.role = (token.role as string) || "CLIENTE";
+        }
+      }
+      return session;
+    },
   },
 });

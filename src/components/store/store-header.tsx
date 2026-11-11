@@ -19,7 +19,7 @@ export async function StoreHeader() {
       prisma.user
         .findUnique({
           where: { email },
-          select: { name: true, email: true, role: true, phone: true, address: true },
+          select: { name: true, email: true, role: true, phone: true, address: true, active: true },
         })
         .catch(() => null),
       prisma.webOrder
@@ -29,14 +29,18 @@ export async function StoreHeader() {
         .catch(() => 0),
     ]);
 
-    user = {
-      name: dbUser?.name || session.user.name || null,
-      email: session.user.email,
-      role: dbUser?.role || session.user.role || null,
-      phone: dbUser?.phone || null,
-      address: dbUser?.address || null,
-      ordersCount,
-    };
+    if (dbUser && dbUser.active) {
+      user = {
+        name: dbUser.name || session.user.name || null,
+        email: session.user.email,
+        role: dbUser.role || session.user.role || null,
+        phone: dbUser.phone || null,
+        address: dbUser.address || null,
+        ordersCount,
+      };
+    } else {
+      user = null;
+    }
   }
 
   // Mostrar solo las categorías reales que tienen productos activos en el inventario

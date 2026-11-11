@@ -72,6 +72,12 @@ export function HeaderAuth({
   }, [initialUser]);
 
   useEffect(() => {
+    if (clientSession === null) {
+      setUser(null);
+    }
+  }, [clientSession]);
+
+  useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
