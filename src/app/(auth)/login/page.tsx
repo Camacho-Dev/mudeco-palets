@@ -1346,21 +1346,28 @@ export default function LoginPage() {
             <Suspense fallback={<div className="text-white/60 text-sm py-12 text-center">Cargando acceso...</div>}>
               <LoginForm />
             </Suspense>
-
-            <div className="mt-4 flex items-center justify-center">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/45 px-3 py-1 backdrop-blur-md">
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#c9a15a]/20 text-[0.55rem] font-bold tracking-wider text-[#d4af37]">
-                  BC
-                </span>
-                <span className="text-[0.65rem] tracking-[0.06em] text-white/55">
-                  Desarrollado por{" "}
-                  <strong className="font-semibold text-[#e6c567]">
-                    Brayan Camacho
-                  </strong>
-                </span>
-              </div>
-            </div>
           </div>
+
+          {/* Pie de página con créditos oficiales al final */}
+          <footer className="w-full max-w-[440px] mt-auto pt-6 flex items-center justify-center">
+            <div className="group flex items-center gap-3 rounded-full border border-white/[0.08] bg-white/[0.02] py-1.5 pl-1.5 pr-4 transition duration-300 hover:border-[#c9a15a]/40 hover:bg-[#c9a15a]/[0.04]">
+              <span
+                aria-hidden="true"
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#e4c284] via-[#c9a15a] to-[#8a6a34] font-serif text-[0.68rem] font-bold tracking-tight text-[#0a0a0a] shadow-[0_0_0_3px_rgba(201,161,90,0.12)] transition duration-300 group-hover:shadow-[0_0_0_4px_rgba(201,161,90,0.22)]"
+              >
+                BC
+              </span>
+              <span className="flex flex-col leading-tight">
+                <span className="text-[0.56rem] font-semibold uppercase tracking-[0.22em] text-white/35">
+                  Diseño &amp; Desarrollo
+                </span>
+                <span className="text-[0.76rem] font-semibold tracking-wide text-white/80 transition group-hover:text-[#e4c284]">
+                  Brayan Camacho
+                  <span className="ml-1.5 font-normal text-white/35">· Software Developer</span>
+                </span>
+              </span>
+            </div>
+          </footer>
         </section>
       </div>
     </div>
