@@ -28,6 +28,8 @@ import {
   Check,
   ExternalLink,
   Copy,
+  ShieldAlert,
+  Clock,
 } from "lucide-react";
 import { LogoMark } from "@/components/logo";
 import {
@@ -239,9 +241,18 @@ function LoginForm() {
   const [forgotPreviewUrl, setForgotPreviewUrl] = useState<string | null>(null);
   const [showQrModal, setShowQrModal] = useState(false);
   const [showGoogleSetupModal, setShowGoogleSetupModal] = useState(false);
+  const [showBlockedModal, setShowBlockedModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
 
   // Estado de mouse para el spotlight reflectante en la tarjeta
+  useEffect(() => {
+    const urlError = params.get("error");
+    if (urlError === "AccessDenied") {
+      setShowBlockedModal(true);
+      setError("Acceso restringido: Esta cuenta se encuentra suspendida temporalmente por administración.");
+    }
+  }, [params]);
+
   const cardRef = useRef<HTMLDivElement | null>(null);
 
   function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
@@ -702,6 +713,67 @@ function LoginForm() {
             >
               Entendido
             </button>
+          </div>
+        </div>
+      )}
+
+            {/* Modal Ejecutivo de Cuenta Bloqueada */}
+      {showBlockedModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-md rounded-2xl border border-amber-500/40 bg-[#16120e] p-6 shadow-2xl text-center">
+            <button
+              type="button"
+              onClick={() => setShowBlockedModal(false)}
+              className="absolute top-4 right-4 text-white/60 hover:text-white p-1 cursor-pointer"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 border border-amber-500/30 text-[#d4af37]">
+              <ShieldAlert className="h-7 w-7" />
+            </div>
+
+            <span className="inline-block rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1 text-[10px] font-bold tracking-widest text-[#d4af37] uppercase mb-2">
+              Estado: Acceso Restringido
+            </span>
+
+            <h3 className="font-display text-xl font-bold text-white mb-2">
+              Cuenta temporalmente suspendida
+            </h3>
+
+            <p className="text-xs text-white/70 leading-relaxed mb-5">
+              Estimado cliente, el acceso para esta cuenta ha sido suspendido temporalmente por el departamento administrativo de Mudeco Palets.
+              Tus compras e historial fiscal se encuentran totalmente protegidos.
+            </p>
+
+            <div className="rounded-xl bg-white/[0.03] border border-white/10 p-3.5 text-left text-xs text-white/80 space-y-2 mb-6">
+              <div className="flex items-center gap-2 text-white/50 text-[11px]">
+                <Clock className="h-3.5 w-3.5 text-[#d4af37]" />
+                <span>¿Deseas reactivar tu cuenta?</span>
+              </div>
+              <p className="text-[11px] text-white/60 leading-normal">
+                Comunícate directamente con nuestro equipo de atención comercial para verificar tu perfil y restaurar el acceso de inmediato.
+              </p>
+            </div>
+
+            <div className="space-y-2.5">
+              <a
+                href="https://wa.me/18292137519?text=Hola,%20solicito%20asistencia%20con%20el%20acceso%20a%20mi%20cuenta%20en%20Mudeco%20Palets"
+                target="_blank"
+                rel="noreferrer"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-black font-bold py-3 text-xs uppercase tracking-wider transition shadow-lg"
+              >
+                <span>Contactar Atención al Cliente</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={() => setShowBlockedModal(false)}
+                className="w-full rounded-xl bg-white/10 text-white/80 hover:bg-white/15 font-semibold py-2.5 text-xs transition cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}
