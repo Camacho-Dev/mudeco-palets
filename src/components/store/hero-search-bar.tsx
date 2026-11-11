@@ -18,14 +18,6 @@ export type SearchProductItem = {
   badge?: string;
 };
 
-const QUICK_TAGS = [
-  { label: "Comedores", query: "MESA DE COMEDOR", isCategory: true },
-  { label: "Centros TV", query: "REPISA DE TV", isCategory: true },
-  { label: "Mesas de noche", query: "MESA DE NOCHE", isCategory: true },
-  { label: "Bancos", query: "BANCO", isCategory: true },
-  { label: "A medida", href: "/contacto" },
-];
-
 interface HeroSearchBarProps {
   products?: SearchProductItem[];
 }
@@ -64,17 +56,6 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
       router.push(`/catalogo?q=${encodeURIComponent(trimmed)}`);
     } else {
       router.push("/catalogo");
-    }
-  };
-
-  const handleQuickTag = (tag: (typeof QUICK_TAGS)[number]) => {
-    setIsOpen(false);
-    if ("href" in tag && tag.href) {
-      router.push(tag.href);
-    } else if ("isCategory" in tag && tag.isCategory && "query" in tag) {
-      router.push(`/catalogo?cat=${encodeURIComponent(tag.query)}`);
-    } else if ("query" in tag && tag.query) {
-      router.push(`/catalogo?q=${encodeURIComponent(tag.query)}`);
     }
   };
 
@@ -252,26 +233,6 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Sugerencias interactivas por categoría */}
-      <div className="mt-3.5 flex flex-wrap items-center gap-1.5 px-1">
-        <span className="text-[0.62rem] font-bold tracking-wider text-[#c9a15a] uppercase mr-1 inline-flex items-center gap-1">
-          <Sparkles className="h-3 w-3" />
-          Populares:
-        </span>
-        {QUICK_TAGS.map((tag) => (
-          <motion.button
-            key={tag.label}
-            type="button"
-            whileHover={{ scale: 1.06, y: -1 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => handleQuickTag(tag)}
-            className="rounded-full border border-white/10 bg-black/50 px-3.5 py-1 text-[0.68rem] font-medium text-white/85 backdrop-blur-md transition-colors hover:border-[#c9a15a]/75 hover:bg-[#c9a15a]/20 hover:text-[#c9a15a] cursor-pointer shadow-xs"
-          >
-            {tag.label}
-          </motion.button>
-        ))}
-      </div>
     </div>
   );
 }

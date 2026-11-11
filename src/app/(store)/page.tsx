@@ -12,10 +12,7 @@ import {
   Sparkles,
   MessageCircle,
   Layers,
-  Target,
-  Eye,
-  Gem,
-  Compass,
+  Star,
 } from "lucide-react";
 import { FadeUp, Reveal } from "@/components/store/store-motion";
 import { ProductShelf } from "@/components/store/product-shelf";
@@ -25,9 +22,6 @@ import { getScoredProducts } from "@/lib/recommendations";
 import { getStoreCompany } from "@/lib/store";
 import { storeWhatsApp } from "@/lib/store-info";
 import { HeroSearchBar } from "@/components/store/hero-search-bar";
-import { getApprovedReviews } from "@/lib/reviews";
-import { CustomerReviewsSection } from "@/components/store/customer-reviews-section";
-import { auth } from "@/lib/auth";
 
 
 const TRUST = [
@@ -96,19 +90,13 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function StoreHomePage() {
-  const [company, scoredProducts, approvedReviews, session] = await Promise.all([
+  const [company, scoredProducts] = await Promise.all([
     getStoreCompany(),
     withDbRetry(() => getScoredProducts(), { fallback: [] }),
-    getApprovedReviews(15),
-    auth().catch(() => null),
   ]);
 
   const topRecommended = scoredProducts.slice(0, 10);
-  const newest = [...scoredProducts]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 12);
   const featured = scoredProducts.slice(0, 16);
-  const fresh = newest.length > 4 ? newest : featured.slice(0, 12);
 
   const promoTiles = [
     {
@@ -375,13 +363,6 @@ export default async function StoreHomePage() {
             badge: p.badge,
           }))}
         />
-
-        <ProductShelf
-          title="Recién salidos del taller"
-          subtitle="Nuevas creaciones artesanales listas para entrega"
-          href="/catalogo"
-          products={toShelf(fresh)}
-        />
       </div>
 
       {/* —— El Proceso Mudeco: Del Palet a la Obra de Arte —— */}
@@ -425,30 +406,40 @@ export default async function StoreHomePage() {
         </div>
       </section>
 
-      {/* —— Sección Manifiesto & Propósito: Misión, Visión y Valores —— */}
-      <section className="relative overflow-hidden border-b border-white/[0.06] bg-[#0d0d0d] py-24 text-white">
-        {/* Glow de fondo */}
+      {/* —— Taller & Historia de Marca —— */}
+      <section className="relative overflow-hidden border-b border-white/[0.06] bg-[#0d0d0d] py-20 text-white">
         <div className="pointer-events-none absolute -top-40 right-0 h-[480px] w-[480px] rounded-full bg-[#c9a15a]/5 blur-[120px]" />
-        <div className="pointer-events-none absolute -bottom-40 left-0 h-[480px] w-[480px] rounded-full bg-[#c9a15a]/5 blur-[120px]" />
 
         <div className="relative mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
-          {/* Cabecera Editorial con Historia de Marca */}
-          <div className="grid gap-12 lg:grid-cols-12 lg:items-center mb-16">
-            <div className="lg:col-span-7 space-y-4">
+          <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
+            <div className="lg:col-span-7 space-y-6">
               <Reveal>
                 <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/30 bg-[#c9a15a]/10 px-3.5 py-1 text-[0.62rem] font-bold tracking-[0.22em] text-[#c9a15a] uppercase">
                   <Sparkles className="h-3 w-3" />
-                  Filosofía & Compromiso Sostenible
+                  Atelier & Filosofía
                 </div>
                 <h2 className="font-display mt-4 text-3xl sm:text-4xl lg:text-5xl leading-tight text-white">
-                  Diseño con propósito: convirtiendo el descarte en arte
+                  Diseño con propósito: convirtiendo el descarte en arte vivo
                 </h2>
-                <p className="mt-5 text-base sm:text-lg leading-relaxed text-white/70">
-                  Somos una marca revolucionaria en el diseño de muebles sostenibles que transforma madera reciclada en piezas únicas, funcionales y llenas de historia. Fusionando la autenticidad artesanal con la innovación circular, creamos soluciones que no solo embellecen tus espacios, sino que también inspiran un estilo de vida más consciente.
+                <p className="text-base sm:text-lg leading-relaxed text-white/75">
+                  Cada pieza nace de materiales nobles reciclados en nuestro taller de Santo Domingo. Transformamos madera de pino curada en muebles de alta resistencia con acabados satinados al aceite natural.
                 </p>
-                <p className="text-sm text-white/50 leading-relaxed">
-                  Cada mueble cuenta una historia de transformación, posicionando a Mudeco como un referente del diseño con propósito en República Dominicana y América Latina.
-                </p>
+                <div className="pt-2 flex flex-wrap items-center gap-4">
+                  <Link
+                    href="/nosotros"
+                    className="inline-flex items-center gap-2 text-sm font-semibold tracking-wider text-[#c9a15a] uppercase hover:underline"
+                  >
+                    <span>Conoce nuestra historia y valores</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <span className="text-white/20">|</span>
+                  <Link
+                    href="/contacto"
+                    className="text-sm text-white/60 hover:text-white transition-colors"
+                  >
+                    Visitar taller en Santo Domingo
+                  </Link>
+                </div>
               </Reveal>
             </div>
 
@@ -479,106 +470,75 @@ export default async function StoreHomePage() {
               </Reveal>
             </div>
           </div>
-
-          {/* Tarjetas de los 3 Pilares: Misión, Visión y Valores */}
-          <div className="grid gap-6 md:grid-cols-3">
-            {/* Pilar 1: Misión */}
-            <Reveal delay={0.08}>
-              <div className="group relative flex h-full flex-col justify-between rounded-2xl border border-white/[0.08] bg-[#121212]/90 p-8 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#c9a15a]/50 hover:bg-[#151515] hover:shadow-[0_20px_40px_rgba(0,0,0,0.6),0_0_20px_rgba(201,161,90,0.08)]">
-                <div>
-                  <div className="mb-6 flex items-center justify-between">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#c9a15a]/30 bg-[#c9a15a]/10 text-[#c9a15a] transition duration-300 group-hover:bg-[#c9a15a] group-hover:text-black">
-                      <Target className="h-6 w-6" strokeWidth={1.75} />
-                    </div>
-                    <span className="text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a]/80 uppercase">
-                      Pilar 01
-                    </span>
-                  </div>
-                  <h3 className="font-display text-2xl text-white group-hover:text-[#c9a15a] transition-colors">
-                    Nuestra Misión
-                  </h3>
-                  <p className="mt-4 text-sm leading-relaxed text-white/70">
-                    Transformamos materiales reciclados en muebles funcionales y estéticamente atractivos, ofreciendo soluciones de diseño sostenible que reducen el impacto ambiental. Cada pieza, única y con carácter, enriquece los espacios de nuestros clientes, aportando historia y conciencia ecológica a su entorno.
-                  </p>
-                </div>
-                <div className="mt-6 border-t border-white/[0.06] pt-4 flex items-center gap-2 text-xs text-[#c9a15a]">
-                  <Leaf className="h-3.5 w-3.5" />
-                  <span>Sostenibilidad en acción</span>
-                </div>
-              </div>
-            </Reveal>
-
-            {/* Pilar 2: Visión */}
-            <Reveal delay={0.16}>
-              <div className="group relative flex h-full flex-col justify-between rounded-2xl border border-white/[0.08] bg-[#121212]/90 p-8 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#c9a15a]/50 hover:bg-[#151515] hover:shadow-[0_20px_40px_rgba(0,0,0,0.6),0_0_20px_rgba(201,161,90,0.08)]">
-                <div>
-                  <div className="mb-6 flex items-center justify-between">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#c9a15a]/30 bg-[#c9a15a]/10 text-[#c9a15a] transition duration-300 group-hover:bg-[#c9a15a] group-hover:text-black">
-                      <Eye className="h-6 w-6" strokeWidth={1.75} />
-                    </div>
-                    <span className="text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a]/80 uppercase">
-                      Pilar 02
-                    </span>
-                  </div>
-                  <h3 className="font-display text-2xl text-white group-hover:text-[#c9a15a] transition-colors">
-                    Nuestra Visión
-                  </h3>
-                  <p className="mt-4 text-sm leading-relaxed text-white/70">
-                    Ser la empresa líder en la transformación de madera recuperada en América Latina, revolucionando el mobiliario y demostrando que sostenibilidad, diseño innovador y calidad superior pueden coexistir. Buscamos inspirar un cambio cultural hacia el consumo consciente y la valoración de lo artesanal.
-                  </p>
-                </div>
-                <div className="mt-6 border-t border-white/[0.06] pt-4 flex items-center gap-2 text-xs text-[#c9a15a]">
-                  <Compass className="h-3.5 w-3.5" />
-                  <span>Liderazgo en diseño circular</span>
-                </div>
-              </div>
-            </Reveal>
-
-            {/* Pilar 3: Valores */}
-            <Reveal delay={0.24}>
-              <div className="group relative flex h-full flex-col justify-between rounded-2xl border border-white/[0.08] bg-[#121212]/90 p-8 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-[#c9a15a]/50 hover:bg-[#151515] hover:shadow-[0_20px_40px_rgba(0,0,0,0.6),0_0_20px_rgba(201,161,90,0.08)]">
-                <div>
-                  <div className="mb-6 flex items-center justify-between">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[#c9a15a]/30 bg-[#c9a15a]/10 text-[#c9a15a] transition duration-300 group-hover:bg-[#c9a15a] group-hover:text-black">
-                      <Gem className="h-6 w-6" strokeWidth={1.75} />
-                    </div>
-                    <span className="text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a]/80 uppercase">
-                      Pilar 03
-                    </span>
-                  </div>
-                  <h3 className="font-display text-2xl text-white group-hover:text-[#c9a15a] transition-colors">
-                    Nuestros Valores
-                  </h3>
-                  <div className="mt-4 space-y-2.5 text-xs text-white/75">
-                    <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5 transition hover:bg-white/[0.04]">
-                      <span className="font-semibold text-white">Sostenibilidad Integral:</span> Cerrando ciclos y reduciendo la huella ecológica.
-                    </div>
-                    <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5 transition hover:bg-white/[0.04]">
-                      <span className="font-semibold text-white">Autenticidad Artesanal:</span> Celebrando la imperfección y singularidad de la madera.
-                    </div>
-                    <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5 transition hover:bg-white/[0.04]">
-                      <span className="font-semibold text-white">Innovación Circular:</span> Convirtiendo descartes en piezas de alto valor estético.
-                    </div>
-                    <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-2.5 transition hover:bg-white/[0.04]">
-                      <span className="font-semibold text-white">Calidad Perdurable:</span> Uniendo tradición ebanista con durabilidad para siempre.
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-6 border-t border-white/[0.06] pt-4 flex items-center gap-2 text-xs text-[#c9a15a]">
-                  <Award className="h-3.5 w-3.5" />
-                  <span>Ética y maestría en cada corte</span>
-                </div>
-              </div>
-            </Reveal>
-          </div>
         </div>
       </section>
 
-      {/* —— Testimonios de clientes en tiempo real y compras verificadas —— */}
-      <CustomerReviewsSection
-        initialReviews={approvedReviews}
-        userSession={session?.user}
-      />
+      {/* —— Testimonios Selectos —— */}
+      <section className="border-b border-white/[0.06] bg-[#0c0c0c] py-20 text-white">
+        <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
+          <Reveal>
+            <div className="text-center max-w-2xl mx-auto mb-14">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/30 bg-[#c9a15a]/10 px-3.5 py-1 text-[0.62rem] font-bold tracking-[0.22em] text-[#c9a15a] uppercase">
+                <Star className="h-3 w-3 fill-[#c9a15a] text-[#c9a15a]" />
+                Opiniones Verificadas
+              </div>
+              <h2 className="font-display mt-3 text-3xl sm:text-4xl text-white">
+                Lo que dicen nuestros clientes
+              </h2>
+              <p className="mt-2 text-sm text-white/60">
+                Familias y negocios que ya disfrutan de piezas artesanales Mudeco en sus espacios.
+              </p>
+            </div>
+          </Reveal>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {[
+              {
+                quote: "Pedí un comedor a medida para mi terraza en Piantini y superó por completo mis expectativas. Los acabados son finos, la madera huele increíble y la atención de Martín fue impecable.",
+                author: "Carolina Mendoza",
+                role: "Diseñadora de Interiores · Santo Domingo",
+                tag: "Comedor 8 puestos",
+              },
+              {
+                quote: "Excelente calidad y robustez. Tenía dudas sobre los muebles de palets pero el tratamiento que le dan es de primera categoría. 100% recomendado.",
+                author: "Ing. Roberto Alcántara",
+                role: "Cliente Residencial · Bella Vista",
+                tag: "Centro de TV Flotante",
+              },
+              {
+                quote: "Equipamos toda el área lounge de nuestro café con bancas y mesas Mudeco. La calidez que le dio al local atrajo a muchos clientes. Puntuales y formales.",
+                author: "Lic. Andrea Tavárez",
+                role: "Propietaria de Café · Naco",
+                tag: "Mobiliario Comercial",
+              },
+            ].map((t, idx) => (
+              <Reveal key={t.author} delay={idx * 0.1}>
+                <div className="flex h-full flex-col justify-between rounded-xl border border-white/[0.08] bg-[#121212] p-7 transition-all duration-300 hover:border-[#c9a15a]/40 hover:-translate-y-1 hover:shadow-xl">
+                  <div>
+                    <div className="flex items-center gap-1 text-[#c9a15a] mb-4">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} className="h-4 w-4 fill-[#c9a15a]" />
+                      ))}
+                    </div>
+                    <p className="text-sm leading-relaxed text-white/80 italic">
+                      &ldquo;{t.quote}&rdquo;
+                    </p>
+                  </div>
+                  <div className="mt-6 pt-5 border-t border-white/[0.06] flex items-center justify-between">
+                    <div>
+                      <h4 className="text-sm font-semibold text-white">{t.author}</h4>
+                      <p className="text-[0.72rem] text-white/50">{t.role}</p>
+                    </div>
+                    <span className="rounded-full border border-[#c9a15a]/30 bg-[#c9a15a]/10 px-2.5 py-0.5 text-[0.62rem] font-medium text-[#c9a15a]">
+                      {t.tag}
+                    </span>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* —— Banner VIP Proyectos Especiales y a Medida —— */}
       <section className="mx-auto w-full max-w-[1920px] px-4 py-8 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
