@@ -72,11 +72,23 @@ export async function registerCustomer(payload: {
     },
   });
 
+  const existingCust = await prisma.customer.findFirst({ where: { email } });
+  if (!existingCust) {
+    await prisma.customer.create({
+      data: {
+        name,
+        email,
+        phone: parsed.data.phone?.trim() || null,
+        address: "Registrado desde la tienda web",
+      },
+    });
+  }
+
   await writeAudit({
     action: "CREATE",
-    entity: "User",
+    entity: "Customer",
     entityId: newUser.id,
-    summary: `Nueva cuenta de cliente registrada desde la web: ${newUser.name} (${newUser.email})`,
+    summary: `Nueva cuenta y cliente registrado desde la web: ${newUser.name} (${newUser.email})`,
   });
 
   return { success: true };

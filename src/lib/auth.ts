@@ -102,23 +102,79 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (account?.provider === "google") {
         if (!user.email) return false;
         const email = user.email.toLowerCase();
+        const userName = user.name || "Cliente Google";
         try {
+          let isNewUser = false;
           let dbUser = await prisma.user.findUnique({ where: { email } });
           if (!dbUser) {
+            isNewUser = true;
             dbUser = await prisma.user.create({
               data: {
                 email,
-                name: user.name || "Cliente Google",
+                name: userName,
                 role: "CLIENTE",
                 active: true,
+                department: "CLIENTE",
                 passwordHash: "",
               },
             });
           } else if (!dbUser.active) {
             return false;
+          } else if (user.name && dbUser.name !== user.name) {
+            dbUser = await prisma.user.update({
+              where: { id: dbUser.id },
+              data: { name: user.name },
+            });
           }
           user.id = dbUser.id;
           (user as { role?: string }).role = dbUser.role;
+
+          // 1. Sincronizar / crear en la tabla de Clientes (Customer) del ERP
+          const existingCustomer = await prisma.customer.findFirst({
+            where: { email },
+          });
+
+          if (!existingCustomer) {
+            await prisma.customer.create({
+              data: {
+                name: userName,
+                email,
+                address: "Registrado vía Google Auth",
+              },
+            });
+          } else if (user.name && existingCustomer.name !== user.name) {
+            await prisma.customer.update({
+              where: { id: existingCustomer.id },
+              data: { name: user.name },
+            });
+          }
+
+          // 2. Registrar en Auditoría que la persona se autenticó por Google
+          const { writeAudit } = await import("@/lib/audit");
+          if (isNewUser) {
+            await writeAudit({
+              action: "CREATE",
+              entity: "Customer",
+              entityId: dbUser.id,
+              summary: `Nuevo cliente registrado mediante Google Auth: ${userName} (${email})`,
+              userId: dbUser.id,
+              userEmail: email,
+              userName: userName,
+              details: { provider: "google", email, name: userName },
+            }).catch(() => undefined);
+          }
+
+          await writeAudit({
+            action: "LOGIN",
+            entity: "GoogleAuth",
+            entityId: dbUser.id,
+            summary: `Inicio de sesión exitoso con Google: ${userName} (${email})`,
+            userId: dbUser.id,
+            userEmail: email,
+            userName: userName,
+            details: { provider: "google", email, name: userName },
+          }).catch(() => undefined);
+
           return true;
         } catch (err) {
           console.error("Error en Google signIn callback:", err);
