@@ -69,7 +69,10 @@ export function HeaderAuth({
 
   useEffect(() => {
     setUser(initialUser);
-  }, [initialUser]);
+    if (!initialUser && clientSession?.user) {
+      signOut({ redirect: false });
+    }
+  }, [initialUser, clientSession]);
 
   useEffect(() => {
     if (clientSession === null) {

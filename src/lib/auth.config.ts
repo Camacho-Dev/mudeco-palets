@@ -63,19 +63,6 @@ export const authConfig = {
       }
 
       if (isPublicPath(pathname) || isLogin) {
-        if (isLoggedIn && isLogin) {
-          const callback = request.nextUrl.searchParams.get("callbackUrl");
-          const safeCallback =
-            callback &&
-            callback.startsWith("/") &&
-            !callback.startsWith("//") &&
-            callback !== "/login"
-              ? callback
-              : null;
-          return NextResponse.redirect(
-            new URL(safeCallback || homeForRole(role), request.nextUrl.origin),
-          );
-        }
         return true;
       }
 
