@@ -353,12 +353,12 @@ export function CatalogExplorer({
   return (
     <div className="space-y-5">
       {/* Barra de búsqueda y filtros compacta y alineada */}
-      <div className="rounded-2xl border border-[#e2d5c5] bg-[#fffdfa] p-4 sm:p-5 shadow-[0_4px_20px_rgba(28,20,16,0.04)]">
+      <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-md">
         {/* Fila 1: Buscador + Disponibilidad + Orden + Botón de Presupuesto en una sola línea en desktop */}
-        <div className="grid gap-2.5 md:grid-cols-2 lg:grid-cols-12 lg:items-center">
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-12 lg:items-center">
           {/* Buscador */}
           <div className="relative md:col-span-2 lg:col-span-5">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8a7260] pointer-events-none" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
             <input
               type="text"
               value={query}
@@ -369,7 +369,7 @@ export function CatalogExplorer({
               }}
               placeholder="Buscar por cama, mesa, comedor, repisa..."
               style={{ paddingLeft: "2.65rem", paddingRight: "2.25rem" }}
-              className="w-full h-11 rounded-xl border border-[#d8c8b4] bg-[#faf7f2] text-sm text-[#1b1511] placeholder:text-[#9c8978] transition-all duration-200 focus:bg-white focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/25 focus:outline-none"
+              className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/80 text-sm text-slate-900 placeholder:text-slate-400 transition-all duration-200 focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none"
             />
             {query ? (
               <button
@@ -378,7 +378,7 @@ export function CatalogExplorer({
                   setQuery("");
                   updateUrl(selectedCategory, "", filterMode);
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full text-[#8a7260] hover:bg-black/5 hover:text-black transition"
+                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-black/5 hover:text-black transition"
                 aria-label="Borrar búsqueda"
               >
                 <X className="h-4 w-4" />
@@ -388,30 +388,30 @@ export function CatalogExplorer({
 
           {/* Disponibilidad */}
           <div className="relative lg:col-span-2">
-            <Layers className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8a7260] pointer-events-none" />
+            <Layers className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
             <select
               value={availability}
               onChange={(e) =>
                 setAvailability(e.target.value as AvailabilityOption)
               }
               style={{ paddingLeft: "2.2rem" }}
-              className="w-full h-11 appearance-none rounded-xl border border-[#d8c8b4] bg-[#faf7f2] pr-8 text-xs font-semibold text-[#1b1511] transition-all duration-200 hover:border-[#c9a15a] focus:bg-white focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/25 focus:outline-none cursor-pointer"
+              className="w-full h-11 appearance-none rounded-2xl border border-slate-200 bg-slate-50/80 pr-8 text-xs font-semibold text-slate-800 transition-all duration-200 hover:border-amber-400 focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none cursor-pointer"
             >
               <option value="all">Disponibilidad: Todas</option>
               <option value="in-stock">Listos para entrega</option>
               <option value="custom">Bajo pedido / A medida</option>
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8a7260]" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
           </div>
 
           {/* Ordenar por */}
           <div className="relative lg:col-span-3">
-            <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8a7260] pointer-events-none" />
+            <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
               style={{ paddingLeft: "2.2rem" }}
-              className="w-full h-11 appearance-none rounded-xl border border-[#d8c8b4] bg-[#faf7f2] pr-8 text-xs font-semibold text-[#1b1511] transition-all duration-200 hover:border-[#c9a15a] focus:bg-white focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/25 focus:outline-none cursor-pointer"
+              className="w-full h-11 appearance-none rounded-2xl border border-slate-200 bg-slate-50/80 pr-8 text-xs font-semibold text-slate-800 transition-all duration-200 hover:border-amber-400 focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none cursor-pointer"
             >
               <option value="relevance">Ordenar: Destacados del taller</option>
               <option value="price-asc">Precio: Menor a mayor</option>
@@ -419,7 +419,7 @@ export function CatalogExplorer({
               <option value="newest">Más recientes</option>
               <option value="name">Nombre: A a Z</option>
             </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8a7260]" />
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
           </div>
 
           {/* Botón desplegable de Presupuesto */}
@@ -427,21 +427,21 @@ export function CatalogExplorer({
             <button
               type="button"
               onClick={() => setShowPricePanel((prev) => !prev)}
-              className={`flex h-11 w-full items-center justify-between gap-2 rounded-xl border px-3.5 text-xs font-semibold transition-all duration-200 cursor-pointer ${
+              className={`flex h-11 w-full items-center justify-between gap-2 rounded-2xl border px-3.5 text-xs font-semibold transition-all duration-200 cursor-pointer ${
                 showPricePanel || isPriceFiltered
-                  ? "border-[#c9a15a] bg-[#16120f] text-[#faf6f1]"
-                  : "border-[#d8c8b4] bg-[#faf7f2] text-[#1b1511] hover:border-[#c9a15a] hover:bg-white"
+                  ? "border-amber-500 bg-slate-900 text-white shadow-sm"
+                  : "border-slate-200 bg-slate-50/80 text-slate-800 hover:border-amber-400 hover:bg-white"
               }`}
             >
               <span className="flex items-center gap-2 truncate">
-                <SlidersHorizontal className="h-3.5 w-3.5 shrink-0 text-[#c9a15a]" />
+                <SlidersHorizontal className="h-3.5 w-3.5 shrink-0 text-amber-500" />
                 <span className="truncate">
                   {isPriceFiltered ? "Precio activo" : "Presupuesto"}
                 </span>
               </span>
               <ChevronDown
                 className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${
-                  showPricePanel ? "rotate-180 text-[#c9a15a]" : "opacity-60"
+                  showPricePanel ? "rotate-180 text-amber-400" : "opacity-60"
                 }`}
               />
             </button>

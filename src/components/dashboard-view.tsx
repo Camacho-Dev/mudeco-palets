@@ -49,13 +49,13 @@ import {
 } from "@/components/motion";
 
 const CHART = {
-  sales: "#5c4334",
-  collected: "#b0894f",
-  grid: "#e4d8cb",
-  muted: "#7a6a5c",
+  sales: "#0f172a",
+  collected: "#d97706",
+  grid: "#e2e8f0",
+  muted: "#64748b",
 };
 
-const PIE_COLORS = ["#2a1f18", "#5c4334", "#b0894f", "#8a6a3a", "#c4a574", "#3d2e24"];
+const PIE_COLORS = ["#0f172a", "#d97706", "#2563eb", "#10b981", "#8b5cf6", "#f59e0b"];
 
 function MoneyTooltip({
   active,

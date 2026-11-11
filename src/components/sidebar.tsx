@@ -76,7 +76,7 @@ function NavLinks({
         <GlobalSearch />
       </div>
       <div>
-        <p className="mb-2 px-3 text-[0.65rem] font-bold tracking-[0.16em] text-white/40 uppercase">
+        <p className="mb-2 px-3 text-[0.65rem] font-bold tracking-[0.16em] text-slate-400/80 uppercase">
           Operación
         </p>
         <div className="flex flex-col gap-1">
@@ -85,16 +85,16 @@ function NavLinks({
               key={item.href}
               href={item.href}
               prefetch={false}
-              className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 ${
+              className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-all duration-200 ${
                 item.accent
-                  ? "bg-gradient-to-r from-[#b0894f] via-[#c49a5c] to-[#b0894f] font-semibold text-[#2c1d14] shadow-[0_2px_12px_rgba(176,137,79,0.35)] hover:shadow-[0_4px_18px_rgba(176,137,79,0.5)] hover:scale-[1.02]"
-                  : "text-[#faf6f1]/90 hover:bg-white/10 hover:text-white hover:translate-x-1"
+                  ? "bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 font-bold text-slate-950 shadow-[0_2px_14px_rgba(245,158,11,0.35)] hover:shadow-[0_4px_22px_rgba(245,158,11,0.55)] hover:scale-[1.02]"
+                  : "text-slate-300 hover:bg-white/[0.08] hover:text-white hover:translate-x-1"
               }`}
             >
               <item.icon className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
               <span className="flex-1">{item.label}</span>
               {item.href === "/pedidos-web" && webPending > 0 ? (
-                <span className="rounded-full bg-[#b0894f] px-2 py-0.5 text-[0.62rem] font-bold text-[#3d2a1f] shadow-sm">
+                <span className="rounded-full bg-amber-400 px-2 py-0.5 text-[0.62rem] font-extrabold text-slate-950 shadow-xs animate-pulse-subtle">
                   {webPending > 99 ? "99+" : webPending}
                 </span>
               ) : null}
@@ -105,7 +105,7 @@ function NavLinks({
 
       {admin ? (
         <div>
-          <p className="mb-2 px-3 text-[0.65rem] font-bold tracking-[0.16em] text-white/40 uppercase">
+          <p className="mb-2 px-3 text-[0.65rem] font-bold tracking-[0.16em] text-slate-400/80 uppercase">
             Administración
           </p>
           <div className="flex flex-col gap-1">
@@ -114,9 +114,12 @@ function NavLinks({
                 key={item.href}
                 href={item.href}
                 prefetch={false}
-                className="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[#faf6f1]/80 transition-all duration-200 hover:bg-white/10 hover:text-white hover:translate-x-1"
+                className="group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-slate-300/90 transition-all duration-200 hover:bg-white/[0.08] hover:text-white hover:translate-x-1"
               >
-                <item.icon className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110 text-[#c4a574]" strokeWidth={2} />
+                <item.icon
+                  className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110 text-amber-400/90"
+                  strokeWidth={2}
+                />
                 <span className="flex-1">{item.label}</span>
               </Link>
             ))}
@@ -135,22 +138,25 @@ export async function Sidebar() {
   const admin = isAdmin(session?.user?.role);
 
   return (
-    <aside className="no-print sticky top-0 hidden h-screen w-64 shrink-0 flex-col overflow-y-auto bg-[#3d2a1f] text-[#faf6f1] md:flex">
-      <div className="border-b border-white/10 px-4 py-4">
+    <aside className="no-print sticky top-0 hidden h-screen w-64 shrink-0 flex-col overflow-y-auto bg-[#0a0f1d] border-r border-slate-800/80 text-slate-100 md:flex transition-colors">
+      <div className="border-b border-white/[0.08] px-5 py-5 bg-gradient-to-b from-white/[0.03] to-transparent">
         <BrandLogo
           width={200}
           height={168}
-          className="mx-auto h-auto w-full max-w-[180px]"
+          className="mx-auto h-auto w-full max-w-[170px] drop-shadow-sm hover:scale-[1.02] transition-transform duration-300"
         />
       </div>
 
       <NavLinks admin={admin} webPending={webPending} />
 
-      <div className="mx-3 mb-2 rounded-xl border border-white/10 bg-white/[0.05] p-3 text-xs">
+      <div className="mx-3 mb-2 rounded-2xl border border-white/[0.08] bg-white/[0.03] p-3 text-xs backdrop-blur-xs">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-400" />
-            <span className="text-[0.68rem] font-bold tracking-wider text-white/80 uppercase">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+            </span>
+            <span className="text-[0.68rem] font-bold tracking-wider text-white/90 uppercase">
               Tienda online
             </span>
           </div>
@@ -158,24 +164,27 @@ export async function Sidebar() {
             href="/"
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 rounded bg-[#b0894f] px-2 py-0.5 text-[0.65rem] font-bold text-[#2c1d14] hover:bg-[#c49a5c] transition shadow-sm"
+            className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-2 py-0.5 text-[0.65rem] font-bold text-slate-950 hover:brightness-110 transition shadow-xs"
             title="Abrir tienda pública en nueva pestaña"
           >
             <span>Ver web</span>
             <ExternalLink className="h-2.5 w-2.5" />
           </a>
         </div>
-        <p className="mt-1 text-[0.65rem] text-white/45">
+        <p className="mt-1 text-[0.65rem] text-slate-400">
           Canal público sincronizado
         </p>
       </div>
 
-      <div className="border-t border-white/10 p-4">
-        <p className="truncate text-sm font-medium">{session?.user?.name}</p>
-        <p className="truncate text-xs text-white/45">{session?.user?.email}</p>
-        <p className="mt-1 text-[0.65rem] tracking-wide text-white/35 uppercase">
-          {admin ? "Administrador" : "Empleado"}
-        </p>
+      <div className="border-t border-white/[0.08] p-4 bg-white/[0.01]">
+        <p className="truncate text-sm font-semibold text-white">{session?.user?.name}</p>
+        <p className="truncate text-xs text-slate-400">{session?.user?.email}</p>
+        <div className="mt-1 flex items-center gap-1.5">
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400" />
+          <span className="text-[0.65rem] font-semibold tracking-wider text-amber-300/80 uppercase">
+            {admin ? "Administrador" : "Empleado"}
+          </span>
+        </div>
         <DashboardLogoutButton />
         <DeveloperCredit />
       </div>

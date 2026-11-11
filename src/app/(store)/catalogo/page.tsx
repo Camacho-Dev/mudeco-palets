@@ -52,7 +52,7 @@ export default async function CatalogoPage({
   const popularIds = scoredProducts.slice(0, 8).map((s) => s.id);
 
   return (
-    <div className="bg-[#faf7f2] min-h-screen">
+    <div className="bg-slate-50 min-h-screen">
       {/* Editorial Luxury Header Banner */}
       <section className="relative overflow-hidden bg-[#14100d] text-[#faf6f1] border-b border-[#c9a15a]/25 py-10 sm:py-12">
         <div

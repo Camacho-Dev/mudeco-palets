@@ -2,18 +2,18 @@
 
 .store-shell {
   --store-bg: #0f0f0f;
-  --store-brown: #2c211c;
+  --store-brown: #0f172a;
   --store-gold: #c9a15a;
   --store-gold-hover: #d4b06e;
-  --store-text: #ffffff;
-  --store-muted: #cfcfcf;
-  --store-border: rgba(255, 255, 255, 0.08);
+  --store-text: #0f172a;
+  --store-muted: #64748b;
+  --store-border: rgba(0, 0, 0, 0.08);
   --store-font-display: var(--font-store-display), "Cormorant Garamond", Georgia,
     serif;
   --store-font-body: var(--font-store-body), Inter, system-ui, sans-serif;
 
-  background: #faf7f2;
-  color: #2c211c;
+  background: #ffffff;
+  color: #0f172a;
   font-family: var(--store-font-body);
 }
 
@@ -170,9 +170,9 @@
 .store-product-card {
   display: block;
   overflow: hidden;
-  background: #fffdfb;
-  border-radius: 14px;
-  border: 1px solid #e4d8cb;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid rgba(226, 232, 240, 0.9);
   transition:
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
@@ -180,17 +180,17 @@
 }
 
 .store-product-card:hover {
-  transform: translateY(-4px);
-  border-color: #cbb9a6;
-  box-shadow: 0 20px 45px rgba(61, 42, 31, 0.12), 0 4px 12px rgba(61, 42, 31, 0.04);
+  transform: translateY(-6px);
+  border-color: rgba(217, 119, 6, 0.4);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08), 0 0 20px rgba(217, 119, 6, 0.06);
 }
 
 .store-product-card img {
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .store-product-card:hover img {
-  transform: scale(1.04);
+  transform: scale(1.06);
 }
 
 /* Product cards — dark home */
@@ -198,7 +198,7 @@
   display: block;
   overflow: hidden;
   background: #151515;
-  border-radius: 14px;
+  border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   transition:
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
@@ -207,17 +207,17 @@
 }
 
 .store-product-card-dark:hover {
-  transform: translateY(-4px);
-  border-color: rgba(201, 161, 90, 0.45);
-  box-shadow: 0 22px 52px rgba(0, 0, 0, 0.55), 0 0 20px rgba(201, 161, 90, 0.08);
+  transform: translateY(-6px);
+  border-color: rgba(201, 161, 90, 0.5);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 24px rgba(201, 161, 90, 0.12);
 }
 
 .store-product-card-dark img {
-  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .store-product-card-dark:hover img {
-  transform: scale(1.04);
+  transform: scale(1.06);
 }
 
 /* Luxury VIP Consultation Banner */

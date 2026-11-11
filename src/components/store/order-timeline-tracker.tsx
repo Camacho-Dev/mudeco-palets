@@ -141,15 +141,15 @@ export function OrderTimelineTracker({
   }
 
   return (
-    <div className="rounded-2xl border border-[#d8c7ad]/80 bg-white p-6 shadow-sm sm:p-7">
+    <div className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-lg sm:p-8">
       {/* Cabecera del Tracker */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
         <div>
-          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#916b32]">
-            <Sparkles className="h-3.5 w-3.5 text-[#b0894f]" />
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/80">
+            <Sparkles className="h-3.5 w-3.5 text-amber-600" />
             Trazabilidad en tiempo real
           </span>
-          <h2 className="text-base font-bold text-[var(--wood-950)] sm:text-lg">
+          <h2 className="mt-1.5 text-lg font-bold text-slate-900 sm:text-xl tracking-tight">
             Seguimiento de Fabricación y Entrega
           </h2>
         </div>
@@ -160,9 +160,9 @@ export function OrderTimelineTracker({
             type="button"
             onClick={handlePrint}
             title="Imprimir resumen del pedido"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 bg-stone-50 px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100 hover:text-stone-900 transition shadow-2xs"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition shadow-2xs cursor-pointer active:scale-95"
           >
-            <Printer className="h-3.5 w-3.5 text-stone-500" />
+            <Printer className="h-3.5 w-3.5 text-slate-500" />
             <span className="hidden sm:inline">Imprimir</span>
           </button>
 
@@ -170,16 +170,16 @@ export function OrderTimelineTracker({
             type="button"
             onClick={handleShare}
             title="Compartir o copiar enlace del pedido"
-            className="inline-flex items-center gap-1.5 rounded-lg border border-stone-200 bg-stone-50 px-3 py-1.5 text-xs font-semibold text-stone-700 hover:bg-stone-100 hover:text-stone-900 transition shadow-2xs"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-100 hover:text-slate-900 transition shadow-2xs cursor-pointer active:scale-95"
           >
             {copiedLink ? (
               <>
-                <Check className="h-3.5 w-3.5 text-emerald-600" />
+                <Check className="h-3.5 w-3.5 text-emerald-600 stroke-[3]" />
                 <span className="text-emerald-700 font-bold">¡Enlace copiado!</span>
               </>
             ) : (
               <>
-                <Share2 className="h-3.5 w-3.5 text-stone-500" />
+                <Share2 className="h-3.5 w-3.5 text-slate-500" />
                 <span className="hidden sm:inline">Compartir</span>
               </>
             )}
@@ -190,14 +190,14 @@ export function OrderTimelineTracker({
       {/* Barra de progreso conectora y pasos interactivos */}
       <div className="relative mt-8">
         {/* Línea de fondo inactiva */}
-        <div className="absolute top-5 left-6 right-6 h-1.5 -translate-y-1/2 rounded-full bg-stone-100 sm:left-12 sm:right-12" />
+        <div className="absolute top-5 left-6 right-6 h-2 -translate-y-1/2 rounded-full bg-slate-100 sm:left-12 sm:right-12" />
 
         {/* Línea animada de progreso activo */}
         <motion.div
           initial={{ width: "0%" }}
           animate={{ width: `${progressPercent}%` }}
           transition={{ duration: 1.2, delay: 0.35, ease: "easeOut" }}
-          className="absolute top-5 left-6 h-1.5 -translate-y-1/2 rounded-full bg-gradient-to-r from-emerald-500 via-emerald-600 to-[#c9a15a] shadow-[0_0_8px_rgba(16,185,129,0.4)] sm:left-12"
+          className="absolute top-5 left-6 h-2 -translate-y-1/2 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-amber-500 shadow-[0_0_12px_rgba(16,185,129,0.4)] sm:left-12"
         />
 
         {/* Los 4 pasos */}
@@ -212,46 +212,46 @@ export function OrderTimelineTracker({
                 key={st.num}
                 type="button"
                 onClick={() => setActiveTab(activeTab === idx ? null : idx)}
-                className="group flex flex-col items-center focus:outline-hidden"
+                className="group flex flex-col items-center focus:outline-hidden cursor-pointer"
               >
                 {/* Nodo circular del paso */}
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.15 * idx, duration: 0.4 }}
-                  className={`relative flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border-2 transition-all duration-300 shadow-sm ${
+                  className={`relative flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-2xl border-2 transition-all duration-300 shadow-sm ${
                     isCompleted
-                      ? "border-emerald-500 bg-emerald-600 text-white shadow-emerald-200"
+                      ? "border-emerald-500 bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-emerald-500/20"
                       : isInProgress
-                        ? "border-amber-400 bg-amber-500 text-white shadow-amber-200 animate-pulse ring-4 ring-amber-100"
-                        : "border-stone-200 bg-white text-stone-400 group-hover:border-stone-300 group-hover:text-stone-600"
+                        ? "border-amber-400 bg-gradient-to-tr from-amber-500 to-yellow-500 text-white shadow-amber-500/30 ring-4 ring-amber-400/25 animate-pulse"
+                        : "border-slate-200 bg-white text-slate-400 group-hover:border-slate-300 group-hover:text-slate-600"
                   }`}
                 >
-                  <Icon className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+                  <Icon className="h-5 w-5 sm:h-5.5 sm:w-5.5" />
 
                   {/* Indicador de pulso activo si está en progreso */}
                   {isInProgress && (
-                    <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
-                      <span className="relative inline-flex h-3 w-3 rounded-full bg-amber-600" />
+                      <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-amber-600 ring-2 ring-white" />
                     </span>
                   )}
                 </motion.div>
 
                 {/* Textos descriptivos */}
-                <div className="mt-2.5 space-y-0.5">
+                <div className="mt-3 space-y-0.5">
                   <p
-                    className={`text-xs font-bold transition ${
+                    className={`text-xs font-bold transition-colors ${
                       isCompleted
-                        ? "text-emerald-950"
+                        ? "text-emerald-900"
                         : isInProgress
-                          ? "text-amber-950"
-                          : "text-stone-500"
+                          ? "text-amber-900"
+                          : "text-slate-500 group-hover:text-slate-700"
                     }`}
                   >
                     {st.title}
                   </p>
-                  <p className="hidden sm:block text-[11px] text-stone-500">
+                  <p className="hidden sm:block text-[11px] text-slate-500">
                     {st.shortDesc}
                   </p>
                 </div>
@@ -262,9 +262,9 @@ export function OrderTimelineTracker({
       </div>
 
       {/* Tarjeta explicativa expandible del paso activo o seleccionado */}
-      <div className="mt-6 rounded-xl border border-stone-200/80 bg-gradient-to-br from-stone-50/80 via-white to-stone-50/50 p-4 text-xs">
+      <div className="mt-7 rounded-2xl border border-slate-200/90 bg-slate-50/80 p-4.5 text-xs shadow-2xs">
         <div className="flex items-start gap-3">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#b0894f]/15 text-[#856333]">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700">
             <HelpCircle className="h-4 w-4" />
           </div>
           <div className="min-w-0 flex-1">

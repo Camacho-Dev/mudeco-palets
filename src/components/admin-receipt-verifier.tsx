@@ -231,38 +231,38 @@ export function AdminReceiptVerifier({
   return (
     <div
       id="comprobante"
-      className="card mb-6 overflow-hidden border-2 border-[#c9a15a]/40 bg-white shadow-md transition-all"
+      className="card mb-6 overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-lg transition-all"
     >
       {/* 1. ENCABEZADO SUPERIOR DEL VERIFICADOR */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 bg-gradient-to-r from-[#faf6f0] via-[#f7f2e9] to-stone-50 px-5 py-4">
-        <div className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#c9a15a]/20 text-[#8a6a3a]">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 bg-slate-900 px-6 py-4.5 text-white">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-400/20 text-amber-300 ring-2 ring-amber-400/30">
             <ShieldCheck className="h-5 w-5" />
           </span>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-display text-base font-bold text-[var(--wood-950)]">
+              <h3 className="font-display text-base font-bold text-white tracking-tight">
                 Verificación de Comprobante Bancario
               </h3>
               {isPaid ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-900 border border-emerald-300">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700" />
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-xs font-bold text-emerald-300 border border-emerald-500/40">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
                   Pago Aprobado en Cuenta
                 </span>
               ) : isCancelled ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-semibold text-stone-600">
+                <span className="inline-flex items-center gap-1 rounded-full bg-slate-800 px-2.5 py-0.5 text-xs font-semibold text-slate-400 border border-slate-700">
                   Orden Cancelada
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-900 border border-amber-300 animate-pulse">
-                  <AlertTriangle className="h-3.5 w-3.5 text-amber-700" />
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/20 px-2.5 py-0.5 text-xs font-bold text-amber-300 border border-amber-500/40 animate-pulse">
+                  <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
                   Pendiente de 3 Confirmaciones
                 </span>
               )}
             </div>
-            <p className="text-xs text-[var(--muted)]">
+            <p className="text-xs text-slate-300 mt-0.5">
               Pedido {orderNumber} · Monto a validar:{" "}
-              <strong className="text-[var(--wood-950)] font-mono">
+              <strong className="text-amber-300 font-mono font-bold">
                 {totalFormatted}
               </strong>
             </p>
@@ -273,18 +273,18 @@ export function AdminReceiptVerifier({
           <button
             type="button"
             onClick={openReceiptFile}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#c9a15a] bg-[#c9a15a]/10 px-3 py-1.5 text-xs font-bold text-[#8a6a3a] hover:bg-[#c9a15a]/20 transition cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-bold text-white hover:bg-white/20 transition cursor-pointer active:scale-95"
           >
             <Eye className="h-3.5 w-3.5" />
             <span>Ver foto completa</span>
-            <ExternalLink className="h-3 w-3 opacity-60" />
+            <ExternalLink className="h-3 w-3 opacity-70" />
           </button>
         </div>
       </div>
 
       {feedback && (
         <div
-          className={`px-5 py-3 text-xs font-medium border-b ${
+          className={`px-6 py-3 text-xs font-medium border-b ${
             feedback.type === "success"
               ? "bg-emerald-50 text-emerald-900 border-emerald-200"
               : "bg-rose-50 text-rose-900 border-rose-200"
@@ -295,9 +295,9 @@ export function AdminReceiptVerifier({
       )}
 
       {/* 2. ÁREA PRINCIPAL: PRIMERO SE ENTRA A VER LA FOTO Y DETALLES */}
-      <div className="grid gap-6 p-5 lg:grid-cols-12">
+      <div className="grid gap-6 p-6 lg:grid-cols-12">
         {/* Columna Izquierda: Vista previa de la foto / comprobante */}
-        <div className="lg:col-span-5 flex flex-col justify-between rounded-xl border border-stone-200 bg-stone-50 p-4">
+        <div className="lg:col-span-5 flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-slate-50/70 p-4.5">
           <div>
             <div className="flex items-center justify-between pb-2 text-xs font-bold text-[var(--wood-900)] uppercase tracking-wider">
               <span>Paso 1: Foto del Comprobante</span>
@@ -357,29 +357,29 @@ export function AdminReceiptVerifier({
             </p>
           </div>
 
-          <div className="mt-3 rounded-lg bg-white p-3 border border-stone-200 text-xs space-y-1.5">
-            <div className="flex justify-between">
-              <span className="text-stone-500 flex items-center gap-1">
-                <DollarSign className="h-3.5 w-3.5 text-emerald-700" />
+          <div className="mt-3 rounded-xl bg-white p-3.5 border border-slate-200/90 text-xs space-y-2 shadow-2xs">
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500 flex items-center gap-1.5 font-medium">
+                <DollarSign className="h-4 w-4 text-emerald-600" />
                 Monto del pedido:
               </span>
-              <span className="font-bold font-mono text-[var(--wood-950)]">
+              <span className="font-bold font-mono text-slate-900 text-sm">
                 {totalFormatted}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-stone-500 flex items-center gap-1">
-                <User className="h-3.5 w-3.5 text-stone-400" />
+            <div className="flex justify-between items-center">
+              <span className="text-slate-500 flex items-center gap-1.5 font-medium">
+                <User className="h-4 w-4 text-slate-400" />
                 Cliente titular:
               </span>
-              <span className="font-semibold text-stone-800 truncate max-w-[150px]">
+              <span className="font-semibold text-slate-800 truncate max-w-[170px]">
                 {customerName}
               </span>
             </div>
             {invoiceNumber && (
-              <div className="flex justify-between">
-                <span className="text-stone-500">Factura vinculada:</span>
-                <span className="font-semibold text-[#8a6a3a]">
+              <div className="flex justify-between items-center border-t border-slate-100 pt-1.5">
+                <span className="text-slate-500">Factura vinculada:</span>
+                <span className="font-mono font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
                   {invoiceNumber}
                 </span>
               </div>
@@ -390,24 +390,29 @@ export function AdminReceiptVerifier({
         {/* Columna Derecha: Paso 2 -> 3 Confirmaciones y decisión */}
         <div className="lg:col-span-7 flex flex-col justify-between">
           <div>
-            <div className="border-b border-stone-200 pb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[var(--wood-900)]">
-                Paso 2: Protocolo de 3 Confirmaciones de Seguridad
-              </span>
-              <p className="text-xs text-[var(--muted)] mt-0.5">
-                Para evitar fraudes o comprobantes duplicados, marca las 3
-                confirmaciones tras validar en la banca en línea:
+            <div className="border-b border-slate-200 pb-2.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+                  <ShieldCheck className="h-4 w-4 text-amber-600" />
+                  Paso 2: Protocolo de 3 Confirmaciones de Seguridad
+                </span>
+                <span className="text-[11px] font-bold text-slate-400">
+                  {Number(check1) + Number(check2) + Number(check3)} de 3 listas
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-1">
+                Para evitar fraudes o comprobantes duplicados, marca las 3 confirmaciones tras validar en la banca en línea:
               </p>
             </div>
 
             {/* LAS 3 CONFIRMACIONES */}
-            <div className="mt-3.5 space-y-3">
+            <div className="mt-4 space-y-3">
               {/* Confirmación 1 */}
               <label
-                className={`flex items-start gap-3 rounded-xl border p-3 transition cursor-pointer select-none ${
+                className={`flex items-start gap-3.5 rounded-2xl border p-4 transition-all duration-200 cursor-pointer select-none ${
                   check1
-                    ? "border-emerald-500 bg-emerald-50/80 text-emerald-950"
-                    : "border-stone-200 bg-stone-50/60 hover:bg-stone-50 text-stone-800"
+                    ? "border-emerald-500/80 bg-emerald-50/70 text-slate-900 shadow-sm ring-1 ring-emerald-500/30"
+                    : "border-slate-200 bg-slate-50/60 hover:bg-white hover:border-slate-300 text-slate-700"
                 }`}
               >
                 <input
@@ -415,26 +420,24 @@ export function AdminReceiptVerifier({
                   checked={check1}
                   disabled={isPaid || isCancelled || isPending}
                   onChange={(e) => setCheck1(e.target.checked)}
-                  className="mt-0.5 h-4.5 w-4.5 rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
+                  className="mt-0.5 h-5 w-5 rounded-md border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
                 />
                 <div className="text-xs leading-relaxed">
-                  <p className="font-bold flex items-center gap-1">
+                  <p className="font-bold flex items-center gap-1 text-slate-900">
                     <span>1. Foto y datos legibles revisados</span>
                   </p>
-                  <p className="text-[11px] opacity-80 mt-0.5">
-                    He revisado la foto/documento del comprobante y confirmo que
-                    es nítido, con fecha reciente, cuenta bancaria de destino y
-                    número de autorización visible.
+                  <p className="text-[11px] text-slate-600 mt-0.5">
+                    He revisado la foto/documento del comprobante y confirmo que es nítido, con fecha reciente, cuenta bancaria de destino y número de autorización visible.
                   </p>
                 </div>
               </label>
 
               {/* Confirmación 2 */}
               <label
-                className={`flex items-start gap-3 rounded-xl border p-3 transition cursor-pointer select-none ${
+                className={`flex items-start gap-3.5 rounded-2xl border p-4 transition-all duration-200 cursor-pointer select-none ${
                   check2
-                    ? "border-emerald-500 bg-emerald-50/80 text-emerald-950"
-                    : "border-stone-200 bg-stone-50/60 hover:bg-stone-50 text-stone-800"
+                    ? "border-emerald-500/80 bg-emerald-50/70 text-slate-900 shadow-sm ring-1 ring-emerald-500/30"
+                    : "border-slate-200 bg-slate-50/60 hover:bg-white hover:border-slate-300 text-slate-700"
                 }`}
               >
                 <input
@@ -442,26 +445,24 @@ export function AdminReceiptVerifier({
                   checked={check2}
                   disabled={isPaid || isCancelled || isPending}
                   onChange={(e) => setCheck2(e.target.checked)}
-                  className="mt-0.5 h-4.5 w-4.5 rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
+                  className="mt-0.5 h-5 w-5 rounded-md border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
                 />
                 <div className="text-xs leading-relaxed">
-                  <p className="font-bold flex items-center gap-1">
+                  <p className="font-bold flex items-center gap-1 text-slate-900">
                     <span>2. Fondos confirmados en la cuenta de Mudeco Palets</span>
                   </p>
-                  <p className="text-[11px] opacity-80 mt-0.5">
-                    Ingresé al portal o banca móvil de la empresa y verifiqué
-                    que el dinero ya fue efectivamente acreditado en el balance
-                    disponible.
+                  <p className="text-[11px] text-slate-600 mt-0.5">
+                    Ingresé al portal o banca móvil de la empresa y verifiqué que el dinero ya fue efectivamente acreditado en el balance disponible.
                   </p>
                 </div>
               </label>
 
               {/* Confirmación 3 */}
               <label
-                className={`flex items-start gap-3 rounded-xl border p-3 transition cursor-pointer select-none ${
+                className={`flex items-start gap-3.5 rounded-2xl border p-4 transition-all duration-200 cursor-pointer select-none ${
                   check3
-                    ? "border-emerald-500 bg-emerald-50/80 text-emerald-950"
-                    : "border-stone-200 bg-stone-50/60 hover:bg-stone-50 text-stone-800"
+                    ? "border-emerald-500/80 bg-emerald-50/70 text-slate-900 shadow-sm ring-1 ring-emerald-500/30"
+                    : "border-slate-200 bg-slate-50/60 hover:bg-white hover:border-slate-300 text-slate-700"
                 }`}
               >
                 <input
@@ -469,36 +470,36 @@ export function AdminReceiptVerifier({
                   checked={check3}
                   disabled={isPaid || isCancelled || isPending}
                   onChange={(e) => setCheck3(e.target.checked)}
-                  className="mt-0.5 h-4.5 w-4.5 rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
+                  className="mt-0.5 h-5 w-5 rounded-md border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
                 />
                 <div className="text-xs leading-relaxed">
-                  <p className="font-bold flex items-center gap-1">
+                  <p className="font-bold flex items-center gap-1 text-slate-900">
                     <span>
                       {validPartial
                         ? "3. Abono parcial verificado y cliente validado"
                         : "3. Monto exacto y cliente verificado"}
                     </span>
                   </p>
-                  <p className="text-[11px] opacity-80 mt-0.5">
+                  <p className="text-[11px] text-slate-600 mt-0.5">
                     {validPartial ? (
                       <>
                         El monto transferido es un abono inicial de{" "}
-                        <strong className="text-emerald-800">
+                        <strong className="text-emerald-700 font-bold">
                           {formatMoney(parsedPartial)}
                         </strong>{" "}
                         ({paidPercent.toFixed(1)}% del pedido de muebles). Resta un
                         balance pendiente de{" "}
-                        <strong className="text-amber-900">
+                        <strong className="text-amber-800 font-bold">
                           {formatMoney(remainingBalance)}
                         </strong>{" "}
                         que se cobrará <em>{balanceCondition.toLowerCase()}</em> a{" "}
-                        <strong>{customerName}</strong>.
+                        <strong className="text-slate-900">{customerName}</strong>.
                       </>
                     ) : (
                       <>
                         El monto transferido cubre el valor total de{" "}
-                        <strong>{totalFormatted}</strong> y corresponde a la orden
-                        de <strong>{customerName}</strong>.
+                        <strong className="text-slate-900 font-mono font-bold">{totalFormatted}</strong> y corresponde a la orden
+                        de <strong className="text-slate-900">{customerName}</strong>.
                       </>
                     )}
                   </p>
@@ -510,7 +511,7 @@ export function AdminReceiptVerifier({
             {!isPaid && !isCancelled && (
               <div className="mt-4 grid gap-3 sm:grid-cols-2 text-xs">
                 <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
+                  <label className="block font-semibold text-slate-700 mb-1">
                     No. de referencia bancaria (Opcional)
                   </label>
                   <input
@@ -518,11 +519,11 @@ export function AdminReceiptVerifier({
                     value={bankReference}
                     onChange={(e) => setBankReference(e.target.value)}
                     placeholder="Ej. BHD-784910 o Pop-33219"
-                    className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-900 outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-stone-700 mb-1">
+                  <label className="block font-semibold text-slate-700 mb-1">
                     Nota interna de validación (Opcional)
                   </label>
                   <input
@@ -530,7 +531,7 @@ export function AdminReceiptVerifier({
                     value={staffNote}
                     onChange={(e) => setStaffNote(e.target.value)}
                     placeholder="Ej. Verificado en cuenta Popular"
-                    className="w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-xs"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-900 outline-none transition focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
                   />
                 </div>
               </div>
@@ -767,7 +768,7 @@ export function AdminReceiptVerifier({
                     type="button"
                     onClick={() => setRejectOpen(true)}
                     disabled={isPending}
-                    className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs font-semibold text-rose-800 hover:bg-rose-100 transition cursor-pointer disabled:opacity-50"
+                    className="rounded-xl border border-rose-200 bg-rose-50/80 px-4 py-2.5 text-xs font-bold text-rose-800 hover:bg-rose-100 transition cursor-pointer disabled:opacity-50 active:scale-95"
                   >
                     Rechazar comprobante
                   </button>
@@ -780,14 +781,14 @@ export function AdminReceiptVerifier({
                       isPending ||
                       (isPartialPayment && !validPartial)
                     }
-                    className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition shadow-sm cursor-pointer ${
+                    className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-xs font-bold uppercase tracking-wider transition shadow-md cursor-pointer ${
                       allChecksConfirmed &&
                       !isPending &&
                       (!isPartialPayment || validPartial)
                         ? validPartial
-                          ? "bg-amber-600 text-white hover:bg-amber-700 active:scale-95 shadow-md"
-                          : "bg-emerald-700 text-white hover:bg-emerald-800 active:scale-95 shadow-md"
-                        : "bg-stone-200 text-stone-400 cursor-not-allowed border border-stone-300"
+                          ? "bg-gradient-to-r from-amber-600 to-amber-500 text-white hover:from-amber-500 hover:to-amber-400 active:scale-95 shadow-amber-600/25"
+                          : "bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-500 hover:to-teal-500 active:scale-95 shadow-emerald-600/25"
+                        : "bg-slate-200 text-slate-400 cursor-not-allowed border border-slate-300 shadow-none"
                     }`}
                   >
                     {isPending ? (

@@ -22,14 +22,14 @@ export function PageHeader({
   return (
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 className="font-display text-3xl tracking-tight text-[var(--wood-950)]">
+        <h1 className="font-display text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
           {title}
         </h1>
         {description ? (
-          <p className="mt-1 text-sm text-[var(--muted)]">{description}</p>
+          <p className="mt-1.5 text-sm font-medium text-slate-500 leading-relaxed">{description}</p>
         ) : null}
       </div>
-      {actionNode ? <div className="flex flex-wrap gap-2">{actionNode}</div> : null}
+      {actionNode ? <div className="flex flex-wrap gap-2.5 items-center">{actionNode}</div> : null}
     </div>
   );
 }

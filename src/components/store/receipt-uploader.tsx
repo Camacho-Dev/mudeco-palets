@@ -165,30 +165,29 @@ export function ReceiptUploader({
   }
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border-2 border-[#d4af37]/40 bg-gradient-to-b from-white via-[#fffdfb] to-[#faf6ef] p-6 shadow-sm sm:p-7">
+    <div className="relative overflow-hidden rounded-3xl border border-slate-200/90 bg-white p-6 shadow-lg sm:p-8">
       {/* Resplandor decorativo */}
-      <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-amber-400/10 blur-2xl" />
+      <div className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-amber-400/10 blur-3xl" />
 
-      <div className="relative flex flex-wrap items-center justify-between gap-3 border-b border-stone-200/80 pb-4">
+      <div className="relative flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#b0894f]/15 text-[#886534]">
-              <FileCheck2 className="h-4 w-4" />
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700">
+              <FileCheck2 className="h-4.5 w-4.5" />
             </span>
-            <h2 className="text-base font-bold text-[var(--wood-950)] sm:text-lg">
+            <h2 className="text-lg font-bold text-slate-900 sm:text-xl tracking-tight">
               Adjuntar Comprobante de Transferencia
             </h2>
           </div>
-          <p className="mt-1 text-xs text-[var(--muted)]">
+          <p className="mt-1 text-xs text-slate-500">
             Sube el comprobante bancario para validar tu pago de{" "}
-            <span className="font-bold text-[var(--wood-950)]">{totalFormatted}</span> del pedido{" "}
-            <span className="font-mono font-semibold text-[var(--wood-900)]">{orderNumber}</span> e
-            iniciar la producción
+            <span className="font-bold text-slate-900 font-mono">{totalFormatted}</span> del pedido{" "}
+            <span className="font-mono font-bold text-slate-900">{orderNumber}</span> e iniciar la producción
           </p>
         </div>
 
         {receipt && (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3.5 py-1 text-xs font-bold text-amber-900 border border-amber-300 shadow-2xs">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3.5 py-1 text-xs font-bold text-amber-800 border border-amber-300 shadow-2xs">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-600" />
@@ -203,9 +202,9 @@ export function ReceiptUploader({
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-5 space-y-4"
+          className="mt-6 space-y-4"
         >
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-xl border border-emerald-300/80 bg-gradient-to-r from-emerald-50/70 via-white to-emerald-50/40 p-4 shadow-2xs transition">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4.5 shadow-2xs transition">
             <div className="flex items-center gap-3.5 min-w-0">
               {isReceiptPdf ? (
                 <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-700 shadow-xs">
@@ -215,26 +214,26 @@ export function ReceiptUploader({
                 <button
                   type="button"
                   onClick={() => setShowModal(true)}
-                  className="group relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border-2 border-emerald-300 bg-white shadow-xs focus:outline-hidden"
+                  className="group relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border-2 border-emerald-400 bg-white shadow-xs focus:outline-hidden cursor-pointer"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={receipt.url}
                     alt={receipt.name}
-                    className="h-full w-full object-cover transition group-hover:scale-110"
+                    className="h-full w-full object-cover transition duration-300 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition">
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition">
                     <Eye className="h-4 w-4 text-white" />
                   </div>
                 </button>
               )}
 
               <div className="min-w-0">
-                <p className="truncate text-sm font-bold text-emerald-950 flex items-center gap-1.5">
+                <p className="truncate text-sm font-bold text-slate-900 flex items-center gap-1.5">
                   <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
                   {receipt.name}
                 </p>
-                <p className="text-xs text-emerald-800/90 mt-0.5 flex flex-wrap gap-2">
+                <p className="text-xs text-slate-500 mt-0.5 flex flex-wrap gap-2">
                   <span>Subido el {new Date(receipt.uploadedAt).toLocaleString("es-DO")}</span>
                   {receipt.sizeBytes ? <span>· {formatFileSize(receipt.sizeBytes)}</span> : null}
                 </p>
@@ -249,9 +248,9 @@ export function ReceiptUploader({
                     ? openReceiptInNewTab(receipt.url)
                     : setShowModal(true)
                 }
-                className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-2 text-xs font-bold text-emerald-900 border border-emerald-300 shadow-2xs hover:bg-emerald-50 hover:border-emerald-400 transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 text-xs font-bold text-slate-800 border border-slate-200 shadow-2xs hover:bg-slate-50 transition cursor-pointer active:scale-95"
               >
-                <Eye className="h-3.5 w-3.5 text-emerald-700" />
+                <Eye className="h-3.5 w-3.5 text-slate-500" />
                 <span>Ver comprobante</span>
                 <ExternalLink className="h-3 w-3 opacity-60" />
               </button>
@@ -259,15 +258,15 @@ export function ReceiptUploader({
               <button
                 type="button"
                 onClick={() => setShowReplace(true)}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-3.5 py-2 text-xs font-semibold text-stone-700 hover:bg-stone-50 hover:text-stone-900 transition shadow-2xs"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition shadow-2xs cursor-pointer active:scale-95"
               >
-                <RefreshCw className="h-3.5 w-3.5 text-stone-500" />
+                <RefreshCw className="h-3.5 w-3.5 text-slate-500" />
                 <span>Cambiar archivo</span>
               </button>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-gradient-to-r from-[#fbf7f2] to-amber-50/40 border border-[#e5d9c7] p-3.5 text-xs text-[var(--wood-900)]">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-amber-50/60 border border-amber-200/80 p-4 text-xs text-slate-700">
             <div className="flex items-center gap-2.5">
               <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
               <span>
@@ -278,7 +277,7 @@ export function ReceiptUploader({
               href={whatsAppUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-3.5 py-2 text-xs font-semibold text-white hover:bg-emerald-800 transition shadow-xs active:scale-95"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 transition shadow-xs active:scale-95"
             >
               <MessageCircle className="h-3.5 w-3.5" />
               <span>Enviar por WhatsApp</span>
@@ -505,29 +504,29 @@ export function BankAccountCard({
 
   return (
     <motion.div
-      whileHover={{ y: -3 }}
+      whileHover={{ y: -4 }}
       transition={{ duration: 0.2 }}
-      className={`relative overflow-hidden rounded-xl border ${bankTheme.border} bg-white shadow-sm hover:shadow-md transition`}
+      className={`relative overflow-hidden rounded-2xl border ${bankTheme.border} bg-white shadow-md hover:shadow-xl transition-all duration-300`}
     >
       {/* Cabecera estilizada de tarjeta bancaria */}
-      <div className={`${bankTheme.headerBg} p-3.5 text-white flex items-center justify-between`}>
+      <div className={`${bankTheme.headerBg} p-4 text-white flex items-center justify-between`}>
         <div className="flex items-center gap-2">
-          <Building className={`h-4 w-4 ${bankTheme.accent}`} />
-          <p className="font-bold text-xs tracking-wide">{bankTheme.badge}</p>
+          <Building className={`h-4.5 w-4.5 ${bankTheme.accent}`} />
+          <p className="font-bold text-xs tracking-wider uppercase">{bankTheme.badge}</p>
         </div>
-        <span className="text-[10px] font-semibold tracking-wider uppercase text-white/80 rounded bg-white/15 px-2 py-0.5">
+        <span className="text-[10px] font-bold tracking-wider uppercase text-white/90 rounded-md bg-white/20 px-2 py-0.5 backdrop-blur-xs">
           {type}
         </span>
       </div>
 
       <div className="p-4 text-xs">
         {/* Número de cuenta con botón Copiar con micro-interacción */}
-        <div className="flex items-center justify-between gap-2 rounded-lg bg-stone-50 p-2.5 border border-stone-200/80">
+        <div className="flex items-center justify-between gap-2 rounded-xl bg-slate-50 p-3 border border-slate-200/80">
           <div>
-            <span className="text-[10px] uppercase font-bold tracking-wider text-stone-500">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500">
               Número de Cuenta
             </span>
-            <p className="font-mono text-base font-bold text-[var(--wood-950)] tracking-wider">
+            <p className="font-mono text-base font-bold text-slate-900 tracking-wider">
               {accountNumber}
             </p>
           </div>
@@ -536,7 +535,7 @@ export function BankAccountCard({
             type="button"
             onClick={copyAccount}
             title="Copiar número de cuenta al portapapeles"
-            className="group inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-[#8c6734] border border-[#d6c3a6] hover:bg-[#fbf7f2] hover:text-[#5a412f] transition shadow-2xs active:scale-95"
+            className="group inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-1.5 text-xs font-bold text-slate-700 border border-slate-200 hover:border-amber-400 hover:bg-slate-50 hover:text-slate-900 transition shadow-2xs active:scale-95 cursor-pointer"
           >
             {copied ? (
               <>
@@ -545,7 +544,7 @@ export function BankAccountCard({
               </>
             ) : (
               <>
-                <Copy className="h-3.5 w-3.5 opacity-70 group-hover:opacity-100" />
+                <Copy className="h-3.5 w-3.5 opacity-60 group-hover:opacity-100" />
                 <span>Copiar</span>
               </>
             )}
@@ -553,17 +552,17 @@ export function BankAccountCard({
         </div>
 
         {/* Metadatos del titular */}
-        <div className="mt-3 space-y-1 text-[11px] text-stone-600 border-t border-stone-100 pt-2.5">
+        <div className="mt-3 space-y-1 text-[11px] text-slate-600 border-t border-slate-100 pt-2.5">
           <p className="flex justify-between">
-            <span className="text-stone-700">Beneficiario:</span>
-            <span className="font-bold text-[var(--wood-950)] truncate max-w-[170px] text-right">
+            <span className="text-slate-500">Beneficiario:</span>
+            <span className="font-bold text-slate-900 truncate max-w-[170px] text-right">
               {holder}
             </span>
           </p>
           {rnc ? (
             <p className="flex justify-between">
-              <span className="text-stone-700">RNC:</span>
-              <span className="font-mono font-semibold text-stone-900">{rnc}</span>
+              <span className="text-slate-500">RNC:</span>
+              <span className="font-mono font-semibold text-slate-800">{rnc}</span>
             </p>
           ) : null}
         </div>

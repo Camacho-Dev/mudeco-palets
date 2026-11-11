@@ -190,12 +190,15 @@ export default async function PedidoPage({
     : "Retiro en taller";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#faf6f0] via-[#f7f1e7] to-[#eee4d4] py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50/90 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Resplandor superior suave */}
+      <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-96 w-[700px] rounded-full bg-amber-400/10 blur-3xl" />
+
       {ok ? <ClearCartOnSuccess /> : null}
 
-      <div className="mx-auto max-w-3xl space-y-6">
+      <div className="relative mx-auto max-w-3xl space-y-6">
         {/* ENCABEZADO DE ESTADO DEL PEDIDO */}
-        <div className="rounded-2xl border border-[#e5d9c7] bg-white p-8 sm:p-10 text-center shadow-sm">
+        <div className="rounded-3xl border border-slate-200/90 bg-white p-8 sm:p-10 text-center shadow-xl backdrop-blur-sm">
           <AnimatedSuccessCheck
             title={mainTitle}
             subtitle={mainSubtitle}
@@ -243,19 +246,19 @@ export default async function PedidoPage({
 
         {/* CUENTAS BANCARIAS OFICIALES DOMINICANAS */}
         {isTransfer && (
-          <div className="rounded-2xl border border-[#e5d9c7] bg-white p-6 shadow-sm sm:p-7">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 pb-4">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#b0894f]/15 text-[#8b6534]">
-                  <Building2 className="h-4.5 w-4.5" />
+          <div className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-xl sm:p-8">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-700 ring-2 ring-amber-400/20">
+                  <Building2 className="h-5 w-5" />
                 </span>
                 <div>
-                  <h3 className="text-base font-bold text-[var(--wood-950)]">
+                  <h3 className="text-lg font-bold text-slate-900 tracking-tight">
                     Cuentas Bancarias Oficiales
                   </h3>
-                  <p className="text-xs text-[var(--muted)]">
+                  <p className="text-xs text-slate-500 mt-0.5">
                     Transfiere el monto exacto de{" "}
-                    <span className="font-bold text-[var(--wood-950)]">
+                    <span className="font-bold text-slate-900 font-mono">
                       {formatCurrency(order.total)}
                     </span>{" "}
                     a cualquiera de nuestras cuentas
@@ -263,13 +266,13 @@ export default async function PedidoPage({
                 </div>
               </div>
 
-              <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-[11px] font-bold text-amber-900 border border-amber-200">
-                <Sparkles className="h-3 w-3 text-amber-600" />
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-800 border border-amber-200">
+                <Sparkles className="h-3.5 w-3.5 text-amber-600" />
                 Transferencia o Depósito
               </span>
             </div>
 
-            <div className="mt-5 grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {banks.map((b) => (
                 <BankAccountCard
                   key={b.bank}
@@ -285,21 +288,21 @@ export default async function PedidoPage({
         )}
 
         {/* RESUMEN DEL PEDIDO O CONSULTA */}
-        <div className="rounded-2xl border border-[#e5d9c7] bg-white p-6 shadow-sm sm:p-7">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 pb-4">
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#b0894f]/15 text-[#8b6534]">
+        <div className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-xl sm:p-8">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-700 ring-2 ring-amber-400/20">
                 {isContact ? (
-                  <MessageSquare className="h-4.5 w-4.5" />
+                  <MessageSquare className="h-5 w-5" />
                 ) : (
-                  <Package className="h-4.5 w-4.5" />
+                  <Package className="h-5 w-5" />
                 )}
               </span>
               <div>
-                <h3 className="text-base font-bold text-[var(--wood-950)]">
+                <h3 className="text-lg font-bold text-slate-900 tracking-tight">
                   {isContact ? "Resumen de tu Consulta" : "Resumen de la Orden"}
                 </h3>
-                <p className="text-xs text-[var(--muted)]">
+                <p className="text-xs text-slate-500 mt-0.5">
                   {isContact
                     ? "Datos de contacto y mensaje enviado al taller"
                     : "Detalles de cliente, destino y piezas en carpintería"}
@@ -307,24 +310,24 @@ export default async function PedidoPage({
               </div>
             </div>
 
-            <span className="font-mono text-xs font-bold text-[var(--wood-900)] bg-stone-100 px-2.5 py-1 rounded-md border border-stone-200">
+            <span className="font-mono text-xs font-bold text-slate-800 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
               {order.number}
             </span>
           </div>
 
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 text-xs">
-            <div className="space-y-2 rounded-xl bg-gradient-to-br from-stone-50/90 to-stone-50/40 p-4 border border-stone-200/80">
-              <p className="font-bold text-[var(--wood-900)] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                <User className="h-3.5 w-3.5 text-[#b0894f]" />
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 text-xs">
+            <div className="space-y-2.5 rounded-2xl bg-slate-50/80 p-4.5 border border-slate-200/90 shadow-2xs">
+              <p className="font-bold text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                <User className="h-3.5 w-3.5 text-amber-600" />
                 Datos del Cliente
               </p>
-              <p className="font-bold text-sm text-[var(--wood-950)]">{order.customerName}</p>
-              <p className="text-stone-600 font-medium">
+              <p className="font-bold text-sm text-slate-900">{order.customerName}</p>
+              <p className="text-slate-600 font-medium">
                 {isAuthorizedViewer ? order.customerEmail : maskEmail(order.customerEmail)}
               </p>
               {order.customerPhone ? (
-                <p className="text-stone-600 flex items-center gap-1">
-                  <Phone className="h-3 w-3 text-stone-400" />
+                <p className="text-slate-600 flex items-center gap-1">
+                  <Phone className="h-3.5 w-3.5 text-slate-400" />
                   <span>
                     {isAuthorizedViewer ? order.customerPhone : maskPhone(order.customerPhone)}
                   </span>
@@ -336,30 +339,30 @@ export default async function PedidoPage({
             </div>
 
             {isContact ? (
-              <div className="space-y-2 rounded-xl bg-gradient-to-br from-stone-50/90 to-stone-50/40 p-4 border border-stone-200/80">
-                <p className="font-bold text-[var(--wood-900)] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                  <MessageSquare className="h-3.5 w-3.5 text-[#b0894f]" />
+              <div className="space-y-2.5 rounded-2xl bg-slate-50/80 p-4.5 border border-slate-200/90 shadow-2xs">
+                <p className="font-bold text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                  <MessageSquare className="h-3.5 w-3.5 text-amber-600" />
                   Mensaje Enviado
                 </p>
-                <p className="text-stone-700 leading-relaxed whitespace-pre-wrap">
+                <p className="text-slate-700 leading-relaxed whitespace-pre-wrap">
                   {isAuthorizedViewer
                     ? cleanNotes || "Consulta general recibida por el taller."
                     : "Hemos registrado tu consulta. Te responderemos a la brevedad por WhatsApp o correo."}
                 </p>
               </div>
             ) : (
-              <div className="space-y-2 rounded-xl bg-gradient-to-br from-stone-50/90 to-stone-50/40 p-4 border border-stone-200/80">
-                <p className="font-bold text-[var(--wood-900)] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                  <MapPin className="h-3.5 w-3.5 text-[#b0894f]" />
+              <div className="space-y-2.5 rounded-2xl bg-slate-50/80 p-4.5 border border-slate-200/90 shadow-2xs">
+                <p className="font-bold text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5 text-amber-600" />
                   Modalidad de Entrega
                 </p>
-                <p className="font-bold text-sm text-[var(--wood-950)]">{fulfillmentType}</p>
+                <p className="font-bold text-sm text-slate-900">{fulfillmentType}</p>
                 {order.customerAddress ? (
-                  <p className="text-stone-600 leading-relaxed">
+                  <p className="text-slate-600 leading-relaxed">
                     {isAuthorizedViewer ? order.customerAddress : "Dirección registrada en tu orden"}
                   </p>
                 ) : (
-                  <p className="text-stone-500 leading-relaxed">
+                  <p className="text-slate-500 leading-relaxed">
                     Retiro directo en nuestro taller artesanal: {company.address}.
                   </p>
                 )}
@@ -370,20 +373,20 @@ export default async function PedidoPage({
           {/* LÍNEAS DE PRODUCTOS */}
           {order.items.length > 0 && (
             <div className="mt-6">
-              <p className="text-xs font-bold text-[var(--wood-900)] uppercase tracking-wider mb-3">
+              <p className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">
                 Piezas artesanales ({order.items.length})
               </p>
-              <div className="divide-y divide-stone-100 rounded-xl border border-stone-200 overflow-hidden">
+              <div className="divide-y divide-slate-100 rounded-2xl border border-slate-200 overflow-hidden shadow-2xs">
                 {order.items.map((it) => {
                   const img = it.product ? productImage(it.product) : null;
                   return (
                     <div
                       key={it.id}
-                      className="flex items-center justify-between gap-3.5 p-3.5 text-xs bg-white hover:bg-[#fffdfa] transition"
+                      className="flex items-center justify-between gap-3.5 p-4 text-xs bg-white hover:bg-slate-50/70 transition"
                     >
                       <div className="flex items-center gap-3.5 min-w-0">
                         {img ? (
-                          <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-stone-200 bg-stone-50 shadow-2xs">
+                          <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-2xs">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={img}
@@ -393,15 +396,15 @@ export default async function PedidoPage({
                           </div>
                         ) : null}
                         <div className="min-w-0">
-                          <p className="font-bold text-sm text-[var(--wood-950)] truncate">
+                          <p className="font-bold text-sm text-slate-900 truncate">
                             {it.description}
                           </p>
-                          <p className="text-[var(--muted)] mt-0.5">
-                            Cant: <span className="font-semibold text-stone-800">{it.quantity}</span> × {formatCurrency(it.unitPrice)}
+                          <p className="text-slate-500 mt-0.5">
+                            Cant: <span className="font-semibold text-slate-800">{it.quantity}</span> × {formatCurrency(it.unitPrice)}
                           </p>
                         </div>
                       </div>
-                      <p className="font-bold text-sm text-[var(--wood-950)] shrink-0 font-mono">
+                      <p className="font-bold text-sm text-slate-900 shrink-0 font-mono">
                         {formatCurrency(it.lineTotal)}
                       </p>
                     </div>
@@ -413,18 +416,18 @@ export default async function PedidoPage({
 
           {/* TOTALES (solo cuando hay monto mayor a 0) */}
           {order.total > 0 && (
-            <div className="mt-5 border-t border-stone-200 pt-4 space-y-1.5 text-xs text-right">
-              <div className="flex justify-between text-stone-600">
+            <div className="mt-6 border-t border-slate-100 pt-5 space-y-2 text-xs text-right">
+              <div className="flex justify-between text-slate-500">
                 <span>Subtotal neto</span>
                 <span className="font-mono">{formatCurrency(order.subtotal)}</span>
               </div>
-              <div className="flex justify-between text-stone-600">
+              <div className="flex justify-between text-slate-500">
                 <span>ITBIS (18%)</span>
                 <span className="font-mono">{formatCurrency(order.tax)}</span>
               </div>
-              <div className="flex justify-between text-base font-bold text-[var(--wood-950)] border-t border-stone-200 pt-2.5">
+              <div className="flex justify-between text-base font-bold text-slate-900 border-t border-slate-200 pt-3">
                 <span>Total general</span>
-                <span className="font-mono text-lg text-emerald-800">{formatCurrency(order.total)}</span>
+                <span className="font-mono text-xl font-extrabold text-emerald-700">{formatCurrency(order.total)}</span>
               </div>
             </div>
           )}
@@ -443,24 +446,22 @@ export default async function PedidoPage({
         )}
 
         {/* ACCIONES Y BOTONES FINALES */}
-        <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
+        <div className="flex flex-wrap items-center justify-center gap-3.5 pt-4">
           {order.invoice && isAuthorizedViewer ? (
             isPaid ? (
               <a
                 href={`/api/facturas/${order.invoice.id}/pdf?orderId=${order.id}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-5 py-3 text-sm font-semibold text-[var(--wood-950)] shadow-xs transition hover:bg-[#fbf7f2] hover:border-[#b0894f]"
+                className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-900 shadow-sm transition hover:bg-slate-50 hover:border-amber-400 active:scale-95"
               >
-                <FileDown className="h-4 w-4 text-[#b0894f]" />
+                <FileDown className="h-4 w-4 text-amber-600" />
                 <span>Descargar Factura PDF ({order.invoice.number})</span>
               </a>
             ) : (
-              <div className="inline-flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50/90 px-4 py-3 text-xs font-semibold text-amber-900">
+              <div className="inline-flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-xs font-semibold text-amber-900">
                 <Clock className="h-4 w-4 shrink-0 text-amber-600" />
-                <span>
-                  Factura disponible cuando se valide el pago en cuenta
-                </span>
+                <span>Factura oficial disponible cuando se valide el pago en cuenta</span>
               </div>
             )
           ) : null}
@@ -470,9 +471,9 @@ export default async function PedidoPage({
               href={`/api/cotizaciones/${order.quote.id}/pdf?orderId=${order.id}`}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-5 py-3 text-sm font-semibold text-[var(--wood-950)] shadow-xs transition hover:bg-[#fbf7f2] hover:border-[#b0894f]"
+              className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-900 shadow-sm transition hover:bg-slate-50 hover:border-sky-400 active:scale-95"
             >
-              <FileDown className="h-4 w-4 text-[#b0894f]" />
+              <FileDown className="h-4 w-4 text-sky-600" />
               <span>Descargar Cotización PDF ({order.quote.number})</span>
             </a>
           ) : null}
@@ -482,9 +483,9 @@ export default async function PedidoPage({
               href={waTransfer}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 active:scale-95"
+              className="inline-flex items-center gap-2 rounded-2xl border border-emerald-300 bg-emerald-50 px-5 py-3 text-sm font-bold text-emerald-800 shadow-2xs transition hover:bg-emerald-100 active:scale-95"
             >
-              <MessageCircle className="h-4.5 w-4.5" />
+              <MessageCircle className="h-4 w-4" />
               <span>Reenviar a WhatsApp</span>
             </a>
           )}
@@ -494,7 +495,7 @@ export default async function PedidoPage({
               href={waPhotos}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 rounded-xl bg-[#b0894f] px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#97733e] transition"
+              className="inline-flex items-center gap-2 rounded-2xl bg-amber-600 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-amber-700 transition active:scale-95"
             >
               <MessageCircle className="h-4 w-4" />
               <span>Enviar fotos por WhatsApp</span>
@@ -503,15 +504,15 @@ export default async function PedidoPage({
 
           <Link
             href="/catalogo"
-            className="inline-flex items-center gap-2 rounded-xl bg-[var(--wood-900)] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--wood-800)] active:scale-95"
+            className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-6 py-3 text-sm font-bold text-white shadow-md transition hover:bg-slate-800 active:scale-95"
           >
-            <ShoppingBag className="h-4.5 w-4.5" />
-            <span>Seguir explorando catálogo</span>
+            <ShoppingBag className="h-4 w-4" />
+            <span>Seguir explorando el catálogo</span>
           </Link>
 
           <Link
             href="/"
-            className="inline-flex items-center rounded-xl border border-[var(--border)] bg-white px-5 py-3 text-sm font-medium text-stone-700 hover:bg-stone-50 transition"
+            className="inline-flex items-center rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 transition active:scale-95"
           >
             Volver al Inicio
           </Link>
