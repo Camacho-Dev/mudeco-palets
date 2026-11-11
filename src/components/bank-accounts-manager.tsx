@@ -298,3 +298,4 @@ export function BankAccountsManager({
     </div>
   );
 }
+

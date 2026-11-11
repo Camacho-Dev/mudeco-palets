@@ -52,3 +52,4 @@ async function main() {
 main()
   .catch(err => console.error('Error:', err))
   .finally(() => prisma.$disconnect());
+

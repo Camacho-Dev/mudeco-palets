@@ -143,24 +143,47 @@ export function getDominicanBanks(company?: {
     return envBanks;
   }
 
-  // Si aún no se han configurado cuentas específicas en el panel de configuración,
-  // mostramos cuentas de referencia oficiales a nombre de la empresa
+  // Cuentas oficiales de Mudeco Palets a nombre de Martín González
   return [
     {
       bank: "Banco Popular Dominicano",
       type: "Cuenta Corriente en DOP",
-      accountNumber: "Coordina vía WhatsApp",
-      holder: company?.name || "Mudeco Palets SRL",
+      accountNumber: "0854076668",
+      holder: "Martín González",
       rnc,
       color: "#0047ba",
     },
     {
       bank: "Banreservas (Banco de Reservas)",
       type: "Cuenta de Ahorros en DOP",
-      accountNumber: "Coordina vía WhatsApp",
-      holder: company?.name || "Mudeco Palets SRL",
+      accountNumber: "9609158003",
+      holder: "Martín González",
       rnc,
       color: "#0072ce",
+    },
+    {
+      bank: "Banco BHD",
+      type: "Cuenta de Ahorros en DOP",
+      accountNumber: "14660720010",
+      holder: "Martín González",
+      rnc,
+      color: "#008852",
+    },
+    {
+      bank: "Asociación Popular (APAP)",
+      type: "Cuenta de Ahorros en DOP",
+      accountNumber: "1020930098",
+      holder: "Martín González",
+      rnc,
+      color: "#d97706",
+    },
+    {
+      bank: "Banesco Banco Múltiple",
+      type: "Cuenta de Ahorros en DOP",
+      accountNumber: "11200066282",
+      holder: "Martín González",
+      rnc,
+      color: "#006940",
     },
   ];
 }
