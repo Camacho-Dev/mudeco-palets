@@ -179,9 +179,9 @@ export default async function StoreHomePage() {
 
   return (
     <div className="bg-[#0a0a0a] text-white">
-      {/* —— Hero principal con iluminación artesanal y micro-animaciones —— */}
-      <section className="relative mx-auto max-w-[1760px] px-4 pt-4 sm:px-8 lg:px-12 xl:px-16">
-        <div className="relative isolate min-h-[480px] sm:min-h-[560px] md:min-h-[640px] lg:min-h-[700px] xl:min-h-[740px] overflow-hidden border border-white/[0.08] shadow-[0_24px_70px_rgba(0,0,0,0.9)]">
+      {/* —— Hero principal FULL-WIDTH Edge-to-Edge —— */}
+      <section className="relative w-full overflow-hidden border-b border-white/[0.08] bg-[#0a0a0a]">
+        <div className="relative isolate min-h-[520px] sm:min-h-[580px] md:min-h-[640px] lg:min-h-[700px] xl:min-h-[740px] w-full overflow-hidden">
           {/* Imagen de fondo estática de alta nitidez */}
           <div className="absolute inset-0 overflow-hidden">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -202,7 +202,7 @@ export default async function StoreHomePage() {
             }}
           />
 
-          <div className="relative z-10 flex h-full min-h-[480px] sm:min-h-[560px] md:min-h-[640px] lg:min-h-[700px] xl:min-h-[740px] flex-col justify-center px-6 py-12 sm:px-10 md:px-14 lg:px-16 xl:px-20">
+          <div className="relative z-10 mx-auto flex h-full min-h-[520px] sm:min-h-[580px] md:min-h-[640px] lg:min-h-[700px] xl:min-h-[740px] w-full max-w-[1920px] flex-col justify-center px-4 py-12 sm:px-8 md:px-12 lg:px-14 xl:px-16 2xl:px-20">
             <div className="grid gap-10 lg:grid-cols-12 lg:gap-10 xl:gap-14 items-center">
               {/* Columna Izquierda: Mensaje editorial y llamadas a la acción */}
               <div className="lg:col-span-7 xl:col-span-7">
@@ -263,31 +263,33 @@ export default async function StoreHomePage() {
         </div>
       </section>
 
-      {/* —— Trust strip interactivo —— */}
-      <div className="mx-auto max-w-[1760px] px-4 pt-6 sm:px-8 lg:px-12 xl:px-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {TRUST.map((t, idx) => (
-            <Reveal key={t.title} delay={idx * 0.06}>
-              <div className="group relative flex items-center gap-3.5 border border-white/[0.08] bg-[#111111] p-4 transition-all duration-300 hover:border-[#c9a15a]/50 hover:bg-[#161616] hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:-translate-y-0.5">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#c9a15a]/25 bg-[#c9a15a]/10 text-[#c9a15a] transition-all duration-300 group-hover:scale-110 group-hover:bg-[#c9a15a] group-hover:text-[#0a0a0a] group-hover:shadow-[0_0_15px_rgba(201,161,90,0.3)]">
-                  <t.icon className="h-5 w-5" strokeWidth={1.75} />
+      {/* —— Trust strip FULL-WIDTH —— */}
+      <section className="w-full border-b border-white/[0.08] bg-[#0c0c0c]">
+        <div className="mx-auto w-full max-w-[1920px] px-4 py-5 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            {TRUST.map((t, idx) => (
+              <Reveal key={t.title} delay={idx * 0.06}>
+                <div className="group relative flex items-center gap-3.5 border border-white/[0.08] bg-[#121212] p-4 transition-all duration-300 hover:border-[#c9a15a]/50 hover:bg-[#161616] hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:-translate-y-0.5">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#c9a15a]/25 bg-[#c9a15a]/10 text-[#c9a15a] transition-all duration-300 group-hover:scale-110 group-hover:bg-[#c9a15a] group-hover:text-[#0a0a0a] group-hover:shadow-[0_0_15px_rgba(201,161,90,0.3)]">
+                    <t.icon className="h-5 w-5" strokeWidth={1.75} />
+                  </div>
+                  <div>
+                    <h4 className="text-[0.72rem] font-semibold tracking-wider text-white uppercase group-hover:text-[#c9a15a] transition-colors">
+                      {t.title}
+                    </h4>
+                    <p className="mt-0.5 text-xs text-white/50 leading-tight">
+                      {t.desc}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="text-[0.72rem] font-semibold tracking-wider text-white uppercase group-hover:text-[#c9a15a] transition-colors">
-                    {t.title}
-                  </h4>
-                  <p className="mt-0.5 text-xs text-white/50 leading-tight">
-                    {t.desc}
-                  </p>
-                </div>
-              </div>
-            </Reveal>
-          ))}
+              </Reveal>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* —— Estanterías de productos con micro-interacciones —— */}
-      <div className="mx-auto max-w-[1760px] px-4 sm:px-8 lg:px-12 xl:px-16">
+      <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
         <ProductShelf
           title="Destacados para ti"
           subtitle="Piezas emblemáticas seleccionadas por nuestro taller"
@@ -376,7 +378,7 @@ export default async function StoreHomePage() {
 
       {/* —— El Proceso Mudeco: Del Palet a la Obra de Arte —— */}
       <section className="border-b border-white/[0.06] bg-[#0c0c0c] py-20">
-        <div className="mx-auto max-w-[1760px] px-4 sm:px-8 lg:px-12 xl:px-16">
+        <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <Reveal>
             <div className="max-w-2xl mb-12">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/30 bg-[#c9a15a]/10 px-3 py-1 text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a] uppercase">
@@ -421,7 +423,7 @@ export default async function StoreHomePage() {
         <div className="pointer-events-none absolute -top-40 right-0 h-[480px] w-[480px] rounded-full bg-[#c9a15a]/5 blur-[120px]" />
         <div className="pointer-events-none absolute -bottom-40 left-0 h-[480px] w-[480px] rounded-full bg-[#c9a15a]/5 blur-[120px]" />
 
-        <div className="relative mx-auto max-w-[1760px] px-4 sm:px-8 lg:px-12 xl:px-16">
+        <div className="relative mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           {/* Cabecera Editorial con Historia de Marca */}
           <div className="grid gap-12 lg:grid-cols-12 lg:items-center mb-16">
             <div className="lg:col-span-7 space-y-4">
@@ -571,7 +573,7 @@ export default async function StoreHomePage() {
       />
 
       {/* —— Banner VIP Proyectos Especiales y a Medida —— */}
-      <section className="mx-auto max-w-[1760px] px-4 py-8 sm:px-8 lg:px-12 xl:px-16">
+      <section className="mx-auto w-full max-w-[1920px] px-4 py-8 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
         <Reveal>
           <div className="store-vip-banner rounded-lg p-8 sm:p-12 border border-[#c9a15a]/35 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
             <div className="max-w-3xl space-y-3">
@@ -613,7 +615,7 @@ export default async function StoreHomePage() {
 
       {/* —— Galería de Instagram con hover interactivo —— */}
       <section className="border-t border-white/[0.06] bg-[#0c0c0c] py-14">
-        <div className="mx-auto max-w-[1760px] px-4 sm:px-8 lg:px-12 xl:px-16">
+        <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <div className="mb-6 flex items-end justify-between gap-3">
             <div>
               <p className="text-[0.65rem] font-medium tracking-[0.24em] text-[#c9a15a] uppercase">

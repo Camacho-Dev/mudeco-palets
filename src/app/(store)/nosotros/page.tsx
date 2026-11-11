@@ -42,7 +42,7 @@ export default async function NosotrosPage() {
         {/* Glow dorado ambiental */}
         <div className="pointer-events-none absolute -top-24 right-1/4 h-96 w-96 rounded-full bg-[#c9a15a]/10 blur-[130px]" />
 
-        <div className="relative mx-auto max-w-[1760px] px-4 sm:px-8 lg:px-12 xl:px-16 text-center">
+        <div className="relative mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 text-center">
           <Reveal>
             <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/35 bg-[#c9a15a]/10 px-4 py-1.5 text-[0.68rem] font-bold tracking-[0.24em] text-[#c9a15a] uppercase">
               <Sparkles className="h-3.5 w-3.5" />
@@ -60,7 +60,7 @@ export default async function NosotrosPage() {
 
       {/* —— Manifiesto & Historia de Marca —— */}
       <section className="relative border-b border-white/[0.06] py-20 lg:py-28">
-        <div className="mx-auto grid max-w-[1760px] items-center gap-12 lg:grid-cols-12 px-4 sm:px-8 lg:px-12 xl:px-16">
+        <div className="mx-auto grid w-full max-w-[1920px] items-center gap-12 lg:grid-cols-12 px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <div className="relative order-2 lg:order-1 lg:col-span-6">
             <Reveal>
               <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#141414] p-3 shadow-2xl">
@@ -126,7 +126,7 @@ export default async function NosotrosPage() {
 
       {/* —— Los 3 Pilares Fundacionales: Misión, Visión y Valores —— */}
       <section className="relative border-b border-white/[0.06] bg-[#0f0f0f] py-24">
-        <div className="mx-auto max-w-[1760px] px-4 sm:px-8 lg:px-12 xl:px-16">
+        <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <Reveal>
             <div className="text-center max-w-3xl mx-auto mb-16">
               <span className="text-[0.65rem] font-bold tracking-[0.24em] text-[#c9a15a] uppercase">

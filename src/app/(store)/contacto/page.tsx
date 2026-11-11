@@ -59,7 +59,7 @@ export default async function ContactoPage() {
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-r from-[#14100d] via-[#14100d]/90 to-[#14100d]/75" />
-        <div className="relative mx-auto max-w-[1760px] px-4 py-14 sm:px-8 lg:px-12 xl:px-16">
+        <div className="relative mx-auto w-full max-w-[1920px] px-4 py-14 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <Reveal>
             <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/35 bg-[#c9a15a]/10 px-3.5 py-1 text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a] uppercase">
               <Sparkles className="h-3 w-3" />
@@ -77,7 +77,7 @@ export default async function ContactoPage() {
       </div>
 
       {/* Contenido principal en 2 columnas balanceadas */}
-      <div className="mx-auto grid max-w-[1760px] items-stretch gap-8 px-4 py-12 sm:px-8 lg:grid-cols-12 lg:px-12 xl:px-16">
+      <div className="mx-auto grid w-full max-w-[1920px] items-stretch gap-8 px-4 py-12 sm:px-8 lg:grid-cols-12 lg:px-12 xl:px-16 2xl:px-20">
         <Reveal className="lg:col-span-6 flex flex-col gap-4">
           {/* Cuadrícula de 2x2 para canales directos (sin espacios vacíos) */}
           <div className="grid gap-4 sm:grid-cols-2">
@@ -240,7 +240,7 @@ export default async function ContactoPage() {
 
       {/* Preguntas frecuentes para mayor confianza y profesionalismo */}
       <div className="border-t border-[var(--border)] bg-[#faf6f1] py-16">
-        <div className="mx-auto max-w-[1760px] px-4 sm:px-8 lg:px-12 xl:px-16">
+        <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <Reveal>
             <div className="max-w-2xl mb-10">
               <p className="text-[0.68rem] font-bold tracking-[0.2em] text-[#b0894f] uppercase">

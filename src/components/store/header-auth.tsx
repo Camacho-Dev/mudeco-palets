@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -11,6 +11,8 @@ import {
   ChevronDown,
   ChevronRight,
   UserCircle2,
+  LayoutDashboard,
+  ShieldCheck,
 } from "lucide-react";
 
 export type CustomerProfileSummary = {
@@ -103,6 +105,14 @@ export function HeaderAuth({
     );
   }
 
+  const { data: clientSession } = useSession();
+  const effectiveRole =
+    user?.role ||
+    (clientSession?.user as { role?: string } | undefined)?.role ||
+    null;
+  const isAdminUser = effectiveRole === "ADMIN";
+  const isSellerUser = effectiveRole === "VENDEDOR";
+
   const displayName = getDisplayCustomerName(user);
   const initials = getInitials(displayName, user.email);
   const ordersCount = user.ordersCount ?? 0;
@@ -115,14 +125,47 @@ export function HeaderAuth({
             {initials}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-white">
-              {displayName}
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="truncate text-sm font-medium text-white">
+                {displayName}
+              </p>
+              {isAdminUser && (
+                <span className="rounded bg-[#c9a15a]/20 border border-[#c9a15a]/40 px-1.5 py-0.5 text-[9px] font-bold tracking-widest text-[#c9a15a] uppercase">
+                  Admin
+                </span>
+              )}
+            </div>
             <p className="truncate text-xs text-white/50">{user.email}</p>
           </div>
         </div>
 
         <div className="flex flex-col gap-1.5 pt-1">
+          {isAdminUser && (
+            <Link
+              href="/panel"
+              className="flex items-center justify-between rounded-lg border border-[#c9a15a]/45 bg-[#c9a15a]/15 px-3.5 py-2.5 text-xs font-semibold tracking-wider text-[#c9a15a] uppercase transition hover:bg-[#c9a15a] hover:text-[#0a0a0a]"
+            >
+              <span className="flex items-center gap-2">
+                <LayoutDashboard className="h-4 w-4" />
+                <span>Panel de Administración</span>
+              </span>
+              <span className="text-[10px] font-bold">Entrar →</span>
+            </Link>
+          )}
+
+          {isSellerUser && !isAdminUser && (
+            <Link
+              href="/vender"
+              className="flex items-center justify-between rounded-lg border border-[#c9a15a]/45 bg-[#c9a15a]/15 px-3.5 py-2.5 text-xs font-semibold tracking-wider text-[#c9a15a] uppercase transition hover:bg-[#c9a15a] hover:text-[#0a0a0a]"
+            >
+              <span className="flex items-center gap-2">
+                <LayoutDashboard className="h-4 w-4" />
+                <span>Punto de Venta (POS)</span>
+              </span>
+              <span className="text-[10px] font-bold">Entrar →</span>
+            </Link>
+          )}
+
           <Link
             href="/mis-pedidos"
             className="flex items-center justify-between rounded-lg bg-[#c9a15a] px-3.5 py-2.5 text-xs font-semibold tracking-wider text-[#0f0f0f] uppercase transition hover:bg-[#d4b06e]"
@@ -199,9 +242,21 @@ export function HeaderAuth({
                 {initials}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-white">
-                  {displayName}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="truncate text-sm font-semibold text-white">
+                    {displayName}
+                  </p>
+                  {isAdminUser && (
+                    <span className="rounded bg-[#c9a15a]/20 border border-[#c9a15a]/40 px-1.5 py-0.5 text-[9px] font-bold tracking-widest text-[#c9a15a] uppercase">
+                      Admin
+                    </span>
+                  )}
+                  {isSellerUser && !isAdminUser && (
+                    <span className="rounded bg-sky-500/20 border border-sky-500/40 px-1.5 py-0.5 text-[9px] font-bold tracking-widest text-sky-400 uppercase">
+                      Ventas
+                    </span>
+                  )}
+                </div>
                 <p className="truncate text-xs text-white/50">{user.email}</p>
               </div>
             </div>
@@ -209,6 +264,40 @@ export function HeaderAuth({
 
           {/* Enlaces principales de navegación */}
           <div className="p-1.5">
+            {isAdminUser && (
+              <Link
+                href="/panel"
+                onClick={() => setOpen(false)}
+                className="group mb-1.5 flex items-center justify-between rounded-lg border border-[#c9a15a]/50 bg-gradient-to-r from-[#c9a15a]/20 to-[#c9a15a]/10 px-3 py-2.5 text-xs font-semibold text-[#c9a15a] transition duration-200 hover:border-[#c9a15a] hover:bg-[#c9a15a] hover:text-[#0a0a0a]"
+              >
+                <span className="flex items-center gap-2.5">
+                  <LayoutDashboard className="h-4 w-4" />
+                  <span>Panel de Administración</span>
+                </span>
+                <span className="inline-flex items-center gap-1 rounded bg-[#c9a15a]/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white group-hover:bg-black/20 group-hover:text-black">
+                  Admin
+                  <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </Link>
+            )}
+
+            {isSellerUser && !isAdminUser && (
+              <Link
+                href="/vender"
+                onClick={() => setOpen(false)}
+                className="group mb-1.5 flex items-center justify-between rounded-lg border border-[#c9a15a]/50 bg-gradient-to-r from-[#c9a15a]/20 to-[#c9a15a]/10 px-3 py-2.5 text-xs font-semibold text-[#c9a15a] transition duration-200 hover:border-[#c9a15a] hover:bg-[#c9a15a] hover:text-[#0a0a0a]"
+              >
+                <span className="flex items-center gap-2.5">
+                  <LayoutDashboard className="h-4 w-4" />
+                  <span>Punto de Venta (POS)</span>
+                </span>
+                <span className="inline-flex items-center gap-1 rounded bg-[#c9a15a]/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white group-hover:bg-black/20 group-hover:text-black">
+                  Ventas
+                  <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </Link>
+            )}
+
             <Link
               href="/mis-pedidos#perfil"
               onClick={() => setOpen(false)}

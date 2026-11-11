@@ -68,7 +68,7 @@ export default async function CatalogoPage({
         {/* Ambient gold glow */}
         <div className="absolute -top-24 right-1/4 h-80 w-80 rounded-full bg-[#c9a15a]/15 blur-3xl pointer-events-none" />
 
-        <div className="relative mx-auto max-w-[1760px] px-4 sm:px-8 lg:px-12 xl:px-16">
+        <div className="relative mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <Reveal>
             {/* Breadcrumb */}
             <nav className="mb-4 flex items-center gap-2 text-[0.72rem] tracking-wider text-white/50 uppercase">
@@ -118,7 +118,7 @@ export default async function CatalogoPage({
         </div>
       </section>
 
-      <div className="mx-auto max-w-[1760px] px-4 py-8 sm:px-8 sm:py-10 lg:px-12 xl:px-16">
+      <div className="mx-auto w-full max-w-[1920px] px-4 py-8 sm:px-8 sm:py-10 lg:px-12 xl:px-16 2xl:px-20">
         <CatalogExplorer
           products={products}
           categories={categories}

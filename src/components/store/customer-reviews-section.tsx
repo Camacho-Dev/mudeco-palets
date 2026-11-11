@@ -391,7 +391,7 @@ export function CustomerReviewsSection({
     : "T";
 
   return (
-    <section className="mx-auto max-w-[1320px] px-4 py-16 sm:px-8 lg:px-12">
+    <section className="mx-auto w-full max-w-[1920px] px-4 py-16 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
       {/* —— Cabecera estilo barra superior de YouTube —— */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div className="flex items-center gap-6">

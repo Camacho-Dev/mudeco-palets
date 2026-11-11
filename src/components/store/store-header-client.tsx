@@ -224,7 +224,7 @@ export function StoreHeaderClient({
             : "bg-[#111111]/94 backdrop-blur-xl"
         }`}
       >
-        <div className="relative mx-auto flex h-[90px] max-w-[1760px] items-center justify-between gap-4 px-4 sm:px-8 lg:px-10 xl:px-16">
+        <div className="relative mx-auto flex h-[88px] w-full max-w-[1920px] items-center justify-between gap-4 px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <Link
             href="/"
             className="relative z-10 shrink-0 transition duration-300 hover:opacity-90"

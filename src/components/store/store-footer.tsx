@@ -22,7 +22,7 @@ export function StoreFooter({
 
   return (
     <footer className="mt-auto border-t border-white/[0.08] bg-[#0f0f0f] text-white">
-      <div className="mx-auto grid max-w-[1760px] gap-12 px-4 py-16 sm:px-8 md:grid-cols-2 lg:grid-cols-4 lg:px-12 xl:px-16">
+      <div className="mx-auto grid w-full max-w-[1920px] gap-12 px-4 py-16 sm:px-8 md:grid-cols-2 lg:grid-cols-4 lg:px-12 xl:px-16 2xl:px-20">
         <div>
           <BrandLogo
             width={160}
@@ -160,7 +160,7 @@ export function StoreFooter({
       </div>
       {/* Franja de Confianza y Métodos de Pago */}
       <div className="border-t border-white/[0.08] bg-[#0c0c0c] py-8">
-        <div className="mx-auto max-w-[1760px] px-4 sm:px-8 lg:px-12 xl:px-16">
+        <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 text-xs">
             <div className="flex items-start gap-3">
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#c9a15a]/10 text-[#c9a15a] border border-[#c9a15a]/25">
@@ -222,7 +222,7 @@ export function StoreFooter({
       </div>
 
       <div className="border-t border-white/[0.08] bg-[#0a0a0a]">
-        <div className="mx-auto flex max-w-[1760px] flex-col items-center gap-4 px-4 py-5 text-[0.7rem] tracking-wide text-white/35 sm:px-8 md:flex-row md:justify-between lg:px-12 xl:px-16">
+        <div className="mx-auto flex w-full max-w-[1920px] flex-col items-center gap-4 px-4 py-5 text-[0.7rem] tracking-wide text-white/35 sm:px-8 md:flex-row md:justify-between lg:px-12 xl:px-16 2xl:px-20">
           <p className="text-center md:text-left">
             © {new Date().getFullYear()} {company.name} ·{" "}
             {company.taxId ? `RNC ${company.taxId}` : "República Dominicana"} · Todos los derechos
