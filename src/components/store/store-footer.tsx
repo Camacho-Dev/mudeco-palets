@@ -168,7 +168,7 @@ export function StoreFooter({
               </span>
               <div>
                 <p className="font-semibold text-white uppercase tracking-wider text-[0.68rem]">
-                  Garantía de Taller
+                  Garantía de Calidad
                 </p>
                 <p className="mt-1 text-white/50 text-[0.72rem] leading-relaxed">
                   Madera de pino 100% curada contra humedad y plagas. Ensamble reforzado para décadas de uso.
@@ -182,10 +182,10 @@ export function StoreFooter({
               </span>
               <div>
                 <p className="font-semibold text-white uppercase tracking-wider text-[0.68rem]">
-                  Envíos & Retiro en Taller
+                  Envíos a Domicilio
                 </p>
                 <p className="mt-1 text-white/50 text-[0.72rem] leading-relaxed">
-                  Retiro directo en Santo Domingo Oeste o entrega coordinada en Gran Santo Domingo y todo el país.
+                  Entrega coordinada en Santo Domingo y envíos a todo el territorio nacional.
                 </p>
               </div>
             </div>

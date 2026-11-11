@@ -17,7 +17,7 @@ export default async function TerminosPage() {
     {
       icon: Hammer,
       title: "1. Naturaleza Artesanal y Madera Recuperada",
-      body: `${STORE_LOGISTICS.materials} Todas nuestras maderas pasan por procesos de selección, cepillado, curado y sellado profesional en nuestro taller de Santo Domingo Oeste. Las variaciones naturales en vetas, nudos o matices de color son propias de la madera sólida y garantizan que cada mueble sea una pieza única.`,
+      body: `${STORE_LOGISTICS.materials} Todas nuestras maderas pasan por procesos de selección, cepillado, curado y sellado profesional en nuestro taller. Las variaciones naturales en vetas, nudos o matices de color son propias de la madera sólida y garantizan que cada mueble sea una pieza única.`,
     },
     {
       icon: CreditCard,

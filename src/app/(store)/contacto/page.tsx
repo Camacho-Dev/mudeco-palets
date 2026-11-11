@@ -63,7 +63,7 @@ export default async function ContactoPage() {
           <Reveal>
             <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/35 bg-[#c9a15a]/10 px-3.5 py-1 text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a] uppercase">
               <Sparkles className="h-3 w-3" />
-              Hablemos · Atención Directa del Taller
+              Atención Personalizada
             </div>
             <h1 className="font-display mt-3.5 text-4xl text-white md:text-5xl">
               Contacto
@@ -97,7 +97,7 @@ export default async function ContactoPage() {
               </div>
               <div className="mt-4">
                 <p className="font-semibold text-[var(--wood-950)] flex items-center justify-between">
-                  <span>WhatsApp Taller</span>
+                  <span>WhatsApp</span>
                   <ArrowUpRight className="h-4 w-4 text-[var(--muted)] transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[#b0894f]" />
                 </p>
                 <p className="mt-1 text-sm text-[var(--muted)]">
@@ -192,7 +192,7 @@ export default async function ContactoPage() {
               <div className="flex-1">
                 <div className="flex items-center justify-between">
                   <p className="font-semibold text-[var(--wood-950)]">
-                    Ubicación del Taller
+                    Nuestra Ubicación
                   </p>
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#b0894f] group-hover:underline">
                     Abrir en Google Maps

@@ -173,7 +173,7 @@ export function WoodBrandStamp({
 
           {showSubtitle && (
             <p className="mt-3 text-[0.72rem] leading-relaxed text-white/60 max-w-[280px]">
-              Taller de ebanistería circular en Santo Domingo. Madera de pino curada y recuperada.
+              Ebanistería con madera de pino curada y recuperada.
             </p>
           )}
 

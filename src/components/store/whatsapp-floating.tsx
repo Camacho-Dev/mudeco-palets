@@ -33,7 +33,7 @@ export function WhatsappFloating({ phone = "+1 (809) 704-7519" }: { phone?: stri
             Atención al cliente
           </p>
           <p className="text-xs font-semibold text-white">
-            WhatsApp Taller
+            WhatsApp
           </p>
         </div>
       </a>

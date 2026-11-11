@@ -9,9 +9,9 @@ export const STORE_HOURS = [
 
 export const STORE_LOGISTICS = {
   pickup:
-    "Retiro en taller en Santo Domingo Oeste, previa coordinación.",
+    "Retiro en nuestro taller previa coordinación.",
   delivery:
-    "Entrega en Gran Santo Domingo (costo según zona y volumen). Consulta al cotizar o en el checkout.",
+    "Entrega en Santo Domingo y envíos a nivel nacional. Consulta al cotizar o en el checkout.",
   leadTime:
     "Piezas en stock: coordinación en 2–5 días hábiles. A medida: según evaluación.",
   payments:

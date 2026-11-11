@@ -274,7 +274,7 @@ export function StoreHeaderClient({
                           {/* Cabecera compacta */}
                           <div className="mb-2.5 flex items-center justify-between border-b border-white/[0.07] pb-2.5 px-1">
                             <span className="text-[0.65rem] font-semibold tracking-[0.18em] text-white/45 uppercase">
-                              Categorías del Taller
+                              Categorías
                             </span>
                             <Link
                               href="/catalogo"

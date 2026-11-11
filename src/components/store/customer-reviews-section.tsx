@@ -842,7 +842,7 @@ export function CustomerReviewsSection({
                             <span className="font-semibold text-[#c9a15a]">{activeReply.handle}</span>
                             {isStaffUser && (
                               <span className="rounded bg-[#c9a15a] text-[#0a0a0a] px-1 text-[9px] font-black uppercase tracking-wider">
-                                Como Taller Oficial
+                                Mudeco Oficial
                               </span>
                             )}
                           </div>
@@ -955,7 +955,7 @@ export function CustomerReviewsSection({
                                   </span>
                                   {reply.isOfficial ? (
                                     <span className="rounded bg-[#c9a15a] text-[#0a0a0a] px-1 text-[9px] font-black uppercase tracking-wider">
-                                      Taller Oficial ✔
+                                      Mudeco Oficial ✔
                                     </span>
                                   ) : (
                                     <span className="text-[11px] text-stone-400">

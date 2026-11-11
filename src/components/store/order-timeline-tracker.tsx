@@ -101,11 +101,11 @@ export function OrderTimelineTracker({
       shortDesc:
         fulfillmentType === "Entrega a domicilio"
           ? "Transporte seguro"
-          : "Taller Santo Domingo Oeste",
+          : "Retiro en taller",
       detail:
         fulfillmentType === "Entrega a domicilio"
           ? "Un chofer de nuestro equipo te contactará para coordinar la entrega y descarga segura de tus muebles."
-          : "Recibirás una notificación cuando tus piezas estén empacadas y listas para retirar en nuestro taller en Santo Domingo Oeste.",
+          : "Recibirás una notificación cuando tus piezas estén empacadas y listas para retirar en nuestro taller.",
       status: isDone ? "completed" : "waiting",
       icon: fulfillmentType === "Entrega a domicilio" ? Truck : Store,
     },

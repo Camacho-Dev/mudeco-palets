@@ -193,7 +193,7 @@ export default async function ProductoPage({
               />
               <span className="font-medium text-[var(--muted)]">
                 {product.stock > 0
-                  ? `Disponible · ${product.stock} en taller`
+                  ? `En existencia · ${product.stock} unidades`
                   : "Fabricación a medida bajo pedido"}
               </span>
             </div>

@@ -413,7 +413,7 @@ export function CatalogExplorer({
               style={{ paddingLeft: "2.2rem" }}
               className="w-full h-11 appearance-none rounded-2xl border border-slate-200 bg-slate-50/80 pr-8 text-xs font-semibold text-slate-800 transition-all duration-200 hover:border-amber-400 focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none cursor-pointer"
             >
-              <option value="relevance">Ordenar: Destacados del taller</option>
+              <option value="relevance">Ordenar: Destacados</option>
               <option value="price-asc">Precio: Menor a mayor</option>
               <option value="price-desc">Precio: Mayor a menor</option>
               <option value="newest">Más recientes</option>
@@ -746,10 +746,10 @@ export function CatalogExplorer({
             {filteredAndSortedProducts.length}
           </span>{" "}
           {filteredAndSortedProducts.length === 1
-            ? "mueble artesanal"
-            : "muebles artesanales"}
+            ? "mueble"
+            : "muebles"}
           {selectedCategory ? ` en ${formatCategoryName(selectedCategory)}` : ""}
-          {filterMode === "popular" ? " · Colección Más Vendidos" : ""}
+          {filterMode === "popular" ? " · Más Vendidos" : ""}
           {isPriceFiltered
             ? ` · Entre ${formatCurrency(priceRange[0])} y ${formatCurrency(
                 priceRange[1],
@@ -757,10 +757,6 @@ export function CatalogExplorer({
             : ""}
           {query ? ` para "${query}"` : ""}
         </p>
-
-        <span className="text-[0.72rem] tracking-wider text-[#a08a78] uppercase">
-          Taller Mudeco · Santo Domingo Oeste
-        </span>
       </div>
 
       {/* Cuadrícula de productos */}
@@ -770,8 +766,7 @@ export function CatalogExplorer({
             No se encontraron muebles para esta combinación
           </p>
           <p className="mt-2 text-sm text-[var(--muted)] max-w-md mx-auto">
-            Fabricamos cualquier mueble artesanal a tus dimensiones exactas en
-            nuestro taller de Santo Domingo Oeste.
+            Fabricamos cualquier mueble a tus dimensiones exactas en nuestro taller.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <button

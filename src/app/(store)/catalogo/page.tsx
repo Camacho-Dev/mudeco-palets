@@ -76,15 +76,10 @@ export default async function CatalogoPage({
                 Inicio
               </Link>
               <ChevronRight className="h-3 w-3 text-white/30" />
-              <span className="text-[#c9a15a] font-medium">Catálogo Artesanal</span>
+              <span className="text-[#c9a15a] font-medium">Catálogo</span>
             </nav>
 
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/40 bg-black/40 px-3.5 py-1 text-[0.62rem] font-bold tracking-[0.22em] text-[#d4af37] uppercase backdrop-blur-md">
-              <Sparkles className="h-3 w-3 text-[#d4af37]" />
-              Colección Artesanal · Taller Santo Domingo Oeste
-            </div>
-
-            <h1 className="font-display mt-3 text-3xl sm:text-4xl md:text-5xl text-white tracking-tight">
+            <h1 className="font-display mt-2 text-3xl sm:text-4xl md:text-5xl text-white tracking-tight">
               Catálogo de Piezas
             </h1>
 

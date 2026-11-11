@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     siteName: "Mudeco Palets",
     title: "Mudeco Palets — Muebles de madera recuperada",
     description:
-      "Muebles de madera recuperada. Catálogo exclusivo y proyectos a medida en Santo Domingo.",
+      "Muebles de madera recuperada. Catálogo exclusivo y proyectos a medida.",
     url: base,
     images: [
       {

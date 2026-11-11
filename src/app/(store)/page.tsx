@@ -244,7 +244,7 @@ export default async function StoreHomePage() {
                     <div className="h-3 w-[1px] bg-white/15" />
                     <div className="flex items-center gap-2">
                       <span className="font-display text-lg text-[#c9a15a] font-semibold">A medida</span>
-                      <span>Garantía de taller</span>
+                      <span>Garantía de calidad</span>
                     </div>
                   </div>
                 </FadeUp>
@@ -422,7 +422,7 @@ export default async function StoreHomePage() {
                   Diseño con propósito: convirtiendo el descarte en arte vivo
                 </h2>
                 <p className="text-base sm:text-lg leading-relaxed text-white/75">
-                  Cada pieza nace de materiales nobles reciclados en nuestro taller de Santo Domingo. Transformamos madera de pino curada en muebles de alta resistencia con acabados satinados al aceite natural.
+                  Cada pieza nace de materiales nobles reciclados en nuestro taller. Transformamos madera de pino curada en muebles de alta resistencia con acabados satinados al aceite natural.
                 </p>
                 <div className="pt-2 flex flex-wrap items-center gap-4">
                   <Link
@@ -437,7 +437,7 @@ export default async function StoreHomePage() {
                     href="/contacto"
                     className="text-sm text-white/60 hover:text-white transition-colors"
                   >
-                    Visitar taller en Santo Domingo
+                    Visitar nuestro taller
                   </Link>
                 </div>
               </Reveal>
@@ -458,7 +458,7 @@ export default async function StoreHomePage() {
                       <div className="flex items-center gap-2.5">
                         <div className="h-2 w-2 rounded-full bg-[#c9a15a]" />
                         <span className="text-xs font-semibold tracking-wider text-white uppercase">
-                          Taller Artesanal Santo Domingo
+                          Ebanistería Mudeco
                         </span>
                       </div>
                       <span className="rounded-md border border-[#c9a15a]/40 bg-black/60 px-2 py-0.5 text-[0.65rem] font-medium text-[#c9a15a] backdrop-blur-md">
