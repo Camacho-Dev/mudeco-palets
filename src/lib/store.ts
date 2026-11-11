@@ -20,6 +20,7 @@ export type StoreCompany = {
   promoTvImage: string;
   galleryImages: string | null;
   beforeAfterJson: string | null;
+  bankAccountsJson: string | null;
 };
 
 let cachedCompany: { data: StoreCompany; expiresAt: number } | null = null;
@@ -90,6 +91,7 @@ export async function getStoreCompany(): Promise<StoreCompany> {
       promoTvImage: company?.promoTvImage || "/brand/cat-tv.jpg",
       galleryImages: company?.galleryImages || null,
       beforeAfterJson: company?.beforeAfterJson || null,
+      bankAccountsJson: company?.bankAccountsJson || null,
     };
     const ttl = process.env.NODE_ENV === "production" ? 60_000 : 30_000;
     cachedCompany = { data: result, expiresAt: now + ttl };
@@ -114,6 +116,7 @@ export async function getStoreCompany(): Promise<StoreCompany> {
       promoTvImage: "/brand/cat-tv.jpg",
       galleryImages: null,
       beforeAfterJson: null,
+      bankAccountsJson: null,
     };
   }
 }

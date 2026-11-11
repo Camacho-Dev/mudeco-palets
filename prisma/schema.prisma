@@ -171,6 +171,7 @@ model CompanySettings {
   promoTvImage     String? @default("/brand/cat-tv.jpg")
   galleryImages    String? // JSON array con URLs de la galería
   beforeAfterJson  String? // JSON array con transformaciones antes/después
+  bankAccountsJson String? // JSON array con cuentas bancarias [{ bank, type, accountNumber, holder, rnc, color }]
 }
 
 model AuditLog {

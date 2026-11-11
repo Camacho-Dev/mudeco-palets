@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Star, ShoppingBag, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShoppingBag, Check } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 import { productImage } from "@/lib/product-image";
 import { useCart } from "@/components/store/cart-context";
@@ -19,16 +19,11 @@ export type ShelfProduct = {
   badge?: string;
 };
 
-function Stars() {
+function CraftBadge() {
   return (
-    <div className="flex items-center gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Star
-          key={i}
-          className="h-3 w-3 fill-[#c9a15a] text-[#c9a15a]"
-          strokeWidth={1.5}
-        />
-      ))}
+    <div className="flex items-center gap-1.5 text-[11px] text-[#c9a15a]/90 font-medium">
+      <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#c9a15a]" />
+      <span>Pino curado · Hecho a mano</span>
     </div>
   );
 }
@@ -90,7 +85,7 @@ function ShelfCard({ product }: { product: ShelfProduct }) {
               {product.name}
             </h3>
           </Link>
-          <Stars />
+          <CraftBadge />
           <div className="flex items-center justify-between gap-2 pt-1 border-t border-white/[0.05]">
             <p className="text-sm font-semibold text-[#c9a15a]">
               {formatCurrency(product.price)}

@@ -43,8 +43,41 @@ export async function updateCompany(fd: FormData) {
   revalidatePath("/configuracion");
   revalidatePath("/");
   revalidatePath("/contacto");
+  revalidatePath("/checkout/transferencia");
   revalidatePath("/panel");
   redirect("/configuracion");
+}
+
+export async function saveBankAccounts(bankAccountsJson: string) {
+  await requireAdmin();
+
+  // Validación básica del formato JSON
+  try {
+    const parsed = JSON.parse(bankAccountsJson);
+    if (!Array.isArray(parsed)) {
+      throw new Error("Formato inválido de cuentas bancarias");
+    }
+  } catch {
+    throw new Error("Formato JSON inválido");
+  }
+
+  await prisma.companySettings.upsert({
+    where: { id: "default" },
+    update: { bankAccountsJson },
+    create: { id: "default", bankAccountsJson },
+  });
+
+  await writeAudit({
+    action: "UPDATE",
+    entity: "Company",
+    entityId: "default",
+    summary: "Cuentas bancarias oficiales actualizadas",
+  });
+
+  revalidatePath("/configuracion");
+  revalidatePath("/checkout/transferencia");
+  revalidatePath("/pedido/[id]");
+  revalidatePath("/");
 }
 
 export async function createNcfSeries(fd: FormData) {

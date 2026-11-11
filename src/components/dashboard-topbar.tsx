@@ -2,10 +2,19 @@ import Link from "next/link";
 import { WebOrdersBell } from "@/components/web-orders-bell";
 import { ExternalLink, Zap } from "lucide-react";
 import { getCachedPendingWebOrders } from "@/lib/dashboard-cache";
+import { prisma } from "@/lib/prisma";
 
 export async function DashboardTopbar() {
-  const { count: totalPendingCount, recent: pendingOrders } =
-    await getCachedPendingWebOrders();
+  const [{ count: totalPendingCount, recent: pendingOrders }, company] =
+    await Promise.all([
+      getCachedPendingWebOrders(),
+      prisma.companySettings.findUnique({ where: { id: "default" } }),
+    ]);
+
+  const companyName = company?.name || "Mudeco Palets";
+  const locationText = company?.address
+    ? `· ${company.address.split(",")[0].trim()}`
+    : "· República Dominicana";
 
   return (
     <header className="no-print border-b border-slate-200/80 bg-white/80 backdrop-blur-md sticky top-0 z-30 px-6 py-2.5 md:px-10 shadow-2xs transition-all">
@@ -17,10 +26,10 @@ export async function DashboardTopbar() {
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
           </span>
           <span className="text-xs font-bold text-slate-800 tracking-tight hidden sm:inline">
-            Taller Mudeco Palets
+            {companyName}
           </span>
           <span className="text-xs font-medium text-slate-400 hidden md:inline">
-            · Santo Domingo Oeste
+            {locationText}
           </span>
         </div>
 

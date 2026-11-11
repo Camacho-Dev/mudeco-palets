@@ -11,6 +11,7 @@ import {
 } from "./actions";
 import { formatDate } from "@/lib/format";
 import { ConfirmForm } from "@/components/confirm-form";
+import { BankAccountsManager } from "@/components/bank-accounts-manager";
 
 export default async function ConfiguracionPage() {
   await requireAdmin();
@@ -107,6 +108,14 @@ export default async function ConfiguracionPage() {
             Guardar
           </button>
         </form>
+      </div>
+
+      <div>
+        <BankAccountsManager
+          initialAccountsJson={company?.bankAccountsJson || null}
+          companyName={company?.name || "Mudeco Palets"}
+          companyTaxId={company?.taxId || null}
+        />
       </div>
 
       <div>

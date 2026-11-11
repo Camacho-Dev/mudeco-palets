@@ -235,18 +235,18 @@ export default async function StoreHomePage() {
                   {/* Mini métricas flotantes de confianza */}
                   <div className="mt-10 hidden pt-6 border-t border-white/10 sm:flex items-center gap-8 text-xs text-white/70">
                     <div className="flex items-center gap-2">
-                      <span className="font-display text-lg text-[#c9a15a] font-semibold">+500</span>
-                      <span>Piezas fabricadas</span>
+                      <span className="font-display text-lg text-[#c9a15a] font-semibold">+100</span>
+                      <span>Modelos en catálogo</span>
                     </div>
                     <div className="h-3 w-[1px] bg-white/15" />
                     <div className="flex items-center gap-2">
                       <span className="font-display text-lg text-[#c9a15a] font-semibold">100%</span>
-                      <span>Pino tratado</span>
+                      <span>Pino curado y tratado</span>
                     </div>
                     <div className="h-3 w-[1px] bg-white/15" />
                     <div className="flex items-center gap-2">
-                      <span className="font-display text-lg text-[#c9a15a] font-semibold">10 años</span>
-                      <span>Garantía de ensamble</span>
+                      <span className="font-display text-lg text-[#c9a15a] font-semibold">A medida</span>
+                      <span>Garantía de taller</span>
                     </div>
                   </div>
                 </FadeUp>

@@ -8,8 +8,8 @@ type BankInfo = {
   type: string;
   accountNumber: string;
   holder: string;
-  rnc: string;
-  color: string;
+  rnc?: string;
+  color?: string;
 };
 
 export function BankAccountsGrid({ banks }: { banks: BankInfo[] }) {
@@ -25,9 +25,23 @@ export function BankAccountsGrid({ banks }: { banks: BankInfo[] }) {
     }
   };
 
+  if (banks.length === 0) {
+    return (
+      <div className="mt-8 rounded-2xl border border-[#e2d5c5] bg-[#faf7f2] p-6 text-center text-xs text-[var(--wood-800)]">
+        <p className="font-semibold text-sm text-[var(--wood-950)]">
+          Coordinación directa de transferencia bancaria
+        </p>
+        <p className="mt-1 text-[var(--muted)]">
+          Al confirmar tu pedido, nuestro equipo te suministrará los datos bancarios exactos del taller para transferir.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {banks.map((b) => {
+        const isNumeric = /[\d]/.test(b.accountNumber);
         const isCopied = copiedAccount === b.accountNumber;
         return (
           <div
@@ -59,28 +73,30 @@ export function BankAccountsGrid({ banks }: { banks: BankInfo[] }) {
                   {b.accountNumber}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => handleCopy(b.accountNumber)}
-                className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-bold transition cursor-pointer ${
-                  isCopied
-                    ? "bg-emerald-600 text-white"
-                    : "border border-[#d8c8b4] bg-white text-[var(--wood-900)] hover:border-[#c9a15a] hover:text-[#8a6a3a]"
-                }`}
-                title="Copiar número de cuenta"
-              >
-                {isCopied ? (
-                  <>
-                    <Check className="h-3 w-3" />
-                    <span>Copiado</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy className="h-3 w-3" />
-                    <span>Copiar</span>
-                  </>
-                )}
-              </button>
+              {isNumeric ? (
+                <button
+                  type="button"
+                  onClick={() => handleCopy(b.accountNumber)}
+                  className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-bold transition cursor-pointer ${
+                    isCopied
+                      ? "bg-emerald-600 text-white"
+                      : "border border-[#d8c8b4] bg-white text-[var(--wood-900)] hover:border-[#c9a15a] hover:text-[#8a6a3a]"
+                  }`}
+                  title="Copiar número de cuenta"
+                >
+                  {isCopied ? (
+                    <>
+                      <Check className="h-3 w-3" />
+                      <span>Copiado</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3 w-3" />
+                      <span>Copiar</span>
+                    </>
+                  )}
+                </button>
+              ) : null}
             </div>
 
             <div className="mt-3 flex items-center justify-between text-xs text-[var(--muted)]">

@@ -442,7 +442,7 @@ export function BankAccountCard({
   accountNumber: string;
   type: string;
   holder: string;
-  rnc: string;
+  rnc?: string;
 }) {
   const [copied, setCopied] = useState(false);
 

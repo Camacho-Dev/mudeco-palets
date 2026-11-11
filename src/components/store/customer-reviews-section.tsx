@@ -625,6 +625,12 @@ export function CustomerReviewsSection({
 
       {/* —— Lista de Comentarios Estilo YouTube —— */}
       <div className="space-y-6">
+        {sortedReviews.length === 0 && (
+          <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center text-sm text-stone-400">
+            <p className="font-semibold text-white">Sé el primero en compartir tu experiencia con Mudeco Palets</p>
+            <p className="text-xs text-stone-500 mt-1">Escribe tu opinión o reseña sobre nuestros muebles fabricados a mano en el formulario de arriba.</p>
+          </div>
+        )}
         {sortedReviews.map((review) => {
           const isLiked = likedReviews[review.id];
           const isDisliked = dislikedReviews[review.id];
