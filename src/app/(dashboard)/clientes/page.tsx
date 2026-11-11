@@ -64,6 +64,7 @@ export default async function ClientesPage({
               <th>RNC / Cédula</th>
               <th>Contacto</th>
               <th>Límite Crédito</th>
+              <th>Estado</th>
               <th>Facturas</th>
               <th></th>
             </tr>
@@ -71,7 +72,7 @@ export default async function ClientesPage({
           <tbody>
             {customers.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center text-[var(--muted)]">
+                <td colSpan={7} className="text-center text-[var(--muted)]">
                   {query
                     ? `No se encontraron clientes para “${query}”`
                     : "No hay clientes"}
@@ -97,6 +98,19 @@ export default async function ClientesPage({
                       </span>
                     ) : (
                       <span className="text-xs text-[var(--muted)]">Sin límite</span>
+                    )}
+                  </td>
+                  <td>
+                    {c.active ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 text-xs font-semibold text-emerald-800">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                        Activo
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 border border-rose-200/80 px-2 py-0.5 text-xs font-semibold text-rose-800">
+                        <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                        Bloqueado
+                      </span>
                     )}
                   </td>
                   <td>{c._count.invoices}</td>

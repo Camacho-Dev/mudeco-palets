@@ -43,6 +43,11 @@ async function upsertWebCustomer(
     where: { email: { equals: email, mode: "insensitive" } },
   });
   if (existing) {
+    if (existing.active === false) {
+      throw new Error(
+        "Esta cuenta de cliente se encuentra temporalmente bloqueada. Por favor comuníquese con el taller o administración.",
+      );
+    }
     if (options?.allowOverwrite === false) {
       return prisma.customer.update({
         where: { id: existing.id },

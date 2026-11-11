@@ -87,6 +87,41 @@ export async function updateCustomer(id: string, fd: FormData) {
   redirect("/clientes");
 }
 
+export async function toggleCustomerActive(id: string) {
+  const session = await requireSession();
+  if (!canDeleteCustomer(session.user.role)) {
+    throw new Error("Solo el administrador puede cambiar el estado de clientes");
+  }
+  const customer = await prisma.customer.findUnique({ where: { id } });
+  if (!customer) throw new Error("Cliente no encontrado");
+
+  const newActive = !customer.active;
+
+  await prisma.customer.update({
+    where: { id },
+    data: { active: newActive },
+  });
+
+  // Sincronizar cuenta de usuario web si existe con este email
+  if (customer.email) {
+    await prisma.user.updateMany({
+      where: { email: { equals: customer.email, mode: "insensitive" } },
+      data: { active: newActive },
+    });
+  }
+
+  await writeAudit({
+    action: newActive ? "UPDATE" : "DEACTIVATE",
+    entity: "Customer",
+    entityId: id,
+    summary: `Cliente ${newActive ? "desbloqueado / reactivado" : "bloqueado / desactivado"}: ${customer.name}`,
+    details: { active: newActive },
+  });
+
+  revalidatePath("/clientes");
+  revalidatePath(`/clientes/${id}`);
+}
+
 export async function deleteCustomer(id: string) {
   const session = await requireSession();
   if (!canDeleteCustomer(session.user.role)) {

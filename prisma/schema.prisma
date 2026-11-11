@@ -45,12 +45,15 @@ model Customer {
   phone       String?
   address     String?
   creditLimit Float        @default(0)
+  active      Boolean      @default(true)
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   invoices    Invoice[]
   quotes      Quote[]
   creditNotes CreditNote[]
   webOrders   WebOrder[]
+
+  @@index([active])
 }
 
 model Product {
