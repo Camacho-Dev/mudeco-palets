@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Search, ArrowRight, X, Sparkles } from "lucide-react";
+import { Search, X, Sparkles } from "lucide-react";
 
 const QUICK_TAGS = [
   { label: "Comedores", query: "MESA DE COMEDOR", isCategory: true },
@@ -50,15 +50,8 @@ export function HeroSearchBar() {
               : "0 20px 50px rgba(0,0,0,0.7)",
           }}
           transition={{ duration: 0.25 }}
-          className="group relative flex items-center rounded-2xl border bg-[#14120e]/92 p-2 sm:p-2.5 backdrop-blur-xl"
+          className="group relative flex items-center rounded-2xl border bg-[#14120e]/92 p-1.5 sm:p-2 backdrop-blur-xl"
         >
-          <motion.div
-            animate={{ scale: isFocused ? 1.08 : 1 }}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/[0.05] text-[#c9a15a] transition-colors group-focus-within:bg-[#c9a15a]/15 group-focus-within:text-[#d4b06e]"
-          >
-            <Search className="h-5 w-5" />
-          </motion.div>
-
           <input
             type="text"
             value={query}
@@ -66,7 +59,7 @@ export function HeroSearchBar() {
             onBlur={() => setIsFocused(false)}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="¿Qué mueble buscas? (ej. comedor, repisa TV, cama)..."
-            className="w-full bg-transparent px-3 text-sm text-white placeholder:text-white/45 focus:outline-none"
+            className="w-full bg-transparent px-4 text-sm text-white placeholder:text-white/45 focus:outline-none"
           />
 
           {query ? (
@@ -76,7 +69,7 @@ export function HeroSearchBar() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               onClick={() => setQuery("")}
-              className="p-1.5 text-white/40 hover:text-white transition"
+              className="p-1.5 text-white/40 hover:text-white transition shrink-0 mr-1"
               title="Borrar búsqueda"
             >
               <X className="h-4 w-4" />
@@ -85,12 +78,13 @@ export function HeroSearchBar() {
 
           <motion.button
             type="submit"
-            whileHover={{ scale: 1.04, boxShadow: "0 0 24px rgba(201, 161, 90, 0.5)" }}
-            whileTap={{ scale: 0.96 }}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-[#c9a15a] to-[#d4b06e] px-5 py-3 text-xs font-bold text-[#0a0a0a] uppercase tracking-wider shadow-md transition-all shrink-0 cursor-pointer"
+            whileHover={{ scale: 1.03, boxShadow: "0 0 24px rgba(201, 161, 90, 0.5)" }}
+            whileTap={{ scale: 0.97 }}
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#c9a15a] to-[#d4b06e] px-5 py-3 text-xs font-bold text-[#0a0a0a] uppercase tracking-wider shadow-md transition-all shrink-0 cursor-pointer"
+            title="Buscar en catálogo"
           >
+            <Search className="h-3.5 w-3.5" />
             <span>Buscar</span>
-            <ArrowRight className="h-3.5 w-3.5" />
           </motion.button>
         </motion.div>
       </form>
