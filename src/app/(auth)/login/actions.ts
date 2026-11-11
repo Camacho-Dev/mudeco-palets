@@ -83,10 +83,10 @@ export async function registerCustomer(payload: {
 }
 
 export async function checkGoogleAuthStatus() {
+  const id = process.env.GOOGLE_CLIENT_ID?.trim().replace(/^\uFEFF/, "");
+  const secret = process.env.GOOGLE_CLIENT_SECRET?.trim().replace(/^\uFEFF/, "");
   return {
-    configured: Boolean(
-      process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
-    ),
+    configured: Boolean(id && secret),
   };
 }
 
