@@ -62,6 +62,7 @@ export function HeaderAuth({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { data: clientSession } = useSession();
   const [user, setUser] = useState(initialUser);
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -105,7 +106,6 @@ export function HeaderAuth({
     );
   }
 
-  const { data: clientSession } = useSession();
   const effectiveRole =
     user?.role ||
     (clientSession?.user as { role?: string } | undefined)?.role ||
@@ -183,17 +183,7 @@ export function HeaderAuth({
           <button
             type="button"
             onClick={async () => {
-              await signOut({ redirect: false });
-              setUser(null);
-              if (
-                pathname.startsWith("/pedido") ||
-                pathname.startsWith("/mis-pedidos") ||
-                pathname.startsWith("/checkout")
-              ) {
-                window.location.href = "/";
-              } else {
-                router.refresh();
-              }
+              await signOut({ callbackUrl: "/" });
             }}
             className="flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-xs font-medium text-white/55 transition hover:bg-white/5 hover:text-white cursor-pointer"
           >
@@ -336,17 +326,7 @@ export function HeaderAuth({
               type="button"
               onClick={async () => {
                 setOpen(false);
-                await signOut({ redirect: false });
-                setUser(null);
-                if (
-                  pathname.startsWith("/pedido") ||
-                  pathname.startsWith("/mis-pedidos") ||
-                  pathname.startsWith("/checkout")
-                ) {
-                  window.location.href = "/";
-                } else {
-                  router.refresh();
-                }
+                await signOut({ callbackUrl: "/" });
               }}
               className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs text-white/55 transition hover:bg-rose-500/10 hover:text-rose-300 cursor-pointer"
             >
