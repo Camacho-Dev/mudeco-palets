@@ -1233,125 +1233,135 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <div className="luxury-login-page">
-      {/* Barra de navegación superior fija en el tope */}
-      <header className="luxury-header-nav">
-        <div className="luxury-header-nav-inner">
-          <Link href="/" className="luxury-back-button">
-            <ArrowLeft className="h-4 w-4" />
-            <span>Volver a la tienda</span>
-          </Link>
-
-          <div className="hidden sm:flex items-center gap-2 text-xs text-white/40 tracking-wider">
-            <span className="font-semibold text-white/70">MUDECO PALETS</span>
-            <span className="text-[#c9a15a]">·</span>
-            <span>TALLER ARTESANAL</span>
-          </div>
-        </div>
-      </header>
-
       {/* Partículas de luz dorada ambiental flotando en el taller */}
       <AtelierParticles />
 
-      {/* Fondo con fotografía arquitectónica de taller Mudeco */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/brand/login-atelier-bg.jpg"
-        alt=""
-        className="luxury-bg-image"
-      />
-      <div className="luxury-bg-overlay" />
-
-      {/* Contenedor principal en 2 columnas */}
+      {/* Contenedor dividido en 50/50 Full-Bleed Split Screen */}
       <div className="luxury-split-container">
-        {/* Columna Izquierda: Editorial de marca */}
+        {/* Columna Izquierda (50% pantalla completa): Editorial y atmósfera de taller */}
         <section className="luxury-left-column">
-          <div className="luxury-editorial-body">
+          {/* Fondo arquitectónico en alta resolución */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/brand/login-atelier-bg.jpg"
+            alt="Taller artesanal Mudeco Palets"
+            className="luxury-bg-image"
+          />
+          <div className="luxury-bg-overlay" />
+
+          {/* Cabecera superior izquierda */}
+          <div className="relative z-10 flex items-center justify-between w-full">
+            <Link href="/" className="luxury-back-button">
+              <ArrowLeft className="h-4 w-4" />
+              <span>Volver a la tienda</span>
+            </Link>
+
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3 py-1 text-[0.68rem] tracking-wider text-white/70 backdrop-blur-md uppercase">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#c9a15a]" />
+              <span>Taller Santo Domingo Oeste</span>
+            </div>
+          </div>
+
+          {/* Contenido central editorial */}
+          <div className="relative z-10 my-auto py-8">
             {/* Logo de marca superior */}
-            <div className="luxury-brand-header">
-              <LogoMark className="h-8 w-8 text-[#d4af37]" />
+            <div className="luxury-brand-header mb-6">
+              <LogoMark className="h-9 w-9 text-[#d4af37]" />
               <div className="leading-tight">
-                <span className="block text-lg font-bold tracking-[0.25em] text-white uppercase font-serif">
+                <span className="block text-2xl font-bold tracking-[0.25em] text-white uppercase font-serif">
                   MUDECO
                 </span>
-                <span className="block text-[0.6rem] tracking-[0.32em] text-[#c9a15a] uppercase">
+                <span className="block text-[0.68rem] tracking-[0.34em] text-[#c9a15a] uppercase font-semibold">
                   PALETS
                 </span>
               </div>
             </div>
 
             {/* Gran encabezado editorial */}
-            <h1 className="font-display luxury-editorial-heading">
-              Diseño y calidad en cada detalle
+            <h1 className="font-display text-4xl xl:text-5xl font-medium leading-[1.12] text-white max-w-lg">
+              Diseño, oficio y calidad en cada detalle
             </h1>
 
-            <p className="luxury-editorial-subheading">
-              Muebles de madera recuperada con alma de taller y confección a medida para tu hogar.
+            <p className="mt-4 text-base xl:text-lg text-white/75 leading-relaxed font-light max-w-md">
+              Muebles de madera recuperada con alma de taller artesanal. Piezas únicas y proyectos a medida para tu hogar o negocio.
             </p>
 
             {/* Sello de Calidad Artesanal Dominicana */}
-            <div className="luxury-artisan-seal">
-              <div className="luxury-seal-badge">
-                <Award className="h-5 w-5" />
+            <div className="mt-8 flex items-center gap-3.5 rounded-2xl border border-[#c9a15a]/35 bg-[#14120e]/80 p-4 backdrop-blur-xl max-w-md shadow-lg">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#c9a15a]/40 bg-[#c9a15a]/15 text-[#d4af37]">
+                <Award className="h-6 w-6" />
               </div>
-              <div className="luxury-seal-content">
-                <span className="luxury-seal-title">Sello de Calidad Artesanal</span>
-                <span className="luxury-seal-desc">
-                  100% Madera Sostenible · Hecho a mano en República Dominicana
+              <div className="min-w-0">
+                <span className="block text-xs font-bold uppercase tracking-wider text-[#f7e7ce]">
+                  Sello de Calidad Artesanal
+                </span>
+                <span className="mt-0.5 block text-xs text-white/60 leading-tight">
+                  100% Madera Sostenible curada contra humedad y plagas.
                 </span>
               </div>
             </div>
 
-            {/* Pilares de confianza con animación escalonada */}
-            <div className="luxury-pillars-strip">
-              <div
-                className="luxury-pillar-item"
-                style={{ "--pillar-idx": 0 } as React.CSSProperties}
-              >
-                <div className="luxury-pillar-icon">
-                  <Leaf className="h-4 w-4 text-[#c9a15a]" />
-                </div>
-                <span>Madera recuperada</span>
+            {/* Pilares de confianza */}
+            <div className="mt-8 flex flex-wrap items-center gap-4 text-xs text-white/80">
+              <div className="flex items-center gap-2">
+                <Leaf className="h-4 w-4 text-[#c9a15a]" />
+                <span>Pino curado</span>
               </div>
-
-              <div
-                className="luxury-pillar-item"
-                style={{ "--pillar-idx": 1 } as React.CSSProperties}
-              >
-                <div className="luxury-pillar-icon">
-                  <ShieldCheck className="h-4 w-4 text-[#c9a15a]" />
-                </div>
-                <span>Calidad premium</span>
+              <span className="text-white/25">·</span>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-[#c9a15a]" />
+                <span>Garantía estructural</span>
               </div>
-
-              <div
-                className="luxury-pillar-item"
-                style={{ "--pillar-idx": 2 } as React.CSSProperties}
-              >
-                <div className="luxury-pillar-icon">
-                  <Home className="h-4 w-4 text-[#c9a15a]" />
-                </div>
-                <span>Diseños únicos</span>
+              <span className="text-white/25">·</span>
+              <div className="flex items-center gap-2">
+                <Home className="h-4 w-4 text-[#c9a15a]" />
+                <span>Diseños a medida</span>
               </div>
             </div>
           </div>
+
+          {/* Pie inferior izquierdo: Cita artesanal */}
+          <div className="relative z-10 border-t border-white/10 pt-5 text-xs text-white/55">
+            <p className="italic font-serif text-sm text-white/80">
+              «Transformamos cada pieza con pasión y respeto por el oficio de la ebanistería circular.»
+            </p>
+            <p className="mt-1 font-semibold tracking-wider text-[#c9a15a] uppercase text-[0.68rem]">
+              Martín González · Fundador & Maestro Ebanista
+            </p>
+          </div>
         </section>
 
-        {/* Columna Derecha: Tarjeta de Acceso 3D */}
+        {/* Columna Derecha (50% pantalla completa): Autenticación limpia, centrada y sin vacíos */}
         <section className="luxury-right-column">
-          <Suspense fallback={<div className="text-white/60 text-sm">Cargando acceso...</div>}>
-            <LoginForm />
-          </Suspense>
-          <div className="mt-2.5 flex items-center justify-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/45 px-3 py-1 backdrop-blur-md">
-              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#c9a15a]/20 text-[0.55rem] font-bold tracking-wider text-[#d4af37]">
-                BC
-              </span>
-              <span className="text-[0.65rem] tracking-[0.06em] text-white/55">
-                Desarrollado por{" "}
-                <strong className="font-semibold text-[#e6c567]">
-                  Brayan Camacho
-                </strong>
-              </span>
+          {/* Barra superior móvil */}
+          <div className="lg:hidden flex items-center justify-between w-full max-w-[440px] mb-6">
+            <Link href="/" className="luxury-back-button">
+              <ArrowLeft className="h-4 w-4" />
+              <span>Volver a la tienda</span>
+            </Link>
+            <div className="flex items-center gap-2">
+              <LogoMark className="h-6 w-6 text-[#d4af37]" />
+              <span className="text-xs font-bold tracking-widest text-white uppercase font-serif">MUDECO</span>
+            </div>
+          </div>
+
+          <div className="w-full max-w-[440px] my-auto">
+            <Suspense fallback={<div className="text-white/60 text-sm py-12 text-center">Cargando acceso...</div>}>
+              <LoginForm />
+            </Suspense>
+
+            <div className="mt-4 flex items-center justify-center">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/45 px-3 py-1 backdrop-blur-md">
+                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#c9a15a]/20 text-[0.55rem] font-bold tracking-wider text-[#d4af37]">
+                  BC
+                </span>
+                <span className="text-[0.65rem] tracking-[0.06em] text-white/55">
+                  Desarrollado por{" "}
+                  <strong className="font-semibold text-[#e6c567]">
+                    Brayan Camacho
+                  </strong>
+                </span>
+              </div>
             </div>
           </div>
         </section>

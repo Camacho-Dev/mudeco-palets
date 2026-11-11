@@ -7,13 +7,12 @@
   min-height: 100dvh;
   width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #0c0a08;
+  background-color: #090807;
   color: #faf6f1;
   font-family: var(--font-body), system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
-  padding: 0.75rem 1.5rem;
+  padding: 0;
+  margin: 0;
 }
 
 /* Partículas ambientales de taller en canvas */
@@ -26,77 +25,23 @@
   z-index: 1;
 }
 
-/* Fotografía de fondo con animación cinematográfica Ken Burns al entrar */
-.luxury-bg-image {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0.42;
-  filter: saturate(1.15) brightness(0.65);
-  pointer-events: none;
-  animation: luxuryBgEntrance 2.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-/* Velo ambiental con viñeteado cálido */
-.luxury-bg-overlay {
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(
-      circle at 25% 40%,
-      rgba(201, 161, 90, 0.08) 0%,
-      transparent 65%
-    ),
-    linear-gradient(90deg, rgba(12, 10, 8, 0.94) 0%, rgba(12, 10, 8, 0.75) 50%, rgba(12, 10, 8, 0.92) 100%);
-  pointer-events: none;
-}
-
-/* Barra de navegación superior anclada en el tope de la página */
-.luxury-header-nav {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 30;
-  padding: 0.7rem 1.75rem;
-  width: 100%;
-  pointer-events: none;
-}
-
-.luxury-header-nav-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.luxury-header-nav .luxury-back-button {
-  pointer-events: auto;
-}
-
-/* Contenedor dividido en 2 columnas */
+/* Contenedor dividido en 50/50 Full-Bleed Split Screen */
 .luxury-split-container {
   position: relative;
   z-index: 10;
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-width: 1200px;
-  min-height: calc(100dvh - 1.5rem);
-  padding-top: 2.3rem;
-  padding-bottom: 0.25rem;
-  gap: 1.5rem;
-  margin: 0 auto;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
 }
 
 @media (min-width: 1024px) {
   .luxury-split-container {
     flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2.5rem;
+    align-items: stretch;
+    justify-content: stretch;
   }
 }
 
@@ -105,12 +50,47 @@
    ========================================================================= */
 
 .luxury-left-column {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  max-width: 490px;
-  padding: 0.15rem 0;
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .luxury-left-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 48%;
+    min-height: 100dvh;
+    padding: 3rem 3.5rem;
+    position: relative;
+    overflow: hidden;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: #0c0a08;
+  }
+}
+
+.luxury-left-column .luxury-bg-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.52;
+  filter: saturate(1.15) brightness(0.7);
+  pointer-events: none;
+  animation: luxuryBgEntrance 2.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.luxury-left-column .luxury-bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(12, 10, 8, 0.8) 0%,
+    rgba(12, 10, 8, 0.45) 45%,
+    rgba(12, 10, 8, 0.9) 85%,
+    rgba(12, 10, 8, 0.98) 100%
+  );
+  pointer-events: none;
 }
 
 .luxury-back-button {
@@ -258,14 +238,27 @@
    ========================================================================= */
 
 .luxury-right-column {
-  flex: 1;
+  width: 100%;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  max-width: 405px;
-  margin: 0 auto;
+  padding: 2.5rem 1.5rem;
+  position: relative;
+  background: radial-gradient(
+      circle at 50% 45%,
+      rgba(201, 161, 90, 0.08) 0%,
+      transparent 65%
+    ),
+    #090807;
+}
+
+@media (min-width: 1024px) {
+  .luxury-right-column {
+    width: 52%;
+    padding: 3rem 2.5rem;
+  }
 }
 
 .luxury-checkout-badge {
@@ -287,7 +280,7 @@
 .luxury-flip-container {
   perspective: 1600px;
   width: 100%;
-  max-width: 405px;
+  max-width: 440px;
   position: relative;
   animation: luxuryCardEntrance 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
 }
@@ -316,20 +309,20 @@
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   background: rgba(18, 16, 14, 0.95);
-  border: 1px solid rgba(201, 161, 90, 0.28);
-  border-radius: 1.35rem;
-  padding: 1rem 1.35rem 0.85rem;
+  border: 1px solid rgba(201, 161, 90, 0.32);
+  border-radius: 1.5rem;
+  padding: 1.5rem 1.65rem 1.25rem;
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
-  box-shadow: 0 28px 68px rgba(0, 0, 0, 0.9),
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.95),
               0 0 50px rgba(201, 161, 90, 0.1);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .luxury-card-face:hover {
-  border-color: rgba(201, 161, 90, 0.45);
-  box-shadow: 0 40px 95px rgba(0, 0, 0, 0.95),
-              0 0 75px rgba(201, 161, 90, 0.16);
+  border-color: rgba(201, 161, 90, 0.55);
+  box-shadow: 0 40px 95px rgba(0, 0, 0, 0.98),
+              0 0 75px rgba(201, 161, 90, 0.18);
 }
 
 /* Reflejo interactivo que sigue al mouse (Specular Spotlight) */
