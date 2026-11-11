@@ -177,6 +177,16 @@ export default async function StoreHomePage() {
     }));
   }
 
+  const availableForSearch = scoredProducts.map((p) => ({
+    id: p.id,
+    name: p.name,
+    category: p.category,
+    price: p.price,
+    stock: p.stock,
+    imageUrl: p.imageUrl,
+    badge: p.badge,
+  }));
+
   return (
     <div className="bg-[#0a0a0a] text-white">
       {/* —— Hero principal FULL-WIDTH Edge-to-Edge —— */}
@@ -255,7 +265,7 @@ export default async function StoreHomePage() {
               {/* Columna Derecha: Únicamente el buscador profesional (ubicación marcada en rojo) */}
               <div className="lg:col-span-5 xl:col-span-5 flex justify-center lg:justify-end">
                 <FadeUp delay={0.12}>
-                  <HeroSearchBar />
+                  <HeroSearchBar products={availableForSearch} />
                 </FadeUp>
               </div>
             </div>
