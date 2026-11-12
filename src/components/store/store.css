@@ -84,10 +84,10 @@
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  border-radius: 4px;
-  padding: 1rem 1.95rem;
+  border-radius: 9999px;
+  padding: 0.9rem 2.1rem;
   font-size: 0.72rem;
-  font-weight: 650;
+  font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   overflow: hidden;
@@ -100,18 +100,18 @@
 }
 
 .store-cta:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.02);
 }
 
 .store-cta:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.98);
 }
 
 .store-cta-primary {
-  background: linear-gradient(135deg, #d4b06e 0%, #c9a15a 50%, #b88f47 100%);
-  color: #0c0c0c;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 4px 14px rgba(201, 161, 90, 0.25);
+  background: linear-gradient(135deg, #fbe3a8 0%, #d4af37 50%, #b88f47 100%);
+  color: #0f0d0a;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.35);
 }
 
 .store-cta-primary::before {
@@ -188,8 +188,8 @@
   display: block;
   overflow: hidden;
   background: #ffffff;
-  border-radius: 18px;
-  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 24px;
+  border: 1px solid rgba(237, 229, 216, 0.9);
   transition:
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
@@ -199,8 +199,8 @@
 
 .store-product-card:hover {
   transform: translateY(-5px);
-  border-color: rgba(201, 161, 90, 0.5);
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08), 0 0 20px rgba(201, 161, 90, 0.08);
+  border-color: rgba(212, 175, 55, 0.6);
+  box-shadow: 0 20px 45px -10px rgba(20, 16, 13, 0.08), 0 0 25px rgba(212, 175, 55, 0.12);
 }
 
 .store-product-card:active {
@@ -219,9 +219,9 @@
 .store-product-card-dark {
   display: block;
   overflow: hidden;
-  background: #151515;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #14100e;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   transition:
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
@@ -231,8 +231,8 @@
 
 .store-product-card-dark:hover {
   transform: translateY(-5px);
-  border-color: rgba(201, 161, 90, 0.5);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 24px rgba(201, 161, 90, 0.12);
+  border-color: rgba(212, 175, 55, 0.6);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 28px rgba(212, 175, 55, 0.18);
 }
 
 .store-product-card-dark:active {

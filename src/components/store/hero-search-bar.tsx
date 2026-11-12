@@ -79,13 +79,13 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
       <form onSubmit={handleSearch} className="relative">
         <motion.div
           animate={{
-            borderColor: isFocused || isOpen ? "rgba(201, 161, 90, 0.9)" : "rgba(255, 255, 255, 0.16)",
+            borderColor: isFocused || isOpen ? "rgba(212, 175, 55, 0.9)" : "rgba(255, 255, 255, 0.16)",
             boxShadow: isFocused || isOpen
-              ? "0 0 35px rgba(201, 161, 90, 0.28), 0 20px 50px rgba(0,0,0,0.85)"
+              ? "0 0 35px rgba(212, 175, 55, 0.28), 0 20px 50px rgba(0,0,0,0.85)"
               : "0 20px 50px rgba(0,0,0,0.7)",
           }}
           transition={{ duration: 0.25 }}
-          className="group relative flex items-center rounded-2xl border bg-[#14120e]/95 p-1.5 sm:p-2 backdrop-blur-xl"
+          className="group relative flex items-center rounded-full border bg-[#14120e]/95 p-1.5 sm:p-2 backdrop-blur-xl ring-1 ring-white/10"
         >
           <input
             type="text"
@@ -101,7 +101,7 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
               setIsOpen(true);
             }}
             placeholder="¿Qué mueble buscas? (ej. comedor, repisa TV, cama)..."
-            className="w-full bg-transparent px-4 text-sm text-white placeholder:text-white/45 focus:outline-none"
+            className="w-full bg-transparent px-4 text-xs sm:text-sm text-white placeholder:text-white/45 focus:outline-none"
           />
 
           {query ? (
@@ -123,12 +123,12 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
 
           <motion.button
             type="submit"
-            whileHover={{ scale: 1.03, boxShadow: "0 0 24px rgba(201, 161, 90, 0.5)" }}
+            whileHover={{ scale: 1.03, boxShadow: "0 0 24px rgba(212, 175, 55, 0.5)" }}
             whileTap={{ scale: 0.97 }}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#c9a15a] to-[#d4b06e] px-5 py-3 text-xs font-bold text-[#0a0a0a] uppercase tracking-wider shadow-md transition-all shrink-0 cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#d4af37] via-[#e2c168] to-[#caa466] px-5 sm:px-6 py-2.5 sm:py-3 text-xs font-bold text-[#0f0d0a] uppercase tracking-wider shadow-md transition-all shrink-0 cursor-pointer"
             title="Buscar en catálogo"
           >
-            <Search className="h-3.5 w-3.5" />
+            <Search className="h-3.5 w-3.5 text-[#0f0d0a]" strokeWidth={2.2} />
             <span>Buscar</span>
           </motion.button>
         </motion.div>

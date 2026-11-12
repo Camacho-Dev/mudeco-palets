@@ -213,18 +213,18 @@ export default async function StoreHomePage() {
                     {company.heroSubtitle}
                   </p>
 
-                  <div className="mt-7 flex flex-wrap items-center gap-3.5">
+                  <div className="mt-8 flex flex-wrap items-center gap-4">
                     <Link
                       href="/catalogo"
-                      className="group relative inline-flex items-center gap-2 overflow-hidden border border-[#c9a15a] bg-[#c9a15a] px-7 py-3.5 text-xs font-bold tracking-[0.14em] text-[#0a0a0a] uppercase transition-all duration-300 hover:bg-[#d4b06e] hover:shadow-[0_0_28px_rgba(201,161,90,0.35)]"
+                      className="group relative inline-flex items-center gap-2.5 rounded-full border border-[#d4af37]/70 bg-gradient-to-r from-[#d4af37] via-[#e2c168] to-[#caa466] px-8 py-3.5 text-xs font-bold tracking-wider text-[#0f0d0a] uppercase shadow-[0_10px_28px_rgba(212,175,55,0.3)] transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_14px_36px_rgba(212,175,55,0.45)] active:scale-95"
                     >
-                      Ver catálogo
+                      <span>Ver catálogo</span>
                       <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                     </Link>
 
                     <Link
                       href="/contacto"
-                      className="inline-flex items-center gap-2 border border-white/20 bg-white/[0.04] px-7 py-3.5 text-xs font-medium tracking-[0.14em] text-white uppercase backdrop-blur-sm transition-all duration-300 hover:border-[#c9a15a]/60 hover:bg-white/[0.08]"
+                      className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-[#16120e]/80 px-7 py-3.5 text-xs font-semibold tracking-wider text-white/95 uppercase backdrop-blur-md shadow-sm transition-all duration-300 hover:border-[#d4af37]/60 hover:bg-white/10 hover:scale-[1.02] active:scale-95"
                     >
                       Cotizar a medida
                     </Link>
@@ -232,19 +232,19 @@ export default async function StoreHomePage() {
 
                   {/* Mini métricas flotantes de confianza */}
                   <div className="mt-10 hidden pt-6 border-t border-white/10 sm:flex items-center gap-8 text-xs text-white/70">
-                    <div className="flex items-center gap-2">
-                      <span className="font-display text-lg text-[#c9a15a] font-semibold">+100</span>
-                      <span>Modelos en catálogo</span>
+                    <div className="flex items-center gap-2.5">
+                      <span className="font-display text-xl text-[#f5dfa8] font-bold">+100</span>
+                      <span className="text-white/80">Modelos en catálogo</span>
                     </div>
                     <div className="h-3 w-[1px] bg-white/15" />
-                    <div className="flex items-center gap-2">
-                      <span className="font-display text-lg text-[#c9a15a] font-semibold">100%</span>
-                      <span>Pino curado y tratado</span>
+                    <div className="flex items-center gap-2.5">
+                      <span className="font-display text-xl text-[#f5dfa8] font-bold">100%</span>
+                      <span className="text-white/80">Pino curado y tratado</span>
                     </div>
                     <div className="h-3 w-[1px] bg-white/15" />
-                    <div className="flex items-center gap-2">
-                      <span className="font-display text-lg text-[#c9a15a] font-semibold">A medida</span>
-                      <span>Garantía de calidad</span>
+                    <div className="flex items-center gap-2.5">
+                      <span className="font-display text-xl text-[#f5dfa8] font-bold">A medida</span>
+                      <span className="text-white/80">Garantía de calidad</span>
                     </div>
                   </div>
                 </FadeUp>
@@ -259,21 +259,21 @@ export default async function StoreHomePage() {
         </div>
       </section>
 
-      {/* —— Trust strip FULL-WIDTH —— */}
-      <section className="relative z-10 w-full border-b border-white/[0.08] bg-[#0c0c0c]">
-        <div className="mx-auto w-full max-w-[1920px] px-4 py-5 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      {/* —— Trust strip FULL-WIDTH con tarjetas redondeadas de lujo —— */}
+      <section className="relative z-10 w-full border-b border-white/[0.08] bg-[#0c0c0c] py-6">
+        <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {TRUST.map((t, idx) => (
               <Reveal key={t.title} delay={idx * 0.06}>
-                <div className="group relative flex items-center gap-3.5 border border-white/[0.08] bg-[#121212] p-4 transition-all duration-300 hover:border-[#c9a15a]/50 hover:bg-[#161616] hover:shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:-translate-y-0.5">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[#c9a15a]/25 bg-[#c9a15a]/10 text-[#c9a15a] transition-all duration-300 group-hover:scale-110 group-hover:bg-[#c9a15a] group-hover:text-[#0a0a0a] group-hover:shadow-[0_0_15px_rgba(201,161,90,0.3)]">
-                    <t.icon className="h-5 w-5" strokeWidth={1.75} />
+                <div className="group relative flex items-center gap-4 rounded-[22px] border border-white/10 bg-[#14100e]/80 p-5 backdrop-blur-md transition-all duration-300 hover:border-[#d4af37]/45 hover:bg-[#1a1410] hover:shadow-[0_12px_32px_rgba(0,0,0,0.6)] hover:-translate-y-0.5">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#d4af37]/35 bg-[#d4af37]/15 text-[#f5dfa8] shadow-[0_0_15px_rgba(212,175,55,0.2)] transition-all duration-300 group-hover:scale-105 group-hover:bg-[#d4af37] group-hover:text-[#0f0d0a] group-hover:shadow-[0_0_20px_rgba(212,175,55,0.4)]">
+                    <t.icon className="h-5 w-5" strokeWidth={1.8} />
                   </div>
                   <div>
-                    <h4 className="text-[0.72rem] font-semibold tracking-wider text-white uppercase group-hover:text-[#c9a15a] transition-colors">
+                    <h4 className="text-[0.75rem] font-bold tracking-wider text-white uppercase group-hover:text-[#f5dfa8] transition-colors">
                       {t.title}
                     </h4>
-                    <p className="mt-0.5 text-xs text-white/50 leading-tight">
+                    <p className="mt-1 text-xs text-white/55 leading-snug">
                       {t.desc}
                     </p>
                   </div>

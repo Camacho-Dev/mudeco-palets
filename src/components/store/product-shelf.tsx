@@ -56,13 +56,13 @@ function ShelfCard({ product }: { product: ShelfProduct }) {
 
   return (
     <article className="group w-[190px] shrink-0 snap-start sm:w-[230px] md:w-[260px] lg:w-[280px]">
-      <div className="overflow-hidden border border-white/[0.08] bg-[#141414] transition-all duration-300 hover:border-[#c9a15a]/50 hover:shadow-[0_16px_36px_rgba(0,0,0,0.5)] hover:-translate-y-1.5 rounded-2xl">
+      <div className="overflow-hidden border border-white/10 bg-[#14100e] transition-all duration-300 hover:border-[#d4af37]/50 hover:shadow-[0_20px_45px_rgba(0,0,0,0.7),0_0_25px_rgba(212,175,55,0.15)] hover:-translate-y-1.5 rounded-[24px]">
         <Link
           href={`/producto/${product.id}`}
-          className="relative block aspect-square overflow-hidden bg-[#1a1a1a]"
+          className="relative block aspect-square overflow-hidden bg-[#181411]"
         >
           {product.badge ? (
-            <span className="absolute top-3 left-3 z-10 rounded-md bg-gradient-to-r from-black/95 to-black/85 px-2.5 py-0.5 text-[0.55rem] font-bold tracking-widest text-[#d4af37] border border-[#d4af37]/40 uppercase shadow-md backdrop-blur-md">
+            <span className="absolute top-3 left-3 z-10 rounded-full bg-gradient-to-r from-black/95 to-black/85 px-3 py-1 text-[0.6rem] font-bold tracking-widest text-[#f5dfa8] border border-[#d4af37]/40 uppercase shadow-md backdrop-blur-md">
               {product.badge}
             </span>
           ) : null}
@@ -76,37 +76,37 @@ function ShelfCard({ product }: { product: ShelfProduct }) {
           />
         </Link>
 
-        <div className="space-y-2 p-4">
-          <p className="text-[0.58rem] font-medium tracking-[0.14em] text-[#c9a15a]/85 uppercase">
+        <div className="space-y-2.5 p-4 sm:p-5">
+          <p className="text-[0.62rem] font-semibold tracking-[0.16em] text-[#d4af37] uppercase">
             {product.category}
           </p>
           <Link href={`/producto/${product.id}`}>
-            <h3 className="line-clamp-2 min-h-[2.5rem] text-sm leading-snug text-white transition-colors duration-200 group-hover:text-[#c9a15a]">
+            <h3 className="line-clamp-2 min-h-[2.5rem] font-medium text-sm leading-snug text-white transition-colors duration-200 group-hover:text-[#f5dfa8]">
               {product.name}
             </h3>
           </Link>
           <CraftBadge />
-          <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/[0.06]">
-            <p className="text-sm font-semibold text-[#c9a15a]">
+          <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-white/10">
+            <p className="font-mono text-sm sm:text-base font-bold text-[#f5dfa8]">
               {formatCurrency(product.price)}
             </p>
             <motion.button
               type="button"
               disabled={!canAdd}
               whileTap={{ scale: 0.9 }}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.08 }}
               aria-label="Agregar al carrito"
               onClick={handleAdd}
-              className={`inline-flex h-8 w-8 items-center justify-center rounded-xl border transition-all duration-300 disabled:opacity-40 cursor-pointer ${
+              className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition-all duration-300 disabled:opacity-40 cursor-pointer ${
                 added
-                  ? "border-emerald-500/70 bg-emerald-500/20 text-emerald-400"
-                  : "border-[#c9a15a]/45 text-[#c9a15a] hover:bg-[#c9a15a] hover:text-[#0a0a0a]"
+                  ? "border-emerald-500/70 bg-emerald-500/20 text-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.4)]"
+                  : "border-[#d4af37]/50 bg-[#d4af37]/15 text-[#f5dfa8] hover:bg-[#d4af37] hover:text-[#0f0d0a] hover:shadow-[0_0_15px_rgba(212,175,55,0.4)]"
               }`}
             >
               {added ? (
-                <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+                <Check className="h-4 w-4" strokeWidth={2.5} />
               ) : (
-                <ShoppingBag className="h-3.5 w-3.5" strokeWidth={1.75} />
+                <ShoppingBag className="h-4 w-4" strokeWidth={1.8} />
               )}
             </motion.button>
           </div>

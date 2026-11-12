@@ -330,10 +330,10 @@ export function StoreHeaderClient({
             <button
               type="button"
               onClick={() => setSearchOpen((v) => !v)}
-              className={`inline-flex h-10 w-10 items-center justify-center border transition duration-300 cursor-pointer ${
+              className={`inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border transition-all duration-300 cursor-pointer active:scale-95 ${
                 searchOpen
-                  ? "border-[#c9a15a] bg-[#c9a15a]/15 text-[#c9a15a]"
-                  : "border-white/10 text-white/80 hover:border-[#c9a15a]/50 hover:text-white"
+                  ? "border-[#d4af37] bg-[#1a1410] text-[#f5dfa8] shadow-[0_0_15px_rgba(212,175,55,0.3)]"
+                  : "border-white/15 bg-[#14100e]/80 text-white/80 hover:border-[#d4af37]/60 hover:text-[#f5dfa8] hover:bg-[#1a1410]"
               }`}
               aria-label="Buscar en el catálogo"
               aria-expanded={searchOpen}
@@ -347,7 +347,7 @@ export function StoreHeaderClient({
             </div>
             <button
               type="button"
-              className="inline-flex h-10 w-10 items-center justify-center border border-white/15 text-white/80 transition duration-300 hover:border-[#c9a15a]/50 hover:text-white lg:hidden"
+              className="inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-white/15 bg-[#14100e]/80 text-white/80 transition-all duration-300 hover:border-[#d4af37]/60 hover:text-white lg:hidden active:scale-95"
               aria-label="Abrir menú"
               aria-expanded={open}
               onClick={() => setOpen((v) => !v)}

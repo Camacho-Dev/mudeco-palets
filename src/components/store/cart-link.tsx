@@ -10,10 +10,11 @@ export function CartLink() {
   return (
     <Link
       href="/carrito"
-      className="relative inline-flex h-10 w-10 items-center justify-center border border-[#c9a15a]/55 text-[#c9a15a] transition duration-300 hover:border-[#c9a15a] hover:bg-[#c9a15a]/10 hover:shadow-[0_0_15px_rgba(201,161,90,0.25)]"
-      aria-label="Carrito"
+      className="relative inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-white/15 bg-[#14100e]/80 text-[#f5dfa8] transition-all duration-300 hover:border-[#d4af37] hover:bg-[#1a1410] hover:shadow-[0_0_18px_rgba(212,175,55,0.3)] active:scale-95"
+      aria-label="Carrito de compras"
+      title="Ver carrito de compras"
     >
-      <ShoppingBag className="h-4 w-4" strokeWidth={1.75} />
+      <ShoppingBag className="h-4 w-4 text-[#f5dfa8]" strokeWidth={1.8} />
       <AnimatePresence>
         {count > 0 ? (
           <motion.span
@@ -22,7 +23,7 @@ export function CartLink() {
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
             transition={{ type: "spring", stiffness: 500, damping: 25 }}
-            className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#c9a15a] px-1 text-[0.6rem] font-bold text-[#0f0f0f] shadow-[0_0_8px_rgba(201,161,90,0.6)]"
+            className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full border border-[#0f0d0a] bg-[#d4af37] px-1 text-[0.62rem] font-bold text-[#0f0d0a] shadow-[0_0_10px_rgba(212,175,55,0.6)]"
           >
             {count > 99 ? "99+" : count}
           </motion.span>
@@ -31,4 +32,3 @@ export function CartLink() {
     </Link>
   );
 }
-
