@@ -40,10 +40,12 @@ export async function generateMetadata({
     description:
       product.description ||
       `${product.name} · madera recuperada · Mudeco Palets`,
+    alternates: { canonical: url },
     openGraph: {
       title: product.name,
       description: product.description || undefined,
       url,
+      type: "website",
       images: [{ url: img, alt: product.name }],
     },
     twitter: {
@@ -98,6 +100,7 @@ export default async function ProductoPage({
       url: `${siteUrl()}/producto/${product.id}`,
       priceCurrency: "DOP",
       price: product.price.toFixed(2),
+      itemCondition: "https://schema.org/NewCondition",
       availability:
         product.stock > 0 && !product.madeToOrderOnly
           ? "https://schema.org/InStock"

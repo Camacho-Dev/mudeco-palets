@@ -345,24 +345,23 @@ export async function issueInvoice(id: string) {
   if (inv.ncf?.startsWith("PENDING:")) {
     const pendingType = inv.ncf.slice("PENDING:".length);
     await assertCustomerTaxIdForNcf(inv.customerId, pendingType);
-    allocatedNcf = pendingType ? await allocateNcf(pendingType) : null;
   } else if (inv.ncf) {
     await assertCustomerTaxIdForNcf(inv.customerId, inv.ncf);
   }
 
-  await prisma.invoice.update({
-    where: { id },
-    data: { status: "ISSUED", issueDate: new Date(), ncf: allocatedNcf },
-  });
-  try {
-    await deductStock(inv.items, { refType: "Invoice", refId: id });
-  } catch (e) {
-    await prisma.invoice.update({
+  await prisma.$transaction(async (tx) => {
+    if (inv.ncf?.startsWith("PENDING:")) {
+      const pendingType = inv.ncf.slice("PENDING:".length);
+      allocatedNcf = pendingType ? await allocateNcf(pendingType, tx) : null;
+    }
+
+    await tx.invoice.update({
       where: { id },
-      data: { status: "DRAFT", issueDate: inv.issueDate, ncf: inv.ncf },
+      data: { status: "ISSUED", issueDate: new Date(), ncf: allocatedNcf },
     });
-    throw e;
-  }
+
+    await deductStock(inv.items, { refType: "Invoice", refId: id }, { tx });
+  });
   await writeAudit({
     action: "ISSUE",
     entity: "Invoice",

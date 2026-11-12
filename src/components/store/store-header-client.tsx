@@ -126,6 +126,9 @@ export function StoreHeaderClient({
                 animate={{ x: 0 }}
                 exit={{ x: "100%" }}
                 transition={{ type: "spring", damping: 30, stiffness: 300 }}
+                role="dialog"
+                aria-modal="true"
+                aria-label="Menú de navegación"
                 className="absolute top-0 right-0 flex h-full w-full max-w-md flex-col border-l border-white/[0.08] bg-[#0f0f0f] text-white shadow-2xl"
               >
                 <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-5">

@@ -20,6 +20,14 @@ export const metadata = {
   title: "Nosotros · Filosofía, Misión y Valores",
   description:
     "Conoce la historia, misión, visión y valores de Mudeco Palets: ebanistería sostenible de madera recuperada en República Dominicana.",
+  alternates: { canonical: "/nosotros" },
+  openGraph: {
+    title: "Nosotros · Mudeco Palets",
+    description:
+      "Ebanistería sostenible de madera recuperada en República Dominicana.",
+    url: "/nosotros",
+    type: "website",
+  },
 };
 
 export default async function NosotrosPage() {

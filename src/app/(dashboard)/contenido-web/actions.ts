@@ -134,14 +134,25 @@ export async function createProductQuick(payload: {
 }) {
   const session = await requireAdmin();
 
+  const name = payload.name?.trim();
+  if (!name || name.length < 2) {
+    throw new Error("El nombre del mueble debe tener al menos 2 caracteres.");
+  }
+  const price = Number(payload.price);
+  if (!Number.isFinite(price) || price < 0) {
+    throw new Error("El precio debe ser un número válido mayor o igual a 0.");
+  }
+  const rawImg = payload.imageUrl ? payload.imageUrl.trim() : "";
+  const safeImg = rawImg && isSafeImageUrl(rawImg) ? rawImg : null;
+
   const generatedSku = `MUD-${Date.now().toString().slice(-5)}`;
   const product = await prisma.product.create({
     data: {
       kind: "FINISHED",
-      name: payload.name.trim(),
-      category: payload.category.trim() || "Muebles",
-      price: Math.max(0, Number(payload.price) || 0),
-      imageUrl: payload.imageUrl ? payload.imageUrl.trim() : null,
+      name,
+      category: payload.category?.trim() || "Muebles",
+      price,
+      imageUrl: safeImg,
       description: payload.description ? payload.description.trim() : null,
       sku: generatedSku,
       active: true,

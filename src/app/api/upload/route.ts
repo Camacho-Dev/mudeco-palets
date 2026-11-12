@@ -4,6 +4,7 @@ import { isStaff } from "@/lib/rbac";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+import sharp from "sharp";
 
 function detectImageMime(buf: Buffer): "image/jpeg" | "image/png" | "image/webp" | null {
   if (buf.length >= 3 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) {
@@ -71,16 +72,19 @@ export async function POST(req: Request) {
       );
     }
 
-    const extMap: Record<string, string> = {
-      "image/jpeg": ".jpg",
-      "image/png": ".png",
-      "image/webp": ".webp",
-    };
-    const safeExt = extMap[realMime] || ".jpg";
+    // Optimizar imagen, redimensionar a máx 1600px y eliminar metadatos EXIF
+    const optimizedBuffer = await sharp(buffer)
+      .rotate()
+      .resize({ width: 1600, height: 1600, fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 82 })
+      .toBuffer();
+
+    const safeExt = ".webp";
+    const outputMime = "image/webp";
 
     // En entornos serverless de solo lectura (ej. Vercel), usar Data URL persistente en BD
     if (process.env.VERCEL === "1") {
-      const dataUrl = `data:${realMime};base64,${buffer.toString("base64")}`;
+      const dataUrl = `data:${outputMime};base64,${optimizedBuffer.toString("base64")}`;
       return NextResponse.json({
         success: true,
         url: dataUrl,
@@ -94,7 +98,7 @@ export async function POST(req: Request) {
       const fileName = `media_${Date.now()}_${Math.random().toString(36).substring(2, 7)}${safeExt}`;
       const filePath = path.join(uploadDir, fileName);
 
-      await writeFile(filePath, buffer);
+      await writeFile(filePath, optimizedBuffer);
 
       return NextResponse.json({
         success: true,

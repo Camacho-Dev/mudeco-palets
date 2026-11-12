@@ -36,6 +36,14 @@ export const metadata = {
   title: "Contacto",
   description:
     "Contacta a Mudeco Palets: teléfono, WhatsApp, email y formulario.",
+  alternates: { canonical: "/contacto" },
+  openGraph: {
+    title: "Contacto · Mudeco Palets",
+    description:
+      "Contacta a Mudeco Palets: teléfono, WhatsApp, email y formulario.",
+    url: "/contacto",
+    type: "website",
+  },
 };
 
 export default async function ContactoPage() {

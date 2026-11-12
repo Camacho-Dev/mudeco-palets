@@ -1,6 +1,8 @@
 import { getVerifiedApiSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/rbac";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { writeAudit } from "@/lib/audit";
 import { NextResponse } from "next/server";
 
 function csvEscape(v: unknown) {
@@ -29,12 +31,43 @@ function cleanNcfDisplay(ncf: string | null | undefined, fallback: string) {
 }
 
 export async function GET(
-  _req: Request,
+  req: Request,
   ctx: { params: Promise<{ type: string }> },
 ) {
   const session = await getVerifiedApiSession();
   if (!session?.user?.id || !isAdmin(session.user.role)) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
+  const rl = checkRateLimit(`admin-export:${session.user.id}`, 30, 15 * 60 * 1000);
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Demasiadas exportaciones en poco tiempo. Espera unos minutos." },
+      { status: 429 },
+    );
+  }
+
+  const url = new URL(req.url);
+  const monthParam = url.searchParams.get("month");
+  const fromParam = url.searchParams.get("from");
+  const toParam = url.searchParams.get("to");
+
+  let dateFilter: { gte?: Date; lte?: Date } | undefined;
+  if (monthParam && /^\d{4}-\d{2}$/.test(monthParam)) {
+    const [yr, mo] = monthParam.split("-").map(Number);
+    dateFilter = {
+      gte: new Date(yr, mo - 1, 1, 0, 0, 0, 0),
+      lte: new Date(yr, mo, 0, 23, 59, 59, 999),
+    };
+  } else if (fromParam || toParam) {
+    const gte = fromParam ? new Date(`${fromParam}T00:00:00`) : undefined;
+    const lte = toParam ? new Date(`${toParam}T23:59:59.999`) : undefined;
+    if ((gte && !Number.isNaN(gte.getTime())) || (lte && !Number.isNaN(lte.getTime()))) {
+      dateFilter = {
+        ...(gte && !Number.isNaN(gte.getTime()) ? { gte } : {}),
+        ...(lte && !Number.isNaN(lte.getTime()) ? { lte } : {}),
+      };
+    }
   }
 
   const { type } = await ctx.params;
@@ -140,11 +173,15 @@ export async function GET(
     // Formato 607 DGII: Reporte mensual de ventas y operaciones + Notas de Crédito (B04)
     const [invoices, creditNotes] = await Promise.all([
       prisma.invoice.findMany({
-        where: { status: { in: ["ISSUED", "PARTIAL", "PAID"] } },
+        where: {
+          status: { in: ["ISSUED", "PARTIAL", "PAID"] },
+          ...(dateFilter ? { issueDate: dateFilter } : {}),
+        },
         include: { customer: true },
         orderBy: { issueDate: "desc" },
       }),
       prisma.creditNote.findMany({
+        where: dateFilter ? { issueDate: dateFilter } : undefined,
         include: { customer: true, invoice: true },
         orderBy: { issueDate: "desc" },
       }),
@@ -213,7 +250,10 @@ export async function GET(
     rows = [...invoiceRows, ...creditNoteRows];
   } else if (type === "dgii-606") {
     const data = await prisma.purchase.findMany({
-      where: { status: "RECEIVED" },
+      where: {
+        status: "RECEIVED",
+        ...(dateFilter ? { orderedAt: dateFilter } : {}),
+      },
       include: { supplier: true },
       orderBy: { orderedAt: "desc" },
     });
@@ -254,6 +294,13 @@ export async function GET(
   } else {
     return NextResponse.json({ error: "Tipo inválido" }, { status: 400 });
   }
+
+  await writeAudit({
+    action: "EXPORT",
+    entity: "Export",
+    summary: `Exportación CSV (${type}): ${rows.length} registros`,
+    details: { type, count: rows.length, month: monthParam || null },
+  });
 
   const body = toCsv(rows);
   return new NextResponse(body, {

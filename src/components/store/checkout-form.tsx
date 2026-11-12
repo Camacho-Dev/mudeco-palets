@@ -51,9 +51,7 @@ export function CheckoutForm({
   const { items, clear } = useCart();
   const mtoConfig = useStoreConfig();
   const [error, setError] = useState("");
-  const [fulfillment, setFulfillment] = useState<"pickup" | "delivery">(
-    mode === "local" ? "pickup" : "pickup",
-  );
+  const [fulfillment, setFulfillment] = useState<"pickup" | "delivery">("pickup");
   const cleanSessionName =
     session?.user?.name &&
     session.user.name.trim().toLowerCase() !== "administrador"
@@ -90,6 +88,8 @@ export function CheckoutForm({
       const saved = sessionStorage.getItem(DRAFT_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
+        if (parsed.name) setName((prev) => prev || parsed.name);
+        if (parsed.email) setEmail((prev) => prev || parsed.email);
         if (parsed.phone) setPhone(parsed.phone);
         if (parsed.taxId) setTaxId(parsed.taxId);
         if (parsed.address) setAddress(parsed.address);
@@ -107,7 +107,7 @@ export function CheckoutForm({
     try {
       sessionStorage.setItem(
         DRAFT_KEY,
-        JSON.stringify({ phone, taxId, address, notes, fulfillment }),
+        JSON.stringify({ name, email, phone, taxId, address, notes, fulfillment }),
       );
     } catch {
       /* ignore */

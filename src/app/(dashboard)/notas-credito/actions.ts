@@ -14,6 +14,14 @@ import { allocateNcf } from "@/lib/ncf";
 import { writeAudit } from "@/lib/audit";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { z } from "zod";
+
+const creditNoteSchema = z.object({
+  invoiceId: z.string().min(1, "Factura requerida"),
+  reason: z.string().min(2, "El motivo debe tener al menos 2 caracteres"),
+  useFull: z.boolean(),
+  customAmount: z.number().finite("Monto inválido"),
+});
 
 export async function createCreditNote(fd: FormData) {
   const session = await requireAdmin();
@@ -37,6 +45,15 @@ export async function createCreditNote(fd: FormData) {
 
   const useFull = fd.get("full") === "on" || fd.get("full") === "true";
   const customAmount = Number(fd.get("amount") || 0);
+  const parsedInput = creditNoteSchema.safeParse({
+    invoiceId,
+    reason: rawReason,
+    useFull,
+    customAmount,
+  });
+  if (!parsedInput.success) {
+    throw new Error(parsedInput.error.issues[0]?.message || "Datos de nota de crédito inválidos");
+  }
 
   let lines: {
     productId: string | null;
@@ -99,61 +116,66 @@ export async function createCreditNote(fd: FormData) {
   }
 
   const number = await nextCreditNoteNumber();
-  const ncfB04 = await allocateNcf("B04").catch(() => null);
-  const reason = ncfB04 ? `${rawReason} (NCF: ${ncfB04})` : rawReason;
+  const { note, ncfB04 } = await prisma.$transaction(async (tx) => {
+    const ncfB04 = await allocateNcf("B04", tx).catch(() => null);
+    const reason = ncfB04 ? `${rawReason} (NCF: ${ncfB04})` : rawReason;
 
-  const note = await prisma.creditNote.create({
-    data: {
-      number,
-      reason,
-      invoiceId,
-      customerId: invoice.customerId,
-      userId: session.user.id,
-      subtotal: totals.subtotal,
-      tax: totals.tax,
-      total: totals.total,
-      items: {
-        create: lines.map((l) => ({
-          productId: l.productId,
-          description: l.description,
-          quantity: l.quantity,
-          unitPrice: l.unitPrice,
-          taxRate: l.taxRate,
-          lineTotal: l.lineTotal,
-        })),
+    const note = await tx.creditNote.create({
+      data: {
+        number,
+        reason,
+        invoiceId,
+        customerId: invoice.customerId,
+        userId: session.user.id,
+        subtotal: totals.subtotal,
+        tax: totals.tax,
+        total: totals.total,
+        items: {
+          create: lines.map((l) => ({
+            productId: l.productId,
+            description: l.description,
+            quantity: l.quantity,
+            unitPrice: l.unitPrice,
+            taxRate: l.taxRate,
+            lineTotal: l.lineTotal,
+          })),
+        },
       },
-    },
-  });
-
-  for (const line of lines) {
-    if (!line.productId) continue;
-    await applyStockChange({
-      productId: line.productId,
-      qtyDelta: line.quantity,
-      reason: "CREDIT_NOTE",
-      refType: "CreditNote",
-      refId: note.id,
-      note: number,
-      allowNegative: true,
     });
-  }
 
-  const [allPayments, allCreditNotes] = await Promise.all([
-    prisma.payment.findMany({ where: { invoiceId } }),
-    prisma.creditNote.findMany({ where: { invoiceId } }),
-  ]);
-  const paid = paidAmount(allPayments);
-  const credited = creditNotesAmount(allCreditNotes);
-  const updatedStatus = resolveInvoiceStatusWithCredits(
-    invoice.total,
-    paid,
-    credited,
-    invoice.status,
-  );
+    for (const line of lines) {
+      if (!line.productId) continue;
+      await applyStockChange({
+        productId: line.productId,
+        qtyDelta: line.quantity,
+        reason: "CREDIT_NOTE",
+        refType: "CreditNote",
+        refId: note.id,
+        note: number,
+        allowNegative: true,
+        tx,
+      });
+    }
 
-  await prisma.invoice.update({
-    where: { id: invoiceId },
-    data: { status: updatedStatus },
+    const [allPayments, allCreditNotes] = await Promise.all([
+      tx.payment.findMany({ where: { invoiceId } }),
+      tx.creditNote.findMany({ where: { invoiceId } }),
+    ]);
+    const paid = paidAmount(allPayments);
+    const credited = creditNotesAmount(allCreditNotes);
+    const updatedStatus = resolveInvoiceStatusWithCredits(
+      invoice.total,
+      paid,
+      credited,
+      invoice.status,
+    );
+
+    await tx.invoice.update({
+      where: { id: invoiceId },
+      data: { status: updatedStatus },
+    });
+
+    return { note, ncfB04 };
   });
 
   await writeAudit({

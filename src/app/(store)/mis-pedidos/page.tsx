@@ -13,7 +13,7 @@ import { WelcomeToast } from "@/components/store/welcome-toast";
 import { ArrowRight, LayoutGrid } from "lucide-react";
 
 export const metadata = {
-  title: "Mi Perfil e Historial de Compras · Mudeco Palets",
+  title: "Mi Perfil e Historial de Compras",
   description:
     "Espacio exclusivo de cliente para consultar compras, pedidos en taller, datos personales y comprobantes en Mudeco Palets.",
 };

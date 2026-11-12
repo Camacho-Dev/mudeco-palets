@@ -53,6 +53,8 @@ model Customer {
   creditNotes CreditNote[]
   webOrders   WebOrder[]
 
+  @@index([name])
+
   @@index([active])
 }
 
@@ -126,6 +128,7 @@ model Invoice {
   @@index([status, issueDate])
   @@index([customerId])
   @@index([userId])
+  @@index([createdAt])
 }
 
 model InvoiceItem {
@@ -193,6 +196,10 @@ model AuditLog {
   entityId  String?
   summary   String
   details   String?
+
+  @@index([createdAt])
+  @@index([action, entity])
+  @@index([userEmail])
   createdAt DateTime @default(now())
 }
 
@@ -208,6 +215,8 @@ model NcfSeries {
   prefix    String
   nextSeq   Int       @default(1)
   maxSeq    Int       @default(99999999)
+
+  @@index([type, active])
   expiresAt DateTime?
   active    Boolean   @default(true)
   createdAt DateTime  @default(now())
@@ -370,6 +379,8 @@ model CreditNote {
   userId     String
   user       User             @relation(fields: [userId], references: [id])
   items      CreditNoteItem[]
+
+  @@index([issueDate])
   createdAt  DateTime         @default(now())
 
   @@index([invoiceId])
@@ -412,6 +423,9 @@ model Purchase {
   supplierId String
   supplier   Supplier       @relation(fields: [supplierId], references: [id])
   items      PurchaseItem[]
+
+  @@index([status, orderedAt])
+  @@index([supplierId])
   createdAt  DateTime       @default(now())
   updatedAt  DateTime       @updatedAt
 }
@@ -449,6 +463,10 @@ model WorkOrder {
   items      WorkOrderItem[]
   createdAt  DateTime        @default(now())
   completedAt DateTime?
+
+  @@index([status, createdAt])
+  @@index([productId])
+  @@index([userId])
 }
 
 model WorkOrderItem {

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { invalidateScoredProductsCache } from "@/lib/recommendations";
 
@@ -27,6 +28,7 @@ async function currentUserId() {
 /** Verifica stock antes de emitir. Agrupa cantidades por producto. */
 export async function assertStockAvailable(
   lines: { productId?: string | null; quantity: number }[],
+  tx?: Prisma.TransactionClient,
 ) {
   const needed = new Map<string, number>();
   for (const line of lines) {
@@ -37,10 +39,16 @@ export async function assertStockAvailable(
     );
   }
 
+  const ids = [...needed.keys()];
+  if (ids.length === 0) return;
+  const db = tx ?? prisma;
+  const products = await db.product.findMany({
+    where: { id: { in: ids } },
+  });
+  const byId = new Map(products.map((p) => [p.id, p]));
+
   for (const [productId, qty] of needed) {
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-    });
+    const product = byId.get(productId);
     if (!product) {
       throw new Error("Hay un producto que ya no existe en el catálogo");
     }
@@ -66,8 +74,10 @@ export async function applyStockChange(input: {
   refId?: string;
   note?: string;
   allowNegative?: boolean;
+  tx?: Prisma.TransactionClient;
 }) {
-  const product = await prisma.product.findUnique({
+  const db = input.tx ?? prisma;
+  const product = await db.product.findUnique({
     where: { id: input.productId },
   });
   if (!product) throw new Error("Producto no encontrado");
@@ -85,14 +95,12 @@ export async function applyStockChange(input: {
 
   const userId = await currentUserId();
 
-  // Usar increment atómico para evitar race conditions
-  const updated = await prisma.$transaction(async (tx) => {
-    const result = await tx.product.update({
+  const run = async (client: Prisma.TransactionClient) => {
+    const result = await client.product.update({
       where: { id: input.productId },
       data: { stock: { increment: input.qtyDelta } },
     });
 
-    // Evitar sobreventa en concurrencia: si quedó negativo y no se permite, abortar transacción
     if (!input.allowNegative && result.stock < 0) {
       throw new Error(
         `Stock insuficiente durante la operación: ${product.name}`,
@@ -101,7 +109,7 @@ export async function applyStockChange(input: {
 
     const balance = result.stock;
 
-    await tx.stockMovement.create({
+    await client.stockMovement.create({
       data: {
         productId: input.productId,
         qty: input.qtyDelta,
@@ -115,7 +123,9 @@ export async function applyStockChange(input: {
     });
 
     return balance;
-  });
+  };
+
+  const updated = input.tx ? await run(input.tx) : await prisma.$transaction(run);
 
   invalidateScoredProductsCache();
   return updated;
@@ -124,16 +134,17 @@ export async function applyStockChange(input: {
 export async function deductStock(
   lines: { productId?: string | null; quantity: number }[],
   ref?: { refType: string; refId: string },
-  options?: { allowBackorder?: boolean },
+  options?: { allowBackorder?: boolean; tx?: Prisma.TransactionClient },
 ) {
+  const db = options?.tx ?? prisma;
   if (!options?.allowBackorder) {
-    await assertStockAvailable(lines);
+    await assertStockAvailable(lines, options?.tx);
   }
   for (const line of lines) {
     if (!line.productId) continue;
     let qtyToDeduct = line.quantity;
     if (options?.allowBackorder) {
-      const product = await prisma.product.findUnique({
+      const product = await db.product.findUnique({
         where: { id: line.productId },
       });
       if (!product) {
@@ -150,6 +161,7 @@ export async function deductStock(
       refType: ref?.refType,
       refId: ref?.refId,
       allowNegative: Boolean(options?.allowBackorder),
+      tx: options?.tx,
     });
   }
 }

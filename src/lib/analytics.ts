@@ -27,6 +27,9 @@ export async function getBusinessAnalytics(range?: DateRange) {
   const now = new Date();
   const startOfYear = new Date(now.getFullYear(), 0, 1);
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+  const minQueryDate = range?.from
+    ? new Date(Math.min(range.from.getTime(), startOfYear.getTime(), sixMonthsAgo.getTime()))
+    : null;
 
   const [
     invoices,
@@ -87,6 +90,7 @@ export async function getBusinessAnalytics(range?: DateRange) {
       prisma.payment.findMany({
         where: {
           invoice: { status: { in: [...SOLD_STATUSES] } },
+          ...(minQueryDate ? { paidAt: { gte: minQueryDate } } : {}),
         },
         select: {
           amount: true,

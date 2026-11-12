@@ -4,14 +4,19 @@ import { isAdminPath, isPublicPath } from "@/lib/sensitive";
 import { homeForRole, isAdmin, isStaff } from "@/lib/rbac";
 
 const isProd = process.env.NODE_ENV === "production";
+const authSecret =
+  process.env.AUTH_SECRET ||
+  process.env.NEXTAUTH_SECRET ||
+  (!isProd ? "mudeco-dev-only-secret-change-in-production-32chars" : undefined);
 
-/** Config Edge-compatible (sin Prisma/bcrypt) para middleware */
+if (isProd && !authSecret) {
+  throw new Error("AUTH_SECRET o NEXTAUTH_SECRET debe estar definido en producción.");
+}
+
+/** Config Edge-compatible (sin Prisma/bcrypt) para proxy/middleware */
 export const authConfig = {
   trustHost: true,
-  secret:
-    process.env.AUTH_SECRET ||
-    process.env.NEXTAUTH_SECRET ||
-    "mudeco-enterprise-edge-secret-fallback-production-key-32chars",
+  secret: authSecret,
   session: {
     strategy: "jwt",
     maxAge: 12 * 60 * 60, // 12 horas

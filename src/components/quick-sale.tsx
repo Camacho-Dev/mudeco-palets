@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition, useEffect, useCallback } from "react";
+import { useMemo, useState, useTransition, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { formatCurrency, roundMoney } from "@/lib/format";
 import {
@@ -92,6 +92,20 @@ export function QuickSale({
   const [error, setError] = useState("");
   const [draftToDiscard, setDraftToDiscard] = useState<InvoiceDraft | null>(null);
   const [clearCartConfirm, setClearCartConfirm] = useState(false);
+  const searchWrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        const input = searchWrapperRef.current?.querySelector("input");
+        input?.focus();
+        input?.select();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   // Carga de borradores previos desde localStorage (persistencia ante recargas)
   // Validando cliente existente y refrescando stock real de productos
@@ -472,17 +486,19 @@ export function QuickSale({
             className="flex items-center gap-1 font-semibold text-[var(--wood-950)] hover:text-[var(--brass)] transition"
           >
             <Plus className="h-3.5 w-3.5" />
-            <span>+ Abrir otra factura</span>
+            <span>Abrir otra factura</span>
           </button>
         </div>
 
         <div className="card p-4">
+          <div ref={searchWrapperRef}>
           <IconField
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar mueble por nombre, SKU o categoría…"
+            placeholder="Buscar mueble por nombre, SKU o categoría… (atajo: Ctrl+K)"
             icon={<Search strokeWidth={2.25} />}
           />
+          </div>
           <div className="mt-3 flex flex-wrap gap-2">
             <button
               type="button"

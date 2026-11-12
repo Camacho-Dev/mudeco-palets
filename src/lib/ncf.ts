@@ -1,8 +1,13 @@
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 
 /** Toma el siguiente NCF de la serie activa del tipo indicado (ej. B01, B02) */
-export async function allocateNcf(type: string): Promise<string | null> {
-  const series = await prisma.ncfSeries.findFirst({
+export async function allocateNcf(
+  type: string,
+  tx?: Prisma.TransactionClient,
+): Promise<string | null> {
+  const db = tx ?? prisma;
+  const series = await db.ncfSeries.findFirst({
     where: { type, active: true },
     orderBy: { createdAt: "asc" },
   });
@@ -14,7 +19,7 @@ export async function allocateNcf(type: string): Promise<string | null> {
     throw new Error(`Serie NCF ${type} agotada`);
   }
 
-  const updated = await prisma.ncfSeries.update({
+  const updated = await db.ncfSeries.update({
     where: { id: series.id },
     data: { nextSeq: { increment: 1 } },
   });

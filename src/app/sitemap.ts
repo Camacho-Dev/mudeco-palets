@@ -7,15 +7,26 @@ export const dynamic = "force-dynamic";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
 
-  const products = await withDbRetry(
-    () =>
-      prisma.product.findMany({
-        where: { active: true, kind: "FINISHED" },
-        select: { id: true, updatedAt: true },
-        orderBy: { updatedAt: "desc" },
-      }),
-    { fallback: [] },
-  );
+  const [products, categories] = await Promise.all([
+    withDbRetry(
+      () =>
+        prisma.product.findMany({
+          where: { active: true, kind: "FINISHED" },
+          select: { id: true, updatedAt: true },
+          orderBy: { updatedAt: "desc" },
+        }),
+      { fallback: [] },
+    ),
+    withDbRetry(
+      () =>
+        prisma.product.findMany({
+          where: { active: true, kind: "FINISHED" },
+          select: { category: true },
+          distinct: ["category"],
+        }),
+      { fallback: [] },
+    ),
+  ]);
 
   const productEntries: MetadataRoute.Sitemap = products.map((p) => ({
     url: `${base}/producto/${p.id}`,
@@ -24,44 +35,47 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  const categoryEntries: MetadataRoute.Sitemap = categories
+    .map((c) => c.category)
+    .filter(Boolean)
+    .map((cat) => ({
+      url: `${base}/catalogo?cat=${encodeURIComponent(cat)}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.75,
+    }));
+
   const staticEntries: MetadataRoute.Sitemap = [
     {
       url: `${base}/`,
-      lastModified: new Date(),
       changeFrequency: "daily" as const,
       priority: 1.0,
     },
     {
       url: `${base}/catalogo`,
-      lastModified: new Date(),
       changeFrequency: "daily" as const,
       priority: 0.9,
     },
     {
       url: `${base}/nosotros`,
-      lastModified: new Date(),
       changeFrequency: "monthly" as const,
       priority: 0.7,
     },
     {
       url: `${base}/contacto`,
-      lastModified: new Date(),
       changeFrequency: "monthly" as const,
       priority: 0.7,
     },
     {
       url: `${base}/terminos`,
-      lastModified: new Date(),
       changeFrequency: "yearly" as const,
       priority: 0.3,
     },
     {
       url: `${base}/privacidad`,
-      lastModified: new Date(),
       changeFrequency: "yearly" as const,
       priority: 0.3,
     },
   ];
 
-  return [...staticEntries, ...productEntries];
+  return [...staticEntries, ...categoryEntries, ...productEntries];
 }

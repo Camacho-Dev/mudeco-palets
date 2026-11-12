@@ -7,6 +7,13 @@ import { applyStockChange } from "@/lib/stock";
 import { writeAudit } from "@/lib/audit";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { z } from "zod";
+
+const purchaseItemSchema = z.object({
+  productId: z.string().min(1),
+  quantity: z.number().finite().positive("La cantidad debe ser mayor a 0"),
+  unitCost: z.number().finite().nonnegative("El costo unitario no puede ser negativo"),
+});
 
 export async function createPurchase(fd: FormData) {
   await requireAdmin();
@@ -23,11 +30,19 @@ export async function createPurchase(fd: FormData) {
     const quantity = Number(quantities[i]);
     const unitCost = Number(costs[i]);
     if (!(quantity > 0)) continue;
-    items.push({
+    const parsed = purchaseItemSchema.safeParse({
       productId: productIds[i],
       quantity,
       unitCost,
-      lineTotal: Math.round(quantity * unitCost * 100) / 100,
+    });
+    if (!parsed.success) {
+      throw new Error(parsed.error.issues[0]?.message || "Ítem de compra inválido");
+    }
+    items.push({
+      productId: parsed.data.productId,
+      quantity: parsed.data.quantity,
+      unitCost: parsed.data.unitCost,
+      lineTotal: Math.round(parsed.data.quantity * parsed.data.unitCost * 100) / 100,
     });
   }
   if (!items.length) throw new Error("Agrega ítems");

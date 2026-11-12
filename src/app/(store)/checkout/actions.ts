@@ -106,16 +106,16 @@ export async function submitWebCheckout(fd: FormData) {
 
   if (mode === "transfer" || mode === "local") {
     const receiptFile = fd.get("receipt") as File | null;
-    if (!receiptFile || receiptFile.size === 0) {
+    if (mode === "transfer" && (!receiptFile || receiptFile.size === 0)) {
       throw new Error(
-        mode === "transfer"
-          ? "Es obligatorio adjuntar el comprobante de transferencia bancaria para completar tu pedido."
-          : "Es obligatorio adjuntar el comprobante de pago o depósito para confirmar tu orden de retiro en taller.",
+        "Es obligatorio adjuntar el comprobante de transferencia bancaria para completar tu pedido.",
       );
     }
 
-    const receipt = await processReceiptFile(receiptFile, `recibo_${mode}`);
-    const receiptTag = `[COMPROBANTE_PAGO: ${JSON.stringify(receipt)}]`;
+    const receiptTag =
+      receiptFile && receiptFile.size > 0
+        ? `[COMPROBANTE_PAGO: ${JSON.stringify(await processReceiptFile(receiptFile, `recibo_${mode}`))}]`
+        : "";
     const modeLabel =
       mode === "transfer"
         ? "[Pago: Transferencia bancaria]"

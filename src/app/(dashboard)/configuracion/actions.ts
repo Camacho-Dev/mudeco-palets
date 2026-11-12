@@ -5,8 +5,10 @@ import { requireAdmin } from "@/lib/session";
 import { writeAudit } from "@/lib/audit";
 import { invalidateStoreCompanyCache } from "@/lib/store";
 import { revalidatePath } from "next/cache";
+
 import { redirect } from "next/navigation";
 import { z } from "zod";
+
 
 const schema = z.object({
   name: z.string().min(1),
@@ -63,20 +65,29 @@ export async function updateCompany(fd: FormData) {
 export async function saveBankAccounts(bankAccountsJson: string) {
   await requireAdmin();
 
-  // Validación básica del formato JSON
+  const bankSchema = z.array(
+    z.object({
+      bank: z.string().trim().min(2).max(80),
+      accountNumber: z.string().trim().min(4).max(40),
+      type: z.string().trim().min(2).max(40),
+      holder: z.string().trim().min(2).max(120),
+      rnc: z.string().trim().max(30).optional(),
+    }),
+  );
+
+  // Validación estricta del formato JSON
+  let validatedJson: string;
   try {
-    const parsed = JSON.parse(bankAccountsJson);
-    if (!Array.isArray(parsed)) {
-      throw new Error("Formato inválido de cuentas bancarias");
-    }
+    const parsed = bankSchema.parse(JSON.parse(bankAccountsJson));
+    validatedJson = JSON.stringify(parsed);
   } catch {
-    throw new Error("Formato JSON inválido");
+    throw new Error("Formato inválido de cuentas bancarias");
   }
 
   await prisma.companySettings.upsert({
     where: { id: "default" },
-    update: { bankAccountsJson },
-    create: { id: "default", bankAccountsJson },
+    update: { bankAccountsJson: validatedJson },
+    create: { id: "default", bankAccountsJson: validatedJson },
   });
 
   await writeAudit({
@@ -102,6 +113,9 @@ export async function createNcfSeries(fd: FormData) {
   const expiresAtRaw = String(fd.get("expiresAt") || "");
 
   if (!type || !prefix) throw new Error("Tipo y prefijo requeridos");
+  if (!Number.isInteger(nextSeq) || nextSeq < 1 || !Number.isInteger(maxSeq) || maxSeq < nextSeq) {
+    throw new Error("Secuencia NCF inválida (el máximo debe ser mayor o igual al siguiente número).");
+  }
 
   await prisma.ncfSeries.create({
     data: {

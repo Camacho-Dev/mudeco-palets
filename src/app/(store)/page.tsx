@@ -453,6 +453,22 @@ export default async function StoreHomePage() {
         </Reveal>
       </section>
 
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: company.name,
+            url: process.env.NEXT_PUBLIC_SITE_URL || "https://mudecopalets.com",
+            potentialAction: {
+              "@type": "SearchAction",
+              target: `${process.env.NEXT_PUBLIC_SITE_URL || "https://mudecopalets.com"}/catalogo?q={search_term_string}`,
+              "query-input": "required name=search_term_string",
+            },
+          }),
+        }}
+      />
       {/* —— Galería —— */}
       <section className="border-t border-white/[0.06] bg-[#0c0c0c] py-14">
         <div className={WRAP}>

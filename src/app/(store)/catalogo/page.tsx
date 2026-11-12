@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Reveal } from "@/components/store/store-motion";
 import { getScoredProducts } from "@/lib/recommendations";
 import { getStoreCompany } from "@/lib/store";
@@ -13,6 +14,20 @@ export const metadata = {
   title: "Catálogo de Piezas",
   description:
     "Muebles hechos a mano con madera de pino recuperada y curada en República Dominicana.",
+  alternates: { canonical: "/catalogo" },
+  openGraph: {
+    title: "Catálogo de Piezas · Mudeco Palets",
+    description:
+      "Muebles hechos a mano con madera de pino recuperada y curada en República Dominicana.",
+    url: "/catalogo",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Catálogo de Piezas · Mudeco Palets",
+    description:
+      "Muebles hechos a mano con madera de pino recuperada y curada en República Dominicana.",
+  },
 };
 
 export default async function CatalogoPage({

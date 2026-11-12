@@ -134,15 +134,28 @@ export default async function ExportarPage() {
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-stone-100 flex justify-end">
-                <a
-                  href={`/api/export/${f.type}`}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--wood-950)] px-3.5 py-2 text-xs font-semibold text-[#faf6f1] shadow hover:bg-[var(--wood-800)] transition"
+              <form
+                action={`/api/export/${f.type}`}
+                method="GET"
+                className="mt-4 pt-3 border-t border-stone-100 flex flex-wrap items-center justify-between gap-2"
+              >
+                <label className="flex items-center gap-2 text-xs text-[var(--muted)]">
+                  <span>Período:</span>
+                  <input
+                    type="month"
+                    name="month"
+                    defaultValue={new Date().toISOString().slice(0, 7)}
+                    className="rounded-lg border border-stone-200 bg-white px-2.5 py-1.5 text-xs font-medium text-[var(--wood-950)] focus:border-[#b0894f] focus:outline-none"
+                  />
+                </label>
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--wood-950)] px-3.5 py-2 text-xs font-semibold text-[#faf6f1] shadow hover:bg-[var(--wood-800)] transition cursor-pointer"
                 >
                   <Download className="h-3.5 w-3.5 text-[#b0894f]" />
                   <span>Descargar {f.code}</span>
-                </a>
-              </div>
+                </button>
+              </form>
             </div>
           ))}
         </div>
