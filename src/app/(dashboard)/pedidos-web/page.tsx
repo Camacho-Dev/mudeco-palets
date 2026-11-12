@@ -18,13 +18,13 @@ import {
   Clock,
   Sparkles,
   ShoppingBag,
-  SlidersHorizontal,
-  ChevronRight,
-  CheckCircle2,
-  AlertCircle,
+
+
+
+
   Truck,
   Store,
-  MessageSquare,
+
 } from "lucide-react";
 import { stripReceiptFromNotes, extractReceiptFromNotes } from "@/lib/order-receipt";
 import {
@@ -78,7 +78,7 @@ export default async function PedidosWebPage({
   const query = (q || "").trim();
 
   const orders = await prisma.webOrder.findMany({
-    where: query
+    where: { ...(query
       ? {
           OR: [
             { number: { contains: query, mode: "insensitive" } },
@@ -88,7 +88,20 @@ export default async function PedidosWebPage({
             { notes: { contains: query, mode: "insensitive" } },
           ],
         }
-      : undefined,
+      : {}),
+      ...(tipo === "sale"
+        ? { type: "SALE" }
+        : tipo === "cart_quote"
+          ? { type: "QUOTE", serviceKind: null }
+          : tipo
+            ? { serviceKind: tipo }
+            : {}),
+      ...(estado === "pending"
+        ? { status: { in: ["PENDING", "AWAITING_PAYMENT", "QUOTED", "IN_PROGRESS"] } }
+        : estado
+          ? { status: estado }
+          : {}),
+    },
     orderBy: { createdAt: "desc" },
     take: 200,
     include: {

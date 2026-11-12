@@ -209,7 +209,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (!dbUser || !dbUser.active) {
             return {
               ...session,
-              user: undefined as any,
+              user: undefined as unknown as typeof session.user,
               expires: new Date(0).toISOString(),
             };
           }

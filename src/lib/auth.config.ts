@@ -1,7 +1,7 @@
 import type { NextAuthConfig } from "next-auth";
 import { NextResponse } from "next/server";
 import { isAdminPath, isPublicPath } from "@/lib/sensitive";
-import { homeForRole, isAdmin, isStaff } from "@/lib/rbac";
+import { isAdmin, isStaff } from "@/lib/rbac";
 
 const isProd = process.env.NODE_ENV === "production";
 const authSecret =

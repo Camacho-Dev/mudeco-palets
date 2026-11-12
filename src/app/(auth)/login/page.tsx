@@ -251,7 +251,7 @@ function LoginForm() {
     <div className="min-h-dvh w-full bg-[#faf7f2] text-[#14100d] lg:grid lg:grid-cols-12">
       {/* Columna izquierda editorial (solo desktop) */}
       <aside className="relative hidden lg:col-span-5 lg:flex lg:flex-col lg:justify-between overflow-hidden bg-[#0e0b09] p-10 xl:p-14 text-[#faf6f1]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+
         <motion.img
           src="/brand/store-hero.jpg"
           alt="Taller Mudeco Palets"

@@ -31,18 +31,27 @@ type SerializedOrderItem = {
 type SerializedInvoice = {
   id: string;
   number: string;
+  type?: string;
+  paymentMode?: string | null;
+  serviceKind?: string | null;
   status: string;
 } | null;
 
 type SerializedQuote = {
   id: string;
   number: string;
+  type?: string;
+  paymentMode?: string | null;
+  serviceKind?: string | null;
   status: string;
 } | null;
 
 export type SerializedWebOrder = {
   id: string;
   number: string;
+  type?: string;
+  paymentMode?: string | null;
+  serviceKind?: string | null;
   status: string;
   total: number;
   createdAt: string;
@@ -213,7 +222,10 @@ export function OrdersHistoryCard({
                   order.notes?.includes("[Pago: Transferencia bancaria]"),
               );
               const receipt = extractReceiptFromNotes(order.notes);
-              const kindLabel = webOrderTypeLabel(order as any);
+              const kindLabel = webOrderTypeLabel({
+                ...order,
+                type: order.type ?? (order.quote ? "QUOTE" : "SALE"),
+              });
 
               return (
                 <article

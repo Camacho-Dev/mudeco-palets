@@ -91,180 +91,195 @@ export async function restoreBackup(fd: FormData): Promise<{ ok: boolean; messag
   let restoredSuppliers = 0;
   let restoredNcf = 0;
 
-  // Restaurar clientes
-  if (Array.isArray(data.customers)) {
-    for (const c of data.customers) {
-      if (!c.id || !c.name) continue;
-      await prisma.customer.upsert({
-        where: { id: c.id },
-        create: {
-          id: c.id,
-          name: c.name,
-          taxId: c.taxId || null,
-          email: c.email || null,
-          phone: c.phone || null,
-          address: c.address || null,
-          creditLimit: c.creditLimit || 0,
-        },
-        update: {
-          name: c.name,
-          taxId: c.taxId || null,
-          email: c.email || null,
-          phone: c.phone || null,
-          address: c.address || null,
-          creditLimit: c.creditLimit || 0,
-        },
-      });
-      restoredCustomers++;
-    }
-  }
-
-  // Restaurar proveedores
-  if (Array.isArray(data.suppliers)) {
-    for (const s of data.suppliers) {
-      if (!s.id || !s.name) continue;
-      await prisma.supplier.upsert({
-        where: { id: s.id },
-        create: {
-          id: s.id,
-          name: s.name,
-          taxId: s.taxId || null,
-          email: s.email || null,
-          phone: s.phone || null,
-          address: s.address || null,
-        },
-        update: {
-          name: s.name,
-          taxId: s.taxId || null,
-          email: s.email || null,
-          phone: s.phone || null,
-          address: s.address || null,
-        },
-      });
-      restoredSuppliers++;
-    }
-  }
-
-  // Restaurar catálogo de productos y sincronizar kardex si cambia el stock
-  if (Array.isArray(data.products)) {
-    for (const p of data.products) {
-      if (!p.id || !p.name) continue;
-      const before = await prisma.product.findUnique({ where: { id: p.id } });
-      const nextStock = Number(p.stock) || 0;
-
-      await prisma.product.upsert({
-        where: { id: p.id },
-        create: {
-          id: p.id,
-          sku: p.sku || null,
-          name: p.name,
-          description: p.description || null,
-          kind: p.kind || "FINISHED",
-          category: p.category || "Muebles",
-          price: Number(p.price) || 0,
-          cost: Number(p.cost) || 0,
-          taxRate: Number(p.taxRate) ?? 0.18,
-          unit: p.unit || "UND",
-          stock: nextStock,
-          minStock: Number(p.minStock) || 2,
-          active: p.active ?? true,
-          imageUrl: p.imageUrl || null,
-          widthCm: p.widthCm || null,
-          heightCm: p.heightCm || null,
-          depthCm: p.depthCm || null,
-        },
-        update: {
-          sku: p.sku || null,
-          name: p.name,
-          description: p.description || null,
-          kind: p.kind || "FINISHED",
-          price: Number(p.price) || 0,
-          cost: Number(p.cost) || 0,
-          taxRate: Number(p.taxRate) ?? 0.18,
-          unit: p.unit || "UND",
-          category: p.category || "Muebles",
-          stock: nextStock,
-          minStock: Number(p.minStock) || 2,
-          active: p.active ?? true,
-          imageUrl: p.imageUrl || null,
-          widthCm: p.widthCm || null,
-          heightCm: p.heightCm || null,
-          depthCm: p.depthCm || null,
-        },
-      });
-
-      if (p.sku !== "CUS-001") {
-        const prevStock = before ? before.stock : 0;
-        const delta = nextStock - prevStock;
-        if (delta !== 0) {
-          await prisma.stockMovement.create({
-            data: {
-              productId: p.id,
-              qty: delta,
-              balance: nextStock,
-              reason: "ADJUST",
-              note: "Restauración de respaldo JSON",
-              userId: session.user.id,
+  await prisma.$transaction(
+    async (tx) => {
+      // Restaurar clientes
+      if (Array.isArray(data.customers)) {
+        for (const c of data.customers) {
+          if (!c.id || !c.name) continue;
+          await tx.customer.upsert({
+            where: { id: c.id },
+            create: {
+              id: c.id,
+              name: c.name,
+              taxId: c.taxId || null,
+              email: c.email || null,
+              phone: c.phone || null,
+              address: c.address || null,
+              creditLimit: c.creditLimit || 0,
+            },
+            update: {
+              name: c.name,
+              taxId: c.taxId || null,
+              email: c.email || null,
+              phone: c.phone || null,
+              address: c.address || null,
+              creditLimit: c.creditLimit || 0,
             },
           });
+          restoredCustomers++;
         }
       }
-      restoredProducts++;
-    }
-  }
 
-  // Restaurar series NCF
-  if (Array.isArray(data.ncfSeries)) {
-    for (const s of data.ncfSeries) {
-      if (!s.id || !s.type || !s.prefix) continue;
-      await prisma.ncfSeries.upsert({
-        where: { id: s.id },
-        create: {
-          id: s.id,
-          type: s.type,
-          name: s.name || s.type,
-          prefix: s.prefix,
-          nextSeq: Number(s.nextSeq) || 1,
-          maxSeq: Number(s.maxSeq) || 99999999,
-          expiresAt: s.expiresAt ? new Date(s.expiresAt) : null,
-          active: s.active ?? true,
-        },
-        update: {
-          name: s.name || s.type,
-          prefix: s.prefix,
-          nextSeq: Number(s.nextSeq) || 1,
-          maxSeq: Number(s.maxSeq) || 99999999,
-          expiresAt: s.expiresAt ? new Date(s.expiresAt) : null,
-          active: s.active ?? true,
-        },
-      });
-      restoredNcf++;
-    }
-  }
+      // Restaurar proveedores
+      if (Array.isArray(data.suppliers)) {
+        for (const s of data.suppliers) {
+          if (!s.id || !s.name) continue;
+          await tx.supplier.upsert({
+            where: { id: s.id },
+            create: {
+              id: s.id,
+              name: s.name,
+              taxId: s.taxId || null,
+              email: s.email || null,
+              phone: s.phone || null,
+              address: s.address || null,
+            },
+            update: {
+              name: s.name,
+              taxId: s.taxId || null,
+              email: s.email || null,
+              phone: s.phone || null,
+              address: s.address || null,
+            },
+          });
+          restoredSuppliers++;
+        }
+      }
 
-  // Restaurar configuración de empresa
-  if (data.settings && typeof data.settings === "object") {
-    await prisma.companySettings.upsert({
-      where: { id: "default" },
-      create: {
-        id: "default",
-        name: data.settings.name || "Mudeco Palets",
-        slogan: data.settings.slogan || "Muebles a la medida",
-        taxId: data.settings.taxId || null,
-        phone: data.settings.phone || null,
-        email: data.settings.email || null,
-        address: data.settings.address || null,
-      },
-      update: {
-        name: data.settings.name || undefined,
-        slogan: data.settings.slogan || undefined,
-        taxId: data.settings.taxId || undefined,
-        phone: data.settings.phone || undefined,
-        email: data.settings.email || undefined,
-        address: data.settings.address || undefined,
-      },
-    });
-  }
+      // Restaurar catálogo de productos y sincronizar kardex si cambia el stock
+      if (Array.isArray(data.products)) {
+        const productIds = data.products
+          .map((p) => p?.id)
+          .filter((id): id is string => Boolean(id));
+        const existingProducts = productIds.length
+          ? await tx.product.findMany({
+              where: { id: { in: productIds } },
+              select: { id: true, stock: true },
+            })
+          : [];
+        const stockBeforeMap = new Map(existingProducts.map((p) => [p.id, p.stock]));
+
+        for (const p of data.products) {
+          if (!p.id || !p.name) continue;
+          const prevStock = stockBeforeMap.get(p.id) ?? 0;
+          const nextStock = Number(p.stock) || 0;
+
+          await tx.product.upsert({
+            where: { id: p.id },
+            create: {
+              id: p.id,
+              sku: p.sku || null,
+              name: p.name,
+              description: p.description || null,
+              kind: p.kind || "FINISHED",
+              category: p.category || "Muebles",
+              price: Number(p.price) || 0,
+              cost: Number(p.cost) || 0,
+              taxRate: Number(p.taxRate) ?? 0.18,
+              unit: p.unit || "UND",
+              stock: nextStock,
+              minStock: Number(p.minStock) || 2,
+              active: p.active ?? true,
+              imageUrl: p.imageUrl || null,
+              widthCm: p.widthCm || null,
+              heightCm: p.heightCm || null,
+              depthCm: p.depthCm || null,
+            },
+            update: {
+              sku: p.sku || null,
+              name: p.name,
+              description: p.description || null,
+              kind: p.kind || "FINISHED",
+              price: Number(p.price) || 0,
+              cost: Number(p.cost) || 0,
+              taxRate: Number(p.taxRate) ?? 0.18,
+              unit: p.unit || "UND",
+              category: p.category || "Muebles",
+              stock: nextStock,
+              minStock: Number(p.minStock) || 2,
+              active: p.active ?? true,
+              imageUrl: p.imageUrl || null,
+              widthCm: p.widthCm || null,
+              heightCm: p.heightCm || null,
+              depthCm: p.depthCm || null,
+            },
+          });
+
+          if (p.sku !== "CUS-001") {
+            const delta = nextStock - prevStock;
+            if (delta !== 0) {
+              await tx.stockMovement.create({
+                data: {
+                  productId: p.id,
+                  qty: delta,
+                  balance: nextStock,
+                  reason: "ADJUST",
+                  note: "Restauración de respaldo JSON",
+                  userId: session.user.id,
+                },
+              });
+            }
+          }
+          restoredProducts++;
+        }
+      }
+
+      // Restaurar series NCF
+      if (Array.isArray(data.ncfSeries)) {
+        for (const s of data.ncfSeries) {
+          if (!s.id || !s.type || !s.prefix) continue;
+          await tx.ncfSeries.upsert({
+            where: { id: s.id },
+            create: {
+              id: s.id,
+              type: s.type,
+              name: s.name || s.type,
+              prefix: s.prefix,
+              nextSeq: Number(s.nextSeq) || 1,
+              maxSeq: Number(s.maxSeq) || 99999999,
+              expiresAt: s.expiresAt ? new Date(s.expiresAt) : null,
+              active: s.active ?? true,
+            },
+            update: {
+              name: s.name || s.type,
+              prefix: s.prefix,
+              nextSeq: Number(s.nextSeq) || 1,
+              maxSeq: Number(s.maxSeq) || 99999999,
+              expiresAt: s.expiresAt ? new Date(s.expiresAt) : null,
+              active: s.active ?? true,
+            },
+          });
+          restoredNcf++;
+        }
+      }
+
+      // Restaurar configuración de empresa
+      if (data.settings && typeof data.settings === "object") {
+        await tx.companySettings.upsert({
+          where: { id: "default" },
+          create: {
+            id: "default",
+            name: data.settings.name || "Mudeco Palets",
+            slogan: data.settings.slogan || "Muebles a la medida",
+            taxId: data.settings.taxId || null,
+            phone: data.settings.phone || null,
+            email: data.settings.email || null,
+            address: data.settings.address || null,
+          },
+          update: {
+            name: data.settings.name || undefined,
+            slogan: data.settings.slogan || undefined,
+            taxId: data.settings.taxId || undefined,
+            phone: data.settings.phone || undefined,
+            email: data.settings.email || undefined,
+            address: data.settings.address || undefined,
+          },
+        });
+      }
+    },
+    { timeout: 30000 },
+  );
 
   await writeAudit({
     action: "RESTORE",

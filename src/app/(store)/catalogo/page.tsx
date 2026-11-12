@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+
 import { Reveal } from "@/components/store/store-motion";
 import { getScoredProducts } from "@/lib/recommendations";
 import { getStoreCompany } from "@/lib/store";

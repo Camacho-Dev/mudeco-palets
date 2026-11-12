@@ -8,10 +8,10 @@ import { formatCurrency, formatDate } from "@/lib/format";
 import { whatsappLink } from "@/lib/store";
 import { productImage } from "@/lib/product-image";
 import { PrintActionButton } from "@/components/print-action-button";
-import { MapPin, Factory, ExternalLink, FileText, CheckCircle2, Clock, Eye } from "lucide-react";
+import { MapPin, Factory, ExternalLink, Clock } from "lucide-react";
 import { extractReceiptFromNotes } from "@/lib/order-receipt";
 import { AdminReceiptVerifier } from "@/components/admin-receipt-verifier";
-import { ReceiptViewerButton } from "@/components/receipt-viewer-button";
+
 import {
   WEB_STATUS_COLORS,
   WEB_STATUS_LABEL,

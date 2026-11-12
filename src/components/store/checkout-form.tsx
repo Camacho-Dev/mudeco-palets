@@ -12,7 +12,7 @@ import {
 } from "@/lib/made-to-order";
 import { submitWebCheckout } from "@/app/(store)/checkout/actions";
 import { STORE_LOGISTICS } from "@/lib/store-info";
-import { Upload, X, CheckCircle2, ShieldCheck, AlertCircle } from "lucide-react";
+import { Upload, X, CheckCircle2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
 const MODE_COPY = {
@@ -112,7 +112,7 @@ export function CheckoutForm({
     } catch {
       /* ignore */
     }
-  }, [phone, taxId, address, notes, fulfillment]);
+  }, [name, email, phone, taxId, address, notes, fulfillment]);
 
   const totals = useMemo(() => {
     const subtotal = roundMoney(

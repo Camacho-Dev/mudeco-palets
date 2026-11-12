@@ -59,7 +59,7 @@ export default async function FacturasPage({
       customer: true,
       payments: true,
     },
-    take: query ? 100 : undefined,
+    take: query ? 100 : 200,
   });
 
   const filters = [

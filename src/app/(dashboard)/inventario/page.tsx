@@ -38,6 +38,7 @@ export default async function InventarioPage({
     prisma.product.findMany({
       where: { active: true, kind: "FINISHED", ...searchFilter },
       orderBy: [{ category: "asc" }, { name: "asc" }],
+      take: 250,
     }),
     prisma.stockMovement.findMany({
       where: {

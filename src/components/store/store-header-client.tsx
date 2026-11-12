@@ -24,7 +24,7 @@ import {
   Users,
   Search,
   ArrowRight,
-  Package,
+
 } from "lucide-react";
 
 const formatCategory = formatStoreCategory;

@@ -30,6 +30,7 @@ export default async function ClientesPage({
         }
       : undefined,
     orderBy: { name: "asc" },
+    take: 250,
     include: { _count: { select: { invoices: true } } },
   });
 

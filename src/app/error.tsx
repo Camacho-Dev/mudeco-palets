@@ -34,14 +34,14 @@ export default function GlobalError({
             Ocurrió un contratiempo inesperado
           </h1>
           <p className="text-sm text-stone-600 sm:text-base">
-            No te preocupes: tus datos y transacciones se encuentran a salvo. Puedes intentar recargar la acción o regresar al panel de control.
+            No te preocupes: tus datos y transacciones se encuentran a salvo. Puedes intentar recargar la operación o volver al inicio.
           </p>
         </div>
 
-        {error.message ? (
-          <div className="rounded-xl bg-stone-100 p-3 text-left text-xs text-stone-700 font-mono overflow-x-auto border border-stone-200 max-h-32">
-            {error.message}
-          </div>
+        {error.digest ? (
+          <p className="text-xs text-stone-500 font-mono">
+            Referencia técnica: {error.digest}
+          </p>
         ) : null}
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
@@ -54,11 +54,11 @@ export default function GlobalError({
             <span>Reintentar operación</span>
           </button>
           <Link
-            href="/panel"
+            href="/"
             className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-[#3d2a1f]/20 bg-white px-5 py-3 text-sm font-semibold text-[#3d2a1f] shadow-sm hover:bg-stone-50 transition"
           >
             <Home className="h-4 w-4" />
-            <span>Volver al Panel</span>
+            <span>Volver al inicio</span>
           </Link>
         </div>
 

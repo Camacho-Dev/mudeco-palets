@@ -14,10 +14,10 @@ import {
   ZoomOut,
   RotateCw,
   Loader2,
-  Building2,
+
   DollarSign,
   User,
-  Calendar,
+
   SlidersHorizontal,
   ChevronDown,
   ChevronUp,
@@ -68,7 +68,7 @@ export function AdminReceiptVerifier({
   orderNumber,
   orderStatus,
   customerName,
-  customerEmail,
+
   totalFormatted,
   totalAmount,
   receipt,

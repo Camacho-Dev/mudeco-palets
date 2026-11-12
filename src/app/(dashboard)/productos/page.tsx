@@ -39,6 +39,7 @@ export default async function ProductosPage({
           : {}),
       },
       orderBy: [{ active: "desc" }, { category: "asc" }, { name: "asc" }],
+      take: 250,
     }),
     prisma.product.findMany({
       where: { kind: "FINISHED" },

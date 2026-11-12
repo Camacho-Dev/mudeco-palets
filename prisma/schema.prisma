@@ -129,6 +129,8 @@ model Invoice {
   @@index([customerId])
   @@index([userId])
   @@index([createdAt])
+  @@index([quoteId])
+  @@index([ncf])
 }
 
 model InvoiceItem {
@@ -254,6 +256,8 @@ model Quote {
   userId     String
   user       User        @relation(fields: [userId], references: [id])
   items      QuoteItem[]
+
+  @@index([userId])
   invoices   Invoice[]
   webOrders  WebOrder[]
   createdAt  DateTime    @default(now())
@@ -314,6 +318,10 @@ model WebOrder {
   quote            Quote?         @relation(fields: [quoteId], references: [id])
   items            WebOrderItem[]
   reviews          CustomerReview[]
+
+  @@index([stripeSessionId])
+  @@index([invoiceId])
+  @@index([quoteId])
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
@@ -357,6 +365,8 @@ model CustomerReview {
   status          String    @default("APPROVED")
   webOrderId      String?
   webOrder        WebOrder? @relation(fields: [webOrderId], references: [id], onDelete: SetNull)
+
+  @@index([webOrderId])
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -381,6 +391,7 @@ model CreditNote {
   items      CreditNoteItem[]
 
   @@index([issueDate])
+  @@index([userId])
   createdAt  DateTime         @default(now())
 
   @@index([invoiceId])
@@ -391,6 +402,9 @@ model CreditNoteItem {
   id           String     @id @default(cuid())
   creditNoteId String
   creditNote   CreditNote @relation(fields: [creditNoteId], references: [id], onDelete: Cascade)
+
+  @@index([creditNoteId])
+  @@index([productId])
   productId    String?
   product      Product?   @relation(fields: [productId], references: [id])
   description  String
@@ -434,6 +448,9 @@ model PurchaseItem {
   id         String   @id @default(cuid())
   purchaseId String
   purchase   Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+
+  @@index([purchaseId])
+  @@index([productId])
   productId  String
   product    Product  @relation(fields: [productId], references: [id])
   quantity   Float
@@ -447,6 +464,9 @@ model BomItem {
   finishedProduct   Product @relation("FinishedProduct", fields: [finishedProductId], references: [id])
   materialId        String
   material          Product @relation("MaterialProduct", fields: [materialId], references: [id])
+
+  @@index([finishedProductId])
+  @@index([materialId])
   quantity          Float
 }
 
@@ -473,6 +493,9 @@ model WorkOrderItem {
   id          String    @id @default(cuid())
   workOrderId String
   workOrder   WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
+
+  @@index([workOrderId])
+  @@index([productId])
   productId   String
   product     Product   @relation(fields: [productId], references: [id])
   quantity    Float

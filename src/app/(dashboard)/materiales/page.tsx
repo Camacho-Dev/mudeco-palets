@@ -35,6 +35,7 @@ export default async function MaterialesPage({
   const [materials, moves, catRows] = await Promise.all([
     prisma.product.findMany({
       where: { kind: "MATERIAL", active: true, ...searchFilter },
+      take: 250,
       orderBy: [{ category: "asc" }, { name: "asc" }],
     }),
     prisma.stockMovement.findMany({

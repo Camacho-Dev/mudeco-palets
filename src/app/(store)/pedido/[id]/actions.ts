@@ -6,7 +6,7 @@ import { attachReceiptToNotes } from "@/lib/order-receipt";
 import { processReceiptFile } from "@/lib/order-receipt-server";
 import { writeAudit } from "@/lib/audit";
 import { getVerifiedApiSession } from "@/lib/session";
-import { isStaff } from "@/lib/rbac";
+
 import { checkDualRateLimit } from "@/lib/rate-limit";
 
 export async function uploadOrderReceiptAction(orderId: string, formData: FormData) {
