@@ -16,7 +16,7 @@ import {
   User,
   X,
 } from "lucide-react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { LogoMark } from "@/components/logo";
 import {
   checkGoogleAuthStatus,
@@ -62,6 +62,8 @@ function getPasswordStrength(p: string) {
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
+  const reduceMotion = useReducedMotion();
+  const easeOutExpo = [0.16, 1, 0.3, 1] as const;
   const callback = params.get("callbackUrl");
   const isFromCheckout =
     callback === "/checkout" || Boolean(callback?.startsWith("/checkout"));
@@ -250,14 +252,22 @@ function LoginForm() {
       {/* Columna izquierda editorial (solo desktop) */}
       <aside className="relative hidden lg:col-span-5 lg:flex lg:flex-col lg:justify-between overflow-hidden bg-[#0e0b09] p-10 xl:p-14 text-[#faf6f1]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <motion.img
           src="/brand/store-hero.jpg"
           alt="Taller Mudeco Palets"
-          className="absolute inset-0 h-full w-full object-cover opacity-35"
+          initial={reduceMotion ? false : { scale: 1.08, opacity: 0.2 }}
+          animate={{ scale: 1, opacity: 0.35 }}
+          transition={{ duration: 1.4, ease: easeOutExpo }}
+          className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0e0b09] via-[#0e0b09]/70 to-[#0e0b09]/80" />
 
-        <div className="relative z-10 flex items-center justify-between">
+        <motion.div
+          initial={reduceMotion ? false : { opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: easeOutExpo }}
+          className="relative z-10 flex items-center justify-between"
+        >
           <Link
             href="/"
             className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/30 px-3.5 py-1.5 text-xs font-medium text-white/85 backdrop-blur-xs transition hover:border-[#c9a15a]/60 hover:text-[#f3d48c]"
@@ -265,24 +275,51 @@ function LoginForm() {
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>Volver a la tienda</span>
           </Link>
-        </div>
+        </motion.div>
 
         <div className="relative z-10 max-w-md space-y-5">
-          <LogoMark className="h-12 w-auto text-white" />
-          <div className="h-px w-12 bg-[#c9a15a]/70" />
-          <h1 className="font-display text-4xl xl:text-[2.65rem] leading-[1.12] tracking-tight text-white">
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.55, delay: 0.08, ease: easeOutExpo }}
+          >
+            <LogoMark className="h-12 w-auto text-white" />
+          </motion.div>
+          <motion.div
+            initial={reduceMotion ? false : { scaleX: 0, opacity: 0 }}
+            animate={{ scaleX: 1, opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.16, ease: easeOutExpo }}
+            style={{ originX: 0 }}
+            className="h-px w-12 bg-[#c9a15a]/70"
+          />
+          <motion.h1
+            initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.22, ease: easeOutExpo }}
+            className="font-display text-4xl xl:text-[2.65rem] leading-[1.12] tracking-tight text-white"
+          >
             Madera recuperada,{" "}
             <span className="text-[#d4af37]">hecha a tu medida.</span>
-          </h1>
-          <p className="text-sm leading-relaxed text-white/65">
+          </motion.h1>
+          <motion.p
+            initial={reduceMotion ? false : { opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3, ease: easeOutExpo }}
+            className="text-sm leading-relaxed text-white/65"
+          >
             Accede a tu cuenta para consultar tus pedidos, descargar facturas y
             dar seguimiento a tus piezas en fabricación.
-          </p>
+          </motion.p>
         </div>
 
-        <p className="relative z-10 text-xs text-white/40">
+        <motion.p
+          initial={reduceMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="relative z-10 text-xs text-white/40"
+        >
           © {new Date().getFullYear()} Mudeco Palets · Taller artesanal
-        </p>
+        </motion.p>
       </aside>
 
       {/* Columna derecha: formulario limpio y respirado */}
@@ -300,15 +337,29 @@ function LoginForm() {
         </div>
 
         <div className="mx-auto my-auto w-full max-w-[420px] py-8">
-          <div className="rounded-2xl border border-[#e5dacb] bg-white p-6 shadow-[0_12px_40px_-16px_rgba(20,16,13,0.12)] sm:p-8">
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0, y: 18, scale: 0.985 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.55, ease: easeOutExpo }}
+            className="rounded-2xl border border-[#e5dacb] bg-white p-6 shadow-[0_12px_40px_-16px_rgba(20,16,13,0.12)] sm:p-8"
+          >
             {/* Encabezado */}
             <div className="space-y-1.5">
               <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-[#9b7435]">
                 {isFromCheckout ? "Continuar compra" : "Espacio de cliente"}
               </p>
-              <h2 className="font-display text-3xl text-[#14100d]">
-                {tab === "login" ? "Bienvenido de nuevo" : "Crea tu cuenta"}
-              </h2>
+              <AnimatePresence mode="wait">
+                <motion.h2
+                  key={tab}
+                  initial={reduceMotion ? false : { opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduceMotion ? undefined : { opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2, ease: easeOutExpo }}
+                  className="font-display text-3xl text-[#14100d]"
+                >
+                  {tab === "login" ? "Bienvenido de nuevo" : "Crea tu cuenta"}
+                </motion.h2>
+              </AnimatePresence>
               <p className="text-xs text-[#6f5d4b]">
                 {tab === "login"
                   ? "Ingresa con tu correo o continúa con Google."
@@ -316,43 +367,63 @@ function LoginForm() {
               </p>
             </div>
 
-            {/* Selector de pestaña simple */}
-            <div className="mt-6 grid grid-cols-2 rounded-xl bg-[#f4eee5] p-1 text-xs font-semibold">
-              <button
-                type="button"
-                onClick={() => switchTab("login")}
-                className={`rounded-lg py-2 transition cursor-pointer ${
-                  tab === "login"
-                    ? "bg-white text-[#14100d] shadow-2xs"
-                    : "text-[#6f5d4b] hover:text-[#14100d]"
-                }`}
-              >
-                Iniciar sesión
-              </button>
-              <button
-                type="button"
-                onClick={() => switchTab("register")}
-                className={`rounded-lg py-2 transition cursor-pointer ${
-                  tab === "register"
-                    ? "bg-white text-[#14100d] shadow-2xs"
-                    : "text-[#6f5d4b] hover:text-[#14100d]"
-                }`}
-              >
-                Crear cuenta
-              </button>
+            {/* Selector de pestaña con indicador deslizante */}
+            <div className="relative mt-6 grid grid-cols-2 rounded-xl bg-[#f4eee5] p-1 text-xs font-semibold">
+              {(["login", "register"] as const).map((item) => {
+                const active = tab === item;
+                return (
+                  <button
+                    key={item}
+                    type="button"
+                    onClick={() => switchTab(item)}
+                    className={`relative z-10 rounded-lg py-2 transition-colors cursor-pointer ${
+                      active
+                        ? "text-[#14100d]"
+                        : "text-[#6f5d4b] hover:text-[#14100d]"
+                    }`}
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId="login-tab-pill"
+                        transition={{
+                          type: "spring",
+                          stiffness: 420,
+                          damping: 32,
+                        }}
+                        className="absolute inset-0 -z-10 rounded-lg bg-white shadow-2xs"
+                      />
+                    )}
+                    {item === "login" ? "Iniciar sesión" : "Crear cuenta"}
+                  </button>
+                );
+              })}
             </div>
 
             {/* Mensajes de estado */}
-            {error && (
-              <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs font-medium text-rose-700">
-                {error}
-              </div>
-            )}
-            {successMsg && (
-              <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-xs font-medium text-emerald-700">
-                {successMsg}
-              </div>
-            )}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs font-medium text-rose-700"
+                >
+                  {error}
+                </motion.div>
+              )}
+              {successMsg && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.2 }}
+                  className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-xs font-medium text-emerald-700"
+                >
+                  {successMsg}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <AnimatePresence mode="wait">
               {tab === "login" ? (
@@ -364,8 +435,10 @@ function LoginForm() {
                   transition={{ duration: 0.18 }}
                   className="mt-6 space-y-5"
                 >
-                  <button
+                  <motion.button
                     type="button"
+                    whileHover={{ y: -1 }}
+                    whileTap={{ scale: 0.985 }}
                     onClick={handleGoogleSignIn}
                     disabled={googleLoading || loading}
                     className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[#dfd3c2] bg-white px-4 py-2.5 text-sm font-medium text-[#14100d] transition hover:border-[#b0894f] hover:bg-[#faf7f2] disabled:opacity-60 cursor-pointer"
@@ -376,7 +449,7 @@ function LoginForm() {
                         ? "Conectando con Google…"
                         : "Continuar con Google"}
                     </span>
-                  </button>
+                  </motion.button>
 
                   <div className="relative flex items-center">
                     <div className="grow border-t border-[#ece3d6]" />
@@ -459,14 +532,18 @@ function LoginForm() {
                       </div>
                     </div>
 
-                    <button
+                    <motion.button
                       type="submit"
+                      whileHover={{ y: -1 }}
+                      whileTap={{ scale: 0.985 }}
                       disabled={loading || googleLoading}
-                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#14100d] px-4 py-3 text-sm font-semibold text-[#faf6f1] transition hover:bg-[#2a211a] disabled:opacity-60 cursor-pointer"
+                      className="group flex w-full items-center justify-center gap-2 rounded-xl bg-[#14100d] px-4 py-3 text-sm font-semibold text-[#faf6f1] transition hover:bg-[#2a211a] disabled:opacity-60 cursor-pointer"
                     >
                       <span>{loading ? "Entrando…" : "Iniciar sesión"}</span>
-                      {!loading && <ArrowRight className="h-4 w-4 text-[#d4af37]" />}
-                    </button>
+                      {!loading && (
+                        <ArrowRight className="h-4 w-4 text-[#d4af37] transition-transform duration-200 group-hover:translate-x-1" />
+                      )}
+                    </motion.button>
                   </form>
                 </motion.div>
               ) : (
@@ -596,19 +673,23 @@ function LoginForm() {
                       )}
                     </div>
 
-                    <button
+                    <motion.button
                       type="submit"
+                      whileHover={{ y: -1 }}
+                      whileTap={{ scale: 0.985 }}
                       disabled={loading}
-                      className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-[#14100d] px-4 py-3 text-sm font-semibold text-[#faf6f1] transition hover:bg-[#2a211a] disabled:opacity-60 cursor-pointer"
+                      className="group mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-[#14100d] px-4 py-3 text-sm font-semibold text-[#faf6f1] transition hover:bg-[#2a211a] disabled:opacity-60 cursor-pointer"
                     >
                       <span>{loading ? "Creando cuenta…" : "Crear cuenta"}</span>
-                      {!loading && <ArrowRight className="h-4 w-4 text-[#d4af37]" />}
-                    </button>
+                      {!loading && (
+                        <ArrowRight className="h-4 w-4 text-[#d4af37] transition-transform duration-200 group-hover:translate-x-1" />
+                      )}
+                    </motion.button>
                   </form>
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
+          </motion.div>
         </div>
 
         <p className="text-center text-[11px] text-[#8c7b68] lg:text-right">
