@@ -10,13 +10,13 @@ import {
   ArrowUpDown,
   Layers,
   ChevronDown,
-  RotateCcw,
 } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { CatalogPriceFilter } from "@/components/store/catalog-price-filter";
 import { ProductCard } from "@/components/store/product-card";
 import { Reveal } from "@/components/store/store-motion";
 import { storeWhatsApp } from "@/lib/store-info";
 import { formatStoreCategory } from "@/lib/store-brand";
-import { formatCurrency } from "@/lib/format";
 import type { StoreProduct } from "@/lib/store";
 
 type SortOption = "relevance" | "price-asc" | "price-desc" | "newest" | "name";
@@ -36,6 +36,11 @@ type Props = {
 };
 
 const formatCategoryName = formatStoreCategory;
+
+/** Monto compacto sin decimales para filtros: "RD$ 12,500" */
+function formatPrice(n: number) {
+  return `RD$ ${Math.round(n).toLocaleString("es-DO")}`;
+}
 
 export function CatalogExplorer({
   products,
@@ -60,6 +65,7 @@ export function CatalogExplorer({
     Boolean(initialMinPrice != null || initialMaxPrice != null),
   );
   const [, startTransition] = useTransition();
+  const reduceMotion = useReducedMotion();
 
   // Sync local filter state when URL searchParams change (e.g. clicking category or searching from header while already on /catalogo)
   useEffect(() => {
@@ -121,7 +127,7 @@ export function CatalogExplorer({
     const tier1 = Math.round((minPriceLimit + span * 0.28) / 500) * 500;
     const tier2 = Math.round((minPriceLimit + span * 0.62) / 500) * 500;
     return [
-      { label: "Todos", min: minPriceLimit, max: maxPriceLimit },
+      { label: "Cualquier precio", min: minPriceLimit, max: maxPriceLimit },
       {
         label: `Hasta RD$ ${tier1.toLocaleString("es-DO")}`,
         min: minPriceLimit,
@@ -212,31 +218,10 @@ export function CatalogExplorer({
     });
   }
 
-  function handleMinPriceChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const val = Number(e.target.value);
-    const clamped = Math.min(val, priceRange[1] - 500);
-    const next: [number, number] = [clamped, priceRange[1]];
+  function handlePriceChange(next: [number, number]) {
     setPriceRange(next);
     startTransition(() => {
       updateUrl(selectedCategory, query, filterMode, next[0], next[1]);
-    });
-  }
-
-  function handleMaxPriceChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const val = Number(e.target.value);
-    const clamped = Math.max(val, priceRange[0] + 500);
-    const next: [number, number] = [priceRange[0], clamped];
-    setPriceRange(next);
-    startTransition(() => {
-      updateUrl(selectedCategory, query, filterMode, next[0], next[1]);
-    });
-  }
-
-  function handleApplyPreset(min: number, max: number) {
-    const next: [number, number] = [min, max];
-    setPriceRange(next);
-    startTransition(() => {
-      updateUrl(selectedCategory, query, filterMode, min, max);
     });
   }
 
@@ -245,32 +230,7 @@ export function CatalogExplorer({
   const isPriceFiltered =
     priceRange[0] > minPriceLimit || priceRange[1] < maxPriceLimit;
 
-  // Percentage calculations for the visual price bar highlight
-  const minPercent =
-    maxPriceLimit > minPriceLimit
-      ? Math.max(
-          0,
-          Math.min(
-            100,
-            ((priceRange[0] - minPriceLimit) /
-              (maxPriceLimit - minPriceLimit)) *
-              100,
-          ),
-        )
-      : 0;
-
-  const maxPercent =
-    maxPriceLimit > minPriceLimit
-      ? Math.max(
-          0,
-          Math.min(
-            100,
-            ((priceRange[1] - minPriceLimit) /
-              (maxPriceLimit - minPriceLimit)) *
-              100,
-          ),
-        )
-      : 100;
+  const priceSample = useMemo(() => products.map((p) => p.price), [products]);
 
   // Filtered and sorted products
   const filteredAndSortedProducts = useMemo(() => {
@@ -350,26 +310,78 @@ export function CatalogExplorer({
       isPriceFiltered,
   );
 
+  const chipBase =
+    "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-4 text-[13px] font-medium transition-colors duration-200 cursor-pointer";
+  const chipIdle =
+    "border-[#e4ddd2] bg-white text-[#5c4f43] hover:border-[#c9a15a] hover:text-[#1b1511]";
+  const chipActive = "border-[#1b1511] bg-[#1b1511] text-white";
+
+  const sortLabels: Record<SortOption, string> = {
+    relevance: "Destacados",
+    "price-asc": "Menor precio",
+    "price-desc": "Mayor precio",
+    newest: "Más recientes",
+    name: "Nombre A-Z",
+  };
+
+  const activeTags: { key: string; label: string; onRemove: () => void }[] = [];
+  if (selectedCategory)
+    activeTags.push({
+      key: "cat",
+      label: formatCategoryName(selectedCategory),
+      onRemove: () => handleSelectCategory(""),
+    });
+  if (filterMode === "popular")
+    activeTags.push({ key: "pop", label: "Más vendidos", onRemove: handleSelectPopular });
+  if (query.trim())
+    activeTags.push({
+      key: "q",
+      label: `“${query.trim()}”`,
+      onRemove: () => {
+        setQuery("");
+        updateUrl(selectedCategory, "", filterMode);
+      },
+    });
+  if (availability !== "all")
+    activeTags.push({
+      key: "av",
+      label: availability === "in-stock" ? "Listos para entrega" : "Bajo pedido",
+      onRemove: () => setAvailability("all"),
+    });
+  if (isPriceFiltered)
+    activeTags.push({
+      key: "price",
+      label: `${formatPrice(priceRange[0])} – ${formatPrice(priceRange[1])}`,
+      onRemove: handleResetPrice,
+    });
+  if (sortBy !== "relevance")
+    activeTags.push({
+      key: "sort",
+      label: sortLabels[sortBy],
+      onRemove: () => setSortBy("relevance"),
+    });
+
+  const selectClass =
+    "h-11 w-full appearance-none rounded-xl border border-[#e4ddd2] bg-white pl-9 pr-9 text-[13px] font-medium text-[#1b1511] transition-colors hover:border-[#c9a15a] focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/20 focus:outline-none cursor-pointer";
+
   return (
-    <div className="space-y-5">
-      {/* Barra de búsqueda y filtros compacta y alineada */}
-      <div className="rounded-3xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-md">
-        {/* Fila 1: Buscador + Disponibilidad + Orden + Botón de Presupuesto en una sola línea en desktop */}
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-12 lg:items-center">
-          {/* Buscador */}
-          <div className="relative md:col-span-2 lg:col-span-5">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+    <div className="space-y-6">
+      <div className="overflow-hidden rounded-2xl border border-[#e7e1d8] bg-white shadow-[0_1px_2px_rgba(27,21,17,0.04),0_12px_32px_-16px_rgba(27,21,17,0.18)]">
+        {/* Búsqueda, disponibilidad, orden y precio */}
+        <div className="flex flex-col gap-3 p-4 sm:p-5 lg:flex-row lg:items-center">
+          <div className="relative lg:flex-1">
+            <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-[#a39483]" />
             <input
-              type="text"
+              type="search"
               value={query}
               onChange={(e) => {
                 const val = e.target.value;
                 setQuery(val);
                 updateUrl(selectedCategory, val, filterMode);
               }}
-              placeholder="Buscar por cama, mesa, comedor, repisa..."
-              style={{ paddingLeft: "2.65rem", paddingRight: "2.25rem" }}
-              className="w-full h-11 rounded-2xl border border-slate-200 bg-slate-50/80 text-sm text-slate-900 placeholder:text-slate-400 transition-all duration-200 focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none"
+              placeholder="Buscar cama, mesa, comedor, repisa…"
+              aria-label="Buscar en el catálogo"
+              className="h-11 w-full rounded-xl border border-[#e4ddd2] bg-[#faf8f5] pr-10 pl-10 text-sm text-[#1b1511] placeholder:text-[#a39483] transition-colors focus:border-[#c9a15a] focus:bg-white focus:ring-2 focus:ring-[#c9a15a]/20 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
             />
             {query ? (
               <button
@@ -378,7 +390,7 @@ export function CatalogExplorer({
                   setQuery("");
                   updateUrl(selectedCategory, "", filterMode);
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-full text-slate-400 hover:bg-black/5 hover:text-black transition"
+                className="absolute top-1/2 right-3 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-[#a39483] transition hover:bg-black/5 hover:text-[#1b1511]"
                 aria-label="Borrar búsqueda"
               >
                 <X className="h-4 w-4" />
@@ -386,141 +398,172 @@ export function CatalogExplorer({
             ) : null}
           </div>
 
-          {/* Disponibilidad */}
-          <div className="relative lg:col-span-2">
-            <Layers className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-            <select
-              value={availability}
-              onChange={(e) =>
-                setAvailability(e.target.value as AvailabilityOption)
-              }
-              style={{ paddingLeft: "2.2rem" }}
-              className="w-full h-11 appearance-none rounded-2xl border border-slate-200 bg-slate-50/80 pr-8 text-xs font-semibold text-slate-800 transition-all duration-200 hover:border-amber-400 focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none cursor-pointer"
-            >
-              <option value="all">Disponibilidad: Todas</option>
-              <option value="in-stock">Listos para entrega</option>
-              <option value="custom">Bajo pedido / A medida</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:flex lg:shrink-0">
+            <div className="relative lg:w-52">
+              <Layers className="pointer-events-none absolute top-1/2 left-3.5 h-3.5 w-3.5 -translate-y-1/2 text-[#a39483]" />
+              <select
+                value={availability}
+                onChange={(e) =>
+                  setAvailability(e.target.value as AvailabilityOption)
+                }
+                aria-label="Disponibilidad"
+                className={selectClass}
+              >
+                <option value="all">Toda disponibilidad</option>
+                <option value="in-stock">Listos para entrega</option>
+                <option value="custom">Bajo pedido</option>
+              </select>
+              <ChevronDown className="pointer-events-none absolute top-1/2 right-3.5 h-3.5 w-3.5 -translate-y-1/2 text-[#a39483]" />
+            </div>
 
-          {/* Ordenar por */}
-          <div className="relative lg:col-span-3">
-            <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 pointer-events-none" />
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as SortOption)}
-              style={{ paddingLeft: "2.2rem" }}
-              className="w-full h-11 appearance-none rounded-2xl border border-slate-200 bg-slate-50/80 pr-8 text-xs font-semibold text-slate-800 transition-all duration-200 hover:border-amber-400 focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 focus:outline-none cursor-pointer"
-            >
-              <option value="relevance">Ordenar: Destacados</option>
-              <option value="price-asc">Precio: Menor a mayor</option>
-              <option value="price-desc">Precio: Mayor a menor</option>
-              <option value="newest">Más recientes</option>
-              <option value="name">Nombre: A a Z</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
-          </div>
+            <div className="relative lg:w-52">
+              <ArrowUpDown className="pointer-events-none absolute top-1/2 left-3.5 h-3.5 w-3.5 -translate-y-1/2 text-[#a39483]" />
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                aria-label="Ordenar"
+                className={selectClass}
+              >
+                <option value="relevance">Destacados</option>
+                <option value="price-asc">Precio: menor a mayor</option>
+                <option value="price-desc">Precio: mayor a menor</option>
+                <option value="newest">Más recientes</option>
+                <option value="name">Nombre: A a Z</option>
+              </select>
+              <ChevronDown className="pointer-events-none absolute top-1/2 right-3.5 h-3.5 w-3.5 -translate-y-1/2 text-[#a39483]" />
+            </div>
 
-          {/* Botón desplegable de Presupuesto */}
-          <div className="lg:col-span-2">
             <button
               type="button"
               onClick={() => setShowPricePanel((prev) => !prev)}
-              className={`flex h-11 w-full items-center justify-between gap-2 rounded-2xl border px-3.5 text-xs font-semibold transition-all duration-200 cursor-pointer ${
-                showPricePanel || isPriceFiltered
-                  ? "border-amber-500 bg-slate-900 text-white shadow-sm"
-                  : "border-slate-200 bg-slate-50/80 text-slate-800 hover:border-amber-400 hover:bg-white"
+              aria-expanded={showPricePanel}
+              aria-controls="catalog-price-panel"
+              className={`col-span-2 flex h-11 items-center justify-between gap-2 rounded-xl border px-3.5 text-[13px] font-medium transition-colors sm:col-span-1 lg:w-auto lg:min-w-44 cursor-pointer ${
+                showPricePanel
+                  ? "border-[#1b1511] bg-[#1b1511] text-white"
+                  : isPriceFiltered
+                    ? "border-[#c9a15a] bg-[#fbf7ef] text-[#1b1511]"
+                    : "border-[#e4ddd2] bg-white text-[#1b1511] hover:border-[#c9a15a]"
               }`}
             >
-              <span className="flex items-center gap-2 truncate">
-                <SlidersHorizontal className="h-3.5 w-3.5 shrink-0 text-amber-500" />
-                <span className="truncate">
-                  {isPriceFiltered ? "Precio activo" : "Presupuesto"}
+              <span className="flex min-w-0 items-center gap-2">
+                <SlidersHorizontal
+                  className={`h-3.5 w-3.5 shrink-0 ${
+                    showPricePanel ? "text-[#c9a15a]" : "text-[#a39483]"
+                  }`}
+                />
+                <span className="truncate tabular-nums">
+                  {isPriceFiltered
+                    ? `${formatPrice(priceRange[0])} – ${formatPrice(priceRange[1])}`
+                    : "Precio"}
                 </span>
               </span>
               <ChevronDown
                 className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${
-                  showPricePanel ? "rotate-180 text-amber-400" : "opacity-60"
+                  showPricePanel ? "rotate-180" : ""
                 }`}
               />
             </button>
           </div>
         </div>
 
-        {/* Fila 2: Colecciones completas visibles sin cortes */}
-        <div className="mt-4 pt-3.5 border-t border-[#ebdccf]">
-          <div className="flex flex-wrap items-center gap-1.5">
-            {/* Todas las piezas */}
+        {/* Panel de precio */}
+        <AnimatePresence initial={false}>
+          {showPricePanel ? (
+            <motion.div
+              id="catalog-price-panel"
+              key="price-panel"
+              initial={reduceMotion ? false : { height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={reduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
+              transition={{ duration: reduceMotion ? 0 : 0.32, ease: [0.16, 1, 0.3, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="border-t border-[#efe9e0] bg-[#faf8f5] p-4 sm:p-6">
+                <div>
+                  <CatalogPriceFilter
+                    prices={priceSample}
+                    limits={[minPriceLimit, maxPriceLimit]}
+                    value={priceRange}
+                    presets={presets}
+                    resultCount={filteredAndSortedProducts.length}
+                    onChange={handlePriceChange}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+
+        {/* Colecciones */}
+        <div className="border-t border-[#efe9e0] px-4 py-3 sm:px-5">
+          <div
+            className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:-mx-5 sm:px-5 [&::-webkit-scrollbar]:hidden"
+            role="group"
+            aria-label="Colecciones"
+          >
             <button
               type="button"
               onClick={() => handleSelectCategory("")}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold tracking-wide transition-all duration-200 ease-out active:scale-95 hover:-translate-y-0.5 cursor-pointer ${
-                !selectedCategory && filterMode !== "popular"
-                  ? "bg-[#16120f] text-[#faf6f1] shadow-xs border border-[#c9a15a]/50"
-                  : "bg-white text-[#5c4a3b] border border-[#e0d2c1] hover:border-[#c9a15a] hover:bg-[#faf7f2]"
+              aria-pressed={!selectedCategory && filterMode !== "popular"}
+              className={`${chipBase} ${
+                !selectedCategory && filterMode !== "popular" ? chipActive : chipIdle
               }`}
             >
-              <span>Todas</span>
+              Todas
               <span
-                className={`rounded-full px-1.5 py-0.2 text-[0.62rem] font-bold ${
+                className={`text-[11px] tabular-nums ${
                   !selectedCategory && filterMode !== "popular"
-                    ? "bg-[#c9a15a] text-[#16120f]"
-                    : "bg-[#f2e9dd] text-[#755f4d]"
+                    ? "text-[#c9a15a]"
+                    : "text-[#a39483]"
                 }`}
               >
                 {products.length}
               </span>
             </button>
 
-            {/* Más vendidos */}
-            <button
-              type="button"
-              onClick={handleSelectPopular}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold tracking-wide transition-all duration-200 ease-out active:scale-95 hover:-translate-y-0.5 cursor-pointer ${
-                filterMode === "popular"
-                  ? "bg-[#c9a15a] text-[#16120f] shadow-xs border border-[#b3883b]"
-                  : "bg-white text-[#8a682a] border border-[#c9a15a]/40 hover:border-[#c9a15a] hover:bg-[#fbf7ee]"
-              }`}
-            >
-              <Sparkles className="h-3 w-3" />
-              <span>Más Vendidos</span>
-              <span
-                className={`rounded-full px-1.5 py-0.2 text-[0.62rem] font-bold ${
-                  filterMode === "popular"
-                    ? "bg-[#16120f] text-[#faf6f1]"
-                    : "bg-[#f5ebd7] text-[#8a682a]"
-                }`}
+            {popularIds.length > 0 ? (
+              <button
+                type="button"
+                onClick={handleSelectPopular}
+                aria-pressed={filterMode === "popular"}
+                className={`${chipBase} ${filterMode === "popular" ? chipActive : chipIdle}`}
               >
-                {popularIds.length}
-              </span>
-            </button>
+                <Sparkles
+                  className={`h-3.5 w-3.5 ${
+                    filterMode === "popular" ? "text-[#c9a15a]" : "text-[#b0894f]"
+                  }`}
+                />
+                Más vendidos
+                <span
+                  className={`text-[11px] tabular-nums ${
+                    filterMode === "popular" ? "text-[#c9a15a]" : "text-[#a39483]"
+                  }`}
+                >
+                  {popularIds.length}
+                </span>
+              </button>
+            ) : null}
 
-            {/* Categorías reales */}
+            <span className="my-1.5 w-px shrink-0 bg-[#e4ddd2]" aria-hidden />
+
             {validCategories.map((c) => {
               const count = categoryCounts[c] || 0;
               const active =
                 selectedCategory.toLowerCase() === c.toLowerCase() &&
                 filterMode !== "popular";
-              const label = formatCategoryName(c);
-
               return (
                 <button
                   key={c}
                   type="button"
                   onClick={() => handleSelectCategory(c)}
-                  className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold tracking-wide transition-all duration-200 ease-out active:scale-95 hover:-translate-y-0.5 cursor-pointer ${
-                    active
-                      ? "bg-[#16120f] text-[#faf6f1] shadow-xs border border-[#c9a15a]/50"
-                      : "bg-white text-[#5c4a3b] border border-[#e0d2c1] hover:border-[#c9a15a] hover:bg-[#faf7f2]"
-                  }`}
+                  aria-pressed={active}
+                  className={`${chipBase} ${active ? chipActive : chipIdle}`}
                 >
-                  <span>{label}</span>
+                  {formatCategoryName(c)}
                   <span
-                    className={`rounded-full px-1.5 py-0.2 text-[0.62rem] font-bold ${
-                      active
-                        ? "bg-[#c9a15a] text-[#16120f]"
-                        : "bg-[#f2e9dd] text-[#755f4d]"
+                    className={`text-[11px] tabular-nums ${
+                      active ? "text-[#c9a15a]" : "text-[#a39483]"
                     }`}
                   >
                     {count}
@@ -531,211 +574,45 @@ export function CatalogExplorer({
           </div>
         </div>
 
-        {/* Panel colapsable de Rango de Presupuesto (solo abierto cuando el usuario lo solicita o está activo) */}
-        {showPricePanel ? (
-          <div className="mt-4 rounded-xl border border-[#e5d8c8] bg-[#faf7f2] p-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-[#e5d8c8]">
-              <div>
-                <span className="text-xs font-bold tracking-[0.14em] text-[#2c221a] uppercase">
-                  Rango de Presupuesto
-                </span>
-                <p className="text-[11px] text-[#85705e]">
-                  RD$ {priceRange[0].toLocaleString("es-DO")} — RD${" "}
-                  {priceRange[1].toLocaleString("es-DO")} (
-                  {filteredAndSortedProducts.length} piezas)
-                </p>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-1.5">
-                {presets.map((preset) => {
-                  const active =
-                    priceRange[0] === preset.min &&
-                    priceRange[1] === preset.max;
-                  return (
-                    <button
-                      key={preset.label}
-                      type="button"
-                      onClick={() => handleApplyPreset(preset.min, preset.max)}
-                      className={`rounded-full px-3 py-1 text-xs transition-all duration-150 cursor-pointer ${
-                        active
-                          ? "bg-[#1b1511] text-[#c9a15a] font-semibold"
-                          : "bg-white text-[#5c4a3b] border border-[#d8c8b4] hover:border-[#c9a15a]"
-                      }`}
-                    >
-                      {preset.label}
-                    </button>
-                  );
-                })}
-                {isPriceFiltered ? (
-                  <button
-                    type="button"
-                    onClick={handleResetPrice}
-                    className="flex h-7 w-7 items-center justify-center rounded-full border border-[#d8c8b4] bg-white text-[#8a2b2b] hover:bg-[#8a2b2b]/10 transition cursor-pointer"
-                    title="Restablecer precio"
-                  >
-                    <RotateCcw className="h-3.5 w-3.5" />
-                  </button>
-                ) : null}
-              </div>
-            </div>
-
-            <div className="pt-3 px-1">
-              <div className="relative h-2 w-full rounded-full bg-[#dfd0be] overflow-hidden">
-                <div
-                  className="absolute top-0 bottom-0 rounded-full bg-gradient-to-r from-[#c9a15a] via-[#e5c47a] to-[#b3883b]"
-                  style={{
-                    left: `${minPercent}%`,
-                    width: `${Math.max(0, maxPercent - minPercent)}%`,
-                  }}
-                />
-              </div>
-
-              <div className="relative -mt-2 h-5">
-                <input
-                  type="range"
-                  min={minPriceLimit}
-                  max={maxPriceLimit}
-                  step={250}
-                  value={priceRange[0]}
-                  onChange={handleMinPriceChange}
-                  aria-label="Precio mínimo"
-                  className="price-slider-input"
-                />
-                <input
-                  type="range"
-                  min={minPriceLimit}
-                  max={maxPriceLimit}
-                  step={250}
-                  value={priceRange[1]}
-                  onChange={handleMaxPriceChange}
-                  aria-label="Precio máximo"
-                  className="price-slider-input"
-                />
-              </div>
-
-              <div className="flex items-center justify-between text-[0.68rem] text-[#85705e] font-medium pt-0.5">
-                <span>Mín: RD$ {minPriceLimit.toLocaleString("es-DO")}</span>
-                <span>Máx: RD$ {maxPriceLimit.toLocaleString("es-DO")}</span>
-              </div>
-            </div>
-          </div>
-        ) : null}
-
-        {/* Barra de filtros activos */}
-        {hasActiveFilters ? (
-          <div className="mt-3.5 pt-3 border-t border-[#ebdccf] flex flex-wrap items-center justify-between gap-2">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[0.68rem] text-[#8a7260] uppercase tracking-wider font-semibold mr-1">
-                Filtros activos:
-              </span>
-
-              {selectedCategory ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#16120f] px-3 py-1 text-xs text-[#faf6f1]">
-                  {formatCategoryName(selectedCategory)}
-                  <button
-                    type="button"
-                    onClick={() => handleSelectCategory("")}
-                    className="hover:text-[#c9a15a] cursor-pointer"
-                    aria-label="Quitar filtro de colección"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              ) : null}
-
-              {filterMode === "popular" ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#c9a15a] px-3 py-1 text-xs text-[#16120f] font-semibold">
-                  Más Vendidos
-                  <button
-                    type="button"
-                    onClick={handleSelectPopular}
-                    className="hover:text-black cursor-pointer"
-                    aria-label="Quitar filtro de más vendidos"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              ) : null}
-
-              {query ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#16120f] px-3 py-1 text-xs text-[#faf6f1]">
-                  &ldquo;{query}&rdquo;
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setQuery("");
-                      updateUrl(selectedCategory, "", filterMode);
-                    }}
-                    className="hover:text-[#c9a15a] cursor-pointer"
-                    aria-label="Quitar búsqueda"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              ) : null}
-
-              {availability !== "all" ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#16120f] px-3 py-1 text-xs text-[#faf6f1]">
-                  {availability === "in-stock"
-                    ? "Listos para entrega"
-                    : "Bajo pedido"}
-                  <button
-                    type="button"
-                    onClick={() => setAvailability("all")}
-                    className="hover:text-[#c9a15a] cursor-pointer"
-                    aria-label="Quitar filtro de disponibilidad"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              ) : null}
-
-              {isPriceFiltered ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#16120f] px-3 py-1 text-xs text-[#faf6f1] border border-[#c9a15a]/40">
-                  {formatCurrency(priceRange[0])} –{" "}
-                  {formatCurrency(priceRange[1])}
-                  <button
-                    type="button"
-                    onClick={handleResetPrice}
-                    className="hover:text-[#c9a15a] cursor-pointer ml-0.5"
-                    aria-label="Quitar filtro de precio"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              ) : null}
-
-              {sortBy !== "relevance" ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#16120f] px-3 py-1 text-xs text-[#faf6f1]">
-                  {sortBy === "price-asc"
-                    ? "Menor precio"
-                    : sortBy === "price-desc"
-                      ? "Mayor precio"
-                      : sortBy === "newest"
-                        ? "Más recientes"
-                        : "Nombre A-Z"}
-                  <button
-                    type="button"
-                    onClick={() => setSortBy("relevance")}
-                    className="hover:text-[#c9a15a] cursor-pointer"
-                    aria-label="Quitar orden"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              ) : null}
-            </div>
-
-            <button
-              type="button"
-              onClick={handleClearFilters}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8a2b2b] hover:text-[#5c1c1c] transition uppercase tracking-wider cursor-pointer ml-auto"
+        {/* Filtros activos */}
+        <AnimatePresence initial={false}>
+          {hasActiveFilters ? (
+            <motion.div
+              key="active-filters"
+              initial={reduceMotion ? false : { height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={reduceMotion ? { opacity: 0 } : { height: 0, opacity: 0 }}
+              transition={{ duration: reduceMotion ? 0 : 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="overflow-hidden"
             >
-              <RotateCcw className="h-3.5 w-3.5" />
-              Restablecer
-            </button>
-          </div>
-        ) : null}
+              <div className="flex flex-wrap items-center gap-2 border-t border-[#efe9e0] px-4 py-3 sm:px-5">
+                {activeTags.map((t) => (
+                  <span
+                    key={t.key}
+                    className="inline-flex h-7 items-center gap-1 rounded-full bg-[#f3eee6] pr-1 pl-3 text-xs font-medium text-[#3d3229]"
+                  >
+                    {t.label}
+                    <button
+                      type="button"
+                      onClick={t.onRemove}
+                      className="flex h-5 w-5 items-center justify-center rounded-full text-[#8a7a6a] transition hover:bg-[#1b1511] hover:text-white cursor-pointer"
+                      aria-label={`Quitar filtro: ${t.label}`}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="ml-auto text-xs font-semibold text-[#8a7a6a] underline-offset-4 transition hover:text-[#1b1511] hover:underline cursor-pointer"
+                >
+                  Limpiar todo
+                </button>
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </div>
 
       {/* Contador de resultados */}
@@ -751,9 +628,7 @@ export function CatalogExplorer({
           {selectedCategory ? ` en ${formatCategoryName(selectedCategory)}` : ""}
           {filterMode === "popular" ? " · Más Vendidos" : ""}
           {isPriceFiltered
-            ? ` · Entre ${formatCurrency(priceRange[0])} y ${formatCurrency(
-                priceRange[1],
-              )}`
+            ? ` · Entre ${formatPrice(priceRange[0])} y ${formatPrice(priceRange[1])}`
             : ""}
           {query ? ` para "${query}"` : ""}
         </p>
@@ -783,9 +658,7 @@ export function CatalogExplorer({
                   query || selectedCategory || "a medida"
                 }${
                   isPriceFiltered
-                    ? ` con presupuesto entre ${formatCurrency(
-                        priceRange[0],
-                      )} y ${formatCurrency(priceRange[1])}`
+                    ? ` con presupuesto entre ${formatPrice(priceRange[0])} y ${formatPrice(priceRange[1])}`
                     : ""
                 }. ¿Podrían cotizármelo?`,
               )}

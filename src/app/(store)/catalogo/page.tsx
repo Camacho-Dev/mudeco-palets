@@ -4,7 +4,7 @@ import { getStoreCompany } from "@/lib/store";
 import { withDbRetry } from "@/lib/prisma";
 import { CatalogExplorer } from "@/components/store/catalog-explorer";
 import Link from "next/link";
-import { Sparkles, ShieldCheck, Truck, Ruler, ChevronRight } from "lucide-react";
+import { ShieldCheck, Truck, Ruler, ChevronRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -52,7 +52,7 @@ export default async function CatalogoPage({
   const popularIds = scoredProducts.slice(0, 8).map((s) => s.id);
 
   return (
-    <div className="bg-slate-50 min-h-screen">
+    <div className="bg-[#f6f4f0] min-h-screen">
       {/* Editorial Luxury Header Banner */}
       <section className="relative overflow-hidden bg-[#14100d] text-[#faf6f1] border-b border-[#c9a15a]/25 py-10 sm:py-12">
         <div
