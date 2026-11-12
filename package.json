@@ -15,9 +15,6 @@
     "test": "tsx scripts/smoke-test.ts",
     "pack:cpanel": "powershell -ExecutionPolicy Bypass -File scripts/pack-cpanel.ps1"
   },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
-  },
   "dependencies": {
     "@prisma/client": "^6.19.3",
     "@react-pdf/renderer": "^4.5.1",
