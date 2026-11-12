@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatCurrency } from "@/lib/format";
 
 export function AnimatedNumber({
@@ -16,20 +16,27 @@ export function AnimatedNumber({
   className?: string;
 }) {
   const reduce = useReducedMotion();
-  const [display, setDisplay] = useState(reduce ? value : 0);
+  // Servidor y cliente arrancan siempre en 0 (sin desajuste de hidratación);
+  // después se anima hasta el valor, o salta directo si se reduce el movimiento.
+  // Al cambiar el filtro, anima desde el último número mostrado.
+  const [display, setDisplay] = useState(0);
+  const shownRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (reduce) {
+    const from = shownRef.current ?? 0;
+    if (reduce || from === value) {
+      shownRef.current = value;
       setDisplay(value);
       return;
     }
     let frame = 0;
     const start = performance.now();
-    const from = 0;
     const tick = (now: number) => {
       const t = Math.min(1, (now - start) / (duration * 1000));
       const eased = 1 - Math.pow(1 - t, 3);
-      setDisplay(from + (value - from) * eased);
+      const next = from + (value - from) * eased;
+      shownRef.current = next;
+      setDisplay(next);
       if (t < 1) frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);

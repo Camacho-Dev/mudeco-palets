@@ -43,8 +43,15 @@ export function isAdminPath(pathname: string) {
   );
 }
 
+/** Archivos de metadatos (SEO / PWA) que buscadores y navegadores leen sin sesión */
+const PUBLIC_FILES = new Set([
+  "/robots.txt",
+  "/sitemap.xml",
+  "/manifest.webmanifest",
+]);
+
 export function isPublicPath(pathname: string) {
-  if (pathname === "/") return true;
+  if (pathname === "/" || PUBLIC_FILES.has(pathname)) return true;
   return PUBLIC_PREFIXES.some(
     (p) => p !== "/" && (pathname === p || pathname.startsWith(`${p}/`)),
   );

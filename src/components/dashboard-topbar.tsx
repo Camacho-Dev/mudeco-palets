@@ -20,11 +20,11 @@ export async function DashboardTopbar() {
     <header className="no-print border-b border-slate-200/80 bg-white/80 backdrop-blur-md sticky top-0 z-30 px-6 py-2.5 md:px-10 shadow-2xs transition-all">
       <div className="mx-auto w-full max-w-[1720px] flex items-center justify-between gap-4">
         {/* Lado izquierdo: indicador de estado en vivo */}
-        <div className="flex items-center gap-2.5 pl-10 md:pl-0">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
-          </span>
+        <div className="flex items-center gap-2.5 pl-12 md:pl-0">
+          <span
+            className="inline-flex h-2 w-2 rounded-full bg-emerald-500"
+            title="Sistema en línea"
+          />
           <span className="text-xs font-bold text-slate-800 tracking-tight hidden sm:inline">
             {companyName}
           </span>

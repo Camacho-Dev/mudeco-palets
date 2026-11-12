@@ -5,16 +5,12 @@ import {
   Hammer,
   Award,
   Home,
-  Table2,
-  Tv,
   Ruler,
   Camera,
-  Sparkles,
   MessageCircle,
-  Layers,
   Star,
 } from "lucide-react";
-import { FadeUp, Reveal } from "@/components/store/store-motion";
+import { FadeUp, HeroZoom, Reveal } from "@/components/store/store-motion";
 import { ProductShelf } from "@/components/store/product-shelf";
 import { withDbRetry } from "@/lib/prisma";
 import { STORE_SOCIAL } from "@/lib/store-brand";
@@ -23,57 +19,56 @@ import { getStoreCompany } from "@/lib/store";
 import { storeWhatsApp } from "@/lib/store-info";
 import { HeroSearchBar } from "@/components/store/hero-search-bar";
 
-
 const TRUST = [
-  {
-    icon: Leaf,
-    title: "Madera recuperada",
-    desc: "100% ecológica y curada contra plagas",
-  },
-  {
-    icon: Hammer,
-    title: "Hecho a mano",
-    desc: "Ebanistería sin moldes industriales",
-  },
-  {
-    icon: Award,
-    title: "Calidad premium",
-    desc: "Acabado fino y sellado antimanchas",
-  },
-  {
-    icon: Home,
-    title: "A tu medida",
-    desc: "Adaptado al milímetro para tu espacio",
-  },
+  { icon: Leaf, title: "Madera recuperada", desc: "Pino curado contra plagas y humedad" },
+  { icon: Hammer, title: "Hecho a mano", desc: "Ebanistería sin moldes industriales" },
+  { icon: Award, title: "Acabado premium", desc: "Lijado fino y sellado antimanchas" },
+  { icon: Home, title: "A tu medida", desc: "Adaptado al milímetro a tu espacio" },
 ] as const;
 
 const CRAFT_STEPS = [
   {
     step: "01",
-    title: "Curado & Selección",
-    desc: "Desarmado artesanal de palets de pino noble. Tratamiento térmico ecológico antiparasitario.",
-    icon: Leaf,
+    title: "Curado y selección",
+    desc: "Desarmamos palets de pino noble y los tratamos térmicamente contra parásitos.",
   },
   {
     step: "02",
-    title: "Calibración de Vetas",
-    desc: "Cepillado milimétrico respetando el relieve orgánico y la personalidad natural de la madera.",
-    icon: Ruler,
+    title: "Calibración de vetas",
+    desc: "Cepillado milimétrico que respeta el relieve y la personalidad de la madera.",
   },
   {
     step: "03",
-    title: "Ebanistería Robusta",
-    desc: "Ensamble estructural reforzado con espigas y juntas calibradas para décadas de uso intensivo.",
-    icon: Hammer,
+    title: "Ebanistería robusta",
+    desc: "Ensambles reforzados con espigas y juntas calibradas para décadas de uso.",
   },
   {
     step: "04",
-    title: "Sellado Satinado",
-    desc: "Lijado fino al tacto, tintado artesanal y aplicación de capa protectora impermeable.",
-    icon: Award,
+    title: "Sellado satinado",
+    desc: "Lijado fino, tinte artesanal y capa protectora impermeable.",
   },
 ] as const;
 
+const TESTIMONIALS = [
+  {
+    quote:
+      "Pedí un comedor a medida para mi terraza y superó mis expectativas. Los acabados son finos y la atención fue impecable.",
+    author: "Carolina Mendoza",
+    role: "Diseñadora de interiores · Santo Domingo",
+  },
+  {
+    quote:
+      "Tenía dudas sobre los muebles de palets, pero el tratamiento que le dan es de primera. Calidad y robustez excelentes.",
+    author: "Ing. Roberto Alcántara",
+    role: "Cliente residencial · Bella Vista",
+  },
+  {
+    quote:
+      "Equipamos el área lounge de nuestro café con bancas y mesas Mudeco. La calidez que le dio al local se nota. Puntuales y formales.",
+    author: "Lic. Andrea Tavárez",
+    role: "Propietaria de café · Naco",
+  },
+] as const;
 
 const GALLERY = [
   "/brand/brand-wood-hero.jpg",
@@ -86,6 +81,18 @@ const GALLERY = [
   "/brand/cat-vinera.jpg",
 ] as const;
 
+/** Contenedor horizontal común de todas las secciones */
+const WRAP =
+  "mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20";
+
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[0.65rem] font-semibold tracking-[0.24em] text-[#c9a15a] uppercase">
+      {children}
+    </p>
+  );
+}
+
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -95,51 +102,53 @@ export default async function StoreHomePage() {
     withDbRetry(() => getScoredProducts(), { fallback: [] }),
   ]);
 
-  const topRecommended = scoredProducts.slice(0, 10);
-  const featured = scoredProducts.slice(0, 16);
+  const featured = scoredProducts.slice(0, 12).map((p) => ({
+    id: p.id,
+    name: p.name,
+    category: p.category,
+    price: p.price,
+    taxRate: p.taxRate,
+    stock: p.stock,
+    imageUrl: p.imageUrl,
+    badge: p.badge,
+  }));
 
-  const promoTiles = [
+  const categoryTiles = [
     {
-      title: "Bases de Cama",
-      text: "41 modelos · Rústicas y King",
+      title: "Bases de cama",
+      text: "Rústicas, Queen y King",
       href: "/catalogo?cat=BASE%20DE%20CAMA",
       image: "/uploads/mueble_20261026_181238_0.jpeg",
-      icon: Home,
     },
     {
-      title: "Mesas de Comedor",
-      text: "15 modelos · Pino curado 6-8 puestos",
+      title: "Mesas de comedor",
+      text: "Pino curado de 6 a 8 puestos",
       href: "/catalogo?cat=MESA%20DE%20COMEDOR",
       image: company.promoMesaImage || "/uploads/mueble_b2_021.jpeg",
-      icon: Table2,
     },
     {
-      title: "Mesas de Centro",
-      text: "15 modelos · Diseños artesanales",
+      title: "Mesas de centro",
+      text: "Diseños artesanales",
       href: "/catalogo?cat=MESA%20DE%20CENTRO",
       image: "/uploads/mueble_b2_036.jpeg",
-      icon: Sparkles,
     },
     {
-      title: "Gaveteros & Cómodas",
-      text: "12 modelos · Almacenamiento rústico",
+      title: "Gaveteros y cómodas",
+      text: "Almacenamiento rústico",
       href: "/catalogo?cat=GAVETEROS",
       image: "/uploads/mueble_b2_061.jpeg",
-      icon: Layers,
     },
     {
-      title: "Centros & Repisas TV",
-      text: "10 modelos · Madera maciza",
+      title: "Centros y repisas TV",
+      text: "Madera maciza",
       href: "/catalogo?cat=REPISA%20DE%20TV",
       image: company.promoTvImage || "/uploads/mueble_b2_073.jpeg",
-      icon: Tv,
     },
     {
-      title: "Proyectos a Medida",
-      text: "Diseño & medidas personalizadas",
+      title: "Proyectos a medida",
+      text: "Tu diseño, nuestras manos",
       href: "/contacto",
       image: "/uploads/mueble_b2_090.jpeg",
-      icon: Ruler,
     },
   ];
 
@@ -150,19 +159,9 @@ export default async function StoreHomePage() {
       if (Array.isArray(parsed) && parsed.length > 0) {
         gallery = parsed;
       }
-    } catch {}
-  }
-
-  function toShelf(list: Array<{ id: string; name: string; category: string; price: number; taxRate: number; stock: number; imageUrl: string | null }>) {
-    return list.map((p) => ({
-      id: p.id,
-      name: p.name,
-      category: p.category,
-      price: p.price,
-      taxRate: p.taxRate,
-      stock: p.stock,
-      imageUrl: p.imageUrl,
-    }));
+    } catch {
+      // JSON inválido en configuración: se usa la galería por defecto
+    }
   }
 
   const availableForSearch = scoredProducts.map((p) => ({
@@ -177,386 +176,260 @@ export default async function StoreHomePage() {
 
   return (
     <div className="bg-[#0a0a0a] text-white">
-      {/* —— Hero principal FULL-WIDTH Edge-to-Edge —— */}
-      <section className="relative z-20 w-full border-b border-white/[0.08] bg-[#0a0a0a]">
-        <div className="relative min-h-[520px] sm:min-h-[580px] md:min-h-[640px] lg:min-h-[700px] xl:min-h-[740px] w-full">
-          {/* Imagen de fondo estática de alta nitidez */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* —— Hero —— */}
+      <section className="relative z-20 w-full overflow-hidden border-b border-white/[0.06]">
+        <div className="absolute inset-0 pointer-events-none">
+          <HeroZoom className="h-full w-full">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={company.heroImage}
-              alt="Muebles rústicos Mudeco Palets"
+              alt=""
               className="h-full w-full object-cover"
               fetchPriority="high"
             />
-          </div>
+          </HeroZoom>
+        </div>
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(10,10,10,0.94) 0%, rgba(10,10,10,0.78) 50%, rgba(10,10,10,0.45) 100%), linear-gradient(0deg, rgba(10,10,10,0.6) 0%, transparent 35%)",
+          }}
+        />
 
-          {/* Iluminación atmosférica en gradientes multicapa */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(circle at 20% 45%, rgba(201, 161, 90, 0.16), transparent 55%), linear-gradient(90deg, rgba(10,10,10,0.96) 0%, rgba(10,10,10,0.80) 48%, rgba(10,10,10,0.50) 100%)",
-            }}
-          />
+        <div
+          className={`${WRAP} relative z-20 flex min-h-[520px] flex-col justify-center py-14 sm:min-h-[600px] lg:min-h-[680px]`}
+        >
+          <div className="grid items-center gap-10 lg:grid-cols-12 xl:gap-14">
+            <div className="lg:col-span-7">
+              <FadeUp>
+                <Eyebrow>{company.heroBadge || "Taller artesanal · República Dominicana"}</Eyebrow>
+              </FadeUp>
+              <FadeUp delay={0.08}>
+                <h1 className="font-display mt-4 max-w-2xl text-[clamp(2.3rem,4.2vw,4.2rem)] leading-[1.05] text-white">
+                  {company.heroTitle}
+                </h1>
+              </FadeUp>
+              <FadeUp delay={0.16}>
+                <p className="mt-5 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg">
+                  {company.heroSubtitle}
+                </p>
+              </FadeUp>
+              <FadeUp delay={0.24}>
+                <div className="mt-8 flex flex-wrap items-center gap-3">
+                  <Link href="/catalogo" className="store-cta store-cta-primary group">
+                    Ver catálogo
+                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                  </Link>
+                  <Link href="/contacto" className="store-cta store-cta-ghost">
+                    Cotizar a medida
+                  </Link>
+                </div>
+              </FadeUp>
+            </div>
 
-          <div className="relative z-20 mx-auto flex h-full min-h-[520px] sm:min-h-[580px] md:min-h-[640px] lg:min-h-[700px] xl:min-h-[740px] w-full max-w-[1920px] flex-col justify-center px-4 py-12 sm:px-8 md:px-12 lg:px-14 xl:px-16 2xl:px-20">
-            <div className="grid gap-10 lg:grid-cols-12 lg:gap-10 xl:gap-14 items-center">
-              {/* Columna Izquierda: Mensaje editorial y llamadas a la acción */}
-              <div className="lg:col-span-7 xl:col-span-7">
-                <FadeUp>
-                  <h1 className="font-display max-w-2xl text-[clamp(2.3rem,4.2vw,4.2rem)] leading-[1.05] text-white">
-                    {company.heroTitle}
-                  </h1>
-
-                  <p className="mt-4 max-w-xl text-base leading-relaxed text-[#d7d7d7]/90 sm:text-lg">
-                    {company.heroSubtitle}
-                  </p>
-
-                  <div className="mt-8 flex flex-wrap items-center gap-4">
-                    <Link
-                      href="/catalogo"
-                      className="group relative inline-flex items-center gap-2.5 rounded-full border border-[#d4af37]/70 bg-gradient-to-r from-[#d4af37] via-[#e2c168] to-[#caa466] px-8 py-3.5 text-xs font-bold tracking-wider text-[#0f0d0a] uppercase shadow-[0_10px_28px_rgba(212,175,55,0.3)] transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_14px_36px_rgba(212,175,55,0.45)] active:scale-95"
-                    >
-                      <span>Ver catálogo</span>
-                      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                    </Link>
-
-                    <Link
-                      href="/contacto"
-                      className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-[#16120e]/80 px-7 py-3.5 text-xs font-semibold tracking-wider text-white/95 uppercase backdrop-blur-md shadow-sm transition-all duration-300 hover:border-[#d4af37]/60 hover:bg-white/10 hover:scale-[1.02] active:scale-95"
-                    >
-                      Cotizar a medida
-                    </Link>
-                  </div>
-
-                  {/* Mini métricas flotantes de confianza */}
-                  <div className="mt-10 hidden pt-6 border-t border-white/10 sm:flex items-center gap-8 text-xs text-white/70">
-                    <div className="flex items-center gap-2.5">
-                      <span className="font-display text-xl text-[#f5dfa8] font-bold">+100</span>
-                      <span className="text-white/80">Modelos en catálogo</span>
-                    </div>
-                    <div className="h-3 w-[1px] bg-white/15" />
-                    <div className="flex items-center gap-2.5">
-                      <span className="font-display text-xl text-[#f5dfa8] font-bold">100%</span>
-                      <span className="text-white/80">Pino curado y tratado</span>
-                    </div>
-                    <div className="h-3 w-[1px] bg-white/15" />
-                    <div className="flex items-center gap-2.5">
-                      <span className="font-display text-xl text-[#f5dfa8] font-bold">A medida</span>
-                      <span className="text-white/80">Garantía de calidad</span>
-                    </div>
-                  </div>
-                </FadeUp>
-              </div>
-
-              {/* Columna Derecha: Únicamente el buscador profesional (con z-30 para sobreponerse sin ser recortado) */}
-              <div className="relative z-30 lg:col-span-5 xl:col-span-5 flex justify-center lg:justify-end">
+            <div className="relative z-30 flex justify-center lg:col-span-5 lg:justify-end">
+              <FadeUp delay={0.3} className="w-full flex justify-center lg:justify-end">
                 <HeroSearchBar products={availableForSearch} />
-              </div>
+              </FadeUp>
             </div>
           </div>
         </div>
       </section>
 
-      {/* —— Trust strip FULL-WIDTH con tarjetas redondeadas de lujo —— */}
-      <section className="relative z-10 w-full border-b border-white/[0.08] bg-[#0c0c0c] py-6">
-        <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {TRUST.map((t, idx) => (
-              <Reveal key={t.title} delay={idx * 0.06}>
-                <div className="group relative flex items-center gap-4 rounded-[22px] border border-white/10 bg-[#14100e]/80 p-5 backdrop-blur-md transition-all duration-300 hover:border-[#d4af37]/45 hover:bg-[#1a1410] hover:shadow-[0_12px_32px_rgba(0,0,0,0.6)] hover:-translate-y-0.5">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[#d4af37]/35 bg-[#d4af37]/15 text-[#f5dfa8] shadow-[0_0_15px_rgba(212,175,55,0.2)] transition-all duration-300 group-hover:scale-105 group-hover:bg-[#d4af37] group-hover:text-[#0f0d0a] group-hover:shadow-[0_0_20px_rgba(212,175,55,0.4)]">
-                    <t.icon className="h-5 w-5" strokeWidth={1.8} />
-                  </div>
-                  <div>
-                    <h4 className="text-[0.75rem] font-bold tracking-wider text-white uppercase group-hover:text-[#f5dfa8] transition-colors">
-                      {t.title}
-                    </h4>
-                    <p className="mt-1 text-xs text-white/55 leading-snug">
-                      {t.desc}
-                    </p>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+      {/* —— Franja de confianza —— */}
+      <section className="border-b border-white/[0.06] bg-[#0c0c0c]">
+        <div className={`${WRAP} grid grid-cols-2 lg:grid-cols-4`}>
+          {TRUST.map((t, idx) => (
+            <Reveal
+              key={t.title}
+              delay={idx * 0.06}
+              className={`flex items-start gap-3 py-6 sm:items-center sm:gap-4 ${
+                idx % 2 === 1 ? "pl-4 sm:pl-6" : "pr-4 sm:pr-6"
+              } ${idx > 0 ? "lg:border-l lg:border-white/[0.06] lg:pl-8" : ""} ${
+                idx < 2 ? "border-b border-white/[0.06] lg:border-b-0" : ""
+              }`}
+            >
+              <t.icon className="mt-0.5 h-5 w-5 shrink-0 text-[#c9a15a] sm:mt-0" strokeWidth={1.6} />
+              <div>
+                <h2 className="text-[0.78rem] font-semibold text-white">{t.title}</h2>
+                <p className="mt-0.5 text-xs leading-snug text-white/50">{t.desc}</p>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </section>
 
-      {/* —— Estanterías de productos con micro-interacciones —— */}
-      <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
+      <div className={WRAP}>
+        {/* —— Productos destacados —— */}
         <ProductShelf
           title="Destacados para ti"
           subtitle="Piezas emblemáticas seleccionadas por nuestro taller"
           href="/catalogo"
-          products={toShelf(featured)}
+          products={featured}
         />
 
-        {/* Promo tiles 2x2 interactivos */}
-        <section className="border-b border-white/[0.06] py-10">
+        {/* —— Categorías —— */}
+        <section className="border-b border-white/[0.06] py-14 sm:py-16">
           <Reveal>
-            <div className="mb-6 flex items-end justify-between">
+            <div className="mb-8 flex items-end justify-between gap-4">
               <div>
-                <p className="text-[0.65rem] font-medium tracking-[0.24em] text-[#c9a15a] uppercase">
-                  Categorías
-                </p>
-                <h2 className="font-display mt-1 text-2xl text-white md:text-3xl">
+                <Eyebrow>Categorías</Eyebrow>
+                <h2 className="font-display mt-2 text-3xl text-white md:text-4xl">
                   Explora por estilo
                 </h2>
               </div>
               <Link
                 href="/catalogo"
-                className="text-[0.68rem] font-semibold tracking-[0.12em] text-[#c9a15a] uppercase hover:text-[#d4b06e] transition"
+                className="group hidden items-center gap-1.5 text-[0.68rem] font-semibold tracking-[0.14em] text-[#c9a15a] uppercase transition hover:text-[#d4b06e] sm:inline-flex"
               >
-                Catálogo completo →
+                Catálogo completo
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
               </Link>
             </div>
           </Reveal>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {promoTiles.map((tile, i) => (
-              <Reveal key={tile.title} delay={i * 0.05}>
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
+            {categoryTiles.map((tile, i) => (
+              <Reveal key={tile.title} delay={(i % 3) * 0.07}>
                 <Link
                   href={tile.href}
-                  className="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-white/[0.08] bg-[#141414] transition-all duration-500 hover:border-[#c9a15a]/60 hover:shadow-[0_16px_36px_rgba(0,0,0,0.6)]"
+                  className="group relative block aspect-[4/5] sm:aspect-[4/3] overflow-hidden rounded-2xl bg-[#141414] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c9a15a]"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={tile.image}
                     alt=""
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/15 transition-opacity duration-300 group-hover:from-black/95 group-hover:via-black/55" />
-                  
-                  {/* Borde interior dorado animado */}
-                  <div className="absolute inset-2.5 border border-[#c9a15a]/0 transition-all duration-500 group-hover:border-[#c9a15a]/40 pointer-events-none" />
-
-                  <div className="absolute inset-x-0 bottom-0 p-5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black/60 border border-white/10 mb-2.5 text-[#c9a15a] backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 group-hover:bg-[#c9a15a] group-hover:text-black">
-                      <tile.icon className="h-4 w-4" strokeWidth={1.75} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 sm:p-6">
+                    <div>
+                      <p className="font-display text-lg leading-tight text-white sm:text-2xl">{tile.title}</p>
+                      <p className="mt-1 text-xs text-white/70">{tile.text}</p>
                     </div>
-                    <p className="font-display text-xl text-white">{tile.title}</p>
-                    <p className="mt-1 text-xs text-[#d7d7d7]/80">{tile.text}</p>
-                    <p className="mt-3 inline-flex items-center gap-1.5 text-[0.68rem] font-semibold tracking-[0.14em] text-[#c9a15a] uppercase">
-                      <span>Explorar</span>
-                      <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover:translate-x-1.5" />
-                    </p>
+                    <span className="hidden h-9 w-9 shrink-0 sm:flex items-center justify-center rounded-full border border-white/25 text-white transition-all duration-300 group-hover:border-[#c9a15a] group-hover:bg-[#c9a15a] group-hover:text-black">
+                      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+                    </span>
                   </div>
                 </Link>
               </Reveal>
             ))}
           </div>
         </section>
-
-        <ProductShelf
-          title="Los más vendidos"
-          subtitle="Piezas con mayor demanda y pedidos confirmados"
-          href="/catalogo?filter=popular"
-          products={topRecommended.map((p) => ({
-            id: p.id,
-            name: p.name,
-            category: p.category,
-            price: p.price,
-            taxRate: p.taxRate,
-            stock: p.stock,
-            imageUrl: p.imageUrl,
-            badge: p.badge,
-          }))}
-        />
       </div>
 
-      {/* —— El Proceso Mudeco: Del Palet a la Obra de Arte —— */}
-      <section className="border-b border-white/[0.06] bg-[#0c0c0c] py-20">
-        <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
-          <Reveal>
-            <div className="max-w-2xl mb-12">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/30 bg-[#c9a15a]/10 px-3 py-1 text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a] uppercase">
-                <Sparkles className="h-3 w-3" />
-                Oficio & Sostenibilidad
-              </div>
-              <h2 className="font-display mt-3 text-3xl text-white sm:text-4xl">
-                El Proceso Mudeco: Del palet a tu hogar
-              </h2>
-              <p className="mt-2 text-sm text-white/60">
-                Cada creación atraviesa un riguroso estándar de 4 fases para convertir madera industrial en piezas únicas con garantía estructural.
-              </p>
-            </div>
-          </Reveal>
-
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {CRAFT_STEPS.map((step, idx) => (
-              <Reveal key={step.step} delay={idx * 0.08}>
-                <div className="store-step-card group relative h-full flex flex-col justify-between border border-white/[0.08] bg-[#121212] p-6 transition-all duration-300 hover:border-[#c9a15a]/50 hover:bg-[#161616] hover:-translate-y-1 hover:shadow-[0_14px_36px_rgba(0,0,0,0.5)]">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="store-step-num">{step.step}</span>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-[#c9a15a] transition-all duration-300 group-hover:bg-[#c9a15a] group-hover:text-black">
-                      <step.icon className="h-5 w-5" strokeWidth={1.75} />
-                    </div>
-                  </div>
-                  <h3 className="font-display text-xl text-white group-hover:text-[#c9a15a] transition-colors">
-                    {step.title}
-                  </h3>
-                  <p className="mt-2 text-xs leading-relaxed text-[#d7d7d7]/70 flex-1">
-                    {step.desc}
-                  </p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* —— Taller & Historia de Marca —— */}
-      <section className="relative overflow-hidden border-b border-white/[0.06] bg-[#0d0d0d] py-20 text-white">
-        <div className="pointer-events-none absolute -top-40 right-0 h-[480px] w-[480px] rounded-full bg-[#c9a15a]/5 blur-[120px]" />
-
-        <div className="relative mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
+      {/* —— Proceso + taller —— */}
+      <section className="border-b border-white/[0.06] bg-[#0d0d0d] py-16 sm:py-20">
+        <div className={WRAP}>
           <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
-            <div className="lg:col-span-7 space-y-6">
-              <Reveal>
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/30 bg-[#c9a15a]/10 px-3.5 py-1 text-[0.62rem] font-bold tracking-[0.22em] text-[#c9a15a] uppercase">
-                  <Sparkles className="h-3 w-3" />
-                  Atelier & Filosofía
-                </div>
-                <h2 className="font-display mt-4 text-3xl sm:text-4xl lg:text-5xl leading-tight text-white">
-                  Diseño con propósito: convirtiendo el descarte en arte vivo
-                </h2>
-                <p className="text-base sm:text-lg leading-relaxed text-white/75">
-                  Cada pieza nace de materiales nobles reciclados en nuestro taller. Transformamos madera de pino curada en muebles de alta resistencia con acabados satinados al aceite natural.
-                </p>
-                <div className="pt-2 flex flex-wrap items-center gap-4">
-                  <Link
-                    href="/nosotros"
-                    className="inline-flex items-center gap-2 text-sm font-semibold tracking-wider text-[#c9a15a] uppercase hover:underline"
-                  >
-                    <span>Conoce nuestra historia y valores</span>
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                  <span className="text-white/20">|</span>
-                  <Link
-                    href="/contacto"
-                    className="text-sm text-white/60 hover:text-white transition-colors"
-                  >
-                    Visitar nuestro taller
-                  </Link>
-                </div>
-              </Reveal>
-            </div>
-
             <div className="lg:col-span-5">
-              <Reveal delay={0.12}>
-                <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#141414] p-3 shadow-2xl transition duration-500 hover:border-[#c9a15a]/40">
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={company.craftImage || "/brand/brand-wood-stamp.jpg"}
-                      alt="Madera de palet con logo grabado a fuego Mudeco Palets"
-                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                    <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <div className="h-2 w-2 rounded-full bg-[#c9a15a]" />
-                        <span className="text-xs font-semibold tracking-wider text-white uppercase">
-                          Ebanistería Mudeco
-                        </span>
-                      </div>
-                      <span className="rounded-md border border-[#c9a15a]/40 bg-black/60 px-2 py-0.5 text-[0.65rem] font-medium text-[#c9a15a] backdrop-blur-md">
-                        100% Madera Curada
-                      </span>
-                    </div>
-                  </div>
+              <Reveal>
+                <Eyebrow>Oficio y sostenibilidad</Eyebrow>
+                <h2 className="font-display mt-3 text-3xl leading-tight text-white sm:text-4xl lg:text-5xl">
+                  Del palet a tu hogar
+                </h2>
+                <p className="mt-4 max-w-md text-base leading-relaxed text-white/65">
+                  Transformamos madera de pino recuperada en muebles de alta
+                  resistencia, con acabados satinados al aceite natural.
+                </p>
+                <Link
+                  href="/nosotros"
+                  className="group mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#c9a15a] transition hover:text-[#d4b06e]"
+                >
+                  Conoce nuestra historia
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Reveal>
+              <Reveal delay={0.1} className="mt-8">
+                <div className="group relative aspect-[4/3] overflow-hidden rounded-2xl">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={company.craftImage || "/brand/brand-wood-stamp.jpg"}
+                    alt="Madera de palet con el logo de Mudeco Palets grabado a fuego"
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  />
                 </div>
               </Reveal>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* —— Testimonios Selectos —— */}
-      <section className="border-b border-white/[0.06] bg-[#0c0c0c] py-20 text-white">
-        <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
-          <Reveal>
-            <div className="text-center max-w-2xl mx-auto mb-14">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/30 bg-[#c9a15a]/10 px-3.5 py-1 text-[0.62rem] font-bold tracking-[0.22em] text-[#c9a15a] uppercase">
-                <Star className="h-3 w-3 fill-[#c9a15a] text-[#c9a15a]" />
-                Opiniones Verificadas
-              </div>
-              <h2 className="font-display mt-3 text-3xl sm:text-4xl text-white">
-                Lo que dicen nuestros clientes
-              </h2>
-              <p className="mt-2 text-sm text-white/60">
-                Familias y negocios que ya disfrutan de piezas artesanales Mudeco en sus espacios.
-              </p>
-            </div>
-          </Reveal>
-
-          <div className="grid gap-6 md:grid-cols-3">
-            {[
-              {
-                quote: "Pedí un comedor a medida para mi terraza en Piantini y superó por completo mis expectativas. Los acabados son finos, la madera huele increíble y la atención de Martín fue impecable.",
-                author: "Carolina Mendoza",
-                role: "Diseñadora de Interiores · Santo Domingo",
-                tag: "Comedor 8 puestos",
-              },
-              {
-                quote: "Excelente calidad y robustez. Tenía dudas sobre los muebles de palets pero el tratamiento que le dan es de primera categoría. 100% recomendado.",
-                author: "Ing. Roberto Alcántara",
-                role: "Cliente Residencial · Bella Vista",
-                tag: "Centro de TV Flotante",
-              },
-              {
-                quote: "Equipamos toda el área lounge de nuestro café con bancas y mesas Mudeco. La calidez que le dio al local atrajo a muchos clientes. Puntuales y formales.",
-                author: "Lic. Andrea Tavárez",
-                role: "Propietaria de Café · Naco",
-                tag: "Mobiliario Comercial",
-              },
-            ].map((t, idx) => (
-              <Reveal key={t.author} delay={idx * 0.1}>
-                <div className="flex h-full flex-col justify-between rounded-xl border border-white/[0.08] bg-[#121212] p-7 transition-all duration-300 hover:border-[#c9a15a]/40 hover:-translate-y-1 hover:shadow-xl">
+            <div className="grid gap-px overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.06] sm:grid-cols-2 lg:col-span-7">
+              {CRAFT_STEPS.map((step, idx) => (
+                <Reveal
+                  key={step.step}
+                  delay={idx * 0.08}
+                  className="bg-[#0d0d0d] p-7 sm:p-8"
+                >
                   <div>
-                    <div className="flex items-center gap-1 text-[#c9a15a] mb-4">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-[#c9a15a]" />
-                      ))}
-                    </div>
-                    <p className="text-sm leading-relaxed text-white/80 italic">
-                      &ldquo;{t.quote}&rdquo;
+                    <span className="store-step-num">{step.step}</span>
+                    <h3 className="font-display mt-4 text-2xl text-white">
+                      {step.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-white/55">
+                      {step.desc}
                     </p>
                   </div>
-                  <div className="mt-6 pt-5 border-t border-white/[0.06] flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-semibold text-white">{t.author}</h4>
-                      <p className="text-[0.72rem] text-white/50">{t.role}</p>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* —— Testimonios —— */}
+      <section className="border-b border-white/[0.06] py-16 sm:py-20">
+        <div className={WRAP}>
+          <Reveal>
+            <div className="mx-auto mb-12 max-w-2xl text-center">
+              <Eyebrow>Testimonios</Eyebrow>
+              <h2 className="font-display mt-3 text-3xl text-white sm:text-4xl">
+                Lo que dicen nuestros clientes
+              </h2>
+            </div>
+          </Reveal>
+
+          <div className="grid gap-5 md:grid-cols-3">
+            {TESTIMONIALS.map((t, idx) => (
+              <Reveal key={t.author} delay={idx * 0.08}>
+                <figure className="flex h-full flex-col justify-between rounded-2xl border border-white/[0.07] bg-[#111] p-7">
+                  <div>
+                    <div className="flex gap-0.5 text-[#c9a15a]" aria-label="5 de 5 estrellas">
+                      {[0, 1, 2, 3, 4].map((i) => (
+                        <Star key={i} className="h-3.5 w-3.5 fill-current" aria-hidden />
+                      ))}
                     </div>
-                    <span className="rounded-full border border-[#c9a15a]/30 bg-[#c9a15a]/10 px-2.5 py-0.5 text-[0.62rem] font-medium text-[#c9a15a]">
-                      {t.tag}
-                    </span>
+                    <blockquote className="mt-4 text-[0.95rem] leading-relaxed text-white/80">
+                      &ldquo;{t.quote}&rdquo;
+                    </blockquote>
                   </div>
-                </div>
+                  <figcaption className="mt-6 border-t border-white/[0.06] pt-5">
+                    <p className="text-sm font-semibold text-white">{t.author}</p>
+                    <p className="mt-0.5 text-xs text-white/45">{t.role}</p>
+                  </figcaption>
+                </figure>
               </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* —— Banner VIP Proyectos Especiales y a Medida —— */}
-      <section className="mx-auto w-full max-w-[1920px] px-4 py-8 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
+      {/* —— Proyectos a medida —— */}
+      <section className={`${WRAP} py-12 sm:py-16`}>
         <Reveal>
-          <div className="store-vip-banner rounded-lg p-8 sm:p-12 border border-[#c9a15a]/35 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-            <div className="max-w-3xl space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/40 bg-[#c9a15a]/10 px-3 py-1 text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a] uppercase">
-                <Sparkles className="h-3 w-3" />
-                Taller VIP · Proyectos Especiales
-              </div>
-              <h3 className="font-display text-2xl sm:text-3xl lg:text-4xl text-white">
-                ¿Tienes una idea en mente o viste una foto en Pinterest?
-              </h3>
-              <p className="text-sm text-white/70 leading-relaxed">
-                Fabricamos a medida comedores, repisas flotantes, camas, barras y mobiliario comercial. Envíanos una foto de referencia y tus medidas para cotizarte sin compromiso.
+          <div className="store-vip-banner flex flex-col gap-8 rounded-3xl p-8 sm:p-12 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-2xl">
+              <Eyebrow>Proyectos especiales</Eyebrow>
+              <h2 className="font-display mt-3 text-3xl text-white lg:text-4xl">
+                ¿Tienes una idea en mente?
+              </h2>
+              <p className="mt-3 text-sm leading-relaxed text-white/65 sm:text-base">
+                Fabricamos a medida comedores, repisas, camas, barras y mobiliario
+                comercial. Envíanos una foto de referencia y tus medidas para
+                cotizarte sin compromiso.
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+            <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center">
               <a
                 href={storeWhatsApp(
                   company.phone,
@@ -564,63 +437,60 @@ export default async function StoreHomePage() {
                 )}
                 target="_blank"
                 rel="noreferrer"
-                className="store-cta store-cta-primary group text-center"
+                className="store-cta store-cta-primary"
               >
                 <MessageCircle className="h-4 w-4" />
                 Cotizar por WhatsApp
               </a>
-              <Link
-                href="/contacto"
-                className="store-cta store-cta-ghost text-center"
-              >
-                Formulario de contacto
+              <Link href="/contacto" className="store-cta store-cta-ghost">
+                <Ruler className="h-4 w-4" />
+                Formulario
               </Link>
             </div>
           </div>
         </Reveal>
       </section>
 
-
-      {/* —— Galería de Instagram con hover interactivo —— */}
+      {/* —— Galería —— */}
       <section className="border-t border-white/[0.06] bg-[#0c0c0c] py-14">
-        <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
+        <div className={WRAP}>
           <div className="mb-6 flex items-end justify-between gap-3">
             <div>
-              <p className="text-[0.65rem] font-medium tracking-[0.24em] text-[#c9a15a] uppercase">
-                Comunidad
-              </p>
-              <h2 className="font-display mt-1 text-2xl text-white">Galería del taller</h2>
+              <Eyebrow>Comunidad</Eyebrow>
+              <h2 className="font-display mt-2 text-3xl text-white">Galería del taller</h2>
             </div>
             <a
               href={STORE_SOCIAL.instagram}
               target="_blank"
               rel="noreferrer"
-              className="group inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-[#c9a15a] uppercase hover:text-[#d4b06e] transition"
+              className="group inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-[#c9a15a] uppercase transition hover:text-[#d4b06e]"
             >
               <Camera className="h-3.5 w-3.5" />
               <span>@mudeco_palets</span>
-              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
             </a>
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
             {gallery.map((src, i) => (
-              <a
-                key={i}
-                href={STORE_SOCIAL.instagram}
-                target="_blank"
-                rel="noreferrer"
-                className="group relative aspect-square overflow-hidden border border-white/[0.06] bg-[#161616]"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={src}
-                  alt=""
-                  className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-black/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100 flex items-center justify-center">
-                  <Camera className="h-5 w-5 text-[#c9a15a] scale-75 group-hover:scale-100 transition-transform duration-300" />
-                </div>
-              </a>
+              <Reveal key={`${src}-${i}`} delay={(i % 8) * 0.04} y={10}>
+                <a
+                  href={STORE_SOCIAL.instagram}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`Ver foto ${i + 1} del taller en Instagram`}
+                  className="group relative block aspect-square overflow-hidden rounded-xl bg-[#161616]"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={src}
+                    alt=""
+                    loading="lazy"
+                    className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/55 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    <Camera className="h-5 w-5 text-white" />
+                  </div>
+                </a>
+              </Reveal>
             ))}
           </div>
         </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { whatsappLink } from "@/lib/store";
 
@@ -14,10 +14,12 @@ export function WhatsappFloating({
     "Hola Mudeco Palets, me gustaría consultar sobre un mueble o cotización a medida.",
   );
 
+  const reduce = useReducedMotion();
+
   return (
     <motion.aside
       aria-label="Atención al cliente por WhatsApp"
-      initial={{ opacity: 0, scale: 0.85, y: 20 }}
+      initial={reduce ? false : { opacity: 0, scale: 0.85, y: 20 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
       className="fixed bottom-6 right-6 z-40 select-none"
@@ -26,10 +28,9 @@ export function WhatsappFloating({
         href={url}
         target="_blank"
         rel="noreferrer"
-        className="group relative flex items-center gap-2.5 rounded-full border border-[#25D366]/40 bg-[#14100e]/95 px-4 py-2.5 text-white shadow-[0_12px_36px_rgba(0,0,0,0.35)] backdrop-blur-xl ring-1 ring-white/10 transition-all duration-300 hover:border-[#25D366] hover:bg-[#1a1512] hover:shadow-[0_0_24px_rgba(37,211,102,0.3)] hover:-translate-y-0.5 active:scale-95 cursor-pointer"
+        className="group relative flex items-center gap-2.5 rounded-full border border-[#25D366]/40 bg-[#14100e]/95 px-4 py-2.5 text-white shadow-[0_12px_36px_rgba(0,0,0,0.35)] backdrop-blur-xl ring-1 ring-white/10 transition-all duration-300 hover:border-[#25D366] hover:bg-[#1a1512] hover:-translate-y-0.5 active:scale-95 cursor-pointer"
       >
-        {/* Ícono oficial de WhatsApp verde brillante */}
-        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_0_12px_rgba(37,211,102,0.6)]">
+        <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#25D366] text-white" aria-hidden>
           <svg
             className="h-3.5 w-3.5 fill-current"
             viewBox="0 0 24 24"

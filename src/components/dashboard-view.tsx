@@ -36,7 +36,6 @@ import {
   ShoppingCart,
   TrendingUp,
   Wallet,
-  Zap,
 } from "lucide-react";
 import type { BusinessAnalytics } from "@/lib/analytics";
 import { formatCurrency, formatDate } from "@/lib/format";
@@ -155,27 +154,10 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
               {data.period?.label ? ` · ${data.period.label}` : ""}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <a
-              href="/"
-              target="_blank"
-              rel="noreferrer"
-              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
-              title="Abrir tienda pública en una pestaña nueva"
-            >
-              <Globe className="h-4 w-4 text-[#b0894f]" />
-              <span>Tienda pública</span>
-              <ExternalLink className="h-3 w-3 opacity-60" />
-            </a>
-            <Link href="/finanzas" className="btn btn-secondary">
-              <Calculator className="h-4 w-4" />
-              Ver finanzas
-            </Link>
-            <Link href="/vender" className="btn btn-accent btn-lg">
-              <Zap className="h-5 w-5" />
-              Generar factura
-            </Link>
-          </div>
+          <Link href="/finanzas" className="btn btn-secondary">
+            <Calculator className="h-4 w-4" />
+            Ver finanzas
+          </Link>
         </div>
       </FadeIn>
 
@@ -426,7 +408,7 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
           {/* Barra de estado de conexión */}
           <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-emerald-50/70 border border-emerald-200/60 px-3 py-2 text-[0.7rem] text-emerald-900">
             <div className="flex items-center gap-2">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="flex h-2 w-2 rounded-full bg-emerald-500" />
               <span className="font-medium">
                 Conexión en vivo activa: Catálogo, stock de inventario, pasarela Stripe y contenidos multimedia sincronizados
               </span>
@@ -552,7 +534,7 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
         ))}
       </Stagger>
 
-      <FadeIn delay={0.15} className="mb-8">
+      <FadeIn delay={0.1} className="mb-8">
         <div className="card overflow-hidden">
           <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
             <div>
@@ -592,7 +574,7 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
       </FadeIn>
 
       <div className="mb-8 grid gap-6 xl:grid-cols-5">
-        <FadeIn delay={0.2} className="card p-5 xl:col-span-3">
+        <FadeIn delay={0.12} className="card p-5 xl:col-span-3">
           <div className="mb-4 flex items-end justify-between">
             <div>
               <h2 className="font-display text-lg">Ventas vs cobros</h2>
@@ -653,7 +635,7 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
           </div>
         </FadeIn>
 
-        <FadeIn delay={0.25} className="card p-5 xl:col-span-2">
+        <FadeIn delay={0.14} className="card p-5 xl:col-span-2">
           <h2 className="font-display mb-1 text-lg">Por categoría</h2>
           <p className="mb-4 text-xs text-[var(--muted)]">
             Ingresos por tipo de mueble
@@ -709,7 +691,7 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
       </div>
 
       <div className="mb-8 grid gap-6 lg:grid-cols-2">
-        <FadeIn delay={0.28} className="card p-5">
+        <FadeIn delay={0.16} className="card p-5">
           <h2 className="font-display mb-1 text-lg">Top muebles</h2>
           <p className="mb-4 text-xs text-[var(--muted)]">
             Mayor facturación acumulada
@@ -755,7 +737,7 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
           )}
         </FadeIn>
 
-        <FadeIn delay={0.32} className="card p-5">
+        <FadeIn delay={0.18} className="card p-5">
           <h2 className="font-display mb-1 text-lg">Mejores clientes</h2>
           <p className="mb-4 text-xs text-[var(--muted)]">Por volumen de compra acumulado</p>
           <ul className="space-y-3">
@@ -801,7 +783,7 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-5">
-        <FadeIn delay={0.35} className="card overflow-hidden lg:col-span-3">
+        <FadeIn delay={0.2} className="card overflow-hidden lg:col-span-3">
           <div className="flex items-center justify-between border-b border-[var(--border)] px-5 py-4">
             <h2 className="font-display text-lg">Facturas recientes</h2>
             <Link
@@ -857,7 +839,7 @@ export function DashboardView({ data }: { data: BusinessAnalytics }) {
           </div>
         </FadeIn>
 
-        <FadeIn delay={0.4} className="card p-5 lg:col-span-2">
+        <FadeIn delay={0.22} className="card p-5 lg:col-span-2">
           <h2 className="font-display mb-1 text-lg">Métodos de pago</h2>
           <p className="mb-4 text-xs text-[var(--muted)]">
             Distribución del dinero cobrado

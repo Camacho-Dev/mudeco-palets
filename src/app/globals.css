@@ -100,6 +100,20 @@ body {
   transform: scale(0.98);
 }
 
+.btn:focus-visible,
+a.card:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: none;
+}
+
 .btn-primary {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   color: #ffffff;
@@ -207,6 +221,30 @@ table.data tr:last-child td {
 
 table.data tr:hover td {
   background: #f8fafc;
+}
+
+/* Entrada escalonada de filas (solo las primeras; el resto aparece ya visible) */
+table.data tbody tr {
+  animation: row-in 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+table.data tbody tr:nth-child(2) { animation-delay: 0.025s; }
+table.data tbody tr:nth-child(3) { animation-delay: 0.05s; }
+table.data tbody tr:nth-child(4) { animation-delay: 0.075s; }
+table.data tbody tr:nth-child(5) { animation-delay: 0.1s; }
+table.data tbody tr:nth-child(6) { animation-delay: 0.125s; }
+table.data tbody tr:nth-child(7) { animation-delay: 0.15s; }
+table.data tbody tr:nth-child(8) { animation-delay: 0.175s; }
+table.data tbody tr:nth-child(n + 9) { animation-delay: 0.2s; }
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* Animations & Modern Motion */
@@ -359,18 +397,42 @@ table.data tr:hover td {
   .animate-float,
   .animate-pulse-subtle,
   .animate-fade-in,
-  .animate-scale-in {
+  .animate-scale-in,
+  .animate-ping,
+  .animate-pulse,
+  .animate-bounce,
+  table.data tbody tr {
     animation: none;
   }
 
-  .card {
+  .card,
+  .btn {
     transition: none;
+  }
+
+  .btn:hover,
+  .btn:active,
+  a.card:hover,
+  .card-hover:hover,
+  .card-interactive:hover {
+    transform: none;
+  }
+
+  .gold-shimmer-btn::after {
+    display: none;
   }
 }
 
 @media print {
   body {
     background: white !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
   }
 
   .no-print {
@@ -384,15 +446,4 @@ table.data tr:hover td {
 
 .print-only {
   display: none;
-}
-
-/* Ocultar botón N de Next.js dev indicator */
-nextjs-portal,
-[data-nextjs-dev-indicator],
-[data-next-badge],
-#next-logo {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
 }

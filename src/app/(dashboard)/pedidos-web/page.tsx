@@ -431,14 +431,14 @@ export default async function PedidosWebPage({
                         </Link>
                         {hasReceiptApproved && !isPartialAbono && (
                           <div className="mt-0.5">
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
                               ✓ Pago validado
                             </span>
                           </div>
                         )}
                         {isPartialAbono && (
                           <div className="mt-0.5">
-                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-300">
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-800 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-300">
                               ⚡ Abono recibido
                             </span>
                           </div>
@@ -588,6 +588,7 @@ export default async function PedidosWebPage({
                                 type="submit"
                                 className="rounded px-1.5 py-0.5 text-[11px] font-medium text-stone-400 hover:text-red-700 transition"
                                 title="Cancelar pedido"
+                                aria-label={`Cancelar pedido ${o.number}`}
                               >
                                 ✕
                               </button>

@@ -100,18 +100,23 @@
 }
 
 .store-cta:hover {
-  transform: translateY(-2px) scale(1.02);
+  transform: translateY(-1px);
 }
 
 .store-cta:active {
   transform: translateY(0) scale(0.98);
 }
 
+.store-cta:focus-visible {
+  outline: 2px solid var(--store-gold);
+  outline-offset: 3px;
+}
+
 .store-cta-primary {
-  background: linear-gradient(135deg, #fbe3a8 0%, #d4af37 50%, #b88f47 100%);
+  background: var(--store-gold);
   color: #0f0d0a;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 8px 24px rgba(212, 175, 55, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 6px 18px rgba(201, 161, 90, 0.22);
 }
 
 .store-cta-primary::before {
@@ -137,8 +142,8 @@
 }
 
 .store-cta-primary:hover {
-  background: linear-gradient(135deg, #dfbc7a 0%, #d4b06e 50%, #c49950 100%);
-  box-shadow: 0 10px 32px rgba(201, 161, 90, 0.4), 0 0 16px rgba(201, 161, 90, 0.2);
+  background: var(--store-gold-hover);
+  box-shadow: 0 10px 24px rgba(201, 161, 90, 0.3);
 }
 
 .store-cta-ghost {
@@ -258,8 +263,7 @@
 }
 
 .store-vip-banner:hover {
-  border-color: rgba(201, 161, 90, 0.6);
-  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.6), 0 0 30px rgba(201, 161, 90, 0.12);
+  border-color: rgba(201, 161, 90, 0.5);
 }
 
 /* Step timeline */
@@ -528,13 +532,14 @@
   box-shadow: 0 4px 16px rgba(201, 161, 90, 0.4), 0 0 0 4px rgba(201, 161, 90, 0.3);
 }
 
-/* Ocultar botón N de Next.js dev indicator */
-nextjs-portal,
-[data-nextjs-dev-indicator],
-[data-next-badge],
-#next-logo {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
+/* Respeta "reducir movimiento" del sistema en toda la tienda */
+@media (prefers-reduced-motion: reduce) {
+  .store-shell *,
+  .store-shell *::before,
+  .store-shell *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

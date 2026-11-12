@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight, ShoppingBag, Check } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 import { productImage } from "@/lib/product-image";
 import { useCart } from "@/components/store/cart-context";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
 export type ShelfProduct = {
   id: string;
@@ -28,7 +28,14 @@ function CraftBadge() {
   );
 }
 
-function ShelfCard({ product }: { product: ShelfProduct }) {
+function ShelfCard({
+  product,
+  index,
+}: {
+  product: ShelfProduct;
+  index: number;
+}) {
+  const reduce = useReducedMotion();
   const { addItem, items } = useCart();
   const [added, setAdded] = useState(false);
   const inCart = items.find((i) => i.productId === product.id)?.quantity ?? 0;
@@ -55,8 +62,18 @@ function ShelfCard({ product }: { product: ShelfProduct }) {
   };
 
   return (
-    <article className="group w-[190px] shrink-0 snap-start sm:w-[230px] md:w-[260px] lg:w-[280px]">
-      <div className="overflow-hidden border border-white/10 bg-[#14100e] transition-all duration-300 hover:border-[#d4af37]/50 hover:shadow-[0_20px_45px_rgba(0,0,0,0.7),0_0_25px_rgba(212,175,55,0.15)] hover:-translate-y-1.5 rounded-[24px]">
+    <motion.article
+      className="group w-[190px] shrink-0 snap-start sm:w-[230px] md:w-[260px] lg:w-[280px]"
+      initial={reduce ? false : { opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "0px 0px -8% 0px" }}
+      transition={{
+        duration: 0.5,
+        delay: Math.min(index, 6) * 0.06,
+        ease: [0.16, 1, 0.3, 1],
+      }}
+    >
+      <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#14100e] transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-1 hover:border-[#c9a15a]/40 hover:shadow-[0_18px_40px_rgba(0,0,0,0.55)]">
         <Link
           href={`/producto/${product.id}`}
           className="relative block aspect-square overflow-hidden bg-[#181411]"
@@ -97,10 +114,10 @@ function ShelfCard({ product }: { product: ShelfProduct }) {
               whileHover={{ scale: 1.08 }}
               aria-label="Agregar al carrito"
               onClick={handleAdd}
-              className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition-all duration-300 disabled:opacity-40 cursor-pointer ${
+              className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors duration-300 disabled:opacity-40 cursor-pointer ${
                 added
-                  ? "border-emerald-500/70 bg-emerald-500/20 text-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.4)]"
-                  : "border-[#d4af37]/50 bg-[#d4af37]/15 text-[#f5dfa8] hover:bg-[#d4af37] hover:text-[#0f0d0a] hover:shadow-[0_0_15px_rgba(212,175,55,0.4)]"
+                  ? "border-emerald-500/70 bg-emerald-500/20 text-emerald-400"
+                  : "border-[#c9a15a]/45 bg-[#c9a15a]/10 text-[#f5dfa8] hover:bg-[#c9a15a] hover:text-[#0f0d0a]"
               }`}
             >
               {added ? (
@@ -112,7 +129,7 @@ function ShelfCard({ product }: { product: ShelfProduct }) {
           </div>
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 }
 
@@ -175,7 +192,7 @@ export function ProductShelf({
           <button
             type="button"
             onClick={() => scroll(-1)}
-            className="hidden h-9 w-9 items-center justify-center border border-white/15 text-white/70 transition hover:border-[#c9a15a]/50 hover:text-white sm:inline-flex"
+            className="hidden h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition hover:border-[#c9a15a]/50 hover:text-white active:scale-95 sm:inline-flex"
             aria-label="Anterior"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -183,7 +200,7 @@ export function ProductShelf({
           <button
             type="button"
             onClick={() => scroll(1)}
-            className="hidden h-9 w-9 items-center justify-center border border-white/15 text-white/70 transition hover:border-[#c9a15a]/50 hover:text-white sm:inline-flex"
+            className="hidden h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition hover:border-[#c9a15a]/50 hover:text-white active:scale-95 sm:inline-flex"
             aria-label="Siguiente"
           >
             <ChevronRight className="h-4 w-4" />
@@ -195,8 +212,8 @@ export function ProductShelf({
         ref={ref}
         className="flex gap-3 overflow-x-auto pb-3 [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
       >
-        {products.map((p) => (
-          <ShelfCard key={p.id} product={p} />
+        {products.map((p, i) => (
+          <ShelfCard key={p.id} product={p} index={i} />
         ))}
       </div>
 
