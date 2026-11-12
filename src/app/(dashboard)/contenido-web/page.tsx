@@ -59,7 +59,7 @@ export default async function ContenidoWebPage() {
   const initialData = {
     heroImage: company?.heroImage || "/brand/store-hero.jpg",
     heroBadge: company?.heroBadge || "Taller artesanal · República Dominicana",
-    heroTitle: company?.heroTitle || "Muebles de madera recuperada con alma de taller",
+    heroTitle: company?.heroTitle || "Muebles de diseño en madera recuperada",
     heroSubtitle:
       company?.heroSubtitle ||
       "Cada pieza nace de materiales nobles reciclados, transformados con pasión artesanal. Diseños únicos para tu hogar o proyectos comerciales a la medida.",

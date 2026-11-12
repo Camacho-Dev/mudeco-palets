@@ -1360,7 +1360,7 @@ export default function LoginPage() {
             </h1>
 
             <p className="mt-4 text-base xl:text-lg text-white/75 leading-relaxed font-light max-w-md">
-              Muebles de madera recuperada con alma de taller artesanal. Piezas únicas y proyectos a medida para tu hogar o negocio.
+              Muebles sostenibles de diseño en madera recuperada. Piezas únicas y proyectos a medida para tu hogar o negocio.
             </p>
 
             {/* Sello de Calidad Artesanal Dominicana */}

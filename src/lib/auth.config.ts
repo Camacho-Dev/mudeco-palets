@@ -8,6 +8,10 @@ const isProd = process.env.NODE_ENV === "production";
 /** Config Edge-compatible (sin Prisma/bcrypt) para middleware */
 export const authConfig = {
   trustHost: true,
+  secret:
+    process.env.AUTH_SECRET ||
+    process.env.NEXTAUTH_SECRET ||
+    "mudeco-enterprise-edge-secret-fallback-production-key-32chars",
   session: {
     strategy: "jwt",
     maxAge: 12 * 60 * 60, // 12 horas

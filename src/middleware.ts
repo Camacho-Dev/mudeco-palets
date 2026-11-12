@@ -86,83 +86,88 @@ function isSameOriginMutation(req: NextRequest): boolean {
 }
 
 export default authMiddleware((req) => {
-  const pathname = req.nextUrl.pathname;
+  try {
+    const pathname = req.nextUrl.pathname;
 
-  // 1. Bloqueo inmediato en Edge contra escáneres de vulnerabilidades y path traversal
-  if (
-    pathname.includes("..") ||
-    pathname.toLowerCase().includes("%2e%2e") ||
-    BLOCKED_PROBE_PATTERNS.some((rx) => rx.test(pathname))
-  ) {
-    return new NextResponse("Acceso denegado", { status: 403 });
-  }
-
-  // Excluir el webhook firmado criptográficamente de Stripe del limitador por IP y chequeo Origin
-  if (pathname.startsWith("/api/stripe/webhook")) {
-    return NextResponse.next();
-  }
-
-  const ip = extractEdgeIp(req);
-  const method = req.method.toUpperCase();
-
-  // 2. Validación anti-CSRF por cabecera Origin en todas las mutaciones
-  if (method === "POST" || method === "PUT" || method === "PATCH" || method === "DELETE") {
-    if (!isSameOriginMutation(req)) {
-      return NextResponse.json(
-        { error: "Solicitud bloqueada por política de origen (CSRF)." },
-        { status: 403 },
-      );
+    // 1. Bloqueo inmediato en Edge contra escáneres de vulnerabilidades y path traversal
+    if (
+      pathname.includes("..") ||
+      pathname.toLowerCase().includes("%2e%2e") ||
+      BLOCKED_PROBE_PATTERNS.some((rx) => rx.test(pathname))
+    ) {
+      return new NextResponse("Acceso denegado", { status: 403 });
     }
 
-    // Límite estricto sobre intentos de autenticación (/api/auth/* o /login)
-    if (pathname.startsWith("/api/auth") || pathname.startsWith("/login")) {
-      const authRl = checkEdgeRateLimit(`auth:${ip}`, 20, 5 * 60_000);
-      if (!authRl.ok) {
+    // Excluir el webhook firmado criptográficamente de Stripe del limitador por IP y chequeo Origin
+    if (pathname.startsWith("/api/stripe/webhook")) {
+      return NextResponse.next();
+    }
+
+    const ip = extractEdgeIp(req);
+    const method = req.method.toUpperCase();
+
+    // 2. Validación anti-CSRF por cabecera Origin en todas las mutaciones
+    if (method === "POST" || method === "PUT" || method === "PATCH" || method === "DELETE") {
+      if (!isSameOriginMutation(req)) {
+        return NextResponse.json(
+          { error: "Solicitud bloqueada por política de origen (CSRF)." },
+          { status: 403 },
+        );
+      }
+
+      // Límite estricto sobre intentos de autenticación (/api/auth/* o /login)
+      if (pathname.startsWith("/api/auth") || pathname.startsWith("/login")) {
+        const authRl = checkEdgeRateLimit(`auth:${ip}`, 20, 5 * 60_000);
+        if (!authRl.ok) {
+          return new NextResponse(
+            JSON.stringify({
+              error: "Demasiados intentos de autenticación. Espera unos minutos.",
+            }),
+            {
+              status: 429,
+              headers: {
+                "Content-Type": "application/json",
+                "Retry-After": String(authRl.retryAfter),
+              },
+            },
+          );
+        }
+      }
+
+      // Protección estricta contra ráfagas de mutaciones POST / Server Actions / Uploads (máx 45 por minuto por IP)
+      const postRl = checkEdgeRateLimit(`post:${ip}`, 45, 60_000);
+      if (!postRl.ok) {
         return new NextResponse(
           JSON.stringify({
-            error: "Demasiados intentos de autenticación. Espera unos minutos.",
+            error: "Demasiadas solicitudes seguidas. Por favor espera unos segundos.",
           }),
           {
             status: 429,
             headers: {
               "Content-Type": "application/json",
-              "Retry-After": String(authRl.retryAfter),
+              "Retry-After": String(postRl.retryAfter),
             },
           },
         );
       }
     }
 
-    // Protección estricta contra ráfagas de mutaciones POST / Server Actions / Uploads (máx 45 por minuto por IP)
-    const postRl = checkEdgeRateLimit(`post:${ip}`, 45, 60_000);
-    if (!postRl.ok) {
-      return new NextResponse(
-        JSON.stringify({
-          error: "Demasiadas solicitudes seguidas. Por favor espera unos segundos.",
-        }),
-        {
-          status: 429,
-          headers: {
-            "Content-Type": "application/json",
-            "Retry-After": String(postRl.retryAfter),
-          },
+    // 3. Protección global contra scraping / flooding de peticiones GET (máx 180 por minuto por IP)
+    const getRl = checkEdgeRateLimit(`req:${ip}`, 180, 60_000);
+    if (!getRl.ok) {
+      return new NextResponse("Demasiadas solicitudes. Intenta nuevamente en un minuto.", {
+        status: 429,
+        headers: {
+          "Retry-After": String(getRl.retryAfter),
         },
-      );
+      });
     }
-  }
 
-  // 3. Protección global contra scraping / flooding de peticiones GET (máx 180 por minuto por IP)
-  const getRl = checkEdgeRateLimit(`req:${ip}`, 180, 60_000);
-  if (!getRl.ok) {
-    return new NextResponse("Demasiadas solicitudes. Intenta nuevamente en un minuto.", {
-      status: 429,
-      headers: {
-        "Retry-After": String(getRl.retryAfter),
-      },
-    });
+    return NextResponse.next();
+  } catch (err) {
+    console.error("Middleware Edge exception safely caught:", err);
+    return NextResponse.next();
   }
-
-  return NextResponse.next();
 });
 
 export const config = {

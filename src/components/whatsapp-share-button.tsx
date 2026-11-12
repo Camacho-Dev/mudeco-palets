@@ -56,7 +56,7 @@ export function WhatsAppShareButton({
         `Te compartimos el comprobante de tu compra en nuestro taller artesanal:\n\n` +
         `*Factura:* ${number}${ncfText}\n` +
         `*Monto Total:* ${formattedTotal}\n\n` +
-        `Agradecemos tu preferencia por nuestros muebles en madera recuperada con alma de taller.\n` +
+        `Agradecemos tu preferencia por nuestros muebles en madera recuperada.\n` +
         `Si tienes alguna consulta sobre tu entrega o acabado, estamos a tu orden.`
       );
     }

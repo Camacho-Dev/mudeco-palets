@@ -80,8 +80,8 @@ export async function getStoreCompany(): Promise<StoreCompany> {
         company?.address ||
         "Prolongación Avenida 27 de Febrero, Región Ozama, Santo Domingo Oeste, República Dominicana",
       heroImage: company?.heroImage || "/brand/store-hero.jpg",
-      heroBadge: company?.heroBadge || "Taller artesanal · República Dominicana",
-      heroTitle: company?.heroTitle || "Muebles de madera recuperada con alma de taller",
+      heroBadge: company?.heroBadge || "Diseño & Sostenibilidad · República Dominicana",
+      heroTitle: company?.heroTitle || "Muebles de diseño en madera recuperada",
       heroSubtitle:
         company?.heroSubtitle ||
         "Cada pieza nace de materiales nobles reciclados, transformados con pasión artesanal. Diseños únicos para tu hogar o proyectos comerciales a la medida.",
@@ -106,8 +106,8 @@ export async function getStoreCompany(): Promise<StoreCompany> {
       address:
         "Prolongación Avenida 27 de Febrero, Región Ozama, Santo Domingo Oeste, República Dominicana",
       heroImage: "/brand/store-hero.jpg",
-      heroBadge: "Taller artesanal · República Dominicana",
-      heroTitle: "Muebles de madera recuperada con alma de taller",
+      heroBadge: "Diseño & Sostenibilidad · República Dominicana",
+      heroTitle: "Muebles de diseño en madera recuperada",
       heroSubtitle:
         "Cada pieza nace de materiales nobles reciclados, transformados con pasión artesanal. Diseños únicos para tu hogar o proyectos comerciales a la medida.",
       workshopImage: "/brand/store-workshop.jpg",

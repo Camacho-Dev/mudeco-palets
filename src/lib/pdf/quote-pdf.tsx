@@ -268,7 +268,7 @@ function QuoteDocument({
 
         <View style={styles.footer}>
           <Text>
-            Mudeco Palets · Muebles artesanales de madera recuperada con alma de taller
+            Mudeco Palets · Muebles artesanales y proyectos a medida
           </Text>
           <Text style={{ marginTop: 2 }}>
             Este presupuesto tiene carácter informativo y no constituye una factura fiscal. Para aprobar la orden se requiere confirmar con el taller.

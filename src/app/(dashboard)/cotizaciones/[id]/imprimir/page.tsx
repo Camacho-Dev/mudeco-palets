@@ -134,7 +134,7 @@ export default async function ImprimirCotizacionPage({
 
         <footer className="mt-10 border-t border-[var(--border)] pt-4 text-center text-xs text-[var(--muted)]">
           <p>
-            Mudeco Palets · Muebles artesanales de madera recuperada con alma de taller
+            Mudeco Palets · Muebles artesanales y proyectos a medida
           </p>
           <p className="mt-1">
             Este presupuesto es informativo y no constituye una factura fiscal. Confirmar con el taller para programar la fabricación.
