@@ -4,7 +4,7 @@ import { getStoreCompany } from "@/lib/store";
 import { withDbRetry } from "@/lib/prisma";
 import { CatalogExplorer } from "@/components/store/catalog-explorer";
 import Link from "next/link";
-import { ShieldCheck, Truck, Ruler, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -87,27 +87,11 @@ export default async function CatalogoPage({
               Muebles hechos a mano con madera de pino recuperada y curada contra humedad y plagas. Diseños listos para entrega inmediata o proyectos a medida adaptados a tu espacio.
             </p>
 
-            {/* Atelier Quality Highlights Strip */}
-            <div className="mt-6 flex flex-wrap items-center gap-4 sm:gap-6 border-t border-white/10 pt-4 text-xs text-white/80">
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-[#c9a15a]" />
-                <span className="font-semibold text-white">{products.length} muebles</span> disponibles
-              </div>
-              <div className="hidden sm:flex items-center gap-2 text-white/40">·</div>
-              <div className="flex items-center gap-1.5 text-white/70">
-                <ShieldCheck className="h-3.5 w-3.5 text-[#c9a15a]" />
-                Madera 100% curada y tratada
-              </div>
-              <div className="hidden sm:flex items-center gap-2 text-white/40">·</div>
-              <div className="flex items-center gap-1.5 text-white/70">
-                <Ruler className="h-3.5 w-3.5 text-[#c9a15a]" />
-                Ajustable a tus medidas
-              </div>
-              <div className="hidden sm:flex items-center gap-2 text-white/40">·</div>
-              <div className="flex items-center gap-1.5 text-white/70">
-                <Truck className="h-3.5 w-3.5 text-[#c9a15a]" />
-                Envíos a todo el país
-              </div>
+            <div className="mt-4 flex items-center gap-2 text-xs text-white/65">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#c9a15a]" />
+              <span>
+                <strong className="font-semibold text-white">{products.length} muebles</strong> en catálogo
+              </span>
             </div>
           </Reveal>
         </div>

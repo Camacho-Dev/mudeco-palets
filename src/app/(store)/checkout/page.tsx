@@ -56,7 +56,7 @@ export default async function CheckoutHubPage({
   const options = baseOptions.filter((o) => !o.requiresStripe || stripeReady);
 
   return (
-    <div>
+    <div className="min-h-[75vh] bg-[#faf7f2]">
       <CheckoutStepBanner
         step={2}
         badge="Finalizar Pedido"

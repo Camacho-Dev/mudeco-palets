@@ -2,6 +2,7 @@ import { Reveal } from "@/components/store/store-motion";
 import { getStoreCompany } from "@/lib/store";
 import { ContactForm } from "@/components/store/contact-form";
 import { STORE_HOURS, storeWhatsApp } from "@/lib/store-info";
+import { leadTimeLabel } from "@/lib/made-to-order";
 import { STORE_SOCIAL } from "@/lib/store-brand";
 import {
   Clock,
@@ -256,7 +257,7 @@ export default async function ContactoPage() {
             </div>
           </Reveal>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mx-auto max-w-3xl divide-y divide-[#e5dacb] rounded-2xl border border-[#e5dacb] bg-white px-6 shadow-2xs">
             {[
               {
                 q: "¿Cómo cotizo un mueble a medida?",
@@ -272,27 +273,28 @@ export default async function ContactoPage() {
               },
               {
                 q: "¿Cuáles son los métodos de pago?",
-                a: "Aceptamos transferencia bancaria (Banreservas, Popular, BHD) y efectivo. Los proyectos a medida se inician con un 50% de avance y el 50% restante contra entrega.",
+                a: `Aceptamos transferencia bancaria (Banreservas, Popular, BHD) y efectivo. Los pedidos por encargo o a medida se inician con un ${company.madeToOrder.depositPercent}% de abono y el saldo restante contra entrega.`,
               },
               {
                 q: "¿Qué tiempo toma fabricar un pedido?",
-                a: "Las piezas en inventario están listas para entrega inmediata. Los muebles fabricados bajo pedido o a medida toman entre 4 y 10 días laborables según complejidad.",
+                a: `Las piezas en inventario están listas para entrega inmediata. Los muebles fabricados por encargo o a medida toman ${leadTimeLabel(company.madeToOrder)} según la complejidad.`,
               },
               {
                 q: "¿Emiten facturas con Comprobante Fiscal (NCF)?",
                 a: "Sí, emitimos facturas válidas para Crédito Fiscal (B01) para empresas y de Consumo (B02) para clientes particulares.",
               },
-            ].map((faq, idx) => (
-              <Reveal key={faq.q} delay={idx * 0.05}>
-                <div className="h-full border border-[var(--border)] bg-white p-6 rounded-xl shadow-xs hover:border-[#b0894f]/50 transition">
-                  <h3 className="font-display text-lg font-medium text-[var(--wood-950)]">
-                    {faq.q}
-                  </h3>
-                  <p className="mt-2.5 text-sm leading-relaxed text-[var(--muted)]">
-                    {faq.a}
-                  </p>
-                </div>
-              </Reveal>
+            ].map((faq) => (
+              <details key={faq.q} className="group py-4">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-lg font-medium text-[var(--wood-950)] transition-colors hover:text-[#8a6a3a]">
+                  <span>{faq.q}</span>
+                  <span className="text-xl leading-none text-[#b0894f] transition-transform duration-200 group-open:rotate-45">
+                    +
+                  </span>
+                </summary>
+                <p className="mt-2.5 pr-6 text-sm leading-relaxed text-[var(--muted)]">
+                  {faq.a}
+                </p>
+              </details>
             ))}
           </div>
         </div>

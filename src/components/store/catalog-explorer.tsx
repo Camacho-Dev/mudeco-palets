@@ -348,7 +348,7 @@ export function CatalogExplorer({
   if (availability !== "all")
     activeTags.push({
       key: "av",
-      label: availability === "in-stock" ? "Listos para entrega" : "Bajo pedido",
+      label: availability === "in-stock" ? "Listos para entrega" : "Por encargo",
       onRemove: () => setAvailability("all"),
     });
   if (isPriceFiltered)
@@ -414,7 +414,7 @@ export function CatalogExplorer({
               >
                 <option value="all">Toda disponibilidad</option>
                 <option value="in-stock">Listos para entrega</option>
-                <option value="custom">Bajo pedido</option>
+                <option value="custom">Por encargo</option>
               </select>
               <ChevronDown className="pointer-events-none absolute top-1/2 right-3.5 h-3.5 w-3.5 -translate-y-1/2 text-[#a39483]" />
             </div>
