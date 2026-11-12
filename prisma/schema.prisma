@@ -75,6 +75,8 @@ model Product {
   widthCm       Float?
   heightCm      Float?
   depthCm       Float?
+  /// Se fabrica siempre por encargo (nunca aparece como "Agotado")
+  madeToOrderOnly Boolean       @default(false)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   items         InvoiceItem[]
@@ -175,6 +177,10 @@ model CompanySettings {
   galleryImages    String? // JSON array con URLs de la galería
   beforeAfterJson  String? // JSON array con transformaciones antes/después
   bankAccountsJson String? // JSON array con cuentas bancarias [{ bank, type, accountNumber, holder, rnc, color }]
+  /// Plazo de fabricación por encargo (días hábiles) y % de abono inicial
+  leadTimeMinDays  Int     @default(10)
+  leadTimeMaxDays  Int     @default(15)
+  depositPercent   Int     @default(50)
 }
 
 model AuditLog {
@@ -285,6 +291,12 @@ model WebOrder {
   total            Float
   notes            String?
   stripeSessionId  String?
+  /// Incluye piezas que se fabrican por encargo (agotadas o siempre por encargo)
+  madeToOrder      Boolean        @default(false)
+  /// Monto a pagar ahora (abono + piezas en existencia); null = total
+  amountDueNow     Float?
+  /// Fecha estimada en que el encargo estará listo
+  estimatedReadyAt DateTime?
   customerId       String?
   customer         Customer?      @relation(fields: [customerId], references: [id])
   invoiceId        String?
@@ -311,6 +323,8 @@ model WebOrderItem {
   unitPrice   Float
   taxRate     Float
   lineTotal   Float
+  /// Esta línea se fabrica por encargo
+  madeToOrder Boolean  @default(false)
 
   @@index([webOrderId])
   @@index([productId])

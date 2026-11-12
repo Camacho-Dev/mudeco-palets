@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/session";
 import { writeAudit } from "@/lib/audit";
+import { invalidateStoreCompanyCache } from "@/lib/store";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -14,10 +15,15 @@ const schema = z.object({
   address: z.string().optional(),
   phone: z.string().optional(),
   email: z.string().optional(),
+  leadTimeMinDays: z.coerce.number().int().min(1).max(120),
+  leadTimeMaxDays: z.coerce.number().int().min(1).max(180),
+  depositPercent: z.coerce.number().int().min(10).max(100),
 });
 
 export async function updateCompany(fd: FormData) {
   await requireAdmin();
+  const rawMin = Number(fd.get("leadTimeMinDays") || 10);
+  const rawMax = Number(fd.get("leadTimeMaxDays") || 15);
   const data = schema.parse({
     name: String(fd.get("name") || ""),
     slogan: String(fd.get("slogan") || "") || undefined,
@@ -25,6 +31,9 @@ export async function updateCompany(fd: FormData) {
     address: String(fd.get("address") || "") || undefined,
     phone: String(fd.get("phone") || "") || undefined,
     email: String(fd.get("email") || "") || undefined,
+    leadTimeMinDays: rawMin,
+    leadTimeMaxDays: Math.max(rawMin, rawMax),
+    depositPercent: Number(fd.get("depositPercent") || 50),
   });
 
   await prisma.companySettings.upsert({
@@ -33,6 +42,8 @@ export async function updateCompany(fd: FormData) {
     create: { id: "default", ...data },
   });
 
+  invalidateStoreCompanyCache();
+
   await writeAudit({
     action: "UPDATE",
     entity: "Company",
@@ -40,6 +51,7 @@ export async function updateCompany(fd: FormData) {
     summary: `Datos de empresa actualizados: ${data.name}`,
   });
 
+  revalidatePath("/", "layout");
   revalidatePath("/configuracion");
   revalidatePath("/");
   revalidatePath("/contacto");

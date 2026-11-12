@@ -9,6 +9,17 @@ import { deductStock } from "@/lib/stock";
 import { roundMoney } from "@/lib/format";
 import { serviceKindFromRequest } from "@/lib/web-order-labels";
 import { notifyStaffNewWebOrder } from "@/lib/mail";
+import {
+  estimatedReadyDate,
+  needsFabrication,
+  normalizeMadeToOrderConfig,
+  splitPayment,
+} from "@/lib/made-to-order";
+
+async function getMadeToOrderConfig() {
+  const settings = await prisma.companySettings.findFirst();
+  return normalizeMadeToOrderConfig(settings);
+}
 
 
 export type CartLineInput = {
@@ -116,9 +127,37 @@ async function resolveLines(cart: CartLineInput[]) {
       unitPrice: product.price,
       taxRate: product.taxRate,
       lineTotal: roundMoney(row.qty * product.price),
+      madeToOrder: needsFabrication(product, row.qty),
     });
   }
   return lines;
+}
+
+function toInvoiceItems(
+  lines: Awaited<ReturnType<typeof resolveLines>>,
+) {
+  return lines.map((l) => ({
+    productId: l.productId,
+    description: l.description,
+    quantity: l.quantity,
+    unitPrice: l.unitPrice,
+    taxRate: l.taxRate,
+    lineTotal: l.lineTotal,
+  }));
+}
+
+function toWebOrderItems(
+  lines: Awaited<ReturnType<typeof resolveLines>>,
+) {
+  return lines.map((l) => ({
+    productId: l.productId,
+    description: l.description,
+    quantity: l.quantity,
+    unitPrice: l.unitPrice,
+    taxRate: l.taxRate,
+    lineTotal: l.lineTotal,
+    madeToOrder: l.madeToOrder,
+  }));
 }
 
 export async function createWebQuote(
@@ -127,6 +166,11 @@ export async function createWebQuote(
 ) {
   const lines = await resolveLines(cart);
   const totals = calcInvoiceTotals(lines, { applyTax: true });
+  const mtoConfig = await getMadeToOrderConfig();
+  const split = splitPayment(lines, totals.total, mtoConfig.depositPercent);
+  const estimatedReadyAt = split.hasMadeToOrder
+    ? estimatedReadyDate(mtoConfig)
+    : null;
   const customer = await upsertWebCustomer(customerData);
   const userId = await webSalesUserId();
   const [quoteNumber, webNumber] = await Promise.all([
@@ -145,7 +189,7 @@ export async function createWebQuote(
       total: totals.total,
       customerId: customer.id,
       userId,
-      items: { create: lines },
+      items: { create: toInvoiceItems(lines) },
     },
   });
 
@@ -155,6 +199,9 @@ export async function createWebQuote(
       type: "QUOTE",
       paymentMode: null,
       status: "QUOTED",
+      madeToOrder: split.hasMadeToOrder,
+      amountDueNow: split.hasMadeToOrder ? split.dueNow : null,
+      estimatedReadyAt,
       customerName: customerData.name.trim(),
       customerEmail: customerData.email.trim().toLowerCase(),
       customerPhone: customerData.phone?.trim() || null,
@@ -167,14 +214,7 @@ export async function createWebQuote(
       customerId: customer.id,
       quoteId: quote.id,
       items: {
-        create: lines.map((l) => ({
-          productId: l.productId,
-          description: l.description,
-          quantity: l.quantity,
-          unitPrice: l.unitPrice,
-          taxRate: l.taxRate,
-          lineTotal: l.lineTotal,
-        })),
+        create: toWebOrderItems(lines),
       },
     },
   });
@@ -302,6 +342,11 @@ export async function createWebLocalSale(
   const isTransfer = mode === "TRANSFER";
   const lines = await resolveLines(cart);
   const totals = calcInvoiceTotals(lines, { applyTax: true });
+  const mtoConfig = await getMadeToOrderConfig();
+  const split = splitPayment(lines, totals.total, mtoConfig.depositPercent);
+  const estimatedReadyAt = split.hasMadeToOrder
+    ? estimatedReadyDate(mtoConfig)
+    : null;
   const customer = await upsertWebCustomer(customerData);
   const userId = await webSalesUserId();
   const [invoiceNumber, webNumber] = await Promise.all([
@@ -326,7 +371,7 @@ export async function createWebLocalSale(
         total: totals.total,
         customerId: customer.id,
         userId,
-        items: { create: lines },
+        items: { create: toInvoiceItems(lines) },
       },
     });
 
@@ -336,6 +381,9 @@ export async function createWebLocalSale(
         type: "SALE",
         paymentMode: mode,
         status: isTransfer ? "AWAITING_PAYMENT" : "PENDING",
+        madeToOrder: split.hasMadeToOrder,
+        amountDueNow: split.hasMadeToOrder ? split.dueNow : null,
+        estimatedReadyAt,
         customerName: customerData.name.trim(),
         customerEmail: customerData.email.trim().toLowerCase(),
         customerPhone: customerData.phone?.trim() || null,
@@ -348,14 +396,7 @@ export async function createWebLocalSale(
         customerId: customer.id,
         invoiceId: inv.id,
         items: {
-          create: lines.map((l) => ({
-            productId: l.productId,
-            description: l.description,
-            quantity: l.quantity,
-            unitPrice: l.unitPrice,
-            taxRate: l.taxRate,
-            lineTotal: l.lineTotal,
-          })),
+          create: toWebOrderItems(lines),
         },
       },
     });
@@ -384,6 +425,11 @@ export async function createWebOnlineSalePending(
 ) {
   const lines = await resolveLines(cart);
   const totals = calcInvoiceTotals(lines, { applyTax: true });
+  const mtoConfig = await getMadeToOrderConfig();
+  const split = splitPayment(lines, totals.total, mtoConfig.depositPercent);
+  const estimatedReadyAt = split.hasMadeToOrder
+    ? estimatedReadyDate(mtoConfig)
+    : null;
   const customer = await upsertWebCustomer(customerData);
   const userId = await webSalesUserId();
   const [invoiceNumber, webNumber] = await Promise.all([
@@ -404,7 +450,7 @@ export async function createWebOnlineSalePending(
         total: totals.total,
         customerId: customer.id,
         userId,
-        items: { create: lines },
+        items: { create: toInvoiceItems(lines) },
       },
     });
 
@@ -414,6 +460,9 @@ export async function createWebOnlineSalePending(
         type: "SALE",
         paymentMode: "ONLINE",
         status: "AWAITING_PAYMENT",
+        madeToOrder: split.hasMadeToOrder,
+        amountDueNow: split.hasMadeToOrder ? split.dueNow : null,
+        estimatedReadyAt,
         customerName: customerData.name.trim(),
         customerEmail: customerData.email.trim().toLowerCase(),
         customerPhone: customerData.phone?.trim() || null,
@@ -426,14 +475,7 @@ export async function createWebOnlineSalePending(
         customerId: customer.id,
         invoiceId: inv.id,
         items: {
-          create: lines.map((l) => ({
-            productId: l.productId,
-            description: l.description,
-            quantity: l.quantity,
-            unitPrice: l.unitPrice,
-            taxRate: l.taxRate,
-            lineTotal: l.lineTotal,
-          })),
+          create: toWebOrderItems(lines),
         },
       },
     });
@@ -442,7 +484,7 @@ export async function createWebOnlineSalePending(
   });
 
   await notifyStaffNewWebOrder(order.id).catch(() => undefined);
-  return { order, invoice, customer, lines, totals };
+  return { order, invoice, customer, lines, totals, split, mtoConfig };
 }
 
 export async function finalizeOnlinePaidOrder(webOrderId: string) {
@@ -464,6 +506,12 @@ export async function finalizeOnlinePaidOrder(webOrderId: string) {
     });
     transitionedFromDraft = draftUpdate.count > 0;
 
+    const paidAmount =
+      order.madeToOrder && order.amountDueNow != null
+        ? order.amountDueNow
+        : inv.total;
+    const isPartial = paidAmount < inv.total - 0.01;
+
     const existingPay = await tx.payment.findFirst({
       where: { invoiceId: inv.id, method: "CARD" },
     });
@@ -471,16 +519,18 @@ export async function finalizeOnlinePaidOrder(webOrderId: string) {
       await tx.payment.create({
         data: {
           invoiceId: inv.id,
-          amount: inv.total,
+          amount: paidAmount,
           method: "CARD",
-          notes: "Pago online (Stripe)",
+          notes: isPartial
+            ? "Abono inicial online (Stripe)"
+            : "Pago online (Stripe)",
         },
       });
     }
 
     await tx.invoice.update({
       where: { id: inv.id },
-      data: { status: "PAID" },
+      data: { status: isPartial ? "PARTIAL" : "PAID" },
     });
 
     return tx.webOrder.update({

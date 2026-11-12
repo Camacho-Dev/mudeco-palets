@@ -18,6 +18,8 @@ export type CartItem = {
   imageUrl: string;
   quantity: number;
   maxQty?: number;
+  stock?: number;
+  madeToOrderOnly?: boolean;
 };
 
 type CartContextValue = {

@@ -1,5 +1,10 @@
 import { prisma, withDbRetry } from "@/lib/prisma";
 import { productImage } from "@/lib/product-image";
+import {
+  DEFAULT_MADE_TO_ORDER,
+  normalizeMadeToOrderConfig,
+  type MadeToOrderConfig,
+} from "@/lib/made-to-order";
 
 export { productImage };
 
@@ -21,6 +26,7 @@ export type StoreCompany = {
   galleryImages: string | null;
   beforeAfterJson: string | null;
   bankAccountsJson: string | null;
+  madeToOrder: MadeToOrderConfig;
 };
 
 let cachedCompany: { data: StoreCompany; expiresAt: number } | null = null;
@@ -92,6 +98,7 @@ export async function getStoreCompany(): Promise<StoreCompany> {
       galleryImages: company?.galleryImages || null,
       beforeAfterJson: company?.beforeAfterJson || null,
       bankAccountsJson: company?.bankAccountsJson || null,
+      madeToOrder: normalizeMadeToOrderConfig(company),
     };
     const ttl = process.env.NODE_ENV === "production" ? 60_000 : 30_000;
     cachedCompany = { data: result, expiresAt: now + ttl };
@@ -117,6 +124,7 @@ export async function getStoreCompany(): Promise<StoreCompany> {
       galleryImages: null,
       beforeAfterJson: null,
       bankAccountsJson: null,
+      madeToOrder: DEFAULT_MADE_TO_ORDER,
     };
   }
 }
@@ -140,6 +148,7 @@ export type StoreProduct = {
   widthCm: number | null;
   heightCm: number | null;
   depthCm: number | null;
+  madeToOrderOnly?: boolean;
   createdAt?: Date | string;
 };
 

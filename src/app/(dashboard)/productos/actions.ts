@@ -23,6 +23,7 @@ const productSchema = z.object({
   stock: z.coerce.number(),
   minStock: z.coerce.number(),
   active: z.boolean().optional(),
+  madeToOrderOnly: z.boolean().optional(),
   imageUrl: z.string().optional(),
   widthCm: z.coerce.number().optional(),
   heightCm: z.coerce.number().optional(),
@@ -47,6 +48,9 @@ function formDataToProduct(fd: FormData) {
     stock: fd.get("stock") || 0,
     minStock: fd.get("minStock") || 2,
     active: fd.get("active") === "on" || fd.get("active") === "true",
+    madeToOrderOnly:
+      fd.get("madeToOrderOnly") === "on" ||
+      fd.get("madeToOrderOnly") === "true",
     imageUrl: safeImageUrl,
     widthCm: width ? Number(width) : undefined,
     heightCm: height ? Number(height) : undefined,
@@ -96,6 +100,7 @@ export async function createProduct(fd: FormData) {
       stock: data.stock,
       minStock: data.minStock,
       active: data.active ?? true,
+      madeToOrderOnly: data.madeToOrderOnly ?? false,
       imageUrl: data.imageUrl || null,
       widthCm: data.widthCm ?? null,
       heightCm: data.heightCm ?? null,
@@ -156,6 +161,7 @@ export async function updateProduct(id: string, fd: FormData) {
       stock: nextStock,
       minStock: data.minStock,
       active: data.active ?? true,
+      madeToOrderOnly: data.madeToOrderOnly ?? false,
       imageUrl: data.imageUrl || null,
       widthCm: data.widthCm ?? null,
       heightCm: data.heightCm ?? null,

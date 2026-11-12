@@ -145,12 +145,11 @@ export async function submitWebCheckout(fd: FormData) {
         "El pago online no está configurado aún. Elige pagar en el local o solicita cotización.",
       );
     }
-    const { order, invoice, totals } = await createWebOnlineSalePending(
-      customer,
-      cart,
-    );
+    const { order, invoice, totals, split, mtoConfig } =
+      await createWebOnlineSalePending(customer, cart);
     const stripe = getStripe();
     const base = siteUrl();
+    const chargeAmount = split.hasMadeToOrder ? split.dueNow : totals.total;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
@@ -165,10 +164,14 @@ export async function submitWebCheckout(fd: FormData) {
           quantity: 1,
           price_data: {
             currency: "dop",
-            unit_amount: Math.round(totals.total * 100),
+            unit_amount: Math.round(chargeAmount * 100),
             product_data: {
-              name: `Pedido ${order.number}`,
-              description: `Factura ${invoice.number}`,
+              name: split.hasMadeToOrder
+                ? `Abono (${mtoConfig.depositPercent}%) · Pedido ${order.number}`
+                : `Pedido ${order.number}`,
+              description: split.hasMadeToOrder
+                ? `Factura ${invoice.number} · Saldo contra entrega`
+                : `Factura ${invoice.number}`,
             },
           },
         },

@@ -5,6 +5,7 @@ import { StoreFooter } from "@/components/store/store-footer";
 import { WhatsappFloating } from "@/components/store/whatsapp-floating";
 import { StoreProviders } from "@/components/store/store-providers";
 import { CartProvider } from "@/components/store/cart-context";
+import { StoreConfigProvider } from "@/components/store/store-config";
 import { getStoreCompany } from "@/lib/store";
 import { siteUrl } from "@/lib/store-info";
 import "@/components/store/store.css";
@@ -86,6 +87,7 @@ export default async function StoreLayout({
 
   return (
     <StoreProviders>
+      <StoreConfigProvider config={company.madeToOrder} phone={company.phone}>
       <CartProvider>
         <div
           className={`${storeDisplay.variable} ${storeBody.variable} store-shell flex min-h-screen flex-col`}
@@ -102,6 +104,7 @@ export default async function StoreLayout({
           <WhatsappFloating phone={company.phone} />
         </div>
       </CartProvider>
+      </StoreConfigProvider>
     </StoreProviders>
   );
 }

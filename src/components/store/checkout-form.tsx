@@ -3,7 +3,13 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useSession } from "next-auth/react";
 import { useCart } from "@/components/store/cart-context";
+import { useStoreConfig } from "@/components/store/store-config";
 import { formatCurrency, roundMoney } from "@/lib/format";
+import {
+  estimatedReadyDate,
+  needsFabrication,
+  splitPayment,
+} from "@/lib/made-to-order";
 import { submitWebCheckout } from "@/app/(store)/checkout/actions";
 import { STORE_LOGISTICS } from "@/lib/store-info";
 import { Upload, X, CheckCircle2, ShieldCheck, AlertCircle } from "lucide-react";
@@ -43,6 +49,7 @@ export function CheckoutForm({
 }) {
   const { data: session } = useSession();
   const { items, clear } = useCart();
+  const mtoConfig = useStoreConfig();
   const [error, setError] = useState("");
   const [fulfillment, setFulfillment] = useState<"pickup" | "delivery">(
     mode === "local" ? "pickup" : "pickup",
@@ -119,6 +126,33 @@ export function CheckoutForm({
     );
     return { subtotal, tax, total: roundMoney(subtotal + tax) };
   }, [items]);
+
+  const split = useMemo(
+    () =>
+      splitPayment(
+        items.map((i) => ({
+          quantity: i.quantity,
+          unitPrice: i.price,
+          taxRate: i.taxRate,
+          madeToOrder: needsFabrication(
+            { stock: i.stock ?? 0, madeToOrderOnly: i.madeToOrderOnly },
+            i.quantity,
+          ),
+        })),
+        totals.total,
+        mtoConfig.depositPercent,
+      ),
+    [items, totals.total, mtoConfig.depositPercent],
+  );
+
+  const readyDateLabel = useMemo(() => {
+    if (!split.hasMadeToOrder) return null;
+    return estimatedReadyDate(mtoConfig).toLocaleDateString("es-DO", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+  }, [split.hasMadeToOrder, mtoConfig]);
 
   const cartJson = JSON.stringify(
     items.map((i) => ({ productId: i.productId, quantity: i.quantity })),
@@ -484,10 +518,31 @@ export function CheckoutForm({
               <span>{formatCurrency(totals.tax)}</span>
             </li>
             <li className="flex justify-between border-t border-[var(--border)] pt-3 text-base font-bold text-[var(--wood-950)]">
-              <span>Total a pagar</span>
+              <span>{split.hasMadeToOrder && mode !== "quote" ? "Total del pedido" : "Total a pagar"}</span>
               <span className="text-lg text-[#8a6a3a]">{formatCurrency(totals.total)}</span>
             </li>
           </ul>
+
+          {split.hasMadeToOrder && (
+            <div className="mt-3 rounded-xl border border-[#c9a15a]/45 bg-[#faf6f1] p-3.5 text-xs space-y-1.5">
+              {mode !== "quote" && (
+                <>
+                  <div className="flex justify-between font-bold text-[var(--wood-950)]">
+                    <span>Abono a pagar hoy ({mtoConfig.depositPercent}%)</span>
+                    <span className="text-[#8a6a3a] text-sm">{formatCurrency(split.dueNow)}</span>
+                  </div>
+                  <div className="flex justify-between text-[var(--muted)]">
+                    <span>Saldo contra entrega</span>
+                    <span>{formatCurrency(split.balance)}</span>
+                  </div>
+                </>
+              )}
+              <p className="text-[11px] text-[#8a6a3a] font-medium pt-0.5">
+                Fabricación por encargo: {mtoConfig.leadTimeText}
+                {readyDateLabel ? ` (estimado ${readyDateLabel})` : ""}
+              </p>
+            </div>
+          )}
 
           {error ? (
             <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-rose-200 bg-rose-50 p-3.5 text-xs font-medium text-rose-700">

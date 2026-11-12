@@ -1,7 +1,9 @@
 "use client";
 
 import { useCart } from "@/components/store/cart-context";
+import { useStoreConfig } from "@/components/store/store-config";
 import { productImage } from "@/lib/product-image";
+import { needsFabrication } from "@/lib/made-to-order";
 import { useState } from "react";
 import { ShoppingBag, Check, Plus, Minus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,6 +16,7 @@ type Product = {
   imageUrl: string | null;
   category: string;
   stock: number;
+  madeToOrderOnly?: boolean;
 };
 
 export function AddToCartButton({
@@ -24,13 +27,15 @@ export function AddToCartButton({
   showQuantity?: boolean;
 }) {
   const { addItem, items } = useCart();
+  const { leadTimeText, depositPercent } = useStoreConfig();
   const [qty, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [limitReached, setLimitReached] = useState(false);
 
   const inCart = items.find((i) => i.productId === product.id)?.quantity ?? 0;
-  const max = product.stock > 0 ? Math.max(1, Math.floor(product.stock)) : 20;
+  const max = Math.max(20, Math.floor(product.stock));
   const canAdd = inCart + qty <= max;
+  const isMadeToOrder = needsFabrication(product, inCart + qty);
 
   const handleClick = () => {
     if (!canAdd) {
@@ -45,6 +50,8 @@ export function AddToCartButton({
         price: product.price,
         taxRate: product.taxRate,
         imageUrl: productImage(product),
+        stock: product.stock,
+        madeToOrderOnly: Boolean(product.madeToOrderOnly),
       },
       qty,
       max,
@@ -122,9 +129,15 @@ export function AddToCartButton({
         </motion.button>
       </div>
 
-      {limitReached || (!canAdd && product.stock > 0) ? (
+      {isMadeToOrder ? (
+        <p className="text-xs font-medium text-[#8a6a3a]">
+          Por encargo · Listo en {leadTimeText} · Abono del {depositPercent}% al ordenar
+        </p>
+      ) : null}
+
+      {limitReached || !canAdd ? (
         <p className="text-xs text-amber-700 font-medium">
-          Ya alcanzaste la cantidad máxima disponible para este producto en taller.
+          Ya alcanzaste el máximo de {max} unidades por pedido en línea.
         </p>
       ) : null}
     </div>

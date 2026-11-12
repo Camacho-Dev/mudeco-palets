@@ -104,6 +104,55 @@ export default async function ConfiguracionPage() {
               />
             </div>
           </div>
+          <div className="border-t border-[var(--border)] pt-4 space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+              Fabricación por encargo
+            </p>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div>
+                <label className="label" htmlFor="leadTimeMinDays">
+                  Plazo mín. (días)
+                </label>
+                <input
+                  id="leadTimeMinDays"
+                  name="leadTimeMinDays"
+                  type="number"
+                  min={1}
+                  max={120}
+                  defaultValue={company?.leadTimeMinDays ?? 10}
+                  className="input"
+                />
+              </div>
+              <div>
+                <label className="label" htmlFor="leadTimeMaxDays">
+                  Plazo máx. (días)
+                </label>
+                <input
+                  id="leadTimeMaxDays"
+                  name="leadTimeMaxDays"
+                  type="number"
+                  min={1}
+                  max={180}
+                  defaultValue={company?.leadTimeMaxDays ?? 15}
+                  className="input"
+                />
+              </div>
+              <div>
+                <label className="label" htmlFor="depositPercent">
+                  Abono inicial (%)
+                </label>
+                <input
+                  id="depositPercent"
+                  name="depositPercent"
+                  type="number"
+                  min={10}
+                  max={100}
+                  defaultValue={company?.depositPercent ?? 50}
+                  className="input"
+                />
+              </div>
+            </div>
+          </div>
           <button type="submit" className="btn btn-primary">
             Guardar
           </button>

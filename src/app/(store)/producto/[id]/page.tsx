@@ -99,7 +99,7 @@ export default async function ProductoPage({
       priceCurrency: "DOP",
       price: product.price.toFixed(2),
       availability:
-        product.stock > 0
+        product.stock > 0 && !product.madeToOrderOnly
           ? "https://schema.org/InStock"
           : "https://schema.org/PreOrder",
       seller: {
@@ -188,13 +188,15 @@ export default async function ProductoPage({
             <div className="flex items-center gap-1.5 text-xs">
               <span
                 className={`inline-flex h-2 w-2 rounded-full ${
-                  product.stock > 0 ? "bg-emerald-500" : "bg-amber-500"
+                  product.stock > 0 && !product.madeToOrderOnly
+                    ? "bg-emerald-500"
+                    : "bg-amber-500"
                 }`}
               />
               <span className="font-medium text-[var(--muted)]">
-                {product.stock > 0
+                {product.stock > 0 && !product.madeToOrderOnly
                   ? `En existencia · ${product.stock} unidades`
-                  : "Fabricación a medida bajo pedido"}
+                  : "Por encargo · Fabricación artesanal bajo pedido"}
               </span>
             </div>
           </div>

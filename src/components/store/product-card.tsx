@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 import { productImage } from "@/lib/product-image";
 import { formatStoreCategory } from "@/lib/store-brand";
+import { availabilityOf } from "@/lib/made-to-order";
 import type { StoreProduct } from "@/lib/store";
 
 export function ProductCard({
@@ -16,7 +17,8 @@ export function ProductCard({
 }) {
   const src = productImage(product);
   const dark = tone === "dark";
-  const inStock = product.stock > 0;
+  const availability = availabilityOf(product);
+  const inStock = availability === "in-stock";
   const categoryLabel = formatStoreCategory(product.category);
 
   return (
@@ -93,7 +95,11 @@ export function ProductCard({
                 inStock ? "bg-emerald-500" : "bg-[#c9a15a]"
               }`}
             />
-            {inStock ? "Listo para entrega" : "Bajo pedido"}
+            {inStock
+              ? "Listo para entrega"
+              : availability === "made-to-order"
+                ? "Por encargo"
+                : "Bajo pedido"}
           </span>
         </div>
       </div>

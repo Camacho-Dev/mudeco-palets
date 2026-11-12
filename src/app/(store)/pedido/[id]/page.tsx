@@ -426,8 +426,15 @@ export default async function PedidoPage({
                           <p className="font-bold text-sm text-slate-900 truncate">
                             {it.description}
                           </p>
-                          <p className="text-slate-500 mt-0.5">
-                            Cant: <span className="font-semibold text-slate-800">{it.quantity}</span> × {formatCurrency(it.unitPrice)}
+                          <p className="text-slate-500 mt-0.5 flex flex-wrap items-center gap-2">
+                            <span>
+                              Cant: <span className="font-semibold text-slate-800">{it.quantity}</span> × {formatCurrency(it.unitPrice)}
+                            </span>
+                            {it.madeToOrder && (
+                              <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-800">
+                                Por encargo
+                              </span>
+                            )}
                           </p>
                         </div>
                       </div>
@@ -456,6 +463,28 @@ export default async function PedidoPage({
                 <span>Total general</span>
                 <span className="font-mono text-xl font-extrabold text-emerald-700">{formatCurrency(order.total)}</span>
               </div>
+              {order.madeToOrder && order.amountDueNow != null && (
+                <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/80 p-3.5 text-left space-y-1.5">
+                  <div className="flex justify-between font-bold text-slate-900">
+                    <span>Abono inicial requerido</span>
+                    <span className="font-mono text-amber-800">{formatCurrency(order.amountDueNow)}</span>
+                  </div>
+                  <div className="flex justify-between text-slate-600">
+                    <span>Saldo contra entrega</span>
+                    <span className="font-mono">{formatCurrency(Math.max(0, order.total - order.amountDueNow))}</span>
+                  </div>
+                  {order.estimatedReadyAt && (
+                    <p className="text-[11px] font-medium text-amber-800 pt-1">
+                      Entrega estimada:{" "}
+                      {new Date(order.estimatedReadyAt).toLocaleDateString("es-DO", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>

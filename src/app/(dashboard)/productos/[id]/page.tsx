@@ -234,6 +234,14 @@ export default async function EditarProductoPage({
           />
           Activo en catálogo
         </label>
+        <label className="flex items-center gap-2 text-sm text-[var(--muted)]">
+          <input
+            type="checkbox"
+            name="madeToOrderOnly"
+            defaultChecked={product.madeToOrderOnly}
+          />
+          Siempre por encargo (fabricación bajo pedido)
+        </label>
         <div className="flex gap-3 pt-2">
           <button type="submit" className="btn btn-primary">
             Guardar cambios

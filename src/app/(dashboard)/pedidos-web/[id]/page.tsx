@@ -309,6 +309,35 @@ export default async function PedidoWebDetailPage({
       </div>
 
       {/* Comprobante de pago bancario con protocolo de 3 confirmaciones para el Admin */}
+      {order.madeToOrder ? (
+        <div className="card mb-4 border border-amber-300 bg-amber-50/70 p-4 text-xs text-amber-950 flex flex-wrap items-center justify-between gap-3">
+          <div className="space-y-0.5">
+            <p className="font-bold uppercase tracking-wide text-amber-800">
+              Pedido con fabricación por encargo
+            </p>
+            {order.estimatedReadyAt ? (
+              <p className="text-amber-900">
+                Entrega estimada: <strong>{formatDate(order.estimatedReadyAt)}</strong>
+              </p>
+            ) : null}
+          </div>
+          {order.amountDueNow != null ? (
+            <div className="flex items-center gap-4 font-mono">
+              <div>
+                <span className="text-amber-700 block text-[10px] uppercase">Abono inicial</span>
+                <strong className="text-sm">{formatCurrency(order.amountDueNow)}</strong>
+              </div>
+              <div>
+                <span className="text-amber-700 block text-[10px] uppercase">Saldo contra entrega</span>
+                <strong className="text-sm">
+                  {formatCurrency(Math.max(0, order.total - order.amountDueNow))}
+                </strong>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
       {receipt ? (
         <AdminReceiptVerifier
           orderId={order.id}
@@ -409,8 +438,13 @@ export default async function PedidoWebDetailPage({
                       )}
                     </td>
                     <td>
-                      <div className="font-medium text-[var(--wood-900)]">
-                        {it.description}
+                      <div className="font-medium text-[var(--wood-900)] flex flex-wrap items-center gap-2">
+                        <span>{it.description}</span>
+                        {it.madeToOrder ? (
+                          <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
+                            Por encargo
+                          </span>
+                        ) : null}
                       </div>
                       {it.product ? (
                         <div className="text-xs text-[var(--muted)]">

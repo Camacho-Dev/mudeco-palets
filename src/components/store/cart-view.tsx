@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useCart } from "@/components/store/cart-context";
+import { useStoreConfig } from "@/components/store/store-config";
 import { useSession } from "next-auth/react";
 import { formatCurrency, roundMoney } from "@/lib/format";
+import { needsFabrication, splitPayment } from "@/lib/made-to-order";
 import { CheckoutStepBanner } from "@/components/store/checkout-step-banner";
 import { Minus, Plus, ShoppingBag, Trash2, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,6 +14,7 @@ import { LUXURY_EASE } from "@/components/store/store-motion";
 export function CartView() {
   const { data: session } = useSession();
   const { items, setQty, removeItem, clear } = useCart();
+  const { depositPercent, leadTimeText } = useStoreConfig();
   const subtotal = roundMoney(
     items.reduce((s, i) => s + roundMoney(i.price * i.quantity), 0),
   );
@@ -22,6 +25,19 @@ export function CartView() {
     ),
   );
   const total = roundMoney(subtotal + tax);
+  const split = splitPayment(
+    items.map((i) => ({
+      quantity: i.quantity,
+      unitPrice: i.price,
+      taxRate: i.taxRate,
+      madeToOrder: needsFabrication(
+        { stock: i.stock ?? 0, madeToOrderOnly: i.madeToOrderOnly },
+        i.quantity,
+      ),
+    })),
+    total,
+    depositPercent,
+  );
 
   if (!items.length) {
     return (
@@ -174,6 +190,21 @@ export function CartView() {
                 <span>Total estimado</span>
                 <span className="text-lg text-[#8a6a3a]">{formatCurrency(total)}</span>
               </div>
+              {split.hasMadeToOrder && (
+                <div className="mt-2 rounded-xl border border-[#c9a15a]/40 bg-[#faf6f1] p-3 space-y-1.5 text-xs">
+                  <div className="flex justify-between font-bold text-[var(--wood-950)]">
+                    <span>Abono a pagar hoy ({depositPercent}%)</span>
+                    <span className="text-[#8a6a3a]">{formatCurrency(split.dueNow)}</span>
+                  </div>
+                  <div className="flex justify-between text-[var(--muted)]">
+                    <span>Saldo contra entrega</span>
+                    <span>{formatCurrency(split.balance)}</span>
+                  </div>
+                  <p className="pt-1 text-[11px] text-[#8a6a3a] font-medium">
+                    Incluye piezas por encargo · Plazo estimado: {leadTimeText}
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="pt-2 space-y-2.5">
