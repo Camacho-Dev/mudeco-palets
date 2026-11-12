@@ -12,6 +12,7 @@ import {
 } from "@/components/store/header-auth";
 import { CartLink } from "@/components/store/cart-link";
 import { formatStoreCategory } from "@/lib/store-brand";
+import { LUXURY_EASE } from "@/components/store/store-motion";
 import {
   Menu,
   X,
@@ -265,29 +266,29 @@ export function StoreHeaderClient({
                     {catsOpen && (
                       <div className="absolute top-full left-1/2 z-50 pt-2 -translate-x-1/2">
                         <motion.div
-                          initial={{ opacity: 0, y: 6, scale: 0.98 }}
+                          initial={{ opacity: 0, y: 10, scale: 0.97 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 4, scale: 0.98 }}
-                          transition={{ duration: 0.16, ease: "easeOut" }}
-                          className="w-[440px] overflow-hidden rounded-xl border border-white/[0.1] bg-[#141414] p-4 shadow-[0_20px_50px_rgba(0,0,0,0.85)]"
+                          exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                          transition={{ duration: 0.24, ease: LUXURY_EASE }}
+                          className="w-[450px] overflow-hidden rounded-2xl border border-white/[0.12] bg-[#141414]/98 p-4 shadow-[0_24px_60px_rgba(0,0,0,0.88)] backdrop-blur-2xl"
                         >
                           {/* Cabecera compacta */}
-                          <div className="mb-2.5 flex items-center justify-between border-b border-white/[0.07] pb-2.5 px-1">
-                            <span className="text-[0.65rem] font-semibold tracking-[0.18em] text-white/45 uppercase">
+                          <div className="mb-2.5 flex items-center justify-between border-b border-white/[0.08] pb-2.5 px-1">
+                            <span className="text-[0.65rem] font-semibold tracking-[0.18em] text-white/50 uppercase">
                               Categorías
                             </span>
                             <Link
                               href="/catalogo"
                               onClick={() => setCatsOpen(false)}
-                              className="group inline-flex items-center gap-1 text-[0.68rem] font-semibold tracking-wider text-[#c9a15a] uppercase transition hover:text-[#e0be7e]"
+                              className="group inline-flex items-center gap-1.5 text-[0.68rem] font-semibold tracking-wider text-[#c9a15a] uppercase transition hover:text-[#e0be7e]"
                             >
                               <span>Ver todo</span>
-                              <ArrowRight className="h-3 w-3 transition-transform duration-200 group-hover:translate-x-0.5" />
+                              <ArrowRight className="h-3 w-3 transition-transform duration-200 ease-out group-hover:translate-x-1" />
                             </Link>
                           </div>
 
                           {/* Cuadrícula limpia de 2 columnas con las categorías reales */}
-                          <div className="grid grid-cols-2 gap-1">
+                          <div className="grid grid-cols-2 gap-1.5">
                             {categories.map((cat) => {
                               const formatted = formatCategory(cat);
                               return (
@@ -296,13 +297,13 @@ export function StoreHeaderClient({
                                   href={`/catalogo?cat=${encodeURIComponent(cat)}`}
                                   prefetch={false}
                                   onClick={() => setCatsOpen(false)}
-                                  className="group flex items-center justify-between rounded-lg px-3 py-2 text-[13px] text-white/75 transition-colors duration-150 hover:bg-white/[0.06] hover:text-white"
+                                  className="group flex items-center justify-between rounded-xl px-3 py-2 text-[13px] text-white/80 transition-all duration-200 ease-out hover:bg-white/[0.07] hover:text-white active:scale-95"
                                 >
                                   <span className="flex items-center gap-2 truncate">
                                     <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#c9a15a]/45 transition-colors group-hover:bg-[#c9a15a]" />
                                     <span className="truncate">{formatted}</span>
                                   </span>
-                                  <ArrowRight className="h-3 w-3 shrink-0 text-[#c9a15a] opacity-0 transition-all duration-150 group-hover:translate-x-0.5 group-hover:opacity-90" />
+                                  <ArrowRight className="h-3 w-3 shrink-0 text-[#c9a15a] opacity-0 transition-all duration-200 ease-out group-hover:translate-x-0.5 group-hover:opacity-100" />
                                 </Link>
                               );
                             })}
@@ -364,11 +365,11 @@ export function StoreHeaderClient({
         <AnimatePresence>
           {searchOpen ? (
             <motion.div
-              initial={{ opacity: 0, y: -8 }}
+              initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.16 }}
-              className="border-t border-white/[0.08] bg-[#12100d]/95 px-4 py-3 backdrop-blur-2xl sm:px-8"
+              transition={{ duration: 0.22, ease: LUXURY_EASE }}
+              className="border-t border-white/[0.08] bg-[#12100d]/95 px-4 py-3.5 backdrop-blur-2xl sm:px-8"
             >
               <form
                 onSubmit={(e) => {

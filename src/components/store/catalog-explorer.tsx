@@ -455,7 +455,7 @@ export function CatalogExplorer({
             <button
               type="button"
               onClick={() => handleSelectCategory("")}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold tracking-wide transition-all duration-150 cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold tracking-wide transition-all duration-200 ease-out active:scale-95 hover:-translate-y-0.5 cursor-pointer ${
                 !selectedCategory && filterMode !== "popular"
                   ? "bg-[#16120f] text-[#faf6f1] shadow-xs border border-[#c9a15a]/50"
                   : "bg-white text-[#5c4a3b] border border-[#e0d2c1] hover:border-[#c9a15a] hover:bg-[#faf7f2]"
@@ -477,7 +477,7 @@ export function CatalogExplorer({
             <button
               type="button"
               onClick={handleSelectPopular}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold tracking-wide transition-all duration-150 cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold tracking-wide transition-all duration-200 ease-out active:scale-95 hover:-translate-y-0.5 cursor-pointer ${
                 filterMode === "popular"
                   ? "bg-[#c9a15a] text-[#16120f] shadow-xs border border-[#b3883b]"
                   : "bg-white text-[#8a682a] border border-[#c9a15a]/40 hover:border-[#c9a15a] hover:bg-[#fbf7ee]"
@@ -509,7 +509,7 @@ export function CatalogExplorer({
                   key={c}
                   type="button"
                   onClick={() => handleSelectCategory(c)}
-                  className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold tracking-wide transition-all duration-150 cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold tracking-wide transition-all duration-200 ease-out active:scale-95 hover:-translate-y-0.5 cursor-pointer ${
                     active
                       ? "bg-[#16120f] text-[#faf6f1] shadow-xs border border-[#c9a15a]/50"
                       : "bg-white text-[#5c4a3b] border border-[#e0d2c1] hover:border-[#c9a15a] hover:bg-[#faf7f2]"

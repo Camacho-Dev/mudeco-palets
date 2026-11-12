@@ -74,10 +74,10 @@ export default async function CheckoutHubPage({
           <Link
             key={opt.href}
             href={opt.href}
-            className={`group relative flex flex-col justify-between rounded-2xl border p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-md ${
+            className={`group relative flex flex-col justify-between rounded-2xl border p-6 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:shadow-lg active:scale-[0.985] ${
               opt.featured
-                ? "border-[#c9a15a] bg-white shadow-xs ring-1 ring-[#c9a15a]/25"
-                : "border-[#e2d5c5] bg-white hover:border-[#b0894f]"
+                ? "border-[#c9a15a] bg-white shadow-xs ring-1 ring-[#c9a15a]/30"
+                : "border-[#e2d5c5] bg-white hover:border-[#c9a15a]"
             }`}
           >
             <div>

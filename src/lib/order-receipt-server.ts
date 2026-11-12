@@ -100,3 +100,4 @@ export async function processReceiptFile(
     mimeType: resolvedMime,
   };
 }
+

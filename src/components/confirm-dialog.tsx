@@ -57,7 +57,7 @@ export function ConfirmDialog({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md transition-opacity duration-300"
       onClick={(e) => {
         if (e.target === e.currentTarget && !isPending) onClose();
       }}
@@ -67,7 +67,7 @@ export function ConfirmDialog({
         aria-modal="true"
         aria-labelledby="confirm-dialog-title"
         aria-describedby="confirm-dialog-desc"
-        className="w-full max-w-md rounded-2xl border border-[#b0894f]/30 bg-[#faf6f1] p-6 shadow-2xl animate-in zoom-in-95 duration-200"
+        className="w-full max-w-md rounded-2xl border border-[#c9a15a]/30 bg-[#faf7f2] p-6 shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">

@@ -1,5 +1,22 @@
 /* Tienda pública — look premium dark / luxury */
 
+/* Scrollbar sutil y minimalista de alta gama */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.22);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 161, 90, 0.45);
+}
+
 .store-shell {
   --store-bg: #0f0f0f;
   --store-brown: #0f172a;
@@ -177,20 +194,25 @@
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     border-color 0.3s ease;
+  will-change: transform;
 }
 
 .store-product-card:hover {
-  transform: translateY(-6px);
-  border-color: rgba(217, 119, 6, 0.4);
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08), 0 0 20px rgba(217, 119, 6, 0.06);
+  transform: translateY(-5px);
+  border-color: rgba(201, 161, 90, 0.5);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08), 0 0 20px rgba(201, 161, 90, 0.08);
+}
+
+.store-product-card:active {
+  transform: translateY(-2px) scale(0.99);
 }
 
 .store-product-card img {
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .store-product-card:hover img {
-  transform: scale(1.06);
+  transform: scale(1.05);
 }
 
 /* Product cards — dark home */
@@ -204,20 +226,25 @@
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
     border-color 0.3s ease;
+  will-change: transform;
 }
 
 .store-product-card-dark:hover {
-  transform: translateY(-6px);
+  transform: translateY(-5px);
   border-color: rgba(201, 161, 90, 0.5);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 24px rgba(201, 161, 90, 0.12);
 }
 
+.store-product-card-dark:active {
+  transform: translateY(-2px) scale(0.99);
+}
+
 .store-product-card-dark img {
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .store-product-card-dark:hover img {
-  transform: scale(1.06);
+  transform: scale(1.05);
 }
 
 /* Luxury VIP Consultation Banner */

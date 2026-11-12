@@ -56,13 +56,13 @@ function ShelfCard({ product }: { product: ShelfProduct }) {
 
   return (
     <article className="group w-[190px] shrink-0 snap-start sm:w-[230px] md:w-[260px] lg:w-[280px]">
-      <div className="overflow-hidden border border-white/[0.08] bg-[#141414] transition-all duration-300 hover:border-[#c9a15a]/50 hover:shadow-[0_12px_28px_rgba(201,161,90,0.18)] hover:-translate-y-1 rounded-sm">
+      <div className="overflow-hidden border border-white/[0.08] bg-[#141414] transition-all duration-300 hover:border-[#c9a15a]/50 hover:shadow-[0_16px_36px_rgba(0,0,0,0.5)] hover:-translate-y-1.5 rounded-2xl">
         <Link
           href={`/producto/${product.id}`}
           className="relative block aspect-square overflow-hidden bg-[#1a1a1a]"
         >
           {product.badge ? (
-            <span className="absolute top-2 left-2 z-10 rounded bg-gradient-to-r from-black/95 to-black/85 px-2 py-0.5 text-[0.55rem] font-bold tracking-widest text-[#d4af37] border border-[#d4af37]/40 uppercase shadow-md backdrop-blur-md">
+            <span className="absolute top-3 left-3 z-10 rounded-md bg-gradient-to-r from-black/95 to-black/85 px-2.5 py-0.5 text-[0.55rem] font-bold tracking-widest text-[#d4af37] border border-[#d4af37]/40 uppercase shadow-md backdrop-blur-md">
               {product.badge}
             </span>
           ) : null}
@@ -71,12 +71,12 @@ function ShelfCard({ product }: { product: ShelfProduct }) {
           <img
             src={src}
             alt={product.name}
-            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+            className="h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
             loading="lazy"
           />
         </Link>
 
-        <div className="space-y-2 p-3.5">
+        <div className="space-y-2 p-4">
           <p className="text-[0.58rem] font-medium tracking-[0.14em] text-[#c9a15a]/85 uppercase">
             {product.category}
           </p>
@@ -86,17 +86,18 @@ function ShelfCard({ product }: { product: ShelfProduct }) {
             </h3>
           </Link>
           <CraftBadge />
-          <div className="flex items-center justify-between gap-2 pt-1 border-t border-white/[0.05]">
+          <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/[0.06]">
             <p className="text-sm font-semibold text-[#c9a15a]">
               {formatCurrency(product.price)}
             </p>
             <motion.button
               type="button"
               disabled={!canAdd}
-              whileTap={{ scale: 0.88 }}
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.05 }}
               aria-label="Agregar al carrito"
               onClick={handleAdd}
-              className={`inline-flex h-8 w-8 items-center justify-center border transition-all duration-300 disabled:opacity-40 ${
+              className={`inline-flex h-8 w-8 items-center justify-center rounded-xl border transition-all duration-300 disabled:opacity-40 cursor-pointer ${
                 added
                   ? "border-emerald-500/70 bg-emerald-500/20 text-emerald-400"
                   : "border-[#c9a15a]/45 text-[#c9a15a] hover:bg-[#c9a15a] hover:text-[#0a0a0a]"

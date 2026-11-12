@@ -318,7 +318,7 @@ export default async function StoreHomePage() {
               <Reveal key={tile.title} delay={i * 0.05}>
                 <Link
                   href={tile.href}
-                  className="group relative block aspect-[4/3] overflow-hidden border border-white/[0.08] bg-[#141414] transition-all duration-500 hover:border-[#c9a15a]/60 hover:shadow-[0_16px_36px_rgba(0,0,0,0.6)]"
+                  className="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-white/[0.08] bg-[#141414] transition-all duration-500 hover:border-[#c9a15a]/60 hover:shadow-[0_16px_36px_rgba(0,0,0,0.6)]"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
