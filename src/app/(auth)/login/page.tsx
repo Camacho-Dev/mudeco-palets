@@ -282,8 +282,17 @@ function LoginForm() {
             initial={reduceMotion ? false : { opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.08, ease: easeOutExpo }}
+            className="flex items-center gap-3.5"
           >
-            <LogoMark className="h-12 w-auto text-white" />
+            <LogoMark className="h-11 w-11 shrink-0 text-[#d4af37]" />
+            <div className="leading-none">
+              <span className="font-display block text-2xl tracking-[0.14em] text-white">
+                MUDECO PALETS
+              </span>
+              <span className="mt-1 block text-[0.65rem] font-semibold uppercase tracking-[0.26em] text-[#c9a15a]">
+                Taller Artesanal
+              </span>
+            </div>
           </motion.div>
           <motion.div
             initial={reduceMotion ? false : { scaleX: 0, opacity: 0 }}
@@ -333,7 +342,12 @@ function LoginForm() {
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>Tienda</span>
           </Link>
-          <LogoMark className="h-8 w-auto text-[#14100d]" />
+          <div className="flex items-center gap-2">
+            <LogoMark className="h-6 w-6 text-[#9b7435]" />
+            <span className="font-display text-sm tracking-[0.12em] text-[#14100d]">
+              MUDECO PALETS
+            </span>
+          </div>
         </div>
 
         <div className="mx-auto my-auto w-full max-w-[420px] py-8">
@@ -346,6 +360,7 @@ function LoginForm() {
             {/* Encabezado */}
             <div className="space-y-1.5">
               <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-[#9b7435]">
+                Mudeco Palets ·{" "}
                 {isFromCheckout ? "Continuar compra" : "Espacio de cliente"}
               </p>
               <AnimatePresence mode="wait">
