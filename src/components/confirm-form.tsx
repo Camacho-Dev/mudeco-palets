@@ -28,20 +28,41 @@ export function ConfirmForm({
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
   function handleTrigger(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
+    setError(null);
     setIsOpen(true);
   }
 
   function handleConfirm() {
-    setIsOpen(false);
     if (!formRef.current) return;
+    setError(null);
     const fd = new FormData(formRef.current);
     startTransition(async () => {
-      await action(fd);
+      try {
+        await action(fd);
+        setIsOpen(false);
+      } catch (err) {
+        if (
+          err &&
+          typeof err === "object" &&
+          "digest" in err &&
+          typeof (err as { digest?: unknown }).digest === "string" &&
+          (err as { digest: string }).digest.startsWith("NEXT_REDIRECT")
+        ) {
+          setIsOpen(false);
+          throw err;
+        }
+        setError(
+          err instanceof Error
+            ? err.message
+            : "No se pudo completar la acción."
+        );
+      }
     });
   }
 
@@ -71,7 +92,10 @@ export function ConfirmForm({
 
       <ConfirmDialog
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={() => {
+          setError(null);
+          setIsOpen(false);
+        }}
         onConfirm={handleConfirm}
         title={title}
         description={message}
@@ -79,6 +103,7 @@ export function ConfirmForm({
         cancelLabel={cancelLabel}
         isDestructive={isDestructive}
         isPending={pending}
+        error={error}
       />
     </>
   );

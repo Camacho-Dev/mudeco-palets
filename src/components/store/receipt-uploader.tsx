@@ -414,6 +414,7 @@ export function ReceiptUploader({
             <button
               type="button"
               onClick={() => setShowModal(false)}
+              aria-label="Cerrar vista ampliada"
               className="absolute right-3 top-3 z-10 rounded-full bg-black/60 p-1.5 text-white hover:bg-black transition"
             >
               <X className="h-4 w-4" />
@@ -447,9 +448,13 @@ export function BankAccountCard({
   const [copied, setCopied] = useState(false);
 
   function copyAccount() {
-    navigator.clipboard.writeText(accountNumber);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2400);
+    try {
+      void navigator.clipboard?.writeText(accountNumber);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2400);
+    } catch {
+      // Clipboard unavailable
+    }
   }
 
   // Estilos de marca por banco dominicano
@@ -521,7 +526,7 @@ export function BankAccountCard({
 
       <div className="p-4 text-xs">
         {/* Número de cuenta con botón Copiar con micro-interacción */}
-        <div className="flex items-center justify-between gap-2 rounded-xl bg-slate-50 p-3 border border-slate-200/80">
+        <div className="flex items-center justify-between gap-2 rounded-xl bg-[#faf7f2] p-3 border border-[#e2d5c5]">
           <div>
             <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500">
               Número de Cuenta

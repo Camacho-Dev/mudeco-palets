@@ -28,8 +28,8 @@ const MODE_COPY = {
   },
   local: {
     title: "Retiro en taller / Pago local",
-    submit: "Confirmar orden con comprobante",
-    hint: "Para retiros en taller, adjunta el comprobante de depósito o anticipo para reservar tus piezas.",
+    submit: "Confirmar pedido",
+    hint: "Para retiros en taller o pago local puedes adjuntar tu comprobante de depósito ahora (opcional) o pagar al retirar.",
   },
   quote: {
     title: "Pedir cotización",
@@ -70,7 +70,7 @@ export function CheckoutForm({
   const [pending, start] = useTransition();
   const copy = MODE_COPY[mode];
 
-  const isReceiptMandatory = mode === "transfer" || mode === "local";
+  const isReceiptMandatory = mode === "transfer";
 
   // Auto-fill name/email when session loads asynchronously
   useEffect(() => {
@@ -514,7 +514,7 @@ export function CheckoutForm({
               <span>{formatCurrency(totals.subtotal)}</span>
             </li>
             <li className="flex justify-between py-1.5 text-[var(--muted)]">
-              <span>ITBIS (18%)</span>
+              <span>ITBIS</span>
               <span>{formatCurrency(totals.tax)}</span>
             </li>
             <li className="flex justify-between border-t border-[var(--border)] pt-3 text-base font-bold text-[var(--wood-950)]">

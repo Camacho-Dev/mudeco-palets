@@ -25,7 +25,7 @@ export default async function CheckoutTransferenciaPage() {
         step={3}
         badge="Checkout · Transferencia Bancaria"
         title="Pago por transferencia bancaria"
-        subtitle="Copia cualquiera de nuestras cuentas oficiales en DOP, confirma tu pedido y sube tu comprobante en el siguiente paso."
+        subtitle="Copia cualquiera de nuestras cuentas oficiales en DOP, realiza la transferencia y adjunta tu comprobante en este formulario para confirmar tu pedido."
       />
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <BankAccountsGrid banks={banks} />
@@ -33,7 +33,7 @@ export default async function CheckoutTransferenciaPage() {
         <div className="mt-4 flex items-center gap-2.5 rounded-xl bg-[#fbf7f2] p-3.5 text-xs text-[var(--wood-800)] border border-[#e2d5c5]">
           <CheckCircle2 className="h-4 w-4 shrink-0 text-[#b0894f]" />
           <span>
-            Al completar este formulario, tu orden queda registrada y podrás adjuntar el comprobante bancario desde el resumen de tu pedido.
+            Adjunta el comprobante bancario directamente en este formulario para registrar y validar tu pedido al instante.
           </span>
         </div>
 

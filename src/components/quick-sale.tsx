@@ -524,7 +524,21 @@ export function QuickSale({
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          {filtered.map((p) => {
+          {filtered.length === 0 ? (
+            <div className="card col-span-full p-8 text-center">
+              <p className="text-sm font-medium text-[var(--wood-950)]">
+                No se encontraron productos para “{query}”
+              </p>
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                className="btn btn-secondary mt-3 text-xs"
+              >
+                Ver todos los productos
+              </button>
+            </div>
+          ) : (
+            filtered.map((p) => {
             const outOfStock = p.sku !== "CUS-001" && p.stock <= 0;
             return (
               <button
@@ -570,7 +584,8 @@ export function QuickSale({
                 </div>
               </button>
             );
-          })}
+          })
+          )}
         </div>
       </div>
 
@@ -628,6 +643,7 @@ export function QuickSale({
                         : "text-[var(--muted)] hover:bg-rose-100 hover:text-rose-700"
                     }`}
                     title="Cerrar esta factura"
+                    aria-label="Cerrar esta factura"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -643,7 +659,7 @@ export function QuickSale({
             title="Abrir otra factura en simultáneo"
           >
             <Plus className="h-3.5 w-3.5 text-[var(--brass)]" />
-            <span>+ Nueva factura</span>
+            <span>Nueva factura</span>
           </button>
         </div>
 
@@ -753,6 +769,7 @@ export function QuickSale({
                       <button
                         type="button"
                         onClick={() => removeLine(line.key)}
+                        aria-label={`Quitar ${line.description}`}
                         className="text-[var(--muted)] hover:text-rose-700"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -760,8 +777,9 @@ export function QuickSale({
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="label">Cant.</label>
+                        <label htmlFor={`qty-${line.key}`} className="label">Cant.</label>
                         <input
+                          id={`qty-${line.key}`}
                           type="number"
                           min={0.01}
                           step={1}
@@ -773,8 +791,9 @@ export function QuickSale({
                         />
                       </div>
                       <div>
-                        <label className="label">Precio</label>
+                        <label htmlFor={`price-${line.key}`} className="label">Precio</label>
                         <input
+                          id={`price-${line.key}`}
                           type="number"
                           min={0}
                           step={0.01}

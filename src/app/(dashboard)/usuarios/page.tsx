@@ -133,6 +133,8 @@ export default async function UsuariosPage({
                     <ConfirmForm
                       action={toggleUserActive.bind(null, u.id)}
                       message={`¿${u.active ? "Desactivar" : "Activar"} a ${u.name}?`}
+                      confirmLabel={u.active ? "Sí, desactivar" : "Sí, activar"}
+                      isDestructive={u.active}
                     >
                       <button type="submit" className="btn btn-ghost text-xs">
                         {u.active ? "Desactivar" : "Activar"}
@@ -144,6 +146,7 @@ export default async function UsuariosPage({
                         name="password"
                         type="password"
                         placeholder="Nueva clave"
+                        aria-label={`Nueva clave para ${u.name}`}
                         className="input h-8 text-xs"
                         minLength={6}
                         required

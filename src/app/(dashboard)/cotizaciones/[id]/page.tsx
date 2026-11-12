@@ -67,6 +67,8 @@ export default async function CotizacionDetailPage({
                 <ConfirmForm
                   action={convertQuoteToInvoice.bind(null, quote.id)}
                   message="¿Convertir esta cotización en factura borrador?"
+                  confirmLabel="Sí, convertir"
+                  isDestructive={false}
                 >
                   <button type="submit" className="btn btn-primary">
                     Convertir a factura
@@ -95,7 +97,12 @@ export default async function CotizacionDetailPage({
       />
       <div className="card mb-4 space-y-2 p-4">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-sm text-[var(--muted)]">Estado: {quote.status}</p>
+          <p className="text-sm text-[var(--muted)]">
+            Estado:{" "}
+            <span className="font-semibold text-[var(--wood-950)]">
+              {({ DRAFT: "Borrador", SENT: "Enviada", CONVERTED: "Convertida", REJECTED: "Rechazada" } as Record<string, string>)[quote.status] || quote.status}
+            </span>
+          </p>
           {fromWeb ? (
             <span className="rounded-full bg-[#b0894f]/20 px-2.5 py-0.5 text-[0.65rem] font-semibold tracking-wide text-[var(--wood-800)] uppercase">
               Tienda web

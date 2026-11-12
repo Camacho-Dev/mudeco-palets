@@ -111,6 +111,7 @@ export default async function StoreHomePage() {
     stock: p.stock,
     imageUrl: p.imageUrl,
     badge: p.badge,
+    madeToOrderOnly: p.madeToOrderOnly,
   }));
 
   const categoryTiles = [
@@ -172,6 +173,7 @@ export default async function StoreHomePage() {
     stock: p.stock,
     imageUrl: p.imageUrl,
     badge: p.badge,
+    madeToOrderOnly: p.madeToOrderOnly,
   }));
 
   return (

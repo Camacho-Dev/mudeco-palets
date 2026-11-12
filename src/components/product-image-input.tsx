@@ -12,9 +12,11 @@ export function ProductImageInput({
 }) {
   const [url, setUrl] = useState(defaultValue || "");
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleFile(file: File) {
     setUploading(true);
+    setError(null);
     try {
       const fd = new FormData();
       fd.append("file", file);
@@ -26,13 +28,13 @@ export function ProductImageInput({
 
       const json = await res.json();
       if (!res.ok || !json.url) {
-        alert(json.error || "Error al subir la imagen");
+        setError(json.error || "Error al subir la imagen");
         return;
       }
 
       setUrl(json.url);
     } catch {
-      alert("Error de conexión al subir la imagen");
+      setError("Error de conexión al subir la imagen");
     } finally {
       setUploading(false);
     }
@@ -107,6 +109,11 @@ export function ProductImageInput({
               />
             </label>
           </div>
+          {error ? (
+            <p role="alert" className="text-xs font-medium text-rose-600">
+              {error}
+            </p>
+          ) : null}
           <p className="text-[0.7rem] text-[var(--muted)] leading-tight">
             Sube una foto desde tu equipo (JPG, PNG o WebP hasta 10 MB) o pega una URL existente. Esta foto se mostrará en el catálogo y ficha del mueble en la tienda online.
           </p>

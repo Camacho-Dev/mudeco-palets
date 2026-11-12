@@ -25,6 +25,19 @@
   --store-text: #0f172a;
   --store-muted: #64748b;
   --store-border: rgba(0, 0, 0, 0.08);
+  --wood-950: #14100d;
+  --wood-900: #261e18;
+  --wood-800: #403227;
+  --wood-700: #634e3e;
+  --wood-600: #8a715c;
+  --wood-200: #e2d5c5;
+  --wood-100: #f3ece2;
+  --wood-50: #faf7f2;
+  --muted: #786958;
+  --border: #e2d5c5;
+  --brass: #b0894f;
+  --brass-dark: #8f6d3b;
+  --accent: #c9a15a;
   --store-font-display: var(--font-store-display), "Cormorant Garamond", Georgia,
     serif;
   --store-font-body: var(--font-store-body), Inter, system-ui, sans-serif;

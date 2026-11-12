@@ -57,6 +57,7 @@ export function WebOrdersBell({
         className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--border)] bg-white text-[var(--wood-900)] shadow-sm transition hover:border-[#b0894f] hover:bg-[#fbf7f2]"
         title="Notificaciones de pedidos web"
         aria-label="Notificaciones de pedidos web"
+        aria-expanded={open}
       >
         <Bell className="h-4 w-4" />
         {count > 0 ? (
@@ -67,7 +68,7 @@ export function WebOrdersBell({
       </button>
 
       {open ? (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-2xl z-50 animate-rise">
+        <div className="fixed inset-x-3 top-14 sm:inset-auto sm:absolute sm:right-0 sm:top-auto sm:mt-2 sm:w-96 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl z-50 animate-rise">
           <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
             <div className="flex items-center gap-2">
               <Globe className="h-4 w-4 text-[#b0894f]" />

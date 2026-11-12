@@ -9,6 +9,7 @@ import { finalizeOnlinePaidOrder } from "@/lib/web-checkout";
 import { sendInvoiceEmail } from "@/lib/mail";
 import { ClearCartOnSuccess } from "@/components/store/clear-cart";
 import { getStoreCompany } from "@/lib/store";
+import { leadTimeLabel } from "@/lib/made-to-order";
 import { getDominicanBanks, storeWhatsApp } from "@/lib/store-info";
 import { productImage } from "@/lib/product-image";
 import { extractReceiptFromNotes } from "@/lib/order-receipt";
@@ -198,7 +199,7 @@ export default async function PedidoPage({
     : "Retiro en taller";
 
   return (
-    <div className="min-h-screen bg-slate-50/90 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen bg-[#faf7f2] py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Resplandor superior suave */}
       <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-96 w-[700px] rounded-full bg-amber-400/10 blur-3xl" />
 
@@ -206,7 +207,7 @@ export default async function PedidoPage({
 
       <div className="relative mx-auto max-w-3xl space-y-6">
         {/* ENCABEZADO DE ESTADO DEL PEDIDO */}
-        <div className="rounded-3xl border border-slate-200/90 bg-white p-8 sm:p-10 text-center shadow-xl backdrop-blur-sm">
+        <div className="rounded-3xl border border-[#e2d5c5] bg-white p-8 sm:p-10 text-center shadow-xl backdrop-blur-sm">
           <AnimatedSuccessCheck
             title={mainTitle}
             subtitle={mainSubtitle}
@@ -238,6 +239,7 @@ export default async function PedidoPage({
             isDone={order.status === "DONE"}
             hasReceipt={Boolean(receipt)}
             fulfillmentType={fulfillmentType}
+            estimatedDays={leadTimeLabel(company.madeToOrder)}
           />
         )}
 
@@ -273,7 +275,7 @@ export default async function PedidoPage({
 
         {/* CUENTAS BANCARIAS OFICIALES DOMINICANAS */}
         {requiresReceipt && (
-          <div className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-xl sm:p-8">
+          <div className="rounded-3xl border border-[#e2d5c5] bg-white p-6 shadow-xl sm:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
               <div className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-700 ring-2 ring-amber-400/20">
@@ -315,7 +317,7 @@ export default async function PedidoPage({
         )}
 
         {/* RESUMEN DEL PEDIDO O CONSULTA */}
-        <div className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-xl sm:p-8">
+        <div className="rounded-3xl border border-[#e2d5c5] bg-white p-6 shadow-xl sm:p-8">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
             <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-700 ring-2 ring-amber-400/20">

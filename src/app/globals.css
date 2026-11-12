@@ -8,9 +8,12 @@
   --wood-700: #475569;
   --wood-600: #64748b;
   --wood-100: #f1f5f9;
+  --wood-200: #e2e8f0;
+  --wood-300: #cbd5e1;
   --wood-50: #f8fafc;
   --brass: #d97706;
   --brass-dark: #b45309;
+  --accent: #d97706;
   --background: #f8fafc;
   --foreground: #0f172a;
   --surface: #ffffff;
@@ -148,6 +151,16 @@ a.card:focus-visible {
 .btn-secondary:hover {
   background: #f8fafc;
   border-color: #cbd5e1;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--wood-700);
+}
+
+.btn-ghost:hover {
+  background: var(--wood-100);
+  color: var(--wood-950);
 }
 
 .btn-danger {

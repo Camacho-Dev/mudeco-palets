@@ -12,6 +12,7 @@ import {
 import { formatDate } from "@/lib/format";
 import { ConfirmForm } from "@/components/confirm-form";
 import { BankAccountsManager } from "@/components/bank-accounts-manager";
+import { SubmitButton } from "@/components/submit-button";
 
 export default async function ConfiguracionPage() {
   await requireAdmin();
@@ -153,9 +154,9 @@ export default async function ConfiguracionPage() {
               </div>
             </div>
           </div>
-          <button type="submit" className="btn btn-primary">
+          <SubmitButton className="btn btn-primary" pendingLabel="Guardando...">
             Guardar
-          </button>
+          </SubmitButton>
         </form>
       </div>
 
@@ -199,9 +200,9 @@ export default async function ConfiguracionPage() {
               <input name="expiresAt" type="date" className="input" />
             </div>
           </div>
-          <button type="submit" className="btn btn-primary">
+          <SubmitButton className="btn btn-primary" pendingLabel="Agregando...">
             Agregar serie
-          </button>
+          </SubmitButton>
         </form>
 
         <div className="table-wrap">

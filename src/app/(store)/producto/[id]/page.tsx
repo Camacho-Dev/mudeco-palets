@@ -206,7 +206,7 @@ export default async function ProductoPage({
                 {product.stock > 0 && !product.madeToOrderOnly
                   ? `En existencia · ${product.stock} unidades`
                   : product.madeToOrderOnly
-                    ? "Por encargo · Fabricación artesanal bajo pedido"
+                    ? "Por encargo · Fabricación artesanal"
                     : "Agotado · Se fabrica por encargo"}
               </span>
             </div>

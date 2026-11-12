@@ -3,6 +3,7 @@ import { createProduct } from "../actions";
 import { PageHeader } from "@/components/page-header";
 import { ProductImageInput } from "@/components/product-image-input";
 import { requireSession } from "@/lib/session";
+import { SubmitButton } from "@/components/submit-button";
 
 export default async function NuevoProductoPage() {
   await requireSession();
@@ -158,9 +159,9 @@ export default async function NuevoProductoPage() {
           Siempre por encargo (fabricación bajo pedido)
         </label>
         <div className="flex gap-3 pt-2">
-          <button type="submit" className="btn btn-primary">
+          <SubmitButton className="btn btn-primary" pendingLabel="Guardando...">
             Guardar
-          </button>
+          </SubmitButton>
           <Link href="/productos" className="btn btn-secondary">
             Cancelar
           </Link>

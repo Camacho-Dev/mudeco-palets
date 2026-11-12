@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { SlidersHorizontal, X, Check, Loader2 } from "lucide-react";
 import { quickStockAdjust } from "./actions";
 
@@ -33,6 +33,15 @@ export function QuickAdjustDialog({
   const [feedback, setFeedback] = useState<{ ok: boolean; message: string } | null>(null);
 
   const selected = products.find((p) => p.id === productId);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !isPending) setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, isPending]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,19 +91,25 @@ export function QuickAdjustDialog({
 
       {open ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg rounded-2xl border border-[var(--border)] bg-white p-6 shadow-2xl">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="quick-adjust-title"
+            className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-[var(--border)] bg-white p-6 shadow-2xl"
+          >
             <div className="flex items-start justify-between border-b border-[var(--border)] pb-4">
               <div>
                 <div className="inline-flex items-center gap-1.5 rounded-full bg-[#b0894f]/15 px-2.5 py-0.5 text-[0.68rem] font-bold tracking-wider text-[#8a6a3a] uppercase">
                   Control de Stock
                 </div>
-                <h3 className="font-display mt-1 text-2xl font-bold text-[var(--wood-950)]">
+                <h3 id="quick-adjust-title" className="font-display mt-1 text-2xl font-bold text-[var(--wood-950)]">
                   Ajuste Rápido de Inventario
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
+                aria-label="Cerrar"
                 className="rounded-lg p-1.5 text-stone-400 hover:bg-stone-100 hover:text-stone-700"
               >
                 <X className="h-5 w-5" />
@@ -230,6 +245,7 @@ export function QuickAdjustDialog({
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
+                aria-label="Cerrar"
                   className="btn btn-ghost text-xs uppercase"
                   disabled={isPending}
                 >

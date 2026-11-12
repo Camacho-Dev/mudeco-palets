@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRef, useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, ShoppingBag, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, ShoppingBag, Check, ArrowUpRight } from "lucide-react";
+import { formatStoreCategory } from "@/lib/store-brand";
 import { formatCurrency } from "@/lib/format";
 import { productImage } from "@/lib/product-image";
 import { availabilityOf } from "@/lib/made-to-order";
@@ -104,7 +105,7 @@ function ShelfCard({
 
         <div className="space-y-2.5 p-4 sm:p-5">
           <p className="text-[0.62rem] font-semibold tracking-[0.16em] text-[#d4af37] uppercase">
-            {product.category}
+            {formatStoreCategory(product.category)}
           </p>
           <Link href={`/producto/${product.id}`}>
             <h3 className="line-clamp-2 min-h-[2.5rem] font-medium text-sm leading-snug text-white transition-colors duration-200 group-hover:text-[#f5dfa8]">
@@ -116,6 +117,16 @@ function ShelfCard({
             <p className="font-mono text-sm sm:text-base font-bold text-[#f5dfa8]">
               {formatCurrency(product.price)}
             </p>
+            {isSoldOut ? (
+              <Link
+                href={`/producto/${product.id}`}
+                aria-label={`Ver detalles de ${product.name}`}
+                title="Agotado · Ver opciones por encargo"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-neutral-300 transition-colors duration-300 hover:border-[#c9a15a]/45 hover:text-[#f5dfa8]"
+              >
+                <ArrowUpRight className="h-4 w-4" strokeWidth={1.8} />
+              </Link>
+            ) : (
             <motion.button
               type="button"
               disabled={!canAdd}
@@ -135,6 +146,7 @@ function ShelfCard({
                 <ShoppingBag className="h-4 w-4" strokeWidth={1.8} />
               )}
             </motion.button>
+            )}
           </div>
         </div>
       </div>

@@ -134,22 +134,26 @@ export function OrderTimelineTracker({
         })
         .catch(() => {});
     } else {
-      navigator.clipboard.writeText(window.location.href);
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2000);
+      try {
+        void navigator.clipboard?.writeText(window.location.href);
+        setCopiedLink(true);
+        setTimeout(() => setCopiedLink(false), 2000);
+      } catch {
+        // Clipboard unavailable
+      }
     }
   }
 
   return (
-    <div className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-lg sm:p-8">
+    <div className="rounded-3xl border border-[#e2d5c5] bg-white p-6 shadow-lg sm:p-8">
       {/* Cabecera del Tracker */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#efe6d8] pb-5">
         <div>
           <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/80">
             <Sparkles className="h-3.5 w-3.5 text-amber-600" />
             Trazabilidad en tiempo real
           </span>
-          <h2 className="mt-1.5 text-lg font-bold text-slate-900 sm:text-xl tracking-tight">
+          <h2 className="mt-1.5 text-lg font-bold text-[#14100d] sm:text-xl tracking-tight">
             Seguimiento de Fabricación y Entrega
           </h2>
         </div>
@@ -201,7 +205,7 @@ export function OrderTimelineTracker({
         />
 
         {/* Los 4 pasos */}
-        <div className="relative grid grid-cols-4 gap-2 text-center">
+        <div className="relative grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-2 text-center">
           {steps.map((st, idx) => {
             const isCompleted = st.status === "completed";
             const isInProgress = st.status === "in_progress";
@@ -212,7 +216,7 @@ export function OrderTimelineTracker({
                 key={st.num}
                 type="button"
                 onClick={() => setActiveTab(activeTab === idx ? null : idx)}
-                className="group flex flex-col items-center focus:outline-hidden cursor-pointer"
+                className="group flex flex-col items-center rounded-xl p-1 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[#c9a15a]/60 cursor-pointer"
               >
                 {/* Nodo circular del paso */}
                 <motion.div
@@ -262,7 +266,7 @@ export function OrderTimelineTracker({
       </div>
 
       {/* Tarjeta explicativa expandible del paso activo o seleccionado */}
-      <div className="mt-7 rounded-2xl border border-slate-200/90 bg-slate-50/80 p-4.5 text-xs shadow-2xs">
+      <div className="mt-7 rounded-2xl border border-[#e2d5c5] bg-[#faf7f2]/80 p-4.5 text-xs shadow-2xs">
         <div className="flex items-start gap-3">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700">
             <HelpCircle className="h-4 w-4" />

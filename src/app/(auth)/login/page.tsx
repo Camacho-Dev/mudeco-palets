@@ -24,7 +24,7 @@ import {
   requestPasswordResetCode,
   resetPasswordWithCode,
 } from "./actions";
-import "./login.css";
+
 
 function GoogleIcon({ className = "h-4 w-4 shrink-0" }: { className?: string }) {
   return (

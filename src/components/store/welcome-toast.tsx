@@ -18,7 +18,7 @@ export function WelcomeToast({ userName }: { userName: string }) {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.9 }}
           transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-          className="fixed bottom-6 left-6 z-40 select-none"
+          className="fixed bottom-4 left-4 right-4 sm:right-auto sm:bottom-6 sm:left-6 z-40 select-none"
         >
           <div className="flex items-center gap-3 rounded-full border border-[#d4af37]/35 bg-[#14100e]/95 px-4 py-2.5 text-white shadow-[0_12px_36px_rgba(0,0,0,0.35)] backdrop-blur-xl ring-1 ring-white/10">
             {/* Círculo dorado con check */}
@@ -35,7 +35,7 @@ export function WelcomeToast({ userName }: { userName: string }) {
             <button
               type="button"
               onClick={() => setVisible(false)}
-              className="ml-1 flex h-5 w-5 items-center justify-center rounded-full text-white/50 transition hover:bg-white/10 hover:text-white cursor-pointer"
+              className="ml-1 flex h-7 w-7 items-center justify-center rounded-full text-white/60 transition hover:bg-white/10 hover:text-white cursor-pointer"
               aria-label="Cerrar notificación"
             >
               <X className="h-3 w-3" />

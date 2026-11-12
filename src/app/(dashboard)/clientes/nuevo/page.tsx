@@ -2,6 +2,7 @@ import { createCustomer } from "../actions";
 import { PageHeader } from "@/components/page-header";
 import Link from "next/link";
 import { requireSession } from "@/lib/session";
+import { SubmitButton } from "@/components/submit-button";
 
 export default async function NuevoClientePage() {
   await requireSession();
@@ -59,9 +60,9 @@ export default async function NuevoClientePage() {
           />
         </div>
         <div className="flex gap-3 pt-2">
-          <button type="submit" className="btn btn-primary">
+          <SubmitButton className="btn btn-primary" pendingLabel="Guardando...">
             Guardar
-          </button>
+          </SubmitButton>
           <Link href="/clientes" className="btn btn-secondary">
             Cancelar
           </Link>

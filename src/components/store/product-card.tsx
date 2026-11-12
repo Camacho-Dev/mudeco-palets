@@ -108,7 +108,7 @@ export function ProductCard({
               ? "Listo para entrega"
               : availability === "made-to-order"
                 ? "Por encargo"
-                : "Se fabrica por encargo"}
+                : "Agotado · Por encargo"}
           </span>
         </div>
       </div>

@@ -226,10 +226,11 @@ export function AccountSettingsCard({
               className="space-y-4 px-6 py-6"
             >
               <div>
-                <label className="mb-1.5 block text-[11px] font-bold text-[#1f1915]">
+                <label htmlFor="account-name" className="mb-1.5 block text-[11px] font-bold text-[#1f1915]">
                   Nombre completo
                 </label>
                 <input
+                  id="account-name"
                   name="name"
                   defaultValue={initialName}
                   required
@@ -241,10 +242,11 @@ export function AccountSettingsCard({
               </div>
 
               <div>
-                <label className="mb-1.5 block text-[11px] font-bold text-[#1f1915]">
+                <label htmlFor="account-phone" className="mb-1.5 block text-[11px] font-bold text-[#1f1915]">
                   Teléfono / WhatsApp
                 </label>
                 <input
+                  id="account-phone"
                   name="phone"
                   defaultValue={initialPhone}
                   maxLength={40}
@@ -254,10 +256,11 @@ export function AccountSettingsCard({
               </div>
 
               <div>
-                <label className="mb-1.5 block text-[11px] font-bold text-[#1f1915]">
+                <label htmlFor="account-address" className="mb-1.5 block text-[11px] font-bold text-[#1f1915]">
                   Dirección de entrega habitual
                 </label>
                 <textarea
+                  id="account-address"
                   name="address"
                   rows={2}
                   defaultValue={initialAddress}
@@ -273,6 +276,7 @@ export function AccountSettingsCard({
                   <span>Cambiar contraseña (opcional)</span>
                 </p>
                 <input
+                  aria-label="Contraseña actual"
                   name="currentPassword"
                   type="password"
                   autoComplete="current-password"
@@ -280,6 +284,7 @@ export function AccountSettingsCard({
                   className="w-full rounded-lg border border-[#d8ccbb] bg-white px-3 py-2 text-xs text-[#1f1915] focus:border-[#c9a15a] focus:outline-none"
                 />
                 <input
+                  aria-label="Nueva contraseña"
                   name="newPassword"
                   type="password"
                   autoComplete="new-password"

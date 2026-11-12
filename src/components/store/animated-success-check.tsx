@@ -25,9 +25,13 @@ export function AnimatedSuccessCheck({
   const isProcessing = tone === "processing";
 
   function copyOrderNumber() {
-    navigator.clipboard.writeText(orderNumber);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      void navigator.clipboard?.writeText(orderNumber);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard unavailable
+    }
   }
 
   const formattedDate = createdAt

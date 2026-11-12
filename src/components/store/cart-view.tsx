@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useCart } from "@/components/store/cart-context";
 import { useStoreConfig } from "@/components/store/store-config";
 import { useSession } from "next-auth/react";
@@ -14,6 +16,7 @@ import { LUXURY_EASE } from "@/components/store/store-motion";
 export function CartView() {
   const { data: session } = useSession();
   const { items, setQty, removeItem, clear } = useCart();
+  const [confirmClearOpen, setConfirmClearOpen] = useState(false);
   const { depositPercent, leadTimeText } = useStoreConfig();
   const subtotal = roundMoney(
     items.reduce((s, i) => s + roundMoney(i.price * i.quantity), 0),
@@ -81,7 +84,7 @@ export function CartView() {
           </p>
           <button
             type="button"
-            onClick={clear}
+            onClick={() => setConfirmClearOpen(true)}
             className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-white px-3 py-1.5 text-xs font-medium text-[var(--muted)] hover:border-rose-300 hover:text-rose-700 transition cursor-pointer"
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -183,7 +186,7 @@ export function CartView() {
                 <span>{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex justify-between text-[var(--muted)]">
-                <span>ITBIS (18%)</span>
+                <span>ITBIS</span>
                 <span>{formatCurrency(tax)}</span>
               </div>
               <div className="flex justify-between border-t border-[var(--border)] pt-3 text-base font-bold text-[var(--wood-950)]">
@@ -243,6 +246,19 @@ export function CartView() {
         </div>
       </div>
       </div>
+      <ConfirmDialog
+        isOpen={confirmClearOpen}
+        onClose={() => setConfirmClearOpen(false)}
+        onConfirm={() => {
+          clear();
+          setConfirmClearOpen(false);
+        }}
+        title="¿Vaciar el carrito?"
+        description="Se eliminarán todas las piezas seleccionadas de tu carrito actual."
+        confirmLabel="Sí, vaciar"
+        cancelLabel="Cancelar"
+        isDestructive
+      />
     </div>
   );
 }

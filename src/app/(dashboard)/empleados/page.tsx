@@ -361,6 +361,8 @@ export default async function EmpleadosPage({
                         <ConfirmForm
                           action={toggleEmployeeActive.bind(null, emp.id)}
                           message={`¿Deseas ${emp.active ? "desactivar" : "activar"} al empleado ${emp.name}?`}
+                          confirmLabel={emp.active ? "Sí, desactivar" : "Sí, activar"}
+                          isDestructive={emp.active}
                         >
                           <button
                             type="submit"

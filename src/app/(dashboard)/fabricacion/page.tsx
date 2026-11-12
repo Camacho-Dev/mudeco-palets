@@ -141,6 +141,8 @@ export default async function FabricacionPage({
                           <ConfirmForm
                             action={completeWorkOrder.bind(null, w.id)}
                             message={`¿Completar fabricación de ${w.quantity} ${w.product.name}? Se descontarán los materiales del almacén y se sumará el stock terminado.`}
+                            confirmLabel="Sí, completar"
+                            isDestructive={false}
                           >
                             <button type="submit" className="btn btn-primary text-xs py-1 px-2.5">
                               Completar

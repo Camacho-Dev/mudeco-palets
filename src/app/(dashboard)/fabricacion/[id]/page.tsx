@@ -118,6 +118,7 @@ export default async function WorkOrderDetailPage({
                 title="Completar fabricación"
                 message={`¿Confirmas que se completó la fabricación de ${wo.quantity} ${wo.product.unit} de "${wo.product.name}"? Se descontarán los materiales consumidos del inventario y se incrementará el stock del mueble terminado.`}
                 confirmLabel="Sí, completar fabricación"
+                isDestructive={false}
               >
                 <button
                   type="submit"

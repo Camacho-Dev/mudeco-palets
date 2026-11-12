@@ -455,7 +455,6 @@ export default async function PedidosWebPage({
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
                         <span className="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
-                        <span className="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
                           {webOrderTypeLabel(o)}
                         </span>
                         {o.madeToOrder ? (
@@ -463,7 +462,6 @@ export default async function PedidosWebPage({
                             🔨 Fabricación
                           </span>
                         ) : null}
-                        </span>
                       </td>
                       <td className="px-4 py-3.5 whitespace-nowrap">
                         <span

@@ -51,7 +51,10 @@ export async function DashboardTopbar() {
             className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-slate-800 hover:shadow-sm active:scale-95 transition-all"
           >
             <Zap className="h-3.5 w-3.5 text-amber-400" />
-            <span>Generar factura</span>
+            <span>
+              <span className="hidden sm:inline">Generar factura</span>
+              <span className="sm:hidden">Facturar</span>
+            </span>
           </Link>
 
           {/* Campana de pedidos web interactiva */}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Reveal } from "@/components/store/store-motion";
 import { STORE_LOGISTICS } from "@/lib/store-info";
 import { getStoreCompany } from "@/lib/store";
+import { leadTimeLabel } from "@/lib/made-to-order";
 import { ShieldCheck, Scale, Truck, Hammer, CreditCard, ArrowLeft } from "lucide-react";
 
 export const metadata = {
@@ -12,6 +13,7 @@ export const metadata = {
 
 export default async function TerminosPage() {
   const company = await getStoreCompany();
+  const leadTimeText = leadTimeLabel(company.madeToOrder);
 
   const sections = [
     {
@@ -27,7 +29,7 @@ export default async function TerminosPage() {
     {
       icon: Scale,
       title: "3. Pedidos a Medida, Anticipos y Cancelaciones",
-      body: `Para proyectos personalizados o medidas especiales, elaboramos una cotización formal previa. La orden de fabricación inicia una vez confirmado el anticipo acordado (habitualmente 50%) o el pago total. Debido al corte de madera a medida para cada cliente, las cancelaciones posteriores al inicio del corte o ensamblado en taller no son reembolsables en el costo de materiales ya procesados.`,
+      body: `Para proyectos personalizados o medidas especiales, elaboramos una cotización formal previa. La orden de fabricación inicia una vez confirmado el anticipo acordado (${company.madeToOrder.depositPercent}%) o el pago total. Plazo estimado de fabricación por encargo: ${leadTimeText}. Debido al corte de madera a medida para cada cliente, las cancelaciones posteriores al inicio del corte o ensamblado en taller no son reembolsables en el costo de materiales ya procesados.`,
     },
     {
       icon: Truck,

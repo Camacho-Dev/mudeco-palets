@@ -413,7 +413,7 @@ export function StoreHeaderClient({
         </AnimatePresence>
       </header>
       {/* Spacer for fixed header */}
-      <div className="h-[90px]" aria-hidden />
+      <div className="h-[88px]" aria-hidden />
       {drawer}
     </>
   );

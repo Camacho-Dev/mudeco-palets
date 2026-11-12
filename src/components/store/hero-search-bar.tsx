@@ -89,6 +89,7 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
         >
           <input
             type="text"
+            aria-label="Buscar muebles en el catálogo"
             value={query}
             onFocus={() => {
               setIsFocused(true);
@@ -116,6 +117,7 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
               }}
               className="p-1.5 text-white/40 hover:text-white transition shrink-0 mr-1 cursor-pointer"
               title="Borrar búsqueda"
+              aria-label="Borrar búsqueda"
             >
               <X className="h-4 w-4" />
             </motion.button>

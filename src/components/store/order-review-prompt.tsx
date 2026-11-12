@@ -102,6 +102,7 @@ export function OrderReviewPrompt({
                 onMouseLeave={() => setHoverRating(0)}
                 className="p-1 text-[#c9a15a] transition hover:scale-120"
                 title={`${star} estrellas`}
+                aria-label={`Calificar con ${star} ${star === 1 ? "estrella" : "estrellas"}`}
               >
                 <Star
                   className={`h-6 w-6 ${

@@ -5,6 +5,7 @@ import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { toggleCustomerActive, updateCustomer } from "../actions";
 import { StatusBadge } from "@/components/status-badge";
+import { SubmitButton } from "@/components/submit-button";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { webOrderTypeLabel } from "@/lib/web-order-labels";
 import { ConfirmForm } from "@/components/confirm-form";
@@ -142,9 +143,9 @@ export default async function EditarClientePage({
           />
         </div>
         <div className="flex flex-wrap gap-3 pt-2">
-          <button type="submit" className="btn btn-primary">
+          <SubmitButton className="btn btn-primary" pendingLabel="Guardando...">
             Guardar cambios
-          </button>
+          </SubmitButton>
           <Link href="/clientes" className="btn btn-secondary">
             Cancelar
           </Link>
@@ -289,7 +290,7 @@ export default async function EditarClientePage({
                       </Link>
                     </td>
                     <td>{webOrderTypeLabel(o)}</td>
-                    <td>{o.status}</td>
+                    <td>{({ PENDING: "Pendiente", CONTACTED: "Contactado", QUOTED: "Cotizado", DONE: "Completado", CANCELLED: "Cancelado" } as Record<string, string>)[o.status] || o.status}</td>
                     <td>{formatCurrency(o.total)}</td>
                     <td>{formatDate(o.createdAt)}</td>
                   </tr>

@@ -13,6 +13,7 @@ export interface ConfirmDialogProps {
   cancelLabel?: string;
   isDestructive?: boolean;
   isPending?: boolean;
+  error?: string | null;
   itemDetails?: {
     name?: string;
     count?: number;
@@ -31,6 +32,7 @@ export function ConfirmDialog({
   cancelLabel = "Cancelar",
   isDestructive = true,
   isPending = false,
+  error,
   itemDetails,
 }: ConfirmDialogProps) {
   const cancelBtnRef = useRef<HTMLButtonElement>(null);
@@ -102,6 +104,7 @@ export function ConfirmDialog({
             onClick={onClose}
             className="rounded-lg p-1 text-[var(--muted)] hover:bg-black/5 hover:text-[var(--wood-950)] transition"
             title="Cerrar"
+            aria-label="Cerrar"
           >
             <X className="h-4 w-4" />
           </button>
@@ -142,6 +145,15 @@ export function ConfirmDialog({
                 {itemDetails.subtitle}
               </p>
             ) : null}
+          </div>
+        ) : null}
+
+        {error ? (
+          <div
+            role="alert"
+            className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs font-medium text-rose-700"
+          >
+            {error}
           </div>
         ) : null}
 
