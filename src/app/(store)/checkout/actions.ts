@@ -13,6 +13,7 @@ import { getStripe, isStripeConfigured } from "@/lib/stripe";
 import { prisma } from "@/lib/prisma";
 import { siteUrl } from "@/lib/store-info";
 import { checkDualRateLimit } from "@/lib/rate-limit";
+import { processReceiptFile } from "@/lib/order-receipt-server";
 
 function parseCustomer(fd: FormData): CheckoutCustomer {
   const name = String(fd.get("name") || "").trim();
@@ -22,7 +23,12 @@ function parseCustomer(fd: FormData): CheckoutCustomer {
   const address = String(fd.get("address") || "").trim();
   if (!name) throw new Error("Nombre requerido");
   if (!email || !email.includes("@")) throw new Error("Email válido requerido");
-  if (!phone) throw new Error("Teléfono requerido");
+  const phoneDigits = phone.replace(/\D/g, "");
+  if (!phone || phoneDigits.length < 10) {
+    throw new Error(
+      "El número de WhatsApp es obligatorio y debe tener al menos 10 dígitos (ej: 809-555-0123)",
+    );
+  }
   if (fulfillment === "delivery" && !address) {
     throw new Error("Dirección de entrega requerida");
   }
@@ -98,31 +104,39 @@ export async function submitWebCheckout(fd: FormData) {
     redirect(`/pedido/${order.id}?ok=cotizacion`);
   }
 
-  if (mode === "transfer") {
+  if (mode === "transfer" || mode === "local") {
+    const receiptFile = fd.get("receipt") as File | null;
+    if (!receiptFile || receiptFile.size === 0) {
+      throw new Error(
+        mode === "transfer"
+          ? "Es obligatorio adjuntar el comprobante de transferencia bancaria para completar tu pedido."
+          : "Es obligatorio adjuntar el comprobante de pago o depósito para confirmar tu orden de retiro en taller.",
+      );
+    }
+
+    const receipt = await processReceiptFile(receiptFile, `recibo_${mode}`);
+    const receiptTag = `[COMPROBANTE_PAGO: ${JSON.stringify(receipt)}]`;
+    const modeLabel =
+      mode === "transfer"
+        ? "[Pago: Transferencia bancaria]"
+        : "[Pago: Retiro en taller]";
+    const mergedNotes = `${modeLabel}\n${customer.notes || ""}\n\n${receiptTag}`.trim();
+
     const { order } = await createWebLocalSale(
       {
         ...customer,
-        notes: `[Pago: Transferencia bancaria]\n${customer.notes || ""}`.trim(),
+        notes: mergedNotes,
       },
       cart,
-      { paymentMode: "TRANSFER" },
+      { paymentMode: mode === "transfer" ? "TRANSFER" : "LOCAL" },
     );
-    revalidatePath("/pedidos-web");
-    revalidatePath("/facturas");
-    revalidatePath("/pagos");
-    revalidatePath("/clientes");
-    revalidatePath("/panel");
-    redirect(`/pedido/${order.id}?ok=transferencia`);
-  }
 
-  if (mode === "local") {
-    const { order } = await createWebLocalSale(customer, cart);
     revalidatePath("/pedidos-web");
     revalidatePath("/facturas");
     revalidatePath("/pagos");
     revalidatePath("/clientes");
     revalidatePath("/panel");
-    redirect(`/pedido/${order.id}?ok=local`);
+    redirect(`/pedido/${order.id}?ok=${mode}`);
   }
 
   if (mode === "online") {

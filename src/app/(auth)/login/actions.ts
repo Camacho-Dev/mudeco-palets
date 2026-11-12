@@ -12,14 +12,20 @@ const registerSchema = z.object({
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres").max(100),
   email: z.string().email("Correo electrónico inválido").max(160),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres").max(128),
-  phone: z.string().max(40).optional(),
+  phone: z
+    .string()
+    .min(10, "El número de WhatsApp debe tener al menos 10 dígitos (ej: 809-555-0123)")
+    .max(40)
+    .refine((val) => val.replace(/\D/g, "").length >= 10, {
+      message: "El número de WhatsApp debe tener al menos 10 dígitos (ej: 809-555-0123)",
+    }),
 });
 
 export async function registerCustomer(payload: {
   name: string;
   email: string;
   password: string;
-  phone?: string;
+  phone: string;
 }) {
   const parsed = registerSchema.safeParse(payload);
   if (!parsed.success) {

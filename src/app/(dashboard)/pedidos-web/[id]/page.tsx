@@ -52,6 +52,8 @@ export default async function PedidoWebDetailPage({
   const open = isWebOrderPending(order.status);
   const receipt = extractReceiptFromNotes(order.notes);
   const isTransfer = order.notes?.includes("Transferencia bancaria") || order.paymentMode === "TRANSFER";
+  const isLocal = order.notes?.includes("Retiro en taller") || order.paymentMode === "LOCAL";
+  const requiresReceipt = isTransfer || isLocal;
   const cleanNotes = (order.notes || "")
     .replace(/\[COMPROBANTE_PAGO:\s*\{[\s\S]*?\}\]/g, "")
     .replace(/\[COMPROBANTE:[^\]]+\]/g, "")
@@ -324,12 +326,14 @@ export default async function PedidoWebDetailPage({
               : null
           }
         />
-      ) : isTransfer ? (
-        <div id="comprobante" className="card mb-4 border border-amber-300 bg-amber-50/60 p-4">
-          <div className="flex items-center gap-2 text-xs text-amber-900 font-medium">
-            <Clock className="h-4 w-4 text-amber-700 shrink-0" />
+      ) : requiresReceipt ? (
+        <div id="comprobante" className="card mb-4 border-2 border-amber-400 bg-amber-50 p-4 shadow-sm">
+          <div className="flex items-center gap-2.5 text-xs text-amber-950 font-semibold">
+            <Clock className="h-5 w-5 text-amber-700 shrink-0" />
             <span>
-              Pago por transferencia bancaria: En espera de que el cliente adjunte comprobante desde la web.
+              {isTransfer
+                ? "Pago por transferencia bancaria: En espera de que el cliente adjunte el comprobante obligatorio."
+                : "Orden con retiro en taller: En espera del comprobante obligatorio de pago o anticipo."}
             </span>
           </div>
         </div>

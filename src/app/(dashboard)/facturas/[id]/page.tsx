@@ -21,6 +21,8 @@ import { ConfirmForm } from "@/components/confirm-form";
 import { isAdmin } from "@/lib/rbac";
 
 import { WhatsAppShareButton } from "@/components/whatsapp-share-button";
+import { extractReceiptFromNotes } from "@/lib/order-receipt";
+import { ReceiptViewerButton } from "@/components/receipt-viewer-button";
 
 export default async function FacturaDetallePage({
   params,
@@ -39,9 +41,21 @@ export default async function FacturaDetallePage({
       payments: { orderBy: { paidAt: "desc" } },
       creditNotes: { orderBy: { createdAt: "desc" } },
       user: true,
+      webOrders: true,
     },
   });
   if (!invoice) notFound();
+
+  const linkedOrder = invoice.webOrders?.[0] || null;
+  const receipt =
+    extractReceiptFromNotes(invoice.notes) ||
+    extractReceiptFromNotes(linkedOrder?.notes);
+  const isTransferOrLocal =
+    invoice.notes?.includes("Transferencia bancaria") ||
+    invoice.notes?.includes("Retiro en taller") ||
+    invoice.notes?.includes("el cliente pagará en el local") ||
+    linkedOrder?.paymentMode === "TRANSFER" ||
+    linkedOrder?.paymentMode === "LOCAL";
 
   const paid = paidAmount(invoice.payments);
   const credited = creditNotesAmount(invoice.creditNotes);
@@ -134,6 +148,44 @@ export default async function FacturaDetallePage({
           ) : null}
         </div>
       </div>
+
+      {/* Indicador de Comprobante Obligatorio para Transferencia o Retiro en Taller */}
+      {receipt ? (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-emerald-300 bg-emerald-50/70 p-4">
+          <div className="flex items-center gap-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white font-bold">
+              ✓
+            </span>
+            <div>
+              <p className="text-xs font-bold text-emerald-950 uppercase tracking-wider">
+                Comprobante de Pago Adjunto
+              </p>
+              <p className="text-xs text-emerald-800">
+                Archivo: {receipt.name} {receipt.sizeBytes ? `(${Math.round(receipt.sizeBytes / 1024)} KB)` : ""} · Subido el {new Date(receipt.uploadedAt).toLocaleDateString("es-DO")}
+              </p>
+            </div>
+          </div>
+          <ReceiptViewerButton
+            url={receipt.url}
+            name={receipt.name}
+            mimeType={receipt.mimeType}
+          />
+        </div>
+      ) : isTransferOrLocal ? (
+        <div className="mb-6 flex items-center gap-3 rounded-2xl border-2 border-amber-400 bg-amber-50 p-4">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500 text-white font-bold shrink-0">
+            !
+          </span>
+          <div>
+            <p className="text-xs font-bold text-amber-950 uppercase tracking-wider">
+              Comprobante de Pago Obligatorio Pendiente
+            </p>
+            <p className="text-xs text-amber-800">
+              Esta factura corresponde a un pedido por transferencia bancaria o retiro en taller. El cliente debe adjuntar el comprobante antes del despacho o entrega final.
+            </p>
+          </div>
+        </div>
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">

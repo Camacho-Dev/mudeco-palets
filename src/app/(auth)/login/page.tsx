@@ -391,6 +391,13 @@ function LoginForm() {
       setLoading(false);
       return;
     }
+    const phoneDigits = regPhone.replace(/\D/g, "");
+    if (!regPhone.trim() || phoneDigits.length < 10) {
+      setError("El número de WhatsApp es obligatorio y debe tener al menos 10 dígitos (ej: 809-555-0123).");
+      setLoading(false);
+      return;
+    }
+
     if (regPassword.length < 6) {
       setError("La contraseña debe tener al menos 6 caracteres.");
       setLoading(false);
@@ -401,7 +408,7 @@ function LoginForm() {
       const regRes = await registerCustomer({
         name: regName.trim(),
         email: regEmail.trim(),
-        phone: regPhone.trim() || undefined,
+        phone: regPhone.trim(),
         password: regPassword,
       });
 
@@ -1187,7 +1194,8 @@ function LoginForm() {
                   type="tel"
                   value={regPhone}
                   onChange={(e) => setRegPhone(e.target.value)}
-                  placeholder="Teléfono o WhatsApp (opcional)"
+                  required
+                  placeholder="WhatsApp obligatorio (ej: 809-555-0123)"
                   className="luxury-input"
                   autoComplete="tel"
                 />

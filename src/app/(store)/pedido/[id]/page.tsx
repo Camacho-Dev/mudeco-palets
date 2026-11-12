@@ -134,9 +134,17 @@ export default async function PedidoPage({
 
   const isTransfer = Boolean(
     ok === "transferencia" ||
+      order.paymentMode === "TRANSFER" ||
       order.notes?.includes("Transferencia bancaria") ||
       order.notes?.includes("[Pago: Transferencia bancaria]"),
   );
+  const isLocal = Boolean(
+    ok === "local" ||
+      order.paymentMode === "LOCAL" ||
+      order.notes?.includes("Retiro en taller") ||
+      order.notes?.includes("[Pago: Retiro en taller]"),
+  );
+  const requiresReceipt = isTransfer || isLocal;
   const isContact =
     order.serviceKind === "CONTACT" || Boolean(order.notes?.includes("[CONSULTA]"));
   const isPaid =
@@ -163,10 +171,10 @@ export default async function PedidoPage({
   // Título y encabezado principal según validación real del pago
   const mainTitle = isPaid
     ? "¡Pago confirmado con éxito!"
-    : isTransfer
+    : requiresReceipt
       ? receipt
         ? "Pedido en proceso de verificación"
-        : "¡Pedido registrado · En proceso!"
+        : "¡Pedido registrado · Comprobante requerido!"
       : order.type === "QUOTE"
         ? isContact
           ? "¡Mensaje recibido · En proceso!"
@@ -175,15 +183,15 @@ export default async function PedidoPage({
 
   const mainSubtitle = isPaid
     ? "Tu pago ha sido validado y acreditado en cuenta. Hemos confirmado tu orden de fabricación y habilitado tu factura oficial."
-    : isTransfer
+    : requiresReceipt
       ? receipt
         ? "Hemos recibido tu comprobante bancario. Nuestro equipo está validando que el dinero haya ingresado a la cuenta correspondiente para confirmar tu pedido y habilitar tu factura."
-        : "Tu pedido ha sido registrado en nuestro taller. Realiza tu transferencia y sube el comprobante a continuación; una vez validemos que el dinero ingresó a la cuenta correspondiente, confirmaremos tu pedido y habilitaremos tu factura."
+        : "Tu pedido ha sido registrado. Para procesar tu orden y preparar tus piezas para entrega o retiro en taller, es obligatorio adjuntar el comprobante de pago o transferencia."
       : order.type === "QUOTE"
         ? isContact
           ? "Gracias por comunicarte con nosotros. Nuestro equipo artesanal revisará tu mensaje y te contactará a la brevedad."
           : "Hemos recibido tu solicitud de cotización personalizada. Te responderemos pronto con la propuesta formal."
-        : "Tu pedido está en proceso con pago pendiente de validación en el local o contra entrega.";
+        : "Tu pedido está en proceso con pago pendiente de validación.";
 
   const fulfillmentType = order.notes?.includes("[Entrega a domicilio]")
     ? "Entrega a domicilio"
@@ -233,8 +241,27 @@ export default async function PedidoPage({
           />
         )}
 
+        {/* ALERTA DE COMPROBANTE OBLIGATORIO PENDIENTE */}
+        {requiresReceipt && !receipt && (
+          <div className="rounded-3xl border-2 border-amber-400 bg-amber-50 p-6 sm:p-8 shadow-md">
+            <div className="flex items-start gap-4">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-500 text-white font-bold text-lg shadow-sm">
+                !
+              </span>
+              <div>
+                <h3 className="text-base font-bold text-amber-950">
+                  Comprobante de pago obligatorio pendiente
+                </h3>
+                <p className="mt-1 text-xs text-amber-900 leading-relaxed">
+                  Para las órdenes con pago por transferencia o retiro en taller, es indispensable adjuntar el comprobante o foto de tu transacción. Sube tu comprobante a continuación para que el taller valide el ingreso y habilite tu factura.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ZONA DE CARGA DEL COMPROBANTE ADJUNTO (SOLO TITULAR DE LA CUENTA DEL PEDIDO) */}
-        {isTransfer && isViewerOwner && (
+        {requiresReceipt && isViewerOwner && (
           <ReceiptUploader
             orderId={order.id}
             orderNumber={order.number}
@@ -245,7 +272,7 @@ export default async function PedidoPage({
         )}
 
         {/* CUENTAS BANCARIAS OFICIALES DOMINICANAS */}
-        {isTransfer && (
+        {requiresReceipt && (
           <div className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-xl sm:p-8">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-5">
               <div className="flex items-center gap-3">

@@ -6,13 +6,14 @@ import { useCart } from "@/components/store/cart-context";
 import { formatCurrency, roundMoney } from "@/lib/format";
 import { submitWebCheckout } from "@/app/(store)/checkout/actions";
 import { STORE_LOGISTICS } from "@/lib/store-info";
+import { Upload, X, CheckCircle2, ShieldCheck, AlertCircle } from "lucide-react";
 import Link from "next/link";
 
 const MODE_COPY = {
   transfer: {
     title: "Transferencia bancaria",
-    submit: "Confirmar pedido por transferencia",
-    hint: "Te mostramos las cuentas oficiales del Popular, Banreservas, BHD, APAP y Banesco para transferir y enviar el comprobante.",
+    submit: "Confirmar y enviar comprobante",
+    hint: "Transfiere a cualquiera de nuestras cuentas oficiales y adjunta aquí tu comprobante para procesar tu orden.",
   },
   online: {
     title: "Pagar en línea",
@@ -20,14 +21,14 @@ const MODE_COPY = {
     hint: "Te redirigimos a Stripe. Al completar, recibirás la factura por correo.",
   },
   local: {
-    title: "Pagar en el local",
-    submit: "Confirmar pedido",
-    hint: "Registramos tu factura pendiente. Pagas al retirar o al recibir la entrega.",
+    title: "Retiro en taller / Pago local",
+    submit: "Confirmar orden con comprobante",
+    hint: "Para retiros en taller, adjunta el comprobante de depósito o anticipo para reservar tus piezas.",
   },
   quote: {
     title: "Pedir cotización",
     submit: "Enviar cotización",
-    hint: "Sin compromiso. El equipo te contacta con la propuesta.",
+    hint: "Sin compromiso. El equipo te contacta con la propuesta formal.",
   },
 } as const;
 
@@ -44,7 +45,7 @@ export function CheckoutForm({
   const { items, clear } = useCart();
   const [error, setError] = useState("");
   const [fulfillment, setFulfillment] = useState<"pickup" | "delivery">(
-    "pickup",
+    mode === "local" ? "pickup" : "pickup",
   );
   const cleanSessionName =
     session?.user?.name &&
@@ -57,8 +58,12 @@ export function CheckoutForm({
   const [taxId, setTaxId] = useState("");
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [receiptPreview, setReceiptPreview] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const copy = MODE_COPY[mode];
+
+  const isReceiptMandatory = mode === "transfer" || mode === "local";
 
   // Auto-fill name/email when session loads asynchronously
   useEffect(() => {
@@ -122,15 +127,42 @@ export function CheckoutForm({
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
+
     if (mode === "online" && !stripeReady) {
       setError("El pago online aún no está configurado.");
       return;
     }
+
+    // Validación estricta y obligatoria de número de WhatsApp / Teléfono
+    const phoneDigits = phone.replace(/\D/g, "");
+    if (!phone.trim() || phoneDigits.length < 10) {
+      setError(
+        "El número de WhatsApp es obligatorio y debe tener al menos 10 dígitos (ej: 809-555-0123).",
+      );
+      const phoneInput = document.getElementById("phone");
+      phoneInput?.focus();
+      return;
+    }
+
+    // Validación obligatoria de comprobante para transferencia o retiro en taller
+    if (isReceiptMandatory && !receiptFile) {
+      setError(
+        mode === "transfer"
+          ? "Es obligatorio adjuntar el comprobante de transferencia para completar tu pedido."
+          : "Es obligatorio adjuntar el comprobante de pago o depósito para confirmar tu orden de retiro en taller.",
+      );
+      return;
+    }
+
     const fd = new FormData(e.currentTarget);
     fd.set("mode", mode);
     fd.set("cartJson", cartJson);
     fd.set("fulfillment", fulfillment);
     fd.set("origin", window.location.origin);
+    if (receiptFile) {
+      fd.set("receipt", receiptFile);
+    }
+
     start(async () => {
       try {
         await submitWebCheckout(fd);
@@ -229,6 +261,7 @@ export function CheckoutForm({
             className="input"
           />
         </div>
+
         <div>
           <label className="label" htmlFor="email">
             Correo electrónico *
@@ -244,20 +277,28 @@ export function CheckoutForm({
             className="input"
           />
         </div>
+
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="label" htmlFor="phone">
-              Teléfono / WhatsApp *
+            <label className="label flex items-center justify-between" htmlFor="phone">
+              <span>WhatsApp / Teléfono *</span>
+              <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">
+                Obligatorio
+              </span>
             </label>
             <input
               id="phone"
               name="phone"
               required
+              type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="809-000-0000"
-              className="input"
+              placeholder="809-555-0123"
+              className="input font-medium"
             />
+            <p className="mt-1 text-[11px] text-[var(--muted)]">
+              Mínimo 10 dígitos para coordinar tu entrega o retiro.
+            </p>
           </div>
           <div>
             <label className="label" htmlFor="taxId">
@@ -273,6 +314,7 @@ export function CheckoutForm({
             />
           </div>
         </div>
+
         <div>
           <label className="label" htmlFor="address">
             {fulfillment === "delivery"
@@ -293,6 +335,110 @@ export function CheckoutForm({
             }
           />
         </div>
+
+        {/* =========================================================================
+            ZONA DE COMPROBANTE OBLIGATORIO PARA TRANSFERENCIA O RETIRO EN TALLER
+           ========================================================================= */}
+        {isReceiptMandatory && (
+          <div className="rounded-2xl border-2 border-dashed border-[#c9a15a] bg-[#faf6f1] p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#c9a15a] text-xs font-bold text-[#0a0a0a]">
+                    *
+                  </span>
+                  <label className="text-sm font-bold text-[var(--wood-950)]">
+                    Comprobante de Pago / Depósito (Obligatorio)
+                  </label>
+                </div>
+                <p className="mt-1 text-xs text-[var(--wood-800)] leading-relaxed">
+                  {mode === "transfer"
+                    ? "Es obligatorio adjuntar la foto, captura o PDF del comprobante de transferencia bancaria (Banreservas, Popular, BHD, etc.)."
+                    : "Para órdenes de retiro en taller, es obligatorio adjuntar el comprobante o foto de tu anticipo o depósito para reservar tus piezas."}
+                </p>
+              </div>
+              <span className="rounded-md bg-[#c9a15a]/20 border border-[#c9a15a]/40 px-2 py-0.5 text-[0.62rem] font-bold text-[#8a6524] uppercase tracking-wider shrink-0">
+                Requerido
+              </span>
+            </div>
+
+            <div className="mt-4">
+              {!receiptFile ? (
+                <label className="group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#c9a15a]/50 bg-white p-6 text-center transition hover:border-[#c9a15a] hover:bg-[#fffdfa]">
+                  <Upload className="h-8 w-8 text-[#b0894f] transition group-hover:scale-110" />
+                  <p className="mt-2 text-xs font-semibold text-[var(--wood-950)]">
+                    Haz clic aquí para seleccionar tu comprobante
+                  </p>
+                  <p className="mt-1 text-[11px] text-[var(--muted)]">
+                    Formatos permitidos: JPG, PNG, WebP o PDF (máx. 5 MB)
+                  </p>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,application/pdf"
+                    className="sr-only"
+                    required
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > 5 * 1024 * 1024) {
+                        setError("El archivo seleccionado excede el límite de 5 MB.");
+                        return;
+                      }
+                      setError("");
+                      setReceiptFile(file);
+                      if (file.type.startsWith("image/")) {
+                        const url = URL.createObjectURL(file);
+                        setReceiptPreview(url);
+                      } else {
+                        setReceiptPreview(null);
+                      }
+                    }}
+                  />
+                </label>
+              ) : (
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-emerald-300 bg-emerald-50/70 p-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    {receiptPreview ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={receiptPreview}
+                        alt="Comprobante"
+                        className="h-12 w-12 rounded-lg object-cover border border-emerald-300 shrink-0"
+                      />
+                    ) : (
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-emerald-200 text-emerald-800 font-bold text-xs">
+                        PDF
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="truncate text-xs font-bold text-emerald-900">
+                        {receiptFile.name}
+                      </p>
+                      <p className="text-[11px] text-emerald-700 flex items-center gap-1">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        <span>
+                          {(receiptFile.size / 1024).toFixed(1)} KB · Comprobante cargado correctamente
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setReceiptFile(null);
+                      setReceiptPreview(null);
+                    }}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-emerald-300 text-emerald-800 transition hover:bg-emerald-100 cursor-pointer"
+                    title="Cambiar archivo"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         <div>
           <label className="label" htmlFor="notes">
             Notas o especificaciones de medidas
@@ -344,9 +490,10 @@ export function CheckoutForm({
           </ul>
 
           {error ? (
-            <p className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs font-medium text-rose-700">
-              {error}
-            </p>
+            <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-rose-200 bg-rose-50 p-3.5 text-xs font-medium text-rose-700">
+              <AlertCircle className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
+              <span>{error}</span>
+            </div>
           ) : null}
 
           <button
