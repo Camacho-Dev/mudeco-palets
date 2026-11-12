@@ -2,7 +2,7 @@
 
 import { getSession, signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
+import { FormEvent, Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -11,26 +11,12 @@ import {
   EyeOff,
   Lock,
   Mail,
-  User,
   Phone,
-  ShoppingBag,
-  Leaf,
-  ShieldCheck,
-  Home,
-  Smartphone,
-  CheckCircle2,
-  HelpCircle,
-  X,
-  MessageCircle,
-  Sparkles,
-  Shield,
-  Award,
-  Check,
-  ExternalLink,
-  Copy,
   ShieldAlert,
-  Clock,
+  User,
+  X,
 } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { LogoMark } from "@/components/logo";
 import {
   checkGoogleAuthStatus,
@@ -40,197 +26,67 @@ import {
 } from "./actions";
 import "./login.css";
 
-/* =========================================================================
-   CANVAS DE PARTÍCULAS AMBIENTALES DE TALLER ARTESANAL (GOLDEN DUST MOTES)
-   ========================================================================= */
-function AtelierParticles() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let animId: number;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
-
-    const onResize = () => {
-      if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    };
-    window.addEventListener("resize", onResize);
-
-    // 14 partículas ligeras sin shadowBlur para fluidez a 60fps sin carga de GPU
-    const count = 14;
-    const particles = Array.from({ length: count }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      radius: Math.random() * 1.4 + 0.6,
-      vx: (Math.random() - 0.5) * 0.18,
-      vy: -Math.random() * 0.25 - 0.08,
-      alpha: Math.random() * 0.35 + 0.12,
-      baseAlpha: Math.random() * 0.35 + 0.12,
-      phase: Math.random() * Math.PI * 2,
-    }));
-
-    const render = () => {
-      ctx.clearRect(0, 0, width, height);
-
-      particles.forEach((p) => {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.phase += 0.015;
-        p.alpha = p.baseAlpha + Math.sin(p.phase) * 0.08;
-
-        if (p.y < -10) {
-          p.y = height + 10;
-          p.x = Math.random() * width;
-        }
-        if (p.x < -10) p.x = width + 10;
-        if (p.x > width + 10) p.x = -10;
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(212, 175, 55, ${Math.max(0, p.alpha)})`;
-        ctx.fill();
-      });
-
-      animId = requestAnimationFrame(render);
-    };
-
-    render();
-
-    return () => {
-      window.removeEventListener("resize", onResize);
-      cancelAnimationFrame(animId);
-    };
-  }, []);
-
-  return <canvas ref={canvasRef} className="luxury-particles-canvas" aria-hidden="true" />;
-}
-
-/* =========================================================================
-   ICONO VECTORIAL OFICIAL DE GOOGLE
-   ========================================================================= */
-function GoogleIcon({ className = "w-5 h-5 shrink-0" }: { className?: string }) {
+function GoogleIcon({ className = "h-4 w-4 shrink-0" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
       <path
         fill="#4285F4"
-        d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17Z"
+        d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z"
       />
       <path
         fill="#34A853"
-        d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24Z"
+        d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24Z"
       />
       <path
         fill="#FBBC05"
-        d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.15Z"
+        d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14Z"
       />
       <path
         fill="#EA4335"
-        d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98Z"
+        d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z"
       />
     </svg>
   );
 }
 
-/* =========================================================================
-   CÓDIGO QR VECTORIAL CON MATRIZ ESTILIZADA
-   ========================================================================= */
-function QrCodeGraphic({ className = "w-11 h-11 shrink-0 bg-white p-1 rounded-md shadow-sm" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 100 100"
-      className={className}
-      aria-label="Código QR de acceso móvil"
-    >
-      <rect x="5" y="5" width="28" height="28" rx="3" fill="#120e0b" />
-      <rect x="9" y="9" width="20" height="20" rx="2" fill="#ffffff" />
-      <rect x="13" y="13" width="12" height="12" rx="1.5" fill="#120e0b" />
-
-      <rect x="67" y="5" width="28" height="28" rx="3" fill="#120e0b" />
-      <rect x="71" y="9" width="20" height="20" rx="2" fill="#ffffff" />
-      <rect x="75" y="13" width="12" height="12" rx="1.5" fill="#120e0b" />
-
-      <rect x="5" y="67" width="28" height="28" rx="3" fill="#120e0b" />
-      <rect x="9" y="71" width="20" height="20" rx="2" fill="#ffffff" />
-      <rect x="13" y="75" width="12" height="12" rx="1.5" fill="#120e0b" />
-
-      <rect x="70" y="70" width="16" height="16" rx="2" fill="#120e0b" />
-      <rect x="73" y="73" width="10" height="10" rx="1.5" fill="#ffffff" />
-      <rect x="76" y="76" width="4" height="4" fill="#120e0b" />
-
-      <rect x="37" y="17" width="5" height="5" fill="#120e0b" />
-      <rect x="47" y="17" width="5" height="5" fill="#120e0b" />
-      <rect x="57" y="17" width="5" height="5" fill="#120e0b" />
-      <rect x="17" y="37" width="5" height="5" fill="#120e0b" />
-      <rect x="17" y="47" width="5" height="5" fill="#120e0b" />
-      <rect x="17" y="57" width="5" height="5" fill="#120e0b" />
-
-      <rect x="37" y="37" width="6" height="6" fill="#120e0b" />
-      <rect x="47" y="37" width="5" height="5" fill="#120e0b" />
-      <rect x="56" y="37" width="6" height="6" fill="#120e0b" />
-      <rect x="37" y="47" width="6" height="6" fill="#120e0b" />
-      <rect x="47" y="47" width="5" height="5" fill="#120e0b" />
-      <rect x="56" y="47" width="6" height="6" fill="#120e0b" />
-      <rect x="37" y="57" width="5" height="5" fill="#120e0b" />
-      <rect x="47" y="57" width="6" height="6" fill="#120e0b" />
-      <rect x="56" y="57" width="5" height="5" fill="#120e0b" />
-
-      <rect x="37" y="75" width="5" height="5" fill="#120e0b" />
-      <rect x="47" y="75" width="5" height="5" fill="#120e0b" />
-      <rect x="37" y="85" width="5" height="5" fill="#120e0b" />
-      <rect x="47" y="85" width="5" height="5" fill="#120e0b" />
-      <rect x="75" y="37" width="5" height="5" fill="#120e0b" />
-      <rect x="85" y="37" width="5" height="5" fill="#120e0b" />
-      <rect x="75" y="47" width="5" height="5" fill="#120e0b" />
-      <rect x="85" y="47" width="5" height="5" fill="#120e0b" />
-    </svg>
-  );
+function getPasswordStrength(p: string) {
+  if (!p) return 0;
+  let score = 0;
+  if (p.length >= 6) score++;
+  if (p.length >= 8) score++;
+  if (/[A-Z]/.test(p) && /[a-z]/.test(p)) score++;
+  if (/[0-9]/.test(p) || /[^A-Za-z0-9]/.test(p)) score++;
+  return score;
 }
 
-/* =========================================================================
-   FORMULARIO PRINCIPAL DE LOGIN Y REGISTRO (CON GIRO 3D Y GOOGLE AUTH)
-   ========================================================================= */
 function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const callback = params.get("callbackUrl");
-  const isFromCheckout = callback === "/checkout" || callback?.startsWith("/checkout");
+  const isFromCheckout =
+    callback === "/checkout" || Boolean(callback?.startsWith("/checkout"));
 
-  // Estado del giro 3D: false = Login (Front), true = Registro (Back)
-  const [isFlipped, setIsFlipped] = useState(
-    params.get("tab") === "register",
+  const [tab, setTab] = useState<"login" | "register">(
+    params.get("tab") === "register" ? "register" : "login",
   );
-
-  // Estado de login en 2 pasos: "email" -> "password"
-  const [loginStep, setLoginStep] = useState<"email" | "password">("email");
-
-  // Mensajes y carga
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  // Login form state
+  // Login state
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
 
-  // Registro form state
+  // Register state
   const [regName, setRegName] = useState("");
   const [regEmail, setRegEmail] = useState("");
   const [regPhone, setRegPhone] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [showRegPassword, setShowRegPassword] = useState(false);
 
-  // Modales
+  // Modales esenciales
   const [showForgotModal, setShowForgotModal] = useState(false);
   const [forgotStep, setForgotStep] = useState<"request" | "verify">("request");
   const [forgotEmail, setForgotEmail] = useState("");
@@ -239,74 +95,40 @@ function LoginForm() {
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotError, setForgotError] = useState("");
   const [forgotPreviewUrl, setForgotPreviewUrl] = useState<string | null>(null);
-  const [showQrModal, setShowQrModal] = useState(false);
   const [showGoogleSetupModal, setShowGoogleSetupModal] = useState(false);
   const [showBlockedModal, setShowBlockedModal] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(false);
 
-  // Estado de mouse para el spotlight reflectante en la tarjeta
   useEffect(() => {
     const urlError = params.get("error");
     if (urlError === "AccessDenied") {
       setShowBlockedModal(true);
-      setError("Acceso restringido: Esta cuenta se encuentra suspendida temporalmente por administración.");
+      setError(
+        "Acceso restringido: esta cuenta se encuentra suspendida temporalmente.",
+      );
     }
   }, [params]);
 
-  const cardRef = useRef<HTMLDivElement | null>(null);
+  const safeCallback =
+    callback &&
+    callback.startsWith("/") &&
+    !callback.startsWith("//") &&
+    callback !== "/login"
+      ? callback
+      : null;
 
-  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-    const card = cardRef.current;
-    if (!card) return;
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    card.style.setProperty("--mouse-x", `${x}px`);
-    card.style.setProperty("--mouse-y", `${y}px`);
-  }
-
-  // Validación rápida de correo o usuario admin en tiempo real
-  const normalizedLogin = loginEmail.trim().toLowerCase();
-  const isEmailValid =
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedLogin) ||
-    normalizedLogin === "admin" ||
-    normalizedLogin === "administrador" ||
-    normalizedLogin === "admin@mudeco.com" ||
-    normalizedLogin === "admin@empresa.com";
-
-  // Cálculo de fortaleza de contraseña en registro
-  function getPasswordStrength(p: string) {
-    if (!p) return 0;
-    let score = 0;
-    if (p.length >= 6) score++;
-    if (p.length >= 8) score++;
-    if (/[A-Z]/.test(p) && /[a-z]/.test(p)) score++;
-    if (/[0-9]/.test(p) || /[^A-Za-z0-9]/.test(p)) score++;
-    return score;
-  }
   const passwordStrength = getPasswordStrength(regPassword);
 
-  // Avanzar del Paso 1 (Correo) al Paso 2 (Contraseña)
-  function handleEmailNext(e: FormEvent) {
-    e.preventDefault();
-    setError("");
-    const trimmed = loginEmail.trim();
-
-    if (!trimmed || !isEmailValid) {
-      setError("Por favor ingresa un correo electrónico válido.");
-      return;
-    }
-
-    setLoginStep("password");
-  }
-
-  // Enviar login definitivo (Paso 2)
   async function handleLoginSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
     setError("");
     setSuccessMsg("");
 
+    if (!loginEmail.trim() || !loginPassword) {
+      setError("Ingresa tu correo y contraseña para continuar.");
+      return;
+    }
+
+    setLoading(true);
     const result = await signIn("credentials", {
       email: loginEmail.trim(),
       password: loginPassword,
@@ -322,21 +144,9 @@ function LoginForm() {
     const session = await getSession();
     const role = session?.user?.role;
 
-    const safeCallback =
-      callback &&
-      callback.startsWith("/") &&
-      !callback.startsWith("//") &&
-      callback !== "/login"
-        ? callback
-        : null;
-
     if (safeCallback) {
       router.push(safeCallback);
-      router.refresh();
-      return;
-    }
-
-    if (role === "ADMIN") {
+    } else if (role === "ADMIN") {
       router.push("/panel");
     } else if (role === "VENDEDOR") {
       router.push("/vender");
@@ -346,11 +156,9 @@ function LoginForm() {
     router.refresh();
   }
 
-  // Inicio de sesión con Google
   async function handleGoogleSignIn() {
     setError("");
     setGoogleLoading(true);
-
     try {
       const status = await checkGoogleAuthStatus();
       if (!status.configured) {
@@ -358,52 +166,41 @@ function LoginForm() {
         setShowGoogleSetupModal(true);
         return;
       }
-
-      const safeCallback =
-        callback &&
-        callback.startsWith("/") &&
-        !callback.startsWith("//") &&
-        callback !== "/login"
-          ? callback
-          : "/";
-
-      await signIn("google", { callbackUrl: safeCallback });
+      await signIn("google", { callbackUrl: safeCallback || "/" });
     } catch {
       setGoogleLoading(false);
-      setError("No se pudo iniciar sesión con Google. Intenta con tu correo o contáctanos.");
+      setError(
+        "No se pudo iniciar sesión con Google. Intenta con tu correo o contraseña.",
+      );
     }
   }
 
-  // Enviar registro de cuenta (Cara Posterior)
   async function handleRegisterSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
     setError("");
     setSuccessMsg("");
 
     if (!regName.trim()) {
       setError("Por favor ingresa tu nombre completo.");
-      setLoading(false);
       return;
     }
     if (!regEmail.trim() || !regEmail.includes("@") || !regEmail.includes(".")) {
       setError("Por favor ingresa un correo electrónico válido.");
-      setLoading(false);
       return;
     }
     const phoneDigits = regPhone.replace(/\D/g, "");
     if (!regPhone.trim() || phoneDigits.length < 10) {
-      setError("El número de WhatsApp es obligatorio y debe tener al menos 10 dígitos (ej: 809-555-0123).");
-      setLoading(false);
+      setError(
+        "El número de WhatsApp es obligatorio y debe tener al menos 10 dígitos.",
+      );
       return;
     }
-
     if (regPassword.length < 6) {
       setError("La contraseña debe tener al menos 6 caracteres.");
-      setLoading(false);
       return;
     }
 
+    setLoading(true);
     try {
       const regRes = await registerCustomer({
         name: regName.trim(),
@@ -418,9 +215,7 @@ function LoginForm() {
         return;
       }
 
-      setSuccessMsg("¡Cuenta creada exitosamente! Conectando...");
-
-      // Iniciar sesión automáticamente tras crear cuenta
+      setSuccessMsg("Cuenta creada. Iniciando sesión…");
       const loginRes = await signIn("credentials", {
         email: regEmail.trim(),
         password: regPassword,
@@ -429,26 +224,13 @@ function LoginForm() {
 
       if (loginRes?.error) {
         setLoading(false);
-        setIsFlipped(false);
+        setTab("login");
         setLoginEmail(regEmail.trim());
-        setLoginStep("password");
-        setSuccessMsg("Cuenta creada. Por favor ingresa tu contraseña para acceder.");
+        setSuccessMsg("Cuenta creada. Ingresa tu contraseña para acceder.");
         return;
       }
 
-      const safeCallback =
-        callback &&
-        callback.startsWith("/") &&
-        !callback.startsWith("//") &&
-        callback !== "/login"
-          ? callback
-          : null;
-
-      if (safeCallback) {
-        router.push(safeCallback);
-      } else {
-        router.push("/");
-      }
+      router.push(safeCallback || "/");
       router.refresh();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error inesperado";
@@ -457,999 +239,633 @@ function LoginForm() {
     }
   }
 
-  function handleCopyQuickLink() {
-    const url = window.location.origin + "/login";
-    navigator.clipboard.writeText(url);
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2500);
+  function switchTab(next: "login" | "register") {
+    setTab(next);
+    setError("");
+    setSuccessMsg("");
   }
 
   return (
-    <>
-      {/* Modal Ayuda / Olvidó contraseña */}
-      {showForgotModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-md rounded-2xl border border-[#c9a15a]/40 bg-[#16120e] p-6 shadow-2xl text-white">
-            <button
-              type="button"
-              onClick={() => {
-                setShowForgotModal(false);
-                setForgotStep("request");
-                setForgotError("");
-              }}
-              className="absolute top-4 right-4 text-white/60 hover:text-white p-1"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-10 w-10 rounded-full bg-[#c9a15a]/20 border border-[#c9a15a]/40 flex items-center justify-center text-[#d4af37]">
-                <HelpCircle className="h-5 w-5" />
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-white">¿Olvidaste tu contraseña?</h3>
-                <p className="text-xs text-white/60">
-                  {forgotStep === "request"
-                    ? "Recibe un código de 6 dígitos en tu correo"
-                    : "Ingresa el código y tu nueva contraseña"}
-                </p>
-              </div>
+    <div className="min-h-dvh w-full bg-[#faf7f2] text-[#14100d] lg:grid lg:grid-cols-12">
+      {/* Columna izquierda editorial (solo desktop) */}
+      <aside className="relative hidden lg:col-span-5 lg:flex lg:flex-col lg:justify-between overflow-hidden bg-[#0e0b09] p-10 xl:p-14 text-[#faf6f1]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/brand/store-hero.jpg"
+          alt="Taller Mudeco Palets"
+          className="absolute inset-0 h-full w-full object-cover opacity-35"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0e0b09] via-[#0e0b09]/70 to-[#0e0b09]/80" />
+
+        <div className="relative z-10 flex items-center justify-between">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-black/30 px-3.5 py-1.5 text-xs font-medium text-white/85 backdrop-blur-xs transition hover:border-[#c9a15a]/60 hover:text-[#f3d48c]"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>Volver a la tienda</span>
+          </Link>
+        </div>
+
+        <div className="relative z-10 max-w-md space-y-5">
+          <LogoMark className="h-12 w-auto text-white" />
+          <div className="h-px w-12 bg-[#c9a15a]/70" />
+          <h1 className="font-display text-4xl xl:text-[2.65rem] leading-[1.12] tracking-tight text-white">
+            Madera recuperada,{" "}
+            <span className="text-[#d4af37]">hecha a tu medida.</span>
+          </h1>
+          <p className="text-sm leading-relaxed text-white/65">
+            Accede a tu cuenta para consultar tus pedidos, descargar facturas y
+            dar seguimiento a tus piezas en fabricación.
+          </p>
+        </div>
+
+        <p className="relative z-10 text-xs text-white/40">
+          © {new Date().getFullYear()} Mudeco Palets · Taller artesanal
+        </p>
+      </aside>
+
+      {/* Columna derecha: formulario limpio y respirado */}
+      <main className="flex min-h-dvh flex-col justify-between px-5 py-6 sm:px-8 lg:col-span-7 lg:px-12 lg:py-10">
+        {/* Top bar móvil */}
+        <div className="flex items-center justify-between lg:hidden">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-[#6f5d4b] hover:text-[#14100d]"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>Tienda</span>
+          </Link>
+          <LogoMark className="h-8 w-auto text-[#14100d]" />
+        </div>
+
+        <div className="mx-auto my-auto w-full max-w-[420px] py-8">
+          <div className="rounded-2xl border border-[#e5dacb] bg-white p-6 shadow-[0_12px_40px_-16px_rgba(20,16,13,0.12)] sm:p-8">
+            {/* Encabezado */}
+            <div className="space-y-1.5">
+              <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-[#9b7435]">
+                {isFromCheckout ? "Continuar compra" : "Espacio de cliente"}
+              </p>
+              <h2 className="font-display text-3xl text-[#14100d]">
+                {tab === "login" ? "Bienvenido de nuevo" : "Crea tu cuenta"}
+              </h2>
+              <p className="text-xs text-[#6f5d4b]">
+                {tab === "login"
+                  ? "Ingresa con tu correo o continúa con Google."
+                  : "Regístrate en segundos para gestionar tus pedidos."}
+              </p>
             </div>
 
-            {forgotError ? (
-              <div className="mb-3 rounded-xl border border-rose-500/40 bg-rose-500/15 px-3 py-2 text-xs text-rose-200">
-                {forgotError}
-              </div>
-            ) : null}
-
-            {forgotStep === "request" ? (
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  setForgotError("");
-                  setForgotLoading(true);
-                  const res = await requestPasswordResetCode(
-                    forgotEmail || loginEmail,
-                  );
-                  setForgotLoading(false);
-                  if (!res.success) {
-                    setForgotError(res.error || "No se pudo enviar el código.");
-                    return;
-                  }
-                  if (!forgotEmail && loginEmail) setForgotEmail(loginEmail);
-                  setForgotPreviewUrl(res.previewUrl || null);
-                  setForgotStep("verify");
-                }}
-                className="space-y-3"
+            {/* Selector de pestaña simple */}
+            <div className="mt-6 grid grid-cols-2 rounded-xl bg-[#f4eee5] p-1 text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => switchTab("login")}
+                className={`rounded-lg py-2 transition cursor-pointer ${
+                  tab === "login"
+                    ? "bg-white text-[#14100d] shadow-2xs"
+                    : "text-[#6f5d4b] hover:text-[#14100d]"
+                }`}
               >
+                Iniciar sesión
+              </button>
+              <button
+                type="button"
+                onClick={() => switchTab("register")}
+                className={`rounded-lg py-2 transition cursor-pointer ${
+                  tab === "register"
+                    ? "bg-white text-[#14100d] shadow-2xs"
+                    : "text-[#6f5d4b] hover:text-[#14100d]"
+                }`}
+              >
+                Crear cuenta
+              </button>
+            </div>
+
+            {/* Mensajes de estado */}
+            {error && (
+              <div className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs font-medium text-rose-700">
+                {error}
+              </div>
+            )}
+            {successMsg && (
+              <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-xs font-medium text-emerald-700">
+                {successMsg}
+              </div>
+            )}
+
+            <AnimatePresence mode="wait">
+              {tab === "login" ? (
+                <motion.div
+                  key="login"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.18 }}
+                  className="mt-6 space-y-5"
+                >
+                  <button
+                    type="button"
+                    onClick={handleGoogleSignIn}
+                    disabled={googleLoading || loading}
+                    className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[#dfd3c2] bg-white px-4 py-2.5 text-sm font-medium text-[#14100d] transition hover:border-[#b0894f] hover:bg-[#faf7f2] disabled:opacity-60 cursor-pointer"
+                  >
+                    <GoogleIcon />
+                    <span>
+                      {googleLoading
+                        ? "Conectando con Google…"
+                        : "Continuar con Google"}
+                    </span>
+                  </button>
+
+                  <div className="relative flex items-center">
+                    <div className="grow border-t border-[#ece3d6]" />
+                    <span className="mx-3 text-[0.7rem] font-medium text-[#8c7b68]">
+                      o con tu correo
+                    </span>
+                    <div className="grow border-t border-[#ece3d6]" />
+                  </div>
+
+                  <form onSubmit={handleLoginSubmit} className="space-y-4">
+                    <div>
+                      <label
+                        htmlFor="login-email"
+                        className="mb-1.5 block text-xs font-semibold text-[#3d3126]"
+                      >
+                        Correo electrónico
+                      </label>
+                      <div className="relative">
+                        <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9b8a77]" />
+                        <input
+                          id="login-email"
+                          type="text"
+                          autoComplete="email"
+                          value={loginEmail}
+                          onChange={(e) => setLoginEmail(e.target.value)}
+                          placeholder="tu@correo.com"
+                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-3.5 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="mb-1.5 flex items-center justify-between">
+                        <label
+                          htmlFor="login-password"
+                          className="block text-xs font-semibold text-[#3d3126]"
+                        >
+                          Contraseña
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setForgotEmail(loginEmail);
+                            setForgotError("");
+                            setForgotStep("request");
+                            setShowForgotModal(true);
+                          }}
+                          className="text-xs font-medium text-[#9b7435] hover:underline cursor-pointer"
+                        >
+                          ¿La olvidaste?
+                        </button>
+                      </div>
+                      <div className="relative">
+                        <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9b8a77]" />
+                        <input
+                          id="login-password"
+                          type={showPassword ? "text" : "password"}
+                          autoComplete="current-password"
+                          value={loginPassword}
+                          onChange={(e) => setLoginPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-10 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((s) => !s)}
+                          aria-label={
+                            showPassword
+                              ? "Ocultar contraseña"
+                              : "Mostrar contraseña"
+                          }
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9b8a77] hover:text-[#14100d] cursor-pointer"
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading || googleLoading}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#14100d] px-4 py-3 text-sm font-semibold text-[#faf6f1] transition hover:bg-[#2a211a] disabled:opacity-60 cursor-pointer"
+                    >
+                      <span>{loading ? "Entrando…" : "Iniciar sesión"}</span>
+                      {!loading && <ArrowRight className="h-4 w-4 text-[#d4af37]" />}
+                    </button>
+                  </form>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="register"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.18 }}
+                  className="mt-6"
+                >
+                  <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
+                    <div>
+                      <label
+                        htmlFor="reg-name"
+                        className="mb-1 block text-xs font-semibold text-[#3d3126]"
+                      >
+                        Nombre completo
+                      </label>
+                      <div className="relative">
+                        <User className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9b8a77]" />
+                        <input
+                          id="reg-name"
+                          type="text"
+                          required
+                          value={regName}
+                          onChange={(e) => setRegName(e.target.value)}
+                          placeholder="Tu nombre"
+                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-3.5 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="reg-email"
+                        className="mb-1 block text-xs font-semibold text-[#3d3126]"
+                      >
+                        Correo electrónico
+                      </label>
+                      <div className="relative">
+                        <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9b8a77]" />
+                        <input
+                          id="reg-email"
+                          type="email"
+                          required
+                          value={regEmail}
+                          onChange={(e) => setRegEmail(e.target.value)}
+                          placeholder="tu@correo.com"
+                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-3.5 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="reg-phone"
+                        className="mb-1 block text-xs font-semibold text-[#3d3126]"
+                      >
+                        WhatsApp / Teléfono
+                      </label>
+                      <div className="relative">
+                        <Phone className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9b8a77]" />
+                        <input
+                          id="reg-phone"
+                          type="tel"
+                          required
+                          value={regPhone}
+                          onChange={(e) => setRegPhone(e.target.value)}
+                          placeholder="809-555-0123"
+                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-3.5 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label
+                        htmlFor="reg-password"
+                        className="mb-1 block text-xs font-semibold text-[#3d3126]"
+                      >
+                        Contraseña
+                      </label>
+                      <div className="relative">
+                        <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9b8a77]" />
+                        <input
+                          id="reg-password"
+                          type={showRegPassword ? "text" : "password"}
+                          required
+                          minLength={6}
+                          value={regPassword}
+                          onChange={(e) => setRegPassword(e.target.value)}
+                          placeholder="Mínimo 6 caracteres"
+                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-10 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowRegPassword((s) => !s)}
+                          aria-label={
+                            showRegPassword
+                              ? "Ocultar contraseña"
+                              : "Mostrar contraseña"
+                          }
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9b8a77] hover:text-[#14100d] cursor-pointer"
+                        >
+                          {showRegPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                      {regPassword && (
+                        <div className="mt-2 grid grid-cols-4 gap-1.5">
+                          {[1, 2, 3, 4].map((lvl) => (
+                            <span
+                              key={lvl}
+                              className={`h-1 rounded-full transition-colors ${
+                                passwordStrength >= lvl
+                                  ? passwordStrength >= 3
+                                    ? "bg-emerald-500"
+                                    : "bg-[#c9a15a]"
+                                  : "bg-[#ebe2d6]"
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-[#14100d] px-4 py-3 text-sm font-semibold text-[#faf6f1] transition hover:bg-[#2a211a] disabled:opacity-60 cursor-pointer"
+                    >
+                      <span>{loading ? "Creando cuenta…" : "Crear cuenta"}</span>
+                      {!loading && <ArrowRight className="h-4 w-4 text-[#d4af37]" />}
+                    </button>
+                  </form>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+
+        <p className="text-center text-[11px] text-[#8c7b68] lg:text-right">
+          Conexión segura · Mudeco Palets
+        </p>
+      </main>
+
+      {/* Modal: Recuperar contraseña */}
+      <AnimatePresence>
+        {showForgotModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 backdrop-blur-xs"
+            onClick={() => setShowForgotModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 8 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-sm rounded-2xl border border-[#e5dacb] bg-white p-6 shadow-2xl space-y-4"
+            >
+              <div className="flex items-start justify-between">
                 <div>
-                  <label className="block text-[0.68rem] font-bold uppercase tracking-wider text-white/70 mb-1">
-                    Correo de tu cuenta
-                  </label>
+                  <h3 className="font-display text-2xl text-[#14100d]">
+                    Recuperar acceso
+                  </h3>
+                  <p className="mt-0.5 text-xs text-[#6f5d4b]">
+                    {forgotStep === "request"
+                      ? "Te enviaremos un código de 6 dígitos a tu correo."
+                      : "Ingresa el código recibido y tu nueva contraseña."}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowForgotModal(false)}
+                  className="rounded-lg p-1 text-[#8c7b68] hover:bg-[#f4eee5] hover:text-[#14100d]"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {forgotError && (
+                <div className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs font-medium text-rose-700">
+                  {forgotError}
+                </div>
+              )}
+
+              {forgotStep === "request" ? (
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    setForgotError("");
+                    setForgotLoading(true);
+                    const res = await requestPasswordResetCode(
+                      forgotEmail || loginEmail,
+                    );
+                    setForgotLoading(false);
+                    if (!res.success) {
+                      setForgotError(
+                        res.error || "No se pudo enviar el código.",
+                      );
+                      return;
+                    }
+                    if (!forgotEmail && loginEmail) setForgotEmail(loginEmail);
+                    setForgotPreviewUrl(res.previewUrl || null);
+                    setForgotStep("verify");
+                  }}
+                  className="space-y-3"
+                >
                   <input
                     type="email"
                     required
                     value={forgotEmail || loginEmail}
                     onChange={(e) => setForgotEmail(e.target.value)}
-                    placeholder="ejemplo@correo.com"
-                    className="w-full rounded-xl border border-white/15 bg-black/50 px-3.5 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-[#c9a15a] focus:outline-none"
+                    placeholder="tu@correo.com"
+                    className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] px-3.5 py-2.5 text-sm text-[#14100d] focus:border-[#b0894f] focus:bg-white focus:outline-none"
                   />
-                </div>
-                <button
-                  type="submit"
-                  disabled={forgotLoading}
-                  className="w-full rounded-xl bg-[#c9a15a] py-2.5 text-xs font-bold uppercase tracking-wider text-[#120e0b] hover:bg-[#e2be4b] transition disabled:opacity-60 cursor-pointer"
+                  <button
+                    type="submit"
+                    disabled={forgotLoading}
+                    className="w-full rounded-xl bg-[#14100d] py-2.5 text-xs font-semibold uppercase tracking-wider text-[#faf6f1] hover:bg-[#2a211a] disabled:opacity-60 cursor-pointer"
+                  >
+                    {forgotLoading ? "Enviando…" : "Enviar código"}
+                  </button>
+                </form>
+              ) : (
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    setForgotError("");
+                    setForgotLoading(true);
+                    const res = await resetPasswordWithCode({
+                      email: forgotEmail || loginEmail,
+                      code: forgotCode,
+                      newPassword: forgotNewPassword,
+                    });
+                    setForgotLoading(false);
+                    if (!res.success) {
+                      setForgotError(res.error || "Código inválido.");
+                      return;
+                    }
+                    setShowForgotModal(false);
+                    setForgotStep("request");
+                    setLoginEmail(forgotEmail || loginEmail);
+                    setLoginPassword("");
+                    setTab("login");
+                    setSuccessMsg(
+                      "Contraseña actualizada. Ya puedes iniciar sesión.",
+                    );
+                  }}
+                  className="space-y-3"
                 >
-                  {forgotLoading ? "Enviando código..." : "Enviar código por correo"}
-                </button>
-              </form>
-            ) : (
-              <form
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  setForgotError("");
-                  setForgotLoading(true);
-                  const res = await resetPasswordWithCode({
-                    email: forgotEmail || loginEmail,
-                    code: forgotCode,
-                    newPassword: forgotNewPassword,
-                  });
-                  setForgotLoading(false);
-                  if (!res.success) {
-                    setForgotError(res.error || "Código inválido.");
-                    return;
-                  }
-                  setShowForgotModal(false);
-                  setForgotStep("request");
-                  setLoginEmail(forgotEmail || loginEmail);
-                  setLoginPassword("");
-                  setLoginStep("password");
-                  setSuccessMsg("¡Contraseña actualizada! Ingresa con tu nueva clave.");
-                }}
-                className="space-y-3"
-              >
-                {forgotPreviewUrl ? (
-                  <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/15 p-2.5 text-xs text-emerald-200">
-                    Código enviado.{" "}
-                    <a
-                      href={forgotPreviewUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="font-bold text-[#d4af37] underline"
-                    >
-                      Abrir vista previa del correo →
-                    </a>
-                  </div>
-                ) : (
-                  <p className="text-xs text-emerald-300">
-                    Si el correo está registrado, hemos enviado un código de 6 dígitos.
-                  </p>
-                )}
-                <div>
-                  <label className="block text-[0.68rem] font-bold uppercase tracking-wider text-white/70 mb-1">
-                    Código de 6 dígitos
-                  </label>
+                  {forgotPreviewUrl && (
+                    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-2.5 text-xs text-emerald-800">
+                      Código generado.{" "}
+                      <a
+                        href={forgotPreviewUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-semibold underline"
+                      >
+                        Ver correo de prueba
+                      </a>
+                    </div>
+                  )}
                   <input
                     type="text"
                     required
                     maxLength={6}
                     value={forgotCode}
                     onChange={(e) => setForgotCode(e.target.value)}
-                    placeholder="123456"
-                    className="w-full rounded-xl border border-white/15 bg-black/50 px-3.5 py-2.5 text-center font-mono text-base tracking-[0.3em] text-[#d4af37] focus:border-[#c9a15a] focus:outline-none"
+                    placeholder="Código de 6 dígitos"
+                    className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] px-3.5 py-2.5 font-mono text-sm tracking-widest text-[#14100d] focus:border-[#b0894f] focus:bg-white focus:outline-none"
                   />
-                </div>
-                <div>
-                  <label className="block text-[0.68rem] font-bold uppercase tracking-wider text-white/70 mb-1">
-                    Nueva contraseña
-                  </label>
                   <input
                     type="password"
                     required
                     minLength={6}
                     value={forgotNewPassword}
                     onChange={(e) => setForgotNewPassword(e.target.value)}
-                    placeholder="Mínimo 6 caracteres"
-                    className="w-full rounded-xl border border-white/15 bg-black/50 px-3.5 py-2.5 text-sm text-white placeholder:text-white/35 focus:border-[#c9a15a] focus:outline-none"
+                    placeholder="Nueva contraseña (mín. 6 caracteres)"
+                    className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] px-3.5 py-2.5 text-sm text-[#14100d] focus:border-[#b0894f] focus:bg-white focus:outline-none"
                   />
-                </div>
+                  <button
+                    type="submit"
+                    disabled={forgotLoading}
+                    className="w-full rounded-xl bg-[#14100d] py-2.5 text-xs font-semibold uppercase tracking-wider text-[#faf6f1] hover:bg-[#2a211a] disabled:opacity-60 cursor-pointer"
+                  >
+                    {forgotLoading ? "Actualizando…" : "Guardar contraseña"}
+                  </button>
+                </form>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Modal: Google Auth no configurado */}
+      <AnimatePresence>
+        {showGoogleSetupModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 backdrop-blur-xs"
+            onClick={() => setShowGoogleSetupModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 8 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-sm rounded-2xl border border-[#e5dacb] bg-white p-6 shadow-2xl space-y-3"
+            >
+              <div className="flex items-start justify-between">
+                <h3 className="font-display text-xl text-[#14100d]">
+                  Acceso con Google no disponible
+                </h3>
                 <button
-                  type="submit"
-                  disabled={forgotLoading}
-                  className="w-full rounded-xl bg-[#c9a15a] py-2.5 text-xs font-bold uppercase tracking-wider text-[#120e0b] hover:bg-[#e2be4b] transition disabled:opacity-60 cursor-pointer"
+                  type="button"
+                  onClick={() => setShowGoogleSetupModal(false)}
+                  className="rounded-lg p-1 text-[#8c7b68] hover:bg-[#f4eee5]"
                 >
-                  {forgotLoading ? "Actualizando..." : "Guardar nueva contraseña"}
+                  <X className="h-4 w-4" />
                 </button>
-              </form>
-            )}
-
-            <div className="mt-4 pt-3 border-t border-white/10 flex flex-col gap-2">
-              <a
-                href={`https://wa.me/${(process.env.NEXT_PUBLIC_COMPANY_PHONE || "18097047519").replace(/\D/g, "")}?text=${encodeURIComponent("Hola Mudeco Palets, necesito ayuda para restablecer el acceso a mi cuenta.")}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-600/20 px-4 py-2 text-xs font-semibold text-emerald-300 hover:bg-emerald-600/30 transition"
-              >
-                <MessageCircle className="h-3.5 w-3.5" />
-                <span>¿Prefieres asistencia por WhatsApp?</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Interactivo de Acceso QR Móvil */}
-      {showQrModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-sm rounded-2xl border border-[#c9a15a]/40 bg-[#16120e] p-6 text-center shadow-2xl">
-            <button
-              type="button"
-              onClick={() => setShowQrModal(false)}
-              className="absolute top-4 right-4 text-white/60 hover:text-white p-1"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <div className="mx-auto w-12 h-12 rounded-full bg-[#c9a15a]/15 border border-[#c9a15a]/40 flex items-center justify-center text-[#d4af37] mb-3">
-              <Smartphone className="h-6 w-6" />
-            </div>
-            <h3 className="text-base font-serif font-medium text-white mb-1">
-              Accede desde tu Teléfono
-            </h3>
-            <p className="text-xs text-white/65 mb-5 max-w-xs mx-auto">
-              Apunta la cámara de tu smartphone hacia el código para abrir la tienda e iniciar sesión instantáneamente.
-            </p>
-
-            <div className="bg-white p-4 rounded-xl inline-block shadow-2xl mb-5">
-              <QrCodeGraphic className="w-28 h-28 shrink-0 bg-white p-1 rounded-lg" />
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={handleCopyQuickLink}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 border border-white/15 px-4 py-2.5 text-xs font-semibold text-white hover:bg-white/15 transition"
-              >
-                {copiedLink ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4 text-[#d4af37]" />}
-                <span>{copiedLink ? "¡Enlace copiado!" : "Copiar enlace de acceso"}</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowQrModal(false)}
-                className="text-xs text-white/50 hover:text-white pt-1 transition"
-              >
-                Cerrar ventana
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal Informativo: Google OAuth Setup Assistant */}
-      {showGoogleSetupModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-md rounded-2xl border border-[#c9a15a]/40 bg-[#16120e] p-6 shadow-2xl">
-            <button
-              type="button"
-              onClick={() => setShowGoogleSetupModal(false)}
-              className="absolute top-4 right-4 text-white/60 hover:text-white p-1"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center">
-                <GoogleIcon className="w-5 h-5" />
               </div>
-              <div>
-                <h3 className="text-base font-semibold text-white">Integración con Google</h3>
-                <p className="text-xs text-white/60">Inicio de sesión OAuth listo</p>
-              </div>
-            </div>
-            <p className="text-sm text-white/80 leading-relaxed mb-4 font-light">
-              El botón de Google y la lógica de autenticación ya están **100% programados**. Para habilitar el inicio de sesión real en vivo, solo necesitas registrar tus credenciales de Google Cloud Console:
-            </p>
-            <div className="rounded-xl bg-black/60 border border-white/10 p-3 font-mono text-xs text-[#d4af37] mb-5 space-y-1">
-              <div>GOOGLE_CLIENT_ID=&quot;tu-id.apps.googleusercontent.com&quot;</div>
-              <div>GOOGLE_CLIENT_SECRET=&quot;tu-secreto&quot;</div>
-            </div>
-            <p className="text-xs text-white/60 mb-5">
-              Mientras tanto, puedes ingresar o crear cuenta al instante usando tu correo electrónico y contraseña.
-            </p>
-            <button
-              type="button"
-              onClick={() => setShowGoogleSetupModal(false)}
-              className="w-full rounded-xl bg-[#c9a15a] text-[#120e0b] font-bold py-2.5 text-xs uppercase tracking-wider hover:bg-[#e2be4b] transition"
-            >
-              Entendido
-            </button>
-          </div>
-        </div>
-      )}
-
-            {/* Modal Ejecutivo de Cuenta Bloqueada */}
-      {showBlockedModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-md rounded-2xl border border-amber-500/40 bg-[#16120e] p-6 shadow-2xl text-center">
-            <button
-              type="button"
-              onClick={() => setShowBlockedModal(false)}
-              className="absolute top-4 right-4 text-white/60 hover:text-white p-1 cursor-pointer"
-            >
-              <X className="h-5 w-5" />
-            </button>
-
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-500/10 border border-amber-500/30 text-[#d4af37]">
-              <ShieldAlert className="h-7 w-7" />
-            </div>
-
-            <span className="inline-block rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1 text-[10px] font-bold tracking-widest text-[#d4af37] uppercase mb-2">
-              Estado: Acceso Restringido
-            </span>
-
-            <h3 className="font-display text-xl font-bold text-white mb-2">
-              Cuenta temporalmente suspendida
-            </h3>
-
-            <p className="text-xs text-white/70 leading-relaxed mb-5">
-              Estimado cliente, el acceso para esta cuenta ha sido suspendido temporalmente por el departamento administrativo de Mudeco Palets.
-              Tus compras e historial fiscal se encuentran totalmente protegidos.
-            </p>
-
-            <div className="rounded-xl bg-white/[0.03] border border-white/10 p-3.5 text-left text-xs text-white/80 space-y-2 mb-6">
-              <div className="flex items-center gap-2 text-white/50 text-[11px]">
-                <Clock className="h-3.5 w-3.5 text-[#d4af37]" />
-                <span>¿Deseas reactivar tu cuenta?</span>
-              </div>
-              <p className="text-[11px] text-white/60 leading-normal">
-                Comunícate directamente con nuestro equipo de atención comercial para verificar tu perfil y restaurar el acceso de inmediato.
+              <p className="text-xs leading-relaxed text-[#6f5d4b]">
+                El inicio de sesión con Google requiere configurar{" "}
+                <code>AUTH_GOOGLE_ID</code> y <code>AUTH_GOOGLE_SECRET</code> en
+                el entorno. Mientras tanto, puedes ingresar o crear tu cuenta con
+                tu correo electrónico.
               </p>
-            </div>
-
-            <div className="space-y-2.5">
-              <a
-                href="https://wa.me/18292137519?text=Hola,%20solicito%20asistencia%20con%20el%20acceso%20a%20mi%20cuenta%20en%20Mudeco%20Palets"
-                target="_blank"
-                rel="noreferrer"
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-black font-bold py-3 text-xs uppercase tracking-wider transition shadow-lg"
+              <button
+                type="button"
+                onClick={() => setShowGoogleSetupModal(false)}
+                className="w-full rounded-xl bg-[#14100d] py-2.5 text-xs font-semibold text-[#faf6f1] cursor-pointer"
               >
-                <span>Contactar Atención al Cliente</span>
-              </a>
+                Entendido
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
+      {/* Modal: Cuenta bloqueada */}
+      <AnimatePresence>
+        {showBlockedModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 backdrop-blur-xs"
+            onClick={() => setShowBlockedModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 8 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-sm rounded-2xl border border-rose-200 bg-white p-6 shadow-2xl space-y-3"
+            >
+              <div className="flex items-center gap-2.5 text-rose-700">
+                <ShieldAlert className="h-5 w-5 shrink-0" />
+                <h3 className="font-display text-xl">Cuenta suspendida</h3>
+              </div>
+              <p className="text-xs leading-relaxed text-[#6f5d4b]">
+                Tu cuenta se encuentra temporalmente suspendida. Comunícate con
+                administración para revisar el estado de tu acceso.
+              </p>
               <button
                 type="button"
                 onClick={() => setShowBlockedModal(false)}
-                className="w-full rounded-xl bg-white/10 text-white/80 hover:bg-white/15 font-semibold py-2.5 text-xs transition cursor-pointer"
+                className="w-full rounded-xl bg-[#14100d] py-2.5 text-xs font-semibold text-[#faf6f1] cursor-pointer"
               >
                 Cerrar
               </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Banner flotante si viene del checkout */}
-      {isFromCheckout && (
-        <div className="luxury-checkout-badge mb-4">
-          <ShoppingBag className="h-4 w-4 text-[#d4af37]" />
-          <span>Finalizar Compra — Accede para asociar tu entrega</span>
-        </div>
-      )}
-
-      {/* ==============================================================
-          CONTENEDOR 3D FLIP: GIRA 180° ENTRE LOGIN Y REGISTRO
-          ============================================================== */}
-      <div
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        className={`luxury-flip-container ${isFlipped ? "is-flipped" : ""}`}
-      >
-        <div className="luxury-flip-inner">
-          {/* ==========================================================
-              CARA FRONTAL: INICIO DE SESIÓN (LOGIN EN 2 PASOS + GOOGLE)
-              ========================================================== */}
-          <div className="luxury-card-face luxury-card-front">
-            {/* Halo de luz interactivo que sigue al mouse */}
-            <div className="luxury-card-spotlight" />
-
-            {/* Encabezado */}
-            <div className="luxury-card-header">
-              <div className="luxury-brand-line">
-                <LogoMark className="h-5 w-5 text-[#d4af37]" />
-                <span className="luxury-brand-name">MUDECO</span>
-                <span className="luxury-brand-rule" />
-                <span className="luxury-brand-sub">PALETS</span>
-              </div>
-
-              <h2 className="font-display luxury-card-title">Bienvenido de nuevo</h2>
-              <p className="luxury-card-subtitle">
-                {loginStep === "email"
-                  ? "Accede a tu cuenta artesanal para continuar"
-                  : "Introduce tu contraseña para continuar"}
-              </p>
-
-              <div className="luxury-gold-divider" />
-            </div>
-
-            {/* Selector de pestañas */}
-            <div className="luxury-tabs">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsFlipped(false);
-                  setError("");
-                  setSuccessMsg("");
-                }}
-                className="luxury-tab luxury-tab-active"
-              >
-                Iniciar sesión
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsFlipped(true);
-                  setError("");
-                  setSuccessMsg("");
-                }}
-                className="luxury-tab"
-              >
-                Crear cuenta
-              </button>
-            </div>
-
-            {error && !isFlipped ? (
-              <div className="luxury-alert luxury-alert-error" role="alert">
-                {error}
-              </div>
-            ) : null}
-
-            {successMsg && !isFlipped ? (
-              <div className="luxury-alert luxury-alert-success" role="status">
-                <CheckCircle2 className="h-4 w-4 inline mr-1 text-emerald-400" />
-                {successMsg}
-              </div>
-            ) : null}
-
-            {/* PASO 1: Ingreso de Correo Electrónico + Botón de Google */}
-            {loginStep === "email" ? (
-              <form onSubmit={handleEmailNext} className="luxury-form">
-                {/* Botón de Google Sign-In */}
-                <button
-                  type="button"
-                  onClick={handleGoogleSignIn}
-                  disabled={googleLoading}
-                  className="luxury-google-btn"
-                >
-                  <GoogleIcon className="w-4 h-4 shrink-0" />
-                  <span>{googleLoading ? "Conectando con Google..." : "Continuar con Google"}</span>
-                </button>
-
-                {/* Divisor "o con correo" */}
-                <div className="luxury-or-divider">
-                  <div className="luxury-or-line" />
-                  <span className="luxury-or-text">o con tu correo</span>
-                  <div className="luxury-or-line" />
-                </div>
-
-                <div className="luxury-field">
-                  <Mail className="luxury-field-icon" size={17} strokeWidth={1.75} />
-                  <input
-                    name="email"
-                    type="text"
-                    required
-                    value={loginEmail}
-                    onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="Correo electrónico"
-                    className="luxury-input"
-                    autoComplete="username email"
-                    autoFocus
-                  />
-                  {isEmailValid && (
-                    <div className="flex items-center text-emerald-400 animate-fade-in pr-1" title="Formato válido">
-                      <Check size={16} strokeWidth={2.5} />
-                    </div>
-                  )}
-                </div>
-
-                <button type="submit" className="luxury-submit-btn">
-                  <span>CONTINUAR</span>
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-
-                {/* Separador o */}
-                <div className="luxury-or-divider">
-                  <div className="luxury-or-line" />
-                  <span className="luxury-or-text">o</span>
-                  <div className="luxury-or-line" />
-                </div>
-
-                {/* Tarjeta Iniciar con tu dispositivo con QR Code (clickeable para ampliar) */}
-                <button
-                  type="button"
-                  onClick={() => setShowQrModal(true)}
-                  className="luxury-device-box"
-                  title="Haz clic para ver el código QR ampliado"
-                >
-                  <div className="luxury-device-icon-wrap">
-                    <Smartphone className="h-5 w-5 text-[#d4af37]" strokeWidth={1.5} />
-                  </div>
-                  <div className="luxury-device-info">
-                    <div className="flex items-center gap-1.5">
-                      <h4 className="luxury-device-title">Iniciar con tu dispositivo</h4>
-                      <ExternalLink className="h-3 w-3 text-[#c9a15a]/70" />
-                    </div>
-                    <p className="luxury-device-desc">
-                      Escanea el código QR desde tu móvil para acceso rápido.
-                    </p>
-                  </div>
-                  <QrCodeGraphic />
-                </button>
-
-                {/* Enlace para girar la tarjeta a Registro */}
-                <div className="text-center mt-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsFlipped(true);
-                      setError("");
-                      setSuccessMsg("");
-                    }}
-                    className="luxury-flip-trigger-link"
-                  >
-                    <span>¿No tienes una cuenta aún?</span>
-                    <strong className="text-[#d4af37] underline underline-offset-2">Crear cuenta nueva →</strong>
-                  </button>
-                </div>
-              </form>
-            ) : (
-              /* PASO 2: Ingreso de Contraseña (con badge de correo y opción de editar) */
-              <form onSubmit={handleLoginSubmit} className="luxury-form luxury-step-slide">
-                {/* Badge con el correo seleccionado y botón Cambiar */}
-                <div className="luxury-selected-email-badge">
-                  <div className="luxury-selected-email-content">
-                    <div className="luxury-email-avatar">
-                      <User size={12} strokeWidth={2.5} />
-                    </div>
-                    <span className="luxury-selected-email-text">{loginEmail}</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginStep("email");
-                      setError("");
-                    }}
-                    className="luxury-change-email-btn"
-                  >
-                    Cambiar
-                  </button>
-                </div>
-
-                <div className="luxury-field">
-                  <Lock className="luxury-field-icon" size={17} strokeWidth={1.75} />
-                  <input
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    required
-                    value={loginPassword}
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    placeholder="Contraseña"
-                    className="luxury-input"
-                    autoComplete="current-password"
-                    autoFocus
-                  />
-                  <button
-                    type="button"
-                    className="luxury-field-action"
-                    onClick={() => setShowPassword((v) => !v)}
-                    aria-label={showPassword ? "Ocultar contraseña" : "Ver contraseña"}
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-
-                {/* Fila de recordarme y olvidar contraseña */}
-                <div className="luxury-row-options">
-                  <label className="luxury-checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={rememberMe}
-                      onChange={(e) => setRememberMe(e.target.checked)}
-                      className="luxury-checkbox"
-                    />
-                    <span>Recordarme</span>
-                  </label>
-
-                  <button
-                    type="button"
-                    onClick={() => setShowForgotModal(true)}
-                    className="luxury-forgot-btn"
-                  >
-                    ¿Olvidaste tu contraseña?
-                  </button>
-                </div>
-
-                <button type="submit" disabled={loading} className="luxury-submit-btn">
-                  <span>{loading ? "Accediendo..." : "INICIAR SESIÓN"}</span>
-                  {!loading && <ArrowRight className="h-4 w-4" />}
-                </button>
-
-                <div className="text-center">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setLoginStep("email");
-                      setError("");
-                    }}
-                    className="luxury-back-step-btn"
-                  >
-                    <ArrowLeft size={13} />
-                    <span>Volver a ingresar correo</span>
-                  </button>
-                </div>
-
-                {/* Separador o */}
-                <div className="luxury-or-divider">
-                  <div className="luxury-or-line" />
-                  <span className="luxury-or-text">o</span>
-                  <div className="luxury-or-line" />
-                </div>
-
-                {/* Botón secundario Google en paso 2 */}
-                <button
-                  type="button"
-                  onClick={handleGoogleSignIn}
-                  disabled={googleLoading}
-                  className="luxury-google-btn"
-                >
-                  <GoogleIcon className="w-4 h-4 shrink-0" />
-                  <span>Acceder con Google</span>
-                </button>
-              </form>
-            )}
-
-            {/* Pie de ayuda y seguridad */}
-            <div className="luxury-card-footer">
-              <div>
-                <span className="text-white/50 text-xs">¿Necesitas ayuda?</span>{" "}
-                <Link href="/contacto" className="luxury-support-link">
-                  <span>Contacta con soporte</span>
-                  <ArrowRight className="h-3 w-3 inline" />
-                </Link>
-              </div>
-
-              <div className="luxury-security-pill">
-                <Shield className="h-3 w-3 text-emerald-400" />
-                <span>Cifrado SSL 256-Bit · Acceso Seguro y Protegido</span>
-              </div>
-            </div>
-          </div>
-
-          {/* ==========================================================
-              CARA POSTERIOR: PANEL DE REGISTRO (CREAR CUENTA + GOOGLE)
-              ========================================================== */}
-          <div className="luxury-card-face luxury-card-back">
-            {/* Halo de luz interactivo que sigue al mouse */}
-            <div className="luxury-card-spotlight" />
-
-            {/* Encabezado */}
-            <div className="luxury-card-header">
-              <div className="luxury-brand-line">
-                <LogoMark className="h-5 w-5 text-[#d4af37]" />
-                <span className="luxury-brand-name">MUDECO</span>
-                <span className="luxury-brand-rule" />
-                <span className="luxury-brand-sub">PALETS</span>
-              </div>
-
-              <h2 className="font-display luxury-card-title">Crea tu cuenta</h2>
-              <p className="luxury-card-subtitle">
-                Únete en 30 segundos para completar tu pedido
-              </p>
-
-              <div className="luxury-gold-divider" />
-            </div>
-
-            {/* Selector de pestañas */}
-            <div className="luxury-tabs">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsFlipped(false);
-                  setError("");
-                  setSuccessMsg("");
-                }}
-                className="luxury-tab"
-              >
-                Iniciar sesión
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsFlipped(true);
-                  setError("");
-                  setSuccessMsg("");
-                }}
-                className="luxury-tab luxury-tab-active"
-              >
-                Crear cuenta
-              </button>
-            </div>
-
-            {error && isFlipped ? (
-              <div className="luxury-alert luxury-alert-error" role="alert">
-                {error}
-              </div>
-            ) : null}
-
-            {successMsg && isFlipped ? (
-              <div className="luxury-alert luxury-alert-success" role="status">
-                <CheckCircle2 className="h-4 w-4 inline mr-1 text-emerald-400" />
-                {successMsg}
-              </div>
-            ) : null}
-
-            {/* Registro rápido con Google */}
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              disabled={googleLoading}
-              className="luxury-google-btn mb-2"
-            >
-              <GoogleIcon className="w-4 h-4 shrink-0" />
-              <span>Registrarse con Google</span>
-            </button>
-
-            <div className="luxury-or-divider">
-              <div className="luxury-or-line" />
-              <span className="luxury-or-text">o con tus datos</span>
-              <div className="luxury-or-line" />
-            </div>
-
-            <form onSubmit={handleRegisterSubmit} method="POST" className="luxury-form">
-              <div className="luxury-field">
-                <User className="luxury-field-icon" size={17} strokeWidth={1.75} />
-                <input
-                  type="text"
-                  required
-                  value={regName}
-                  onChange={(e) => setRegName(e.target.value)}
-                  placeholder="Nombre completo"
-                  className="luxury-input"
-                  autoComplete="name"
-                />
-              </div>
-
-              <div className="luxury-field">
-                <Mail className="luxury-field-icon" size={17} strokeWidth={1.75} />
-                <input
-                  type="email"
-                  required
-                  value={regEmail}
-                  onChange={(e) => setRegEmail(e.target.value)}
-                  placeholder="Correo electrónico"
-                  className="luxury-input"
-                  autoComplete="email"
-                />
-              </div>
-
-              <div className="luxury-field">
-                <Phone className="luxury-field-icon" size={17} strokeWidth={1.75} />
-                <input
-                  type="tel"
-                  value={regPhone}
-                  onChange={(e) => setRegPhone(e.target.value)}
-                  required
-                  placeholder="WhatsApp obligatorio (ej: 809-555-0123)"
-                  className="luxury-input"
-                  autoComplete="tel"
-                />
-              </div>
-
-              <div className="luxury-field">
-                <Lock className="luxury-field-icon" size={17} strokeWidth={1.75} />
-                <input
-                  type={showRegPassword ? "text" : "password"}
-                  required
-                  value={regPassword}
-                  onChange={(e) => setRegPassword(e.target.value)}
-                  placeholder="Contraseña (mínimo 6 caracteres)"
-                  className="luxury-input"
-                  autoComplete="new-password"
-                />
-                <button
-                  type="button"
-                  className="luxury-field-action"
-                  onClick={() => setShowRegPassword((v) => !v)}
-                  aria-label={showRegPassword ? "Ocultar" : "Mostrar"}
-                >
-                  {showRegPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-
-              {/* Medidor visual interactivo de fortaleza de contraseña */}
-              {regPassword.length > 0 && (
-                <div className="luxury-strength-container animate-fade-in">
-                  <div className="luxury-strength-bars">
-                    <div
-                      className={`luxury-strength-bar ${
-                        passwordStrength >= 1
-                          ? passwordStrength === 1
-                            ? "luxury-strength-bar-active-weak"
-                            : passwordStrength === 2
-                            ? "luxury-strength-bar-active-medium"
-                            : "luxury-strength-bar-active-strong"
-                          : ""
-                      }`}
-                    />
-                    <div
-                      className={`luxury-strength-bar ${
-                        passwordStrength >= 2
-                          ? passwordStrength === 2
-                            ? "luxury-strength-bar-active-medium"
-                            : "luxury-strength-bar-active-strong"
-                          : ""
-                      }`}
-                    />
-                    <div
-                      className={`luxury-strength-bar ${
-                        passwordStrength >= 3 ? "luxury-strength-bar-active-strong" : ""
-                      }`}
-                    />
-                    <div
-                      className={`luxury-strength-bar ${
-                        passwordStrength >= 4 ? "luxury-strength-bar-active-strong" : ""
-                      }`}
-                    />
-                  </div>
-                  <div className="luxury-strength-text">
-                    <span>Seguridad de contraseña</span>
-                    <span className="font-semibold text-white/80">
-                      {passwordStrength <= 1
-                        ? "Básica"
-                        : passwordStrength === 2
-                        ? "Aceptable"
-                        : passwordStrength === 3
-                        ? "Buena"
-                        : "Excelente"}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              <button type="submit" disabled={loading} className="luxury-submit-btn">
-                <Sparkles className="h-4 w-4" />
-                <span>{loading ? "Creando cuenta..." : "CREAR CUENTA & CONTINUAR"}</span>
-                {!loading && <ArrowRight className="h-4 w-4" />}
-              </button>
-            </form>
-
-            {/* Enlace para girar la tarjeta de vuelta a Iniciar sesión */}
-            <div className="text-center mt-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsFlipped(false);
-                  setError("");
-                  setSuccessMsg("");
-                }}
-                className="luxury-flip-trigger-link"
-              >
-                <span>¿Ya tienes una cuenta?</span>
-                <strong className="text-[#d4af37] underline underline-offset-2">Inicia sesión aquí →</strong>
-              </button>
-            </div>
-
-            {/* Pie de ayuda */}
-            <div className="luxury-card-footer">
-              <span className="text-white/50 text-xs">¿Necesitas ayuda?</span>{" "}
-              <Link href="/contacto" className="luxury-support-link">
-                <span>Contacta con soporte</span>
-                <ArrowRight className="h-3 w-3 inline" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
 export default function LoginPage() {
   return (
-    <div className="luxury-login-page">
-      {/* Partículas de luz dorada ambiental flotando en el taller */}
-      <AtelierParticles />
-
-      {/* Contenedor dividido en 50/50 Full-Bleed Split Screen */}
-      <div className="luxury-split-container">
-        {/* Columna Izquierda (50% pantalla completa): Editorial y atmósfera de taller */}
-        <section className="luxury-left-column">
-          {/* Fondo arquitectónico en alta resolución */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/brand/login-atelier-bg.jpg"
-            alt="Taller artesanal Mudeco Palets"
-            className="luxury-bg-image"
-          />
-          <div className="luxury-bg-overlay" />
-
-          {/* Cabecera superior izquierda */}
-          <div className="relative z-10 flex items-center justify-between w-full">
-            <Link href="/" className="luxury-back-button">
-              <ArrowLeft className="h-4 w-4" />
-              <span>Volver a la tienda</span>
-            </Link>
-
-            
-          </div>
-
-          {/* Contenido central editorial */}
-          <div className="relative z-10 my-auto py-8">
-            {/* Logo de marca superior */}
-            <div className="luxury-brand-header mb-6">
-              <LogoMark className="h-9 w-9 text-[#d4af37]" />
-              <div className="leading-tight">
-                <span className="block text-2xl font-bold tracking-[0.25em] text-white uppercase font-serif">
-                  MUDECO
-                </span>
-                <span className="block text-[0.68rem] tracking-[0.34em] text-[#c9a15a] uppercase font-semibold">
-                  PALETS
-                </span>
-              </div>
-            </div>
-
-            {/* Gran encabezado editorial */}
-            <h1 className="font-display text-4xl xl:text-5xl font-medium leading-[1.12] text-white max-w-lg">
-              Diseño, oficio y calidad en cada detalle
-            </h1>
-
-            <p className="mt-4 text-base xl:text-lg text-white/75 leading-relaxed font-light max-w-md">
-              Muebles sostenibles de diseño en madera recuperada. Piezas únicas y proyectos a medida para tu hogar o negocio.
-            </p>
-
-            {/* Sello de Calidad Artesanal Dominicana */}
-            <div className="mt-8 flex items-center gap-3.5 rounded-2xl border border-[#c9a15a]/35 bg-[#14120e]/80 p-4 backdrop-blur-xl max-w-md shadow-lg">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#c9a15a]/40 bg-[#c9a15a]/15 text-[#d4af37]">
-                <Award className="h-6 w-6" />
-              </div>
-              <div className="min-w-0">
-                <span className="block text-xs font-bold uppercase tracking-wider text-[#f7e7ce]">
-                  Sello de Calidad Artesanal
-                </span>
-                <span className="mt-0.5 block text-xs text-white/60 leading-tight">
-                  100% Madera Sostenible curada contra humedad y plagas.
-                </span>
-              </div>
-            </div>
-
-            {/* Pilares de confianza */}
-            <div className="mt-8 flex flex-wrap items-center gap-4 text-xs text-white/80">
-              <div className="flex items-center gap-2">
-                <Leaf className="h-4 w-4 text-[#c9a15a]" />
-                <span>Pino curado</span>
-              </div>
-              <span className="text-white/25">·</span>
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-[#c9a15a]" />
-                <span>Garantía estructural</span>
-              </div>
-              <span className="text-white/25">·</span>
-              <div className="flex items-center gap-2">
-                <Home className="h-4 w-4 text-[#c9a15a]" />
-                <span>Diseños a medida</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Pie inferior izquierdo: Cita artesanal */}
-          <div className="relative z-10 border-t border-white/10 pt-5 text-xs text-white/55">
-            <p className="italic font-serif text-sm text-white/80">
-              «Transformamos cada pieza con pasión y respeto por el oficio de la ebanistería circular.»
-            </p>
-            <p className="mt-1 font-semibold tracking-wider text-[#c9a15a] uppercase text-[0.68rem]">
-              Martín González · Fundador & Maestro Ebanista
-            </p>
-          </div>
-        </section>
-
-        {/* Columna Derecha (50% pantalla completa): Autenticación limpia, centrada y sin vacíos */}
-        <section className="luxury-right-column">
-          {/* Barra superior móvil */}
-          <div className="lg:hidden flex items-center justify-between w-full max-w-[440px] mb-6">
-            <Link href="/" className="luxury-back-button">
-              <ArrowLeft className="h-4 w-4" />
-              <span>Volver a la tienda</span>
-            </Link>
-            <div className="flex items-center gap-2">
-              <LogoMark className="h-6 w-6 text-[#d4af37]" />
-              <span className="text-xs font-bold tracking-widest text-white uppercase font-serif">MUDECO</span>
-            </div>
-          </div>
-
-          <div className="w-full max-w-[440px] my-auto">
-            <Suspense fallback={<div className="text-white/60 text-sm py-12 text-center">Cargando acceso...</div>}>
-              <LoginForm />
-            </Suspense>
-          </div>
-
-          {/* Pie de página con créditos oficiales al final */}
-          <footer className="w-full max-w-[440px] mt-auto pt-6 flex items-center justify-center">
-            <div className="group flex items-center gap-3 rounded-full border border-white/[0.08] bg-white/[0.02] py-1.5 pl-1.5 pr-4 transition duration-300 hover:border-[#c9a15a]/40 hover:bg-[#c9a15a]/[0.04]">
-              <span
-                aria-hidden="true"
-                className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#e4c284] via-[#c9a15a] to-[#8a6a34] font-serif text-[0.68rem] font-bold tracking-tight text-[#0a0a0a] shadow-[0_0_0_3px_rgba(201,161,90,0.12)] transition duration-300 group-hover:shadow-[0_0_0_4px_rgba(201,161,90,0.22)]"
-              >
-                BC
-              </span>
-              <span className="flex flex-col leading-tight">
-                <span className="text-[0.56rem] font-semibold uppercase tracking-[0.22em] text-white/35">
-                  Diseño &amp; Desarrollo
-                </span>
-                <span className="text-[0.76rem] font-semibold tracking-wide text-white/80 transition group-hover:text-[#e4c284]">
-                  Brayan Camacho
-                  <span className="ml-1.5 font-normal text-white/35">· Software Developer</span>
-                </span>
-              </span>
-            </div>
-          </footer>
-        </section>
-      </div>
-    </div>
+    <Suspense
+      fallback={
+        <div className="min-h-dvh w-full bg-[#faf7f2] flex items-center justify-center text-xs text-[#8c7b68]">
+          Cargando…
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
   );
 }
