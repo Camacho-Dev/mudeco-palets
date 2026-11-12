@@ -19,6 +19,7 @@ export function ProductCard({
   const dark = tone === "dark";
   const availability = availabilityOf(product);
   const inStock = availability === "in-stock";
+  const isSoldOut = availability === "sold-out";
   const categoryLabel = formatStoreCategory(product.category);
 
   return (
@@ -32,7 +33,11 @@ export function ProductCard({
           dark ? "bg-[#181818]" : "bg-[#ebe2d6]"
         }`}
       >
-        {badge ? (
+        {isSoldOut ? (
+          <span className="absolute top-3 left-3 z-10 rounded-md bg-neutral-900/90 px-2.5 py-1 text-[0.58rem] font-bold tracking-[0.2em] text-neutral-200 border border-white/25 uppercase shadow-md backdrop-blur-md">
+            Agotado
+          </span>
+        ) : badge ? (
           <span className="absolute top-3 left-3 z-10 rounded-md bg-[#16120f]/92 px-2.5 py-1 text-[0.58rem] font-bold tracking-[0.2em] text-[#d4af37] border border-[#d4af37]/45 uppercase shadow-md backdrop-blur-md">
             {badge}
           </span>
@@ -42,7 +47,11 @@ export function ProductCard({
         <img
           src={src}
           alt={product.name}
-          className="h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+          className={`h-full w-full object-cover transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105 ${
+            isSoldOut
+              ? "grayscale brightness-90 group-hover:grayscale-[35%] group-hover:brightness-100"
+              : ""
+          }`}
           loading="lazy"
         />
 
@@ -99,7 +108,7 @@ export function ProductCard({
               ? "Listo para entrega"
               : availability === "made-to-order"
                 ? "Por encargo"
-                : "Bajo pedido"}
+                : "Se fabrica por encargo"}
           </span>
         </div>
       </div>

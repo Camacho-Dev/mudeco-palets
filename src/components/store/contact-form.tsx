@@ -10,8 +10,17 @@ export function ContactForm() {
   const [kind, setKind] = useState<"contact" | "quote">("contact");
   const [name, setName] = useState(session?.user?.name || "");
   const [email, setEmail] = useState(session?.user?.email || "");
+  const [piece, setPiece] = useState("");
   const [error, setError] = useState("");
   const [pending, start] = useTransition();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("tipo") === "cotizar") setKind("quote");
+    const pieza = params.get("pieza");
+    if (pieza) setPiece(pieza);
+  }, []);
 
   useEffect(() => {
     if (session?.user?.name && !name) setName(session.user.name);
@@ -139,6 +148,8 @@ export function ContactForm() {
               <input
                 id="c-piece"
                 name="piece"
+                value={piece}
+                onChange={(e) => setPiece(e.target.value)}
                 required
                 placeholder="Ej. Mesa de comedor 180 × 90 cm para 6 personas"
                 className="input"

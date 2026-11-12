@@ -153,9 +153,18 @@ export default async function ProductoPage({
             <img
               src={src}
               alt={product.name}
-              className="h-full w-full object-cover"
+              className={`h-full w-full object-cover ${
+                product.stock <= 0 && !product.madeToOrderOnly
+                  ? "grayscale brightness-90"
+                  : ""
+              }`}
               fetchPriority="high"
             />
+            {product.stock <= 0 && !product.madeToOrderOnly ? (
+              <span className="absolute top-3 left-3 rounded-md bg-neutral-900/90 px-3 py-1 text-[0.65rem] font-bold tracking-[0.18em] text-neutral-200 border border-white/25 uppercase shadow-md backdrop-blur-md">
+                Agotado · Se fabrica por encargo
+              </span>
+            ) : null}
             {!realPhoto ? (
               <p className="absolute bottom-3 left-3 rounded-lg bg-[#2f2018]/80 px-3 py-1 text-[0.65rem] font-medium tracking-wide text-white/90 uppercase backdrop-blur-xs">
                 Imagen de referencia
@@ -196,7 +205,9 @@ export default async function ProductoPage({
               <span className="font-medium text-[var(--muted)]">
                 {product.stock > 0 && !product.madeToOrderOnly
                   ? `En existencia · ${product.stock} unidades`
-                  : "Por encargo · Fabricación artesanal bajo pedido"}
+                  : product.madeToOrderOnly
+                    ? "Por encargo · Fabricación artesanal bajo pedido"
+                    : "Agotado · Se fabrica por encargo"}
               </span>
             </div>
           </div>

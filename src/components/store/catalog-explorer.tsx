@@ -17,6 +17,7 @@ import { ProductCard } from "@/components/store/product-card";
 import { Reveal } from "@/components/store/store-motion";
 import { storeWhatsApp } from "@/lib/store-info";
 import { formatStoreCategory } from "@/lib/store-brand";
+import { availabilityOf } from "@/lib/made-to-order";
 import type { StoreProduct } from "@/lib/store";
 
 type SortOption = "relevance" | "price-asc" | "price-desc" | "newest" | "name";
@@ -246,8 +247,8 @@ export function CatalogExplorer({
         return false;
       }
 
-      if (availability === "in-stock" && p.stock <= 0) return false;
-      if (availability === "custom" && p.stock > 0) return false;
+      if (availability === "in-stock" && availabilityOf(p) !== "in-stock") return false;
+      if (availability === "custom" && availabilityOf(p) === "in-stock") return false;
 
       if (p.price < priceRange[0] || p.price > priceRange[1]) {
         return false;
@@ -285,6 +286,8 @@ export function CatalogExplorer({
         result = [...result].sort((a, b) => a.name.localeCompare(b.name, "es"));
         break;
       case "relevance":
+        result = [...result].sort((a, b) => (availabilityOf(a) === "sold-out" ? 1 : 0) - (availabilityOf(b) === "sold-out" ? 1 : 0));
+        break;
       default:
         break;
     }

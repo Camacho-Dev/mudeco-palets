@@ -5,6 +5,7 @@ import { useRef, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, ShoppingBag, Check } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
 import { productImage } from "@/lib/product-image";
+import { availabilityOf } from "@/lib/made-to-order";
 import { useCart } from "@/components/store/cart-context";
 import { motion, useReducedMotion } from "framer-motion";
 
@@ -43,6 +44,7 @@ function ShelfCard({
   const max = Math.max(20, Math.floor(product.stock));
   const canAdd = inCart < max;
   const src = productImage(product);
+  const isSoldOut = availabilityOf(product) === "sold-out";
 
   const handleAdd = () => {
     if (!canAdd) return;
@@ -81,7 +83,11 @@ function ShelfCard({
           href={`/producto/${product.id}`}
           className="relative block aspect-square overflow-hidden bg-[#181411]"
         >
-          {product.badge ? (
+          {isSoldOut ? (
+            <span className="absolute top-3 left-3 z-10 rounded-full bg-neutral-900/90 px-3 py-1 text-[0.6rem] font-bold tracking-widest text-neutral-200 border border-white/25 uppercase shadow-md backdrop-blur-md">
+              Agotado
+            </span>
+          ) : product.badge ? (
             <span className="absolute top-3 left-3 z-10 rounded-full bg-gradient-to-r from-black/95 to-black/85 px-3 py-1 text-[0.6rem] font-bold tracking-widest text-[#f5dfa8] border border-[#d4af37]/40 uppercase shadow-md backdrop-blur-md">
               {product.badge}
             </span>
@@ -91,7 +97,7 @@ function ShelfCard({
           <img
             src={src}
             alt={product.name}
-            className="h-full w-full object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+            className={`h-full w-full object-cover transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105 ${isSoldOut ? "grayscale brightness-90 group-hover:grayscale-[35%] group-hover:brightness-100" : ""}`}
             loading="lazy"
           />
         </Link>
