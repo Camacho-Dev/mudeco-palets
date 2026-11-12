@@ -1,26 +1,21 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { formatCurrency, formatDate } from "@/lib/format";
-import { WEB_STATUS_LABEL, webOrderTypeLabel } from "@/lib/web-order-labels";
-import { extractReceiptFromNotes } from "@/lib/order-receipt";
+import { formatCurrency } from "@/lib/format";
 import { AccountSettingsCard } from "@/components/store/account-settings-card";
 import {
-  Package,
-  FileDown,
-  ArrowRight,
-  ShoppingBag,
-  CheckCircle2,
-  Upload,
-  MapPin,
-  Clock,
-} from "lucide-react";
+  OrdersHistoryCard,
+  SerializedWebOrder,
+} from "@/components/store/orders-history-card";
+import { WelcomeToast } from "@/components/store/welcome-toast";
+import { ArrowRight, LayoutGrid } from "lucide-react";
 
 export const metadata = {
-  title: "Mi Cuenta · Mudeco Palets",
+  title: "Mi Perfil e Historial de Compras · Mudeco Palets",
   description:
-    "Consulta la información de tu perfil, tu historial de compras y tus facturas en Mudeco Palets.",
+    "Espacio exclusivo de cliente para consultar compras, pedidos en taller, datos personales y comprobantes en Mudeco Palets.",
 };
 
 export default async function MisPedidosPage() {
@@ -70,36 +65,160 @@ export default async function MisPedidosPage() {
     0,
   );
 
+  const serializedOrders: SerializedWebOrder[] = orders.map((o) => ({
+    id: o.id,
+    number: o.number,
+    status: o.status,
+    total: o.total,
+    createdAt: o.createdAt.toISOString(),
+    notes: o.notes,
+    customerAddress: o.customerAddress,
+    items: o.items.map((i) => ({
+      id: i.id,
+      description: i.description,
+      quantity: i.quantity,
+      unitPrice: i.unitPrice,
+      lineTotal: i.lineTotal,
+    })),
+    invoice: o.invoice
+      ? {
+          id: o.invoice.id,
+          number: o.invoice.number,
+          status: o.invoice.status,
+        }
+      : null,
+    quote: o.quote
+      ? {
+          id: o.quote.id,
+          number: o.quote.number,
+          status: o.quote.status,
+        }
+      : null,
+  }));
+
   return (
-    <div className="min-h-screen bg-[#f8f5ef]">
-      {/* Cabecera ejecutiva compacta */}
-      <div className="border-b border-[#c9a15a]/20 bg-[#14100d] text-[#faf6f1]">
-        <div className="mx-auto max-w-[1360px] px-4 py-8 sm:px-8 lg:px-10">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="min-h-screen bg-[#fbf8f3] text-[#2c2219]">
+      {/* CABECERA HERO: TALLER DE PALETS CON CINTAS DE ORO ONDULADAS */}
+      <section className="relative overflow-hidden bg-[#100d0b] text-[#faf6f1]">
+        {/* Imagen de fondo del taller de palets */}
+        <div className="absolute inset-0">
+          <Image
+            src="/brand/store-workshop.jpg"
+            alt="Taller de palets Mudeco"
+            fill
+            priority
+            className="object-cover object-center opacity-40 brightness-75"
+          />
+          {/* Capas de gradientes para atmósfera de atelier de lujo */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0d0a08]/95 via-[#14100e]/80 to-[#100d0b]/70" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#100d0b] via-transparent to-black/60" />
+          {/* Glow dorado ambiental */}
+          <div className="pointer-events-none absolute -top-24 right-1/4 h-80 w-80 rounded-full bg-[#d4af37]/15 blur-3xl" />
+        </div>
+
+        <div className="relative mx-auto max-w-[1360px] px-4 pt-10 pb-20 sm:px-8 sm:pt-14 sm:pb-28 lg:px-10">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#c9a15a]">
-                Espacio de Cliente
-              </p>
-              <h1 className="mt-1 font-display text-2xl sm:text-3xl text-white">
+              {/* Etiqueta con barra vertical ámbar */}
+              <div className="flex items-center gap-2">
+                <span className="h-4 w-1 rounded-full bg-[#e5a93c]" />
+                <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#f5dfa8]">
+                  Espacio de Cliente
+                </p>
+              </div>
+
+              {/* Título de la página */}
+              <h1 className="mt-2 font-display text-3xl sm:text-4xl lg:text-[42px] font-bold tracking-tight text-white drop-shadow-sm">
                 Mi Perfil e Historial de Compras
               </h1>
             </div>
 
-            <Link
-              href="/catalogo"
-              className="inline-flex items-center gap-2 rounded-xl border border-[#c9a15a]/40 bg-[#c9a15a]/10 px-4 py-2 text-xs font-semibold tracking-wider text-[#c9a15a] uppercase transition hover:bg-[#c9a15a] hover:text-[#0f0f0f]"
-            >
-              <ShoppingBag className="h-3.5 w-3.5" />
-              <span>Explorar Catálogo</span>
-            </Link>
+            {/* Botón Píldora: Explorar Catálogo con borde dorado */}
+            <div className="shrink-0">
+              <Link
+                href="/catalogo"
+                className="group inline-flex items-center gap-2.5 rounded-full border border-[#d4af37]/70 bg-[#16120e]/80 px-6 py-3 text-xs font-bold tracking-wider text-[#f5dfa8] uppercase shadow-[0_8px_24px_rgba(0,0,0,0.4)] backdrop-blur-md transition-all duration-300 hover:border-[#fbe3a8] hover:bg-[#d4af37] hover:text-[#0f0d0a] hover:shadow-[0_0_24px_rgba(212,175,55,0.4)] active:scale-95 cursor-pointer"
+              >
+                <LayoutGrid className="h-3.5 w-3.5 text-[#d4af37] transition-transform group-hover:rotate-45 group-hover:text-[#0f0d0a]" />
+                <span>Explorar Catálogo</span>
+                <ArrowRight className="h-3.5 w-3.5 text-[#d4af37] transition-transform group-hover:translate-x-1 group-hover:text-[#0f0d0a]" />
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Layout profesional de 2 columnas */}
-      <div className="mx-auto max-w-[1360px] px-4 py-8 sm:px-8 lg:px-10">
+        {/* CINTAS ONDULADAS DORADAS Y CURVA DE TRANSICIÓN AL FONDO CREMA */}
+        <div className="absolute inset-x-0 bottom-0 pointer-events-none overflow-hidden leading-none">
+          <svg
+            viewBox="0 0 1440 120"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-full h-16 sm:h-24 lg:h-28 object-cover"
+            preserveAspectRatio="none"
+          >
+            <defs>
+              {/* Gradiente dorado de la cinta de lujo */}
+              <linearGradient
+                id="heroGoldRibbon"
+                x1="0%"
+                y1="50%"
+                x2="100%"
+                y2="50%"
+              >
+                <stop offset="0%" stopColor="#fbe3a8" />
+                <stop offset="35%" stopColor="#d4af37" />
+                <stop offset="70%" stopColor="#caa466" />
+                <stop offset="100%" stopColor="#8c6b24" />
+              </linearGradient>
+
+              {/* Sombra dorada suave */}
+              <filter
+                id="ribbonGlow"
+                x="-10%"
+                y="-20%"
+                width="120%"
+                height="140%"
+              >
+                <feDropShadow
+                  dx="0"
+                  dy="4"
+                  stdDeviation="6"
+                  floodColor="#d4af37"
+                  floodOpacity="0.4"
+                />
+              </filter>
+            </defs>
+
+            {/* Cinta superior dorada fluida */}
+            <path
+              d="M 0 95 C 320 125, 480 35, 860 65 C 1120 85, 1320 20, 1440 35"
+              stroke="url(#heroGoldRibbon)"
+              strokeWidth="4"
+              fill="none"
+              filter="url(#ribbonGlow)"
+            />
+
+            {/* Cinta secundaria dorada suave */}
+            <path
+              d="M 0 102 C 340 130, 520 45, 900 75 C 1160 95, 1340 30, 1440 45"
+              stroke="rgba(245, 223, 168, 0.45)"
+              strokeWidth="1.5"
+              fill="none"
+            />
+
+            {/* Ola inferior que transiciona limpiamente al fondo #fbf8f3 */}
+            <path
+              d="M 0 100 C 380 135, 720 55, 1080 80 C 1260 92, 1380 50, 1440 60 L 1440 120 L 0 120 Z"
+              fill="#fbf8f3"
+            />
+          </svg>
+        </div>
+      </section>
+
+      {/* CUERPO PRINCIPAL: LAYOUT DE 2 COLUMNAS (FICHA DE CLIENTE + HISTORIAL) */}
+      <main className="relative -mt-4 sm:-mt-6 mx-auto max-w-[1360px] px-4 pb-20 sm:px-8 sm:pb-28 lg:px-10">
         <div className="grid items-start gap-8 lg:grid-cols-12">
-          {/* Columna izquierda: Ficha del Perfil (Sticky) */}
+          {/* Columna Izquierda: Ficha de Cliente (Sticky) */}
           <div className="lg:col-span-4 lg:sticky lg:top-28">
             <AccountSettingsCard
               initialName={displayName}
@@ -112,230 +231,15 @@ export default async function MisPedidosPage() {
             />
           </div>
 
-          {/* Columna derecha: Historial de Compras */}
-          <div id="historial" className="lg:col-span-8 scroll-mt-28">
-            <div className="mb-4 flex items-center justify-between">
-              <div>
-                <h2 className="font-display text-xl font-semibold text-[var(--wood-950)]">
-                  Historial de Compras
-                </h2>
-                <p className="text-xs text-[var(--muted)]">
-                  {orders.length === 0
-                    ? "Tus compras y cotizaciones aparecerán aquí"
-                    : `${orders.length} ${
-                        orders.length === 1
-                          ? "orden registrada en tu cuenta"
-                          : "órdenes registradas en tu cuenta"
-                      }`}
-                </p>
-              </div>
-            </div>
-
-            {orders.length === 0 ? (
-              <div className="rounded-2xl border border-[#e5dacb] bg-white p-12 text-center shadow-xs space-y-4">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-[#e5d8c8] bg-[#faf6f1] text-[#b0894f]">
-                  <Package className="h-5 w-5" />
-                </div>
-                <div className="space-y-1">
-                  <h3 className="font-display text-xl text-[var(--wood-950)]">
-                    Aún no registras compras
-                  </h3>
-                  <p className="mx-auto max-w-md text-xs text-[var(--muted)]">
-                    Cuando adquieras un mueble del catálogo o solicites una
-                    cotización a medida, podrás consultar su estado y descargar
-                    tu factura desde aquí.
-                  </p>
-                </div>
-                <div className="pt-2">
-                  <Link
-                    href="/catalogo"
-                    className="inline-flex items-center gap-2 rounded-xl bg-[#14100d] px-5 py-2.5 text-xs font-semibold tracking-wider text-[#c9a15a] uppercase transition hover:bg-[#241d17]"
-                  >
-                    <span>Ver Catálogo</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {orders.map((order) => {
-                  const statusLabel =
-                    WEB_STATUS_LABEL[order.status] || order.status;
-                  const isPaid =
-                    order.status === "PAID" ||
-                    order.status === "DONE" ||
-                    order.invoice?.status === "PAID";
-                  const isCancelled = order.status === "CANCELLED";
-                  const isTransfer = Boolean(
-                    order.notes?.includes("Transferencia bancaria") ||
-                      order.notes?.includes("[Pago: Transferencia bancaria]"),
-                  );
-                  const receipt = extractReceiptFromNotes(order.notes);
-                  const kindLabel = webOrderTypeLabel(order);
-
-                  return (
-                    <article
-                      key={order.id}
-                      className="overflow-hidden rounded-2xl border border-[#e5dacb] bg-white shadow-xs transition hover:border-[#cdb89c]"
-                    >
-                      {/* Cabecera sobria de la orden */}
-                      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#f0e8dc] bg-[#faf7f2] px-5 py-3.5">
-                        <div className="flex flex-wrap items-center gap-2.5">
-                          <span className="font-mono text-xs font-bold text-[var(--wood-950)]">
-                            {order.number}
-                          </span>
-                          <span className="text-xs text-[#cbbba4]">·</span>
-                          <span className="text-xs text-[var(--muted)]">
-                            {formatDate(order.createdAt)}
-                          </span>
-                          <span className="text-xs text-[#cbbba4]">·</span>
-                          <span className="text-xs font-medium text-[var(--wood-800)]">
-                            {kindLabel}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <span
-                            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${
-                              isPaid
-                                ? "bg-emerald-50 text-emerald-800 border border-emerald-200/80"
-                                : isCancelled
-                                  ? "bg-rose-50 text-rose-800 border border-rose-200/80"
-                                  : "bg-[#f5ebd9] text-[#7a5824] border border-[#e3cfa8]"
-                            }`}
-                          >
-                            <span
-                              className={`h-1.5 w-1.5 rounded-full ${
-                                isPaid
-                                  ? "bg-emerald-600"
-                                  : isCancelled
-                                    ? "bg-rose-600"
-                                    : "bg-[#b0894f]"
-                              }`}
-                            />
-                            {statusLabel}
-                          </span>
-
-                          {order.total > 0 && (
-                            <span className="font-mono text-sm font-bold text-[var(--wood-950)]">
-                              {formatCurrency(order.total)}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Cuerpo: Artículos comprados */}
-                      <div className="px-5 py-4">
-                        {order.items.length > 0 ? (
-                          <div className="divide-y divide-[#f3ede3]">
-                            {order.items.map((item) => (
-                              <div
-                                key={item.id}
-                                className="flex items-center justify-between gap-4 py-2.5 first:pt-0 last:pb-0"
-                              >
-                                <div className="flex items-center gap-3 min-w-0">
-                                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[#e8decb] bg-[#faf7f2] font-mono text-xs font-semibold text-[var(--wood-800)]">
-                                    {item.quantity}x
-                                  </span>
-                                  <div className="min-w-0">
-                                    <p className="truncate text-xs sm:text-sm font-medium text-[var(--wood-950)]">
-                                      {item.description}
-                                    </p>
-                                    {item.quantity > 1 && (
-                                      <p className="font-mono text-[11px] text-[var(--muted)]">
-                                        {formatCurrency(item.unitPrice)} c/u
-                                      </p>
-                                    )}
-                                  </div>
-                                </div>
-                                <span className="shrink-0 font-mono text-xs sm:text-sm font-semibold text-[var(--wood-900)]">
-                                  {formatCurrency(item.lineTotal)}
-                                </span>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-xs text-[var(--muted)]">
-                            Solicitud de cotización personalizada
-                          </p>
-                        )}
-
-                        {order.customerAddress && (
-                          <div className="mt-3 flex items-center gap-1.5 border-t border-[#f3ede3] pt-2.5 text-xs text-[var(--muted)]">
-                            <MapPin className="h-3.5 w-3.5 shrink-0 text-[#b0894f]" />
-                            <span>Dirección de entrega: {order.customerAddress}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Pie de acciones de la orden */}
-                      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#f0e8dc] bg-[#fcfaf7] px-5 py-3">
-                        <div className="flex flex-wrap items-center gap-2 text-xs">
-                          {isTransfer && !isCancelled ? (
-                            receipt ? (
-                              <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700">
-                                <CheckCircle2 className="h-3.5 w-3.5" />
-                                <span>Comprobante bancario adjuntado</span>
-                              </span>
-                            ) : !isPaid ? (
-                              <Link
-                                href={`/pedido/${order.id}`}
-                                className="inline-flex items-center gap-1.5 rounded-lg border border-[#d6b782] bg-[#faf2e3] px-3 py-1.5 text-xs font-semibold text-[#7a561e] transition hover:bg-[#f3e5ca]"
-                              >
-                                <Upload className="h-3.5 w-3.5" />
-                                <span>Adjuntar comprobante</span>
-                              </Link>
-                            ) : null
-                          ) : null}
-
-                          {order.invoice ? (
-                            isPaid ? (
-                              <a
-                                href={`/api/facturas/${order.invoice.id}/pdf?orderId=${order.id}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="inline-flex items-center gap-1.5 rounded-lg border border-[#dfd2c0] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--wood-900)] transition hover:border-[#b0894f]"
-                              >
-                                <FileDown className="h-3.5 w-3.5 text-[#b0894f]" />
-                                <span>Factura PDF ({order.invoice.number})</span>
-                              </a>
-                            ) : (
-                              <span className="inline-flex items-center gap-1.5 text-[11px] text-[var(--muted)]">
-                                <Clock className="h-3.5 w-3.5 text-[#b0894f]" />
-                                <span>Factura disponible al validar pago</span>
-                              </span>
-                            )
-                          ) : null}
-
-                          {order.quote && (
-                            <a
-                              href={`/api/cotizaciones/${order.quote.id}/pdf?orderId=${order.id}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-[#dfd2c0] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--wood-900)] transition hover:border-[#b0894f]"
-                            >
-                              <FileDown className="h-3.5 w-3.5 text-[#b0894f]" />
-                              <span>Cotización PDF ({order.quote.number})</span>
-                            </a>
-                          )}
-                        </div>
-
-                        <Link
-                          href={`/pedido/${order.id}`}
-                          className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-[#14100d] px-3.5 py-1.5 text-xs font-semibold text-white transition hover:bg-[#2a211b]"
-                        >
-                          <span>Ver pedido</span>
-                          <ArrowRight className="h-3.5 w-3.5 text-[#c9a15a]" />
-                        </Link>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            )}
+          {/* Columna Derecha: Historial de Compras con Filtro y Estado Vacío */}
+          <div className="lg:col-span-8">
+            <OrdersHistoryCard orders={serializedOrders} />
           </div>
         </div>
-      </div>
+      </main>
+
+      {/* TOAST DE BIENVENIDA FLOTANTE EN ESQUINA INFERIOR IZQUIERDA */}
+      <WelcomeToast userName={displayName} />
     </div>
   );
 }
