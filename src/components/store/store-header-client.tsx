@@ -110,7 +110,7 @@ export function StoreHeaderClient({
     ? createPortal(
         <AnimatePresence>
           {open && (
-            <div className="fixed inset-0 z-[100]">
+            <div className="fixed inset-0 z-[100] overflow-hidden">
               <motion.button
                 type="button"
                 initial={{ opacity: 0 }}

@@ -179,8 +179,8 @@ export default async function StoreHomePage() {
   return (
     <div className="bg-[#0a0a0a] text-white">
       {/* —— Hero —— */}
-      <section className="relative z-20 w-full overflow-hidden border-b border-white/[0.06]">
-        <div className="absolute inset-0 pointer-events-none">
+      <section className="relative z-20 w-full border-b border-white/[0.06]">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <HeroZoom className="h-full w-full">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img

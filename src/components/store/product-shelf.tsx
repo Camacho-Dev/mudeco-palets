@@ -8,7 +8,7 @@ import { formatCurrency } from "@/lib/format";
 import { productImage } from "@/lib/product-image";
 import { availabilityOf } from "@/lib/made-to-order";
 import { useCart } from "@/components/store/cart-context";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 
 export type ShelfProduct = {
   id: string;
@@ -33,12 +33,12 @@ function CraftBadge() {
 
 function ShelfCard({
   product,
-  index,
+
 }: {
   product: ShelfProduct;
-  index: number;
+
 }) {
-  const reduce = useReducedMotion();
+
   const { addItem, items } = useCart();
   const [added, setAdded] = useState(false);
   const inCart = items.find((i) => i.productId === product.id)?.quantity ?? 0;
@@ -68,18 +68,18 @@ function ShelfCard({
   };
 
   return (
-    <motion.article
+    <article
       className="group w-[190px] shrink-0 snap-start sm:w-[230px] md:w-[260px] lg:w-[280px]"
-      initial={reduce ? false : { opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "0px 0px -8% 0px" }}
-      transition={{
-        duration: 0.5,
-        delay: Math.min(index, 6) * 0.06,
-        ease: [0.16, 1, 0.3, 1],
-      }}
+
+
+
+
+
+
+
+      data-shelf-card="true"
     >
-      <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#14100e] transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-1 hover:border-[#c9a15a]/40 hover:shadow-[0_18px_40px_rgba(0,0,0,0.55)]">
+      <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#14100e] transition-[border-color,transform,box-shadow] duration-300 sm:hover:-translate-y-1 hover:border-[#c9a15a]/40 hover:shadow-[0_18px_40px_rgba(0,0,0,0.55)]">
         <Link
           href={`/producto/${product.id}`}
           className="relative block aspect-square overflow-hidden bg-[#181411]"
@@ -150,7 +150,7 @@ function ShelfCard({
           </div>
         </div>
       </div>
-    </motion.article>
+    </article>
   );
 }
 
@@ -233,8 +233,8 @@ export function ProductShelf({
         ref={ref}
         className="flex gap-3 overflow-x-auto pb-3 [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
       >
-        {products.map((p, i) => (
-          <ShelfCard key={p.id} product={p} index={i} />
+        {products.map((p) => (
+          <ShelfCard key={p.id} product={p} />
         ))}
       </div>
 

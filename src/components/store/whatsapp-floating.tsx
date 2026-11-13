@@ -19,10 +19,10 @@ export function WhatsappFloating({
   return (
     <motion.aside
       aria-label="Atención al cliente por WhatsApp"
-      initial={reduce ? false : { opacity: 0, scale: 0.85, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      className="fixed bottom-6 right-6 z-40 select-none"
+      initial={reduce ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 select-none"
     >
       <a
         href={url}

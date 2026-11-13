@@ -16,7 +16,7 @@ export function Reveal({
   children,
   className = "",
   delay = 0,
-  y = 16,
+  y = 8,
 }: {
   children: React.ReactNode;
   className?: string;
@@ -29,7 +29,7 @@ export function Reveal({
       className={className}
       initial={reduce ? false : { opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-4% 0px" }}
+      viewport={{ once: true, amount: "some" }}
       transition={{ duration: 0.55, delay, ease: LUXURY_EASE }}
     >
       {children}
@@ -41,7 +41,7 @@ export function FadeUp({
   children,
   className = "",
   delay = 0,
-  y = 14,
+  y = 8,
 }: {
   children: React.ReactNode;
   className?: string;
@@ -155,7 +155,7 @@ export function StaggerContainer({
       custom={stagger}
       initial="hidden"
       whileInView="show"
-      viewport={{ once: true, margin: "-4% 0px" }}
+      viewport={{ once: true, amount: "some" }}
       className={className}
     >
       {children}
