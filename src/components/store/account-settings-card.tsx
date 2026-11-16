@@ -7,7 +7,6 @@ import {
   ShoppingBag,
   Star,
   Wallet,
-  Mail,
   Phone,
   MapPin,
   Pencil,
@@ -54,116 +53,78 @@ export function AccountSettingsCard({
   return (
     <div
       id="perfil"
-      className="group relative overflow-hidden rounded-[26px] border border-[#e5dacb]/80 bg-white shadow-[0_15px_35px_rgba(20,16,13,0.06)] transition-all duration-300 hover:shadow-[0_20px_45px_rgba(201,161,90,0.12)]"
+      className="relative overflow-hidden rounded-3xl border border-[#ece4d8] bg-white shadow-[0_1px_2px_rgba(27,21,17,0.04),0_16px_40px_-24px_rgba(27,21,17,0.25)]"
     >
-      {/* SECCIÓN SUPERIOR: ATELIER NOIR CON FICHA DE CLIENTE */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-[#181411] via-[#14100e] to-[#0f0d0b] px-6 pt-7 pb-6 text-white">
-        {/* Glow dorado ambiental superior */}
-        <div className="pointer-events-none absolute -top-16 -right-16 h-44 w-44 rounded-full bg-[#d4af37]/15 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-10 -left-10 h-36 w-36 rounded-full bg-[#caa466]/10 blur-2xl" />
-
-        <div className="relative flex items-center gap-4">
-          {/* Avatar con anillo dorado luminoso */}
-          <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 border-[#d4af37] bg-[#1a1512] font-display text-xl font-bold tracking-wider text-[#f5dfa8] shadow-[0_0_22px_rgba(212,175,55,0.45)] ring-4 ring-[#d4af37]/15">
+      <div className="px-6 pt-6 pb-5">
+        <div className="flex items-center gap-4">
+          <div
+            aria-hidden
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#16120e] font-display text-lg tracking-wide text-[#e9cf96]"
+          >
             {initials}
           </div>
-
-          <div className="min-w-0 flex-1">
-            <span className="inline-block text-[10px] font-bold uppercase tracking-[0.22em] text-[#d4af37]">
-              Ficha de Cliente
-            </span>
-            <h2 className="mt-0.5 truncate font-display text-xl font-bold tracking-tight text-white">
-              {initialName}
-            </h2>
-            <div className="mt-1 flex items-center gap-1.5 text-xs text-white/60">
-              <Mail className="h-3 w-3 shrink-0 text-[#d4af37]/80" />
-              <span className="truncate">{email}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* CINTA DE RESUMEN EJECUTIVO: PEDIDOS | MUEBLES | INVERTIDO */}
-        <div className="relative mt-6 grid grid-cols-3 divide-x divide-white/10 rounded-2xl border border-[#d4af37]/25 bg-black/40 py-3.5 backdrop-blur-md shadow-inner">
-          <div className="flex flex-col items-center justify-center px-2 text-center">
-            <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-white/50">
-              <ShoppingBag className="h-3 w-3 text-[#d4af37]" />
-              <span>Pedidos</span>
-            </div>
-            <p className="mt-1 font-mono text-base font-bold text-white">
-              {ordersCount}
-            </p>
-          </div>
-
-          <div className="flex flex-col items-center justify-center px-2 text-center">
-            <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-white/50">
-              <Star className="h-3 w-3 text-[#d4af37]" />
-              <span>Muebles</span>
-            </div>
-            <p className="mt-1 font-mono text-base font-bold text-white">
-              {totalPieces}
-            </p>
-          </div>
-
-          <div className="flex flex-col items-center justify-center px-2 text-center">
-            <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-white/50">
-              <Wallet className="h-3 w-3 text-[#d4af37]" />
-              <span>Invertido</span>
-            </div>
-            <p className="mt-1 truncate font-mono text-xs font-bold text-[#d4af37] sm:text-sm">
-              {totalSpentFormatted}
+          <div className="min-w-0">
+            <h2 className="truncate font-display text-xl text-[#16120e]">{initialName}</h2>
+            <p className="truncate text-sm text-[#85776a]" title={email}>
+              {email}
             </p>
           </div>
         </div>
+
+        <dl className="mt-6 grid grid-cols-2 gap-2">
+          {[
+            { icon: ShoppingBag, label: "Pedidos", value: String(ordersCount) },
+            { icon: Star, label: "Muebles", value: String(totalPieces) },
+            { icon: Wallet, label: "Total comprado", value: totalSpentFormatted, wide: true },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              className={`rounded-2xl bg-[#f7f3ec] px-3.5 py-3 ${"wide" in stat && stat.wide ? "col-span-2" : ""}`}
+            >
+              <dt className="flex items-center gap-1 text-[11px] text-[#85776a]">
+                <stat.icon className="h-3 w-3 text-[#b0894f]" aria-hidden />
+                {stat.label}
+              </dt>
+              <dd
+                className="mt-1 truncate text-[15px] font-semibold text-[#16120e] tabular-nums"
+                title={stat.value}
+              >
+                {stat.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
       </div>
 
-      {/* SECCIÓN INFERIOR: DATOS DE CONTACTO Y ACCIÓN EDITAR */}
-      <div className="bg-[#fdfbf7] px-6 py-5">
-        <div className="divide-y divide-[#eee5d8] text-xs">
-          <div className="flex items-center justify-between gap-3 py-3">
-            <span className="flex items-center gap-2 text-[#7d7165]">
-              <Mail className="h-3.5 w-3.5 text-[#b0894f]" />
-              <span className="font-medium">Correo</span>
-            </span>
-            <span className="truncate font-semibold text-[#1e1915]">
-              {email}
-            </span>
+      <div className="border-t border-[#f1ebe2] px-6 py-4">
+        <dl className="space-y-3 text-sm">
+          <div className="flex items-start gap-3">
+            <dt className="flex w-24 shrink-0 items-center gap-2 text-[#85776a]">
+              <Phone className="h-3.5 w-3.5 text-[#b0894f]" aria-hidden />
+              Teléfono
+            </dt>
+            <dd className={initialPhone ? "text-[#16120e]" : "text-[#a39483]"}>
+              {initialPhone || "Sin registrar"}
+            </dd>
           </div>
-
-          <div className="flex items-center justify-between gap-3 py-3">
-            <span className="flex items-center gap-2 text-[#7d7165]">
-              <Phone className="h-3.5 w-3.5 text-[#b0894f]" />
-              <span className="font-medium">Teléfono</span>
-            </span>
-            <span
-              className={`font-semibold ${
-                initialPhone ? "text-[#1e1915]" : "text-[#9d9183]"
-              }`}
-            >
-              {initialPhone || "No registrado"}
-            </span>
+          <div className="flex items-start gap-3">
+            <dt className="flex w-24 shrink-0 items-center gap-2 text-[#85776a]">
+              <MapPin className="h-3.5 w-3.5 text-[#b0894f]" aria-hidden />
+              Dirección
+            </dt>
+            <dd className={initialAddress ? "text-[#16120e]" : "text-[#a39483]"}>
+              {initialAddress || "Sin registrar"}
+            </dd>
           </div>
-
-          <div className="flex items-start justify-between gap-4 py-3">
-            <span className="flex shrink-0 items-center gap-2 text-[#7d7165]">
-              <MapPin className="h-3.5 w-3.5 text-[#b0894f]" />
-              <span className="font-medium">Dirección</span>
-            </span>
-            <span
-              className={`text-right font-semibold ${
-                initialAddress ? "text-[#1e1915]" : "text-[#9d9183]"
-              }`}
-            >
-              {initialAddress || "No registrada"}
-            </span>
-          </div>
-        </div>
+        </dl>
 
         {/* BOTÓN PÍLDORA CON BORDE DORADO */}
         <div className="pt-4">
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
-            className="group/btn flex w-full items-center justify-center gap-2 rounded-full border border-[#caa466]/50 bg-white px-5 py-2.5 text-xs font-semibold text-[#2c2219] shadow-xs transition-all duration-200 hover:border-[#caa466] hover:bg-[#caa466]/10 hover:shadow-[0_4px_16px_rgba(201,161,90,0.2)] active:scale-[0.99] cursor-pointer"
+            aria-expanded={open}
+            className="group/btn flex h-11 w-full items-center justify-center gap-2 rounded-full border border-[#e4ddd2] bg-white px-5 text-sm font-medium text-[#16120e] transition-colors duration-200 hover:border-[#c9a15a] hover:bg-[#fbf8f3] active:scale-[0.99] cursor-pointer"
           >
             {open ? (
               <>
