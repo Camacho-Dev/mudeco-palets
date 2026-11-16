@@ -137,14 +137,21 @@ function LoginForm() {
       redirect: false,
     });
 
-    if (result?.error) {
+    if (!result || result.error || result.ok === false) {
       setLoading(false);
       setError("Credenciales incorrectas. Verifica tu correo y contraseña.");
       return;
     }
 
     const session = await getSession();
-    const role = session?.user?.role;
+    if (!session?.user) {
+      setLoading(false);
+      setError(
+        "No se pudo establecer la sesión. Verifica que las cookies estén habilitadas e intenta nuevamente.",
+      );
+      return;
+    }
+    const role = session.user.role;
 
     const target =
       safeCallback ||
@@ -218,11 +225,22 @@ function LoginForm() {
         redirect: false,
       });
 
-      if (loginRes?.error) {
+      if (!loginRes || loginRes.error || loginRes.ok === false) {
         setLoading(false);
         setTab("login");
         setLoginEmail(regEmail.trim());
         setSuccessMsg("Cuenta creada. Ingresa tu contraseña para acceder.");
+        return;
+      }
+
+      const session = await getSession();
+      if (!session?.user) {
+        setLoading(false);
+        setTab("login");
+        setLoginEmail(regEmail.trim());
+        setSuccessMsg(
+          "Cuenta creada. Ingresa tu contraseña para iniciar sesión.",
+        );
         return;
       }
 

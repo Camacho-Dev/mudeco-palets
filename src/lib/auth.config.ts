@@ -4,6 +4,10 @@ import { isAdminPath, isPublicPath } from "@/lib/sensitive";
 import { isAdmin, isStaff } from "@/lib/rbac";
 
 const isProd = process.env.NODE_ENV === "production";
+const useSecureCookies =
+  process.env.VERCEL === "1" ||
+  Boolean(process.env.AUTH_URL?.startsWith("https://")) ||
+  Boolean(process.env.NEXTAUTH_URL?.startsWith("https://"));
 const authSecret =
   process.env.AUTH_SECRET ||
   process.env.NEXTAUTH_SECRET ||
@@ -24,12 +28,12 @@ export const authConfig = {
   },
   cookies: {
     sessionToken: {
-      name: isProd ? "__Secure-authjs.session-token" : "authjs.session-token",
+      name: useSecureCookies ? "__Secure-authjs.session-token" : "authjs.session-token",
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: isProd,
+        secure: useSecureCookies,
       },
     },
   },
