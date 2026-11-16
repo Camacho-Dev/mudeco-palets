@@ -4,6 +4,7 @@ import { getScoredProducts } from "@/lib/recommendations";
 import { getStoreCompany } from "@/lib/store";
 import { withDbRetry } from "@/lib/prisma";
 import { CatalogExplorer } from "@/components/store/catalog-explorer";
+import { getProductRatings } from "@/lib/product-reviews";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
@@ -39,19 +40,22 @@ export default async function CatalogoPage({
     filter?: string;
     minPrice?: string;
     maxPrice?: string;
+    sort?: string;
   }>;
 }) {
-  const { q, cat, filter, minPrice, maxPrice } = await searchParams;
+  const { q, cat, filter, minPrice, maxPrice, sort } = await searchParams;
   const initialQuery = (q || "").trim();
   const initialCategory = (cat || "").trim();
   const initialFilter = (filter || "").trim();
   const initialMinPrice = minPrice ? Number(minPrice) : undefined;
   const initialMaxPrice = maxPrice ? Number(maxPrice) : undefined;
 
-  const [scoredProducts, company] = await Promise.all([
+  const [scoredProducts, company, ratingMap] = await Promise.all([
     withDbRetry(() => getScoredProducts(), { fallback: [] }),
     getStoreCompany(),
+    getProductRatings(),
   ]);
+  const ratings = Object.fromEntries(ratingMap);
 
   const products = scoredProducts || [];
 
@@ -123,6 +127,8 @@ export default async function CatalogoPage({
           initialFilter={initialFilter}
           initialMinPrice={initialMinPrice}
           initialMaxPrice={initialMaxPrice}
+          initialSort={sort}
+          ratings={ratings}
           companyPhone={company.phone}
         />
       </div>

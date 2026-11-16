@@ -79,6 +79,7 @@ model Product {
   depthCm       Float?
   /// Se fabrica siempre por encargo (nunca aparece como "Agotado")
   madeToOrderOnly Boolean       @default(false)
+  reviews       CustomerReview[]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
   items         InvoiceItem[]
@@ -365,8 +366,12 @@ model CustomerReview {
   status          String    @default("APPROVED")
   webOrderId      String?
   webOrder        WebOrder? @relation(fields: [webOrderId], references: [id], onDelete: SetNull)
+  /// Producto reseñado (comentarios en la ficha del producto)
+  productId       String?
+  product         Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
 
   @@index([webOrderId])
+  @@index([productId, status])
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 

@@ -8,7 +8,6 @@ import {
   Ruler,
   Camera,
   MessageCircle,
-  Star,
 } from "lucide-react";
 import { FadeUp, Reveal } from "@/components/store/store-motion";
 import {
@@ -19,6 +18,8 @@ import { ProductShelf } from "@/components/store/product-shelf";
 import { withDbRetry } from "@/lib/prisma";
 import { STORE_SOCIAL } from "@/lib/store-brand";
 import { getScoredProducts } from "@/lib/recommendations";
+import { getHomeTestimonials, getProductRatings, getTopRatedProductIds } from "@/lib/product-reviews";
+import { StarRating } from "@/components/store/star-rating";
 import { getStoreCompany } from "@/lib/store";
 import { siteUrl, storeWhatsApp } from "@/lib/store-info";
 import { HeroSearchBar } from "@/components/store/hero-search-bar";
@@ -53,26 +54,6 @@ const CRAFT_STEPS = [
   },
 ] as const;
 
-const TESTIMONIALS = [
-  {
-    quote:
-      "Pedí un comedor a medida para mi terraza y superó mis expectativas. Los acabados son finos y la atención fue impecable.",
-    author: "Carolina Mendoza",
-    role: "Diseñadora de interiores · Santo Domingo",
-  },
-  {
-    quote:
-      "Tenía dudas sobre los muebles de palets, pero el tratamiento que le dan es de primera. Calidad y robustez excelentes.",
-    author: "Ing. Roberto Alcántara",
-    role: "Cliente residencial · Bella Vista",
-  },
-  {
-    quote:
-      "Equipamos el área lounge de nuestro café con bancas y mesas Mudeco. La calidez que le dio al local se nota. Puntuales y formales.",
-    author: "Lic. Andrea Tavárez",
-    role: "Propietaria de café · Naco",
-  },
-] as const;
 
 const GALLERY = [
   "/brand/brand-wood-hero.jpg",
@@ -101,10 +82,28 @@ export const revalidate = 60;
 
 
 export default async function StoreHomePage() {
-  const [company, scoredProducts] = await Promise.all([
+  const [company, scoredProducts, testimonials, topRatedIds, ratings] = await Promise.all([
     getStoreCompany(),
     withDbRetry(() => getScoredProducts(), { fallback: [] }),
+    getHomeTestimonials(3),
+    getTopRatedProductIds(10),
+    getProductRatings(),
   ]);
+
+  const byId = new Map(scoredProducts.map((p) => [p.id, p]));
+  const favorites = topRatedIds
+    .map((id) => byId.get(id))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p))
+    .map((p) => ({
+      id: p.id,
+      name: p.name,
+      category: p.category,
+      price: p.price,
+      taxRate: p.taxRate,
+      stock: p.stock,
+      imageUrl: p.imageUrl,
+      badge: `★ ${ratings.get(p.id)?.average.toLocaleString("es-DO", { minimumFractionDigits: 1 }) ?? ""}`,
+    }));
 
   const featured = scoredProducts.slice(0, 12).map((p) => ({
     id: p.id,
@@ -372,42 +371,68 @@ export default async function StoreHomePage() {
         </div>
       </section>
 
-      {/* —— Testimonios —— */}
-      <section className="border-b border-white/[0.06] py-16 sm:py-20">
+      {/* —— Favoritos (por calificación real) —— */}
+      {favorites.length >= 3 ? (
         <div className={WRAP}>
-          <Reveal>
-            <div className="mx-auto mb-12 max-w-2xl text-center">
-              <Eyebrow>Testimonios</Eyebrow>
-              <h2 className="font-display mt-3 text-3xl text-white sm:text-4xl">
-                Lo que dicen nuestros clientes
-              </h2>
-            </div>
-          </Reveal>
-
-          <div className="grid gap-5 md:grid-cols-3">
-            {TESTIMONIALS.map((t, idx) => (
-              <Reveal key={t.author} delay={idx * 0.08}>
-                <figure className="flex h-full flex-col justify-between rounded-2xl border border-white/[0.07] bg-[#111] p-7">
-                  <div>
-                    <div className="flex gap-0.5 text-brand-gold" role="img" aria-label="5 de 5 estrellas">
-                      {[0, 1, 2, 3, 4].map((i) => (
-                        <Star key={i} className="h-3.5 w-3.5 fill-current" aria-hidden />
-                      ))}
-                    </div>
-                    <blockquote className="mt-4 text-[0.95rem] leading-relaxed text-white/80">
-                      &ldquo;{t.quote}&rdquo;
-                    </blockquote>
-                  </div>
-                  <figcaption className="mt-6 border-t border-white/[0.06] pt-5">
-                    <p className="text-sm font-semibold text-white">{t.author}</p>
-                    <p className="mt-0.5 text-xs text-white/70">{t.role}</p>
-                  </figcaption>
-                </figure>
-              </Reveal>
-            ))}
-          </div>
+          <ProductShelf
+            title="Favoritos de nuestros clientes"
+            subtitle="Las piezas mejor valoradas por quienes ya las tienen en casa"
+            href="/catalogo?sort=rating"
+            products={favorites}
+          />
         </div>
-      </section>
+      ) : null}
+
+      {/* —— Testimonios reales —— */}
+      {testimonials.length > 0 ? (
+        <section className="border-b border-white/[0.06] py-16 sm:py-20">
+          <div className={WRAP}>
+            <Reveal>
+              <div className="mx-auto mb-12 max-w-2xl text-center">
+                <Eyebrow>Opiniones reales</Eyebrow>
+                <h2 className="font-display mt-3 text-3xl text-white sm:text-4xl">
+                  Lo que dicen nuestros clientes
+                </h2>
+              </div>
+            </Reveal>
+
+            <div
+              className={`grid gap-5 ${
+                testimonials.length === 1 ? "mx-auto max-w-xl" : testimonials.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"
+              }`}
+            >
+              {testimonials.map((t, idx) => (
+                <Reveal key={t.id} delay={idx * 0.08}>
+                  <figure className="flex h-full flex-col justify-between rounded-2xl border border-white/[0.07] bg-[#111] p-7">
+                    <div>
+                      <StarRating value={t.rating} size={14} />
+                      <blockquote className="mt-4 text-[0.95rem] leading-relaxed text-white/80">
+                        &ldquo;{t.comment}&rdquo;
+                      </blockquote>
+                    </div>
+                    <figcaption className="mt-6 border-t border-white/[0.06] pt-5">
+                      <p className="text-sm font-semibold text-white">
+                        {t.customerName}
+                        {t.isVerified ? (
+                          <span className="ml-2 text-xs font-medium text-emerald-400">· Compra verificada</span>
+                        ) : null}
+                      </p>
+                      {t.productId && t.productName ? (
+                        <Link
+                          href={`/producto/${t.productId}#resenas`}
+                          className="mt-0.5 inline-block text-xs text-white/70 underline-offset-4 hover:text-brand-gold hover:underline"
+                        >
+                          Sobre: {t.productName}
+                        </Link>
+                      ) : null}
+                    </figcaption>
+                  </figure>
+                </Reveal>
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {/* —— Proyectos a medida —— */}
       <section className={`${WRAP} py-12 sm:py-16`}>

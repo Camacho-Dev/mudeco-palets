@@ -20,7 +20,7 @@ import { formatStoreCategory } from "@/lib/store-brand";
 import { availabilityOf } from "@/lib/made-to-order";
 import type { StoreProduct } from "@/lib/store";
 
-type SortOption = "relevance" | "price-asc" | "price-desc" | "newest" | "name";
+type SortOption = "relevance" | "rating" | "price-asc" | "price-desc" | "newest" | "name";
 type AvailabilityOption = "all" | "in-stock" | "custom";
 
 type Props = {
@@ -33,6 +33,8 @@ type Props = {
   initialFilter?: string;
   initialMinPrice?: number;
   initialMaxPrice?: number;
+  initialSort?: string;
+  ratings?: Record<string, { average: number; count: number; score: number }>;
   companyPhone: string;
 };
 
@@ -55,11 +57,15 @@ export function CatalogExplorer({
   initialFilter = "",
   initialMinPrice,
   initialMaxPrice,
+  initialSort,
+  ratings = {},
   companyPhone,
 }: Props) {
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [query, setQuery] = useState(initialQuery);
-  const [sortBy, setSortBy] = useState<SortOption>("relevance");
+  const [sortBy, setSortBy] = useState<SortOption>(
+    initialSort === "rating" ? "rating" : "relevance",
+  );
   const [availability, setAvailability] = useState<AvailabilityOption>("all");
   const [filterMode, setFilterMode] = useState<"all" | "popular">(
     initialFilter === "popular" ? "popular" : "all",
@@ -287,6 +293,11 @@ export function CatalogExplorer({
       case "name":
         result = [...result].sort((a, b) => a.name.localeCompare(b.name, "es"));
         break;
+      case "rating":
+        result = [...result].sort(
+          (a, b) => (ratings[b.id]?.score ?? 0) - (ratings[a.id]?.score ?? 0),
+        );
+        break;
       case "relevance":
         result = [...result].sort((a, b) => (availabilityOf(a) === "sold-out" ? 1 : 0) - (availabilityOf(b) === "sold-out" ? 1 : 0));
         break;
@@ -297,6 +308,7 @@ export function CatalogExplorer({
     return result;
   }, [
     products,
+    ratings,
     selectedCategory,
     filterMode,
     query,
@@ -346,6 +358,7 @@ export function CatalogExplorer({
     "price-desc": "Mayor precio",
     newest: "Más recientes",
     name: "Nombre A-Z",
+    rating: "Mejor valorados",
   };
 
   const activeTags: { key: string; label: string; onRemove: () => void }[] = [];
@@ -453,6 +466,7 @@ export function CatalogExplorer({
                 <option value="price-desc">Precio: mayor a menor</option>
                 <option value="newest">Más recientes</option>
                 <option value="name">Nombre: A a Z</option>
+                <option value="rating">Mejor valorados</option>
               </select>
               <ChevronDown className="pointer-events-none absolute top-1/2 right-3.5 h-3.5 w-3.5 -translate-y-1/2 text-[#a39483]" />
             </div>
@@ -708,7 +722,7 @@ export function CatalogExplorer({
             {visibleProducts.map((p, i) =>
               i < PAGE_SIZE ? (
                 <Reveal key={p.id} delay={Math.min(i * 0.02, 0.2)}>
-                  <ProductCard product={p} badge={badges[p.id]} />
+                  <ProductCard product={p} badge={badges[p.id]} rating={ratings[p.id]} />
                 </Reveal>
               ) : (
                 <motion.div
@@ -721,7 +735,7 @@ export function CatalogExplorer({
                     delay: Math.min((i % PAGE_SIZE) * 0.02, 0.2),
                   }}
                 >
-                  <ProductCard product={p} badge={badges[p.id]} />
+                  <ProductCard product={p} badge={badges[p.id]} rating={ratings[p.id]} />
                 </motion.div>
               ),
             )}

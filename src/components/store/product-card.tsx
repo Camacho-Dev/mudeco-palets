@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { StarRating } from "@/components/store/star-rating";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { formatCurrency } from "@/lib/format";
@@ -11,10 +12,12 @@ export function ProductCard({
   product,
   tone = "light",
   badge,
+  rating,
 }: {
   product: StoreProduct;
   tone?: "light" | "dark";
   badge?: string;
+  rating?: { average: number; count: number };
 }) {
   const src = productImage(product);
   const dark = tone === "dark";
@@ -84,6 +87,14 @@ export function ProductCard({
         >
           {product.name}
         </h3>
+        {rating && rating.count > 0 ? (
+          <p className={`flex items-center gap-1.5 text-xs ${dark ? "text-white/70" : "text-[var(--muted)]"}`}>
+            <StarRating value={rating.average} size={12} />
+            <span className="tabular-nums">
+              {rating.average.toLocaleString("es-DO", { minimumFractionDigits: 1 })} ({rating.count})
+            </span>
+          </p>
+        ) : null}
         <div
           className={`flex items-center justify-between gap-3 pt-2 border-t ${
             dark ? "border-white/[0.08]" : "border-black/[0.06]"

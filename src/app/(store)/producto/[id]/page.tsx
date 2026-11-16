@@ -11,6 +11,9 @@ import { AddToCartButton } from "@/components/store/add-to-cart-button";
 import { ProductCard } from "@/components/store/product-card";
 import { STORE_LOGISTICS, siteUrl, storeWhatsApp } from "@/lib/store-info";
 import { getRelatedRecommendations, getScoredProducts } from "@/lib/recommendations";
+import { ProductReviews } from "@/components/store/product-reviews";
+import { StarRating } from "@/components/store/star-rating";
+import { getProductRatingSummary, getProductReviews } from "@/lib/product-reviews";
 import { MessageCircle, Hammer, Truck, Clock, Sparkles, Ruler } from "lucide-react";
 
 export const revalidate = 30;
@@ -62,10 +65,12 @@ export default async function ProductoPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [product, company, related] = await Promise.all([
+  const [product, company, related, ratingSummary, reviews] = await Promise.all([
     getProduct(id),
     getStoreCompany(),
     getRelatedRecommendations(id, 4),
+    getProductRatingSummary(id),
+    getProductReviews(id, 40),
   ]);
 
   if (!product) notFound();
@@ -95,6 +100,15 @@ export default async function ProductoPage({
       "@type": "Brand",
       name: company.name,
     },
+    ...(ratingSummary.count > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: ratingSummary.average,
+            reviewCount: ratingSummary.count,
+          },
+        }
+      : {}),
     offers: {
       "@type": "Offer",
       url: `${siteUrl()}/producto/${product.id}`,
@@ -213,6 +227,25 @@ export default async function ProductoPage({
             {product.name}
           </h1>
 
+          <a
+            href="#resenas"
+            className="mt-3 inline-flex items-center gap-2 text-sm text-[var(--muted)] transition-colors hover:text-[var(--wood-950)]"
+          >
+            {ratingSummary.count > 0 ? (
+              <>
+                <StarRating value={ratingSummary.average} size={15} />
+                <span className="font-semibold text-[var(--wood-950)] tabular-nums">
+                  {ratingSummary.average.toLocaleString("es-DO", { minimumFractionDigits: 1 })}
+                </span>
+                <span className="underline-offset-4 hover:underline">
+                  ({ratingSummary.count} {ratingSummary.count === 1 ? "reseña" : "reseñas"})
+                </span>
+              </>
+            ) : (
+              <span className="underline-offset-4 hover:underline">Sé el primero en opinar</span>
+            )}
+          </a>
+
           <div className="mt-4 flex items-baseline gap-4">
             <span className="text-3xl font-bold tracking-tight text-[#8a6a3a] tabular-nums">
               {formatCurrency(product.price)}
@@ -330,6 +363,13 @@ export default async function ProductoPage({
           </div>
         </Reveal>
       </div>
+
+      <ProductReviews
+        productId={product.id}
+        productName={product.name}
+        summary={ratingSummary}
+        reviews={reviews}
+      />
 
       {related.length > 0 ? (
         <section className="mt-20 border-t border-[var(--border)] pt-14">
