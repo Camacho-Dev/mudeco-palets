@@ -10,7 +10,8 @@ import {
   MessageCircle,
   Star,
 } from "lucide-react";
-import { FadeUp, HeroZoom, Reveal } from "@/components/store/store-motion";
+import { FadeUp, Reveal } from "@/components/store/store-motion";
+import { WorkshopHeroBackground } from "@/components/store/workshop-hero-background";
 import { ProductShelf } from "@/components/store/product-shelf";
 import { withDbRetry } from "@/lib/prisma";
 import { STORE_SOCIAL } from "@/lib/store-brand";
@@ -176,34 +177,24 @@ export default async function StoreHomePage() {
     madeToOrderOnly: p.madeToOrderOnly,
   }));
 
+  // Portada por defecto: la foto del taller con el logo grabado en madera.
+  // Si en el panel se sube otra imagen de portada, se respeta.
+  const heroImage =
+    !company.heroImage || company.heroImage === "/brand/store-hero.jpg"
+      ? "/brand/brand-wood-hero.jpg"
+      : company.heroImage;
+
   return (
     <div className="bg-[#0a0a0a] text-white">
       {/* —— Hero —— */}
       <section className="relative z-20 w-full border-b border-white/[0.06]">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <HeroZoom className="h-full w-full">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={company.heroImage}
-              alt=""
-              className="h-full w-full object-cover"
-              fetchPriority="high"
-            />
-          </HeroZoom>
-        </div>
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background:
-              "linear-gradient(90deg, rgba(10,10,10,0.94) 0%, rgba(10,10,10,0.78) 50%, rgba(10,10,10,0.45) 100%), linear-gradient(0deg, rgba(10,10,10,0.6) 0%, transparent 35%)",
-          }}
-        />
+        <WorkshopHeroBackground src={heroImage} />
 
         <div
-          className={`${WRAP} relative z-20 flex min-h-[520px] flex-col justify-center py-14 sm:min-h-[600px] lg:min-h-[680px]`}
+          className={`${WRAP} relative z-20 flex min-h-[560px] flex-col justify-center py-14 sm:min-h-[620px] lg:min-h-[700px]`}
         >
-          <div className="grid items-center gap-10 lg:grid-cols-12 xl:gap-14">
-            <div className="lg:col-span-7">
+          <div className="max-w-2xl">
+            <div>
               <FadeUp>
                 <Eyebrow>{company.heroBadge || "Taller artesanal · República Dominicana"}</Eyebrow>
               </FadeUp>
@@ -228,10 +219,7 @@ export default async function StoreHomePage() {
                   </Link>
                 </div>
               </FadeUp>
-            </div>
-
-            <div className="relative z-30 flex justify-center lg:col-span-5 lg:justify-end">
-              <FadeUp delay={0.3} className="w-full flex justify-center lg:justify-end">
+              <FadeUp delay={0.32} className="relative z-30 mt-8 max-w-xl">
                 <HeroSearchBar products={availableForSearch} />
               </FadeUp>
             </div>
