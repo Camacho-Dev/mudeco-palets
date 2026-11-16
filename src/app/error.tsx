@@ -17,7 +17,7 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[#faf6f1] px-4 py-12 text-center selection:bg-[#c49a5c] selection:text-[#2c1d14]">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-brand-cream-warm px-4 py-12 text-center selection:bg-[#c49a5c] selection:text-[#2c1d14]">
       <div className="mx-auto w-full max-w-lg space-y-6">
         <div className="mx-auto flex justify-center">
           <BrandLogo width={180} height={150} tone="onLight" className="h-auto w-40" />
@@ -30,7 +30,7 @@ export default function GlobalError({
           <span className="inline-block rounded-full bg-amber-200/80 px-4 py-1 text-xs font-bold tracking-widest text-amber-900 uppercase">
             Incidencia Técnica
           </span>
-          <h1 className="font-display text-2xl font-bold tracking-tight text-[#3d2a1f] sm:text-3xl">
+          <h1 className="font-display text-2xl font-bold tracking-tight text-brand-brown sm:text-3xl">
             Ocurrió un contratiempo inesperado
           </h1>
           <p className="text-sm text-stone-600 sm:text-base">
@@ -48,14 +48,14 @@ export default function GlobalError({
           <button
             type="button"
             onClick={() => reset()}
-            className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[#3d2a1f] px-5 py-3 text-sm font-semibold text-[#faf6f1] shadow-md hover:bg-[#2c1d14] transition cursor-pointer"
+            className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-brand-brown px-5 py-3 text-sm font-semibold text-brand-cream-warm shadow-md hover:bg-[#2c1d14] transition cursor-pointer"
           >
             <RefreshCw className="h-4 w-4" />
             <span>Reintentar operación</span>
           </button>
           <Link
             href="/"
-            className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-[#3d2a1f]/20 bg-white px-5 py-3 text-sm font-semibold text-[#3d2a1f] shadow-sm hover:bg-stone-50 transition"
+            className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-brand-brown/20 bg-white px-5 py-3 text-sm font-semibold text-brand-brown shadow-sm hover:bg-stone-50 transition"
           >
             <Home className="h-4 w-4" />
             <span>Volver al inicio</span>

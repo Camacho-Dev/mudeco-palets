@@ -177,7 +177,7 @@ function DeveloperCredit() {
     <div className="mt-4 flex items-center gap-2.5 border-t border-white/10 pt-3">
       <span
         aria-hidden="true"
-        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#e4c284] via-[#c9a15a] to-[#8a6a34] font-serif text-[0.58rem] font-bold text-[#2c1d14]"
+        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#e4c284] via-brand-gold to-[#8a6a34] font-serif text-[0.58rem] font-bold text-[#2c1d14]"
       >
         BC
       </span>
@@ -201,7 +201,7 @@ export async function SidebarMobilePanel() {
   const admin = isAdmin(session?.user?.role);
 
   return (
-    <div className="flex h-full flex-col text-[#faf6f1]">
+    <div className="flex h-full flex-col text-brand-cream-warm">
       <div className="border-b border-white/10 px-4 py-5 pt-12">
         <p className="text-sm font-bold tracking-wide uppercase">
           Mudeco Palets

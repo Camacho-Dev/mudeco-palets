@@ -87,7 +87,7 @@ const WRAP =
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[0.65rem] font-semibold tracking-[0.24em] text-[#c9a15a] uppercase">
+    <p className="text-[0.65rem] font-semibold tracking-[0.24em] text-brand-gold uppercase">
       {children}
     </p>
   );
@@ -252,7 +252,7 @@ export default async function StoreHomePage() {
                 idx < 2 ? "border-b border-white/[0.06] lg:border-b-0" : ""
               }`}
             >
-              <t.icon className="mt-0.5 h-5 w-5 shrink-0 text-[#c9a15a] sm:mt-0" strokeWidth={1.6} />
+              <t.icon className="mt-0.5 h-5 w-5 shrink-0 text-brand-gold sm:mt-0" strokeWidth={1.6} />
               <div>
                 <h2 className="text-[0.78rem] font-semibold text-white">{t.title}</h2>
                 <p className="mt-0.5 text-xs leading-snug text-white/70">{t.desc}</p>
@@ -283,7 +283,7 @@ export default async function StoreHomePage() {
               </div>
               <Link
                 href="/catalogo"
-                className="group hidden items-center gap-1.5 text-[0.68rem] font-semibold tracking-[0.14em] text-[#c9a15a] uppercase transition hover:text-[#d4b06e] sm:inline-flex"
+                className="group hidden items-center gap-1.5 text-[0.68rem] font-semibold tracking-[0.14em] text-brand-gold uppercase transition hover:text-brand-gold sm:inline-flex"
               >
                 Catálogo completo
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
@@ -295,7 +295,7 @@ export default async function StoreHomePage() {
               <Reveal key={tile.title} delay={(i % 3) * 0.07}>
                 <Link
                   href={tile.href}
-                  className="group relative block aspect-[4/5] sm:aspect-[4/3] overflow-hidden rounded-2xl bg-[#141414] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c9a15a]"
+                  className="group relative block aspect-[4/5] sm:aspect-[4/3] overflow-hidden rounded-2xl bg-[#141414] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-gold"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -310,7 +310,7 @@ export default async function StoreHomePage() {
                       <p className="font-display text-lg leading-tight text-white sm:text-2xl">{tile.title}</p>
                       <p className="mt-1 text-xs text-white/70">{tile.text}</p>
                     </div>
-                    <span className="hidden h-9 w-9 shrink-0 sm:flex items-center justify-center rounded-full border border-white/25 text-white transition-all duration-300 group-hover:border-[#c9a15a] group-hover:bg-[#c9a15a] group-hover:text-black">
+                    <span className="hidden h-9 w-9 shrink-0 sm:flex items-center justify-center rounded-full border border-white/25 text-white transition-all duration-300 group-hover:border-brand-gold group-hover:bg-brand-gold group-hover:text-black">
                       <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
                     </span>
                   </div>
@@ -337,7 +337,7 @@ export default async function StoreHomePage() {
                 </p>
                 <Link
                   href="/nosotros"
-                  className="group mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#c9a15a] transition hover:text-[#d4b06e]"
+                  className="group mt-6 inline-flex items-center gap-2 text-sm font-semibold text-brand-gold transition hover:text-brand-gold"
                 >
                   Conoce nuestra historia
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -396,7 +396,7 @@ export default async function StoreHomePage() {
               <Reveal key={t.author} delay={idx * 0.08}>
                 <figure className="flex h-full flex-col justify-between rounded-2xl border border-white/[0.07] bg-[#111] p-7">
                   <div>
-                    <div className="flex gap-0.5 text-[#c9a15a]" role="img" aria-label="5 de 5 estrellas">
+                    <div className="flex gap-0.5 text-brand-gold" role="img" aria-label="5 de 5 estrellas">
                       {[0, 1, 2, 3, 4].map((i) => (
                         <Star key={i} className="h-3.5 w-3.5 fill-current" aria-hidden />
                       ))}
@@ -481,7 +481,7 @@ export default async function StoreHomePage() {
               href={STORE_SOCIAL.instagram}
               target="_blank"
               rel="noreferrer"
-              className="group inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-[#c9a15a] uppercase transition hover:text-[#d4b06e]"
+              className="group inline-flex items-center gap-1.5 text-xs font-semibold tracking-wider text-brand-gold uppercase transition hover:text-brand-gold"
             >
               <Camera className="h-3.5 w-3.5" />
               <span>@mudeco_palets</span>

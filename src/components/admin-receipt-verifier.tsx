@@ -4,25 +4,11 @@ import { useState, useTransition } from "react";
 import {
   CheckCircle2,
   AlertTriangle,
-  XCircle,
   Eye,
   ExternalLink,
   ShieldCheck,
-  FileText,
-  X,
-  ZoomIn,
-  ZoomOut,
-  RotateCw,
   Loader2,
-
-  DollarSign,
-  User,
-
-  SlidersHorizontal,
-  ChevronDown,
-  ChevronUp,
   Banknote,
-  Info,
 } from "lucide-react";
 import {
   approveReceiptPaymentAction,
@@ -47,21 +33,18 @@ export interface AdminReceiptVerifierProps {
   invoiceNumber?: string | null;
   validationNote?: string | null;
 }
+import {
+  REJECTION_PRESETS,
+  formatMoney,
+  ReceiptImageModal,
+  ReceiptPreviewColumn,
+  RejectReceiptModal,
+} from "./admin-receipt-verifier-parts";
+import {
+  AdvancedPaymentOptions,
+  ConfirmationChecks,
+} from "./admin-receipt-verifier-sections";
 
-const REJECTION_PRESETS = [
-  "Los fondos no se reflejan en el extracto bancario de la empresa.",
-  "El comprobante está borroso o los datos no son legibles.",
-  "El monto transferido es menor al acordado para este pedido.",
-  "La transferencia fue enviada a una cuenta no correspondiente a Mudeco Palets.",
-  "Falta el número de confirmación o fecha de la transacción bancaria.",
-];
-
-function formatMoney(amount: number) {
-  return `RD$ ${Number(amount || 0).toLocaleString("es-DO", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
-}
 
 export function AdminReceiptVerifier({
   orderId,
@@ -297,95 +280,16 @@ export function AdminReceiptVerifier({
       {/* 2. ÁREA PRINCIPAL: PRIMERO SE ENTRA A VER LA FOTO Y DETALLES */}
       <div className="grid gap-6 p-6 lg:grid-cols-12">
         {/* Columna Izquierda: Vista previa de la foto / comprobante */}
-        <div className="lg:col-span-5 flex flex-col justify-between rounded-2xl border border-slate-200/90 bg-slate-50/70 p-4.5">
-          <div>
-            <div className="flex items-center justify-between pb-2 text-xs font-bold text-[var(--wood-900)] uppercase tracking-wider">
-              <span>Paso 1: Foto del Comprobante</span>
-              <span className="font-normal text-stone-500 font-mono text-[11px]">
-                {receipt.sizeBytes
-                  ? `${Math.round(receipt.sizeBytes / 1024)} KB`
-                  : ""}
-              </span>
-            </div>
-
-            <div className="relative mt-1 aspect-[4/3] w-full overflow-hidden rounded-lg border border-stone-300 bg-stone-900 flex items-center justify-center group shadow-inner">
-              {isPdf ? (
-                <div className="flex flex-col items-center gap-2 text-white p-6 text-center">
-                  <FileText className="h-12 w-12 text-rose-400" />
-                  <p className="text-xs font-semibold text-stone-200">
-                    Documento PDF adjunto
-                  </p>
-                  <p className="text-[11px] text-stone-400 truncate max-w-[200px]">
-                    {receipt.name}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={openReceiptFile}
-                    className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-xs font-bold text-stone-900 hover:bg-stone-100"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    Abrir PDF
-                  </button>
-                </div>
-              ) : (
-                <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={receipt.url}
-                    alt={receipt.name}
-                    className="max-h-full max-w-full object-contain transition-transform duration-200 group-hover:scale-[1.02]"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setModalOpen(true)}
-                      className="rounded-lg bg-white/95 px-3 py-1.5 text-xs font-bold text-stone-900 shadow-md hover:bg-white flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <ZoomIn className="h-3.5 w-3.5" />
-                      Ampliar con Zoom
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-
-            <p className="mt-2 truncate text-xs font-medium text-stone-700">
-              Archivo: <span className="font-semibold">{receipt.name}</span>
-            </p>
-            <p className="text-[11px] text-stone-500">
-              Adjuntado por el cliente: {formattedDate}
-            </p>
-          </div>
-
-          <div className="mt-3 rounded-xl bg-white p-3.5 border border-slate-200/90 text-xs space-y-2 shadow-2xs">
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500 flex items-center gap-1.5 font-medium">
-                <DollarSign className="h-4 w-4 text-emerald-600" />
-                Monto del pedido:
-              </span>
-              <span className="font-bold font-mono text-slate-900 text-sm">
-                {totalFormatted}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500 flex items-center gap-1.5 font-medium">
-                <User className="h-4 w-4 text-slate-400" />
-                Cliente titular:
-              </span>
-              <span className="font-semibold text-slate-800 truncate max-w-[170px]">
-                {customerName}
-              </span>
-            </div>
-            {invoiceNumber && (
-              <div className="flex justify-between items-center border-t border-slate-100 pt-1.5">
-                <span className="text-slate-500">Factura vinculada:</span>
-                <span className="font-mono font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
-                  {invoiceNumber}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
+        <ReceiptPreviewColumn
+          receipt={receipt}
+          isPdf={isPdf}
+          formattedDate={formattedDate}
+          totalFormatted={totalFormatted}
+          customerName={customerName}
+          invoiceNumber={invoiceNumber}
+          openReceiptFile={openReceiptFile}
+          onZoom={() => setModalOpen(true)}
+        />
 
         {/* Columna Derecha: Paso 2 -> 3 Confirmaciones y decisión */}
         <div className="lg:col-span-7 flex flex-col justify-between">
@@ -406,106 +310,22 @@ export function AdminReceiptVerifier({
             </div>
 
             {/* LAS 3 CONFIRMACIONES */}
-            <div className="mt-4 space-y-3">
-              {/* Confirmación 1 */}
-              <label
-                className={`flex items-start gap-3.5 rounded-2xl border p-4 transition-all duration-200 cursor-pointer select-none ${
-                  check1
-                    ? "border-emerald-500/80 bg-emerald-50/70 text-slate-900 shadow-sm ring-1 ring-emerald-500/30"
-                    : "border-slate-200 bg-slate-50/60 hover:bg-white hover:border-slate-300 text-slate-700"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={check1}
-                  disabled={isPaid || isCancelled || isPending}
-                  onChange={(e) => setCheck1(e.target.checked)}
-                  className="mt-0.5 h-5 w-5 rounded-md border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                />
-                <div className="text-xs leading-relaxed">
-                  <p className="font-bold flex items-center gap-1 text-slate-900">
-                    <span>1. Foto y datos legibles revisados</span>
-                  </p>
-                  <p className="text-[11px] text-slate-600 mt-0.5">
-                    He revisado la foto/documento del comprobante y confirmo que es nítido, con fecha reciente, cuenta bancaria de destino y número de autorización visible.
-                  </p>
-                </div>
-              </label>
-
-              {/* Confirmación 2 */}
-              <label
-                className={`flex items-start gap-3.5 rounded-2xl border p-4 transition-all duration-200 cursor-pointer select-none ${
-                  check2
-                    ? "border-emerald-500/80 bg-emerald-50/70 text-slate-900 shadow-sm ring-1 ring-emerald-500/30"
-                    : "border-slate-200 bg-slate-50/60 hover:bg-white hover:border-slate-300 text-slate-700"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={check2}
-                  disabled={isPaid || isCancelled || isPending}
-                  onChange={(e) => setCheck2(e.target.checked)}
-                  className="mt-0.5 h-5 w-5 rounded-md border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                />
-                <div className="text-xs leading-relaxed">
-                  <p className="font-bold flex items-center gap-1 text-slate-900">
-                    <span>2. Fondos confirmados en la cuenta de Mudeco Palets</span>
-                  </p>
-                  <p className="text-[11px] text-slate-600 mt-0.5">
-                    Ingresé al portal o banca móvil de la empresa y verifiqué que el dinero ya fue efectivamente acreditado en el balance disponible.
-                  </p>
-                </div>
-              </label>
-
-              {/* Confirmación 3 */}
-              <label
-                className={`flex items-start gap-3.5 rounded-2xl border p-4 transition-all duration-200 cursor-pointer select-none ${
-                  check3
-                    ? "border-emerald-500/80 bg-emerald-50/70 text-slate-900 shadow-sm ring-1 ring-emerald-500/30"
-                    : "border-slate-200 bg-slate-50/60 hover:bg-white hover:border-slate-300 text-slate-700"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={check3}
-                  disabled={isPaid || isCancelled || isPending}
-                  onChange={(e) => setCheck3(e.target.checked)}
-                  className="mt-0.5 h-5 w-5 rounded-md border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                />
-                <div className="text-xs leading-relaxed">
-                  <p className="font-bold flex items-center gap-1 text-slate-900">
-                    <span>
-                      {validPartial
-                        ? "3. Abono parcial verificado y cliente validado"
-                        : "3. Monto exacto y cliente verificado"}
-                    </span>
-                  </p>
-                  <p className="text-[11px] text-slate-600 mt-0.5">
-                    {validPartial ? (
-                      <>
-                        El monto transferido es un abono inicial de{" "}
-                        <strong className="text-emerald-700 font-bold">
-                          {formatMoney(parsedPartial)}
-                        </strong>{" "}
-                        ({paidPercent.toFixed(1)}% del pedido de muebles). Resta un
-                        balance pendiente de{" "}
-                        <strong className="text-amber-800 font-bold">
-                          {formatMoney(remainingBalance)}
-                        </strong>{" "}
-                        que se cobrará <em>{balanceCondition.toLowerCase()}</em> a{" "}
-                        <strong className="text-slate-900">{customerName}</strong>.
-                      </>
-                    ) : (
-                      <>
-                        El monto transferido cubre el valor total de{" "}
-                        <strong className="text-slate-900 font-mono font-bold">{totalFormatted}</strong> y corresponde a la orden
-                        de <strong className="text-slate-900">{customerName}</strong>.
-                      </>
-                    )}
-                  </p>
-                </div>
-              </label>
-            </div>
+            <ConfirmationChecks
+              check1={check1}
+              setCheck1={setCheck1}
+              check2={check2}
+              setCheck2={setCheck2}
+              check3={check3}
+              setCheck3={setCheck3}
+              disabled={isPaid || isCancelled || isPending}
+              validPartial={validPartial}
+              parsedPartial={parsedPartial}
+              paidPercent={paidPercent}
+              remainingBalance={remainingBalance}
+              balanceCondition={balanceCondition}
+              customerName={customerName}
+              totalFormatted={totalFormatted}
+            />
 
             {/* Campos opcionales de auditoría bancaria */}
             {!isPaid && !isCancelled && (
@@ -539,190 +359,21 @@ export function AdminReceiptVerifier({
 
             {/* DROPDOWN / MENÚ DESPLEGABLE: OPCIONES AVANZADAS (PAGO INCOMPLETO / ABONO DE MUEBLES) */}
             {!isPaid && !isCancelled && (
-              <div className="mt-3.5 rounded-xl border border-stone-200 bg-stone-50/60 overflow-hidden transition">
-                <button
-                  type="button"
-                  onClick={() => setShowAdvanced(!showAdvanced)}
-                  className="flex w-full items-center justify-between px-3.5 py-2.5 text-xs font-bold text-[var(--wood-900)] hover:bg-stone-100/80 transition select-none cursor-pointer"
-                >
-                  <div className="flex items-center gap-2">
-                    <SlidersHorizontal className="h-4 w-4 text-[#b0894f]" />
-                    <span>Opciones avanzadas</span>
-                    {validPartial ? (
-                      <span className="rounded-full bg-amber-100 border border-amber-300 px-2 py-0.5 text-[10px] font-bold text-amber-900">
-                        Abono activo: {formatMoney(parsedPartial)}
-                      </span>
-                    ) : (
-                      <span className="text-[11px] font-normal text-[var(--muted)]">
-                        (Si no pagó el total / Abono inicial de muebles)
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1 text-[11px] font-semibold text-[#b0894f]">
-                    <span>{showAdvanced ? "Ocultar menú" : "Desplegar menú"}</span>
-                    {showAdvanced ? (
-                      <ChevronUp className="h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4" />
-                    )}
-                  </div>
-                </button>
-
-                {showAdvanced && (
-                  <div className="border-t border-stone-200 bg-white p-3.5 space-y-3">
-                    <div className="flex items-start gap-2.5 rounded-lg bg-amber-50 p-2.5 border border-amber-200 text-xs text-amber-950">
-                      <Info className="h-4 w-4 text-amber-700 shrink-0 mt-0.5" />
-                      <div className="leading-relaxed">
-                        <p className="font-semibold">
-                          Manejo de Pago Incompleto / Abono de Inicial
-                        </p>
-                        <p className="text-[11px] text-amber-900 mt-0.5">
-                          Usa este menú si el cliente transfirió una parte del
-                          dinero (ej. 50% de inicial para comenzar a fabricar los
-                          muebles) y pagará el resto contra entrega o retiro en taller.
-                        </p>
-                      </div>
-                    </div>
-
-                    <label className="flex items-center gap-2.5 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={isPartialPayment}
-                        onChange={(e) => {
-                          const checked = e.target.checked;
-                          setIsPartialPayment(checked);
-                          if (checked && !partialAmountInput) {
-                            setPartialAmountInput(
-                              Math.round(numericTotal * 0.5).toString(),
-                            );
-                          }
-                        }}
-                        className="h-4 w-4 rounded border-stone-300 text-[#b0894f] focus:ring-[#b0894f]"
-                      />
-                      <span className="text-xs font-bold text-stone-800">
-                        Registrar como Pago Parcial / Abono de Inicial
-                      </span>
-                    </label>
-
-                    {isPartialPayment && (
-                      <div className="space-y-3 pt-2 border-t border-stone-100">
-                        <div>
-                          <div className="flex items-center justify-between mb-1">
-                            <label className="block text-xs font-semibold text-stone-700">
-                              Monto transferido según el comprobante (RD$):
-                            </label>
-                            <div className="flex items-center gap-1">
-                              <span className="text-[10px] text-stone-500 font-medium">
-                                Atajos:
-                              </span>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setPartialAmountInput(
-                                    Math.round(numericTotal * 0.3).toString(),
-                                  )
-                                }
-                                className="rounded bg-stone-100 border border-stone-200 px-1.5 py-0.5 text-[10px] font-semibold text-stone-700 hover:bg-stone-200"
-                              >
-                                30%
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setPartialAmountInput(
-                                    Math.round(numericTotal * 0.5).toString(),
-                                  )
-                                }
-                                className="rounded bg-stone-100 border border-stone-200 px-1.5 py-0.5 text-[10px] font-semibold text-stone-700 hover:bg-stone-200"
-                              >
-                                50%
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setPartialAmountInput(
-                                    Math.round(numericTotal * 0.7).toString(),
-                                  )
-                                }
-                                className="rounded bg-stone-100 border border-stone-200 px-1.5 py-0.5 text-[10px] font-semibold text-stone-700 hover:bg-stone-200"
-                              >
-                                70%
-                              </button>
-                            </div>
-                          </div>
-                          <div className="relative">
-                            <span className="absolute left-3 top-2.5 text-xs font-bold text-stone-400">
-                              RD$
-                            </span>
-                            <input
-                              type="number"
-                              step="0.01"
-                              min="1"
-                              max={numericTotal}
-                              value={partialAmountInput}
-                              onChange={(e) =>
-                                setPartialAmountInput(e.target.value)
-                              }
-                              placeholder="Ej. 15000"
-                              className="w-full rounded-lg border border-stone-300 bg-white pl-11 pr-3 py-2 text-xs font-bold text-[var(--wood-950)] focus:border-[#b0894f] focus:outline-none focus:ring-1 focus:ring-[#b0894f]"
-                            />
-                          </div>
-                        </div>
-
-                        {/* TARJETAS DE CÁLCULO DE BALANCE */}
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                          <div className="rounded-lg border border-emerald-200 bg-emerald-50/70 p-2.5">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-emerald-800">
-                              Monto transferido (Abono)
-                            </p>
-                            <p className="mt-0.5 text-sm font-extrabold text-emerald-950">
-                              {formatMoney(parsedPartial)}
-                            </p>
-                            <p className="text-[10px] text-emerald-700">
-                              {paidPercent.toFixed(1)}% del total de muebles
-                            </p>
-                          </div>
-
-                          <div className="rounded-lg border border-amber-300 bg-amber-50/80 p-2.5">
-                            <p className="text-[10px] font-bold uppercase tracking-wider text-amber-900">
-                              Resta por cobrar (Pendiente)
-                            </p>
-                            <p className="mt-0.5 text-sm font-extrabold text-amber-950">
-                              {formatMoney(remainingBalance)}
-                            </p>
-                            <p className="text-[10px] text-amber-800">
-                              A cobrar antes de entregar
-                            </p>
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-xs font-semibold text-stone-700 mb-1">
-                            Condición de cobro del restante:
-                          </label>
-                          <select
-                            value={balanceCondition}
-                            onChange={(e) =>
-                              setBalanceCondition(e.target.value)
-                            }
-                            className="w-full rounded-lg border border-stone-300 bg-white px-2.5 py-1.5 text-xs text-stone-800"
-                          >
-                            <option value="Contra entrega al retirar en taller">
-                              Contra entrega al retirar en taller de Mudeco Palets
-                            </option>
-                            <option value="Contra entrega antes de descargar los muebles en destino">
-                              Contra entrega antes de descargar los muebles en destino
-                            </option>
-                            <option value="Transferencia obligatoria antes del despacho desde fábrica">
-                              Transferencia obligatoria antes del despacho desde fábrica
-                            </option>
-                          </select>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+              <AdvancedPaymentOptions
+                showAdvanced={showAdvanced}
+                setShowAdvanced={setShowAdvanced}
+                validPartial={validPartial}
+                parsedPartial={parsedPartial}
+                isPartialPayment={isPartialPayment}
+                setIsPartialPayment={setIsPartialPayment}
+                partialAmountInput={partialAmountInput}
+                setPartialAmountInput={setPartialAmountInput}
+                numericTotal={numericTotal}
+                paidPercent={paidPercent}
+                remainingBalance={remainingBalance}
+                balanceCondition={balanceCondition}
+                setBalanceCondition={setBalanceCondition}
+              />
             )}
           </div>
 
@@ -817,187 +468,31 @@ export function AdminReceiptVerifier({
 
       {/* MODAL 1: VISOR AMPLIADO DE LA FOTO CON ZOOM Y ROTACIÓN */}
       {modalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setModalOpen(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-xs"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative flex flex-col max-h-[92vh] max-w-4xl w-full overflow-hidden rounded-2xl bg-stone-950 p-4 shadow-2xl border border-stone-700"
-          >
-            {/* Barra de herramientas superior */}
-            <div className="flex items-center justify-between border-b border-stone-800 pb-3 text-white">
-              <div className="min-w-0 pr-4">
-                <p className="truncate text-sm font-bold">{receipt.name}</p>
-                <p className="text-xs text-stone-400">
-                  {orderNumber} · Monto: {totalFormatted}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setZoomLevel((z) => Math.min(3, +(z + 0.25).toFixed(2)))
-                  }
-                  className="rounded-lg bg-stone-800 p-2 text-stone-200 hover:bg-stone-700"
-                  title="Acercar zoom"
-                >
-                  <ZoomIn className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setZoomLevel((z) => Math.max(0.5, +(z - 0.25).toFixed(2)))
-                  }
-                  className="rounded-lg bg-stone-800 p-2 text-stone-200 hover:bg-stone-700"
-                  title="Alejar zoom"
-                >
-                  <ZoomOut className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setRotation((r) => (r + 90) % 360)}
-                  className="rounded-lg bg-stone-800 p-2 text-stone-200 hover:bg-stone-700"
-                  title="Rotar 90°"
-                >
-                  <RotateCw className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setZoomLevel(1);
-                    setRotation(0);
-                  }}
-                  className="rounded-lg bg-stone-800 px-2.5 py-1 text-xs text-stone-200 hover:bg-stone-700"
-                >
-                  100%
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="rounded-lg bg-rose-900/50 p-2 text-rose-200 hover:bg-rose-900 ml-2"
-                  title="Cerrar visor"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-
-            {/* Lienzo de imagen con zoom y rotación */}
-            <div className="relative mt-3 flex-1 overflow-auto rounded-lg bg-stone-900 flex items-center justify-center p-4 min-h-[400px]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={receipt.url}
-                alt={receipt.name}
-                style={{
-                  transform: `scale(${zoomLevel}) rotate(${rotation}deg)`,
-                  transition: "transform 0.15s ease-out",
-                }}
-                className="max-h-[70vh] max-w-full object-contain origin-center select-none shadow-lg"
-              />
-            </div>
-          </div>
-        </div>
+        <ReceiptImageModal
+          receipt={receipt}
+          orderNumber={orderNumber}
+          totalFormatted={totalFormatted}
+          zoomLevel={zoomLevel}
+          setZoomLevel={setZoomLevel}
+          rotation={rotation}
+          setRotation={setRotation}
+          onClose={() => setModalOpen(false)}
+        />
       )}
 
       {/* MODAL 2: FORMULARIO DE RECHAZO DE COMPROBANTE */}
       {rejectOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          onClick={() => setRejectOpen(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-xs"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-stone-200"
-          >
-            <div className="flex items-center justify-between border-b border-stone-200 pb-3">
-              <div className="flex items-center gap-2 text-rose-700">
-                <XCircle className="h-5 w-5" />
-                <h3 className="font-bold text-sm text-stone-900">
-                  Rechazar Comprobante Bancario
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setRejectOpen(false)}
-                className="text-stone-400 hover:text-stone-600"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleRejectSubmit} className="mt-4 space-y-3">
-              <p className="text-xs text-stone-600 leading-relaxed">
-                Selecciona el motivo por el cual no se pudo validar este
-                comprobante. El cliente podrá ver la observación y adjuntar uno
-                nuevo desde su pedido:
-              </p>
-
-              <div>
-                <label className="block text-xs font-bold text-stone-800 mb-1">
-                  Motivo principal:
-                </label>
-                <select
-                  value={rejectionReason}
-                  onChange={(e) => setRejectionReason(e.target.value)}
-                  className="w-full rounded-lg border border-stone-300 bg-white p-2 text-xs"
-                >
-                  {REJECTION_PRESETS.map((preset) => (
-                    <option key={preset} value={preset}>
-                      {preset}
-                    </option>
-                  ))}
-                  <option value="Otro motivo">Otro motivo específico...</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-stone-800 mb-1">
-                  Mensaje explicativo para el cliente:
-                </label>
-                <textarea
-                  rows={3}
-                  value={customRejection}
-                  onChange={(e) => setCustomRejection(e.target.value)}
-                  placeholder="Ej. Por favor verifica que el comprobante sea el emitido hoy por tu banco y que muestre el monto completo..."
-                  className="w-full rounded-lg border border-stone-300 bg-white p-2.5 text-xs"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-200">
-                <button
-                  type="button"
-                  onClick={() => setRejectOpen(false)}
-                  disabled={isPending}
-                  className="rounded-lg border border-stone-300 px-3 py-1.5 text-xs font-semibold text-stone-600 hover:bg-stone-50"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isPending}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-rose-700 px-4 py-1.5 text-xs font-bold text-white hover:bg-rose-800 transition disabled:opacity-50"
-                >
-                  {isPending ? (
-                    <>
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      <span>Rechazando...</span>
-                    </>
-                  ) : (
-                    <span>Confirmar Rechazo</span>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <RejectReceiptModal
+          isPending={isPending}
+          rejectionReason={rejectionReason}
+          setRejectionReason={setRejectionReason}
+          customRejection={customRejection}
+          setCustomRejection={setCustomRejection}
+          onSubmit={handleRejectSubmit}
+          onClose={() => setRejectOpen(false)}
+        />
       )}
     </div>
   );
 }
-
+

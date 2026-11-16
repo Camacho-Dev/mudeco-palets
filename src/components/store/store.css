@@ -20,8 +20,8 @@
 .store-shell {
   --store-bg: #0f0f0f;
   --store-brown: #0f172a;
-  --store-gold: #c9a15a;
-  --store-gold-hover: #d4b06e;
+  --store-gold: var(--color-brand-gold);
+  --store-gold-hover: var(--color-brand-gold-strong);
   --store-text: #0f172a;
   --store-muted: #64748b;
   --store-border: rgba(0, 0, 0, 0.08);
@@ -32,12 +32,12 @@
   --wood-600: #8a715c;
   --wood-200: #e2d5c5;
   --wood-100: #f3ece2;
-  --wood-50: #faf7f2;
+  --wood-50: var(--color-brand-cream);
   --muted: #786958;
   --border: #e2d5c5;
-  --brass: #b0894f;
+  --brass: var(--color-brand-gold-strong);
   --brass-dark: #8f6d3b;
-  --accent: #c9a15a;
+  --accent: var(--color-brand-gold);
   --store-font-display: var(--font-store-display), "Cormorant Garamond", Georgia,
     serif;
   --store-font-body: var(--font-store-body), Inter, system-ui, sans-serif;
@@ -403,7 +403,7 @@
 }
 
 .store-service-form .input:focus {
-  border-color: #c9a15a;
+  border-color: var(--color-brand-gold);
   background: #fff;
   box-shadow: 0 0 0 3px rgba(201, 161, 90, 0.18);
   outline: none;
@@ -450,7 +450,7 @@
   width: 100%;
   height: 54px;
   border-radius: 8px;
-  background: #c9a15a;
+  background: var(--color-brand-gold);
   color: #111111;
   font-size: 0.72rem;
   font-weight: 650;

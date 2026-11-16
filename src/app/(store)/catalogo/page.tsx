@@ -69,7 +69,7 @@ export default async function CatalogoPage({
   return (
     <div className="bg-[#f6f4f0] min-h-screen">
       {/* Editorial Luxury Header Banner */}
-      <section className="relative overflow-hidden bg-[#14100d] text-[#faf6f1] border-b border-[#c9a15a]/25 py-10 sm:py-12">
+      <section className="relative overflow-hidden bg-[#14100d] text-brand-cream-warm border-b border-brand-gold/25 py-10 sm:py-12">
         <div
           className="absolute inset-0 opacity-20 scale-105"
           style={{
@@ -81,17 +81,17 @@ export default async function CatalogoPage({
         <div className="absolute inset-0 bg-gradient-to-r from-[#14100d] via-[#14100d]/90 to-[#14100d]/70" />
 
         {/* Ambient gold glow */}
-        <div className="absolute -top-24 right-1/4 h-80 w-80 rounded-full bg-[#c9a15a]/15 blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 right-1/4 h-80 w-80 rounded-full bg-brand-gold/15 blur-3xl pointer-events-none" />
 
         <div className="relative mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <Reveal>
             {/* Breadcrumb */}
             <nav className="mb-4 flex items-center gap-2 text-[0.72rem] tracking-wider text-white/50 uppercase">
-              <Link href="/" className="hover:text-[#c9a15a] transition-colors">
+              <Link href="/" className="hover:text-brand-gold transition-colors">
                 Inicio
               </Link>
               <ChevronRight className="h-3 w-3 text-white/30" />
-              <span className="text-[#c9a15a] font-medium">Catálogo</span>
+              <span className="text-brand-gold font-medium">Catálogo</span>
             </nav>
 
             <h1 className="font-display mt-2 text-3xl sm:text-4xl md:text-5xl text-white tracking-tight">
@@ -103,7 +103,7 @@ export default async function CatalogoPage({
             </p>
 
             <div className="mt-4 flex items-center gap-2 text-xs text-white/65">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#c9a15a]" />
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-gold" />
               <span>
                 <strong className="font-semibold text-white">{products.length} muebles</strong> en catálogo
               </span>

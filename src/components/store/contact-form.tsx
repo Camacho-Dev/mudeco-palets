@@ -57,7 +57,7 @@ export function ContactForm() {
       <div>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-[0.65rem] font-bold tracking-[0.2em] text-[#b0894f] uppercase">
+            <p className="text-[0.65rem] font-bold tracking-[0.2em] text-brand-gold-strong uppercase">
               Atención Personalizada
             </p>
             <h2 className="font-display mt-1 text-2xl sm:text-3xl text-[var(--wood-950)]">
@@ -67,13 +67,13 @@ export function ContactForm() {
         </div>
 
         {/* Selector de tipo de solicitud */}
-        <div className="mt-5 grid grid-cols-2 gap-2 rounded-xl border border-[#e5d8c8] bg-[#faf7f2] p-1.5">
+        <div className="mt-5 grid grid-cols-2 gap-2 rounded-xl border border-[#e5d8c8] bg-brand-cream p-1.5">
           <button
             type="button"
             onClick={() => setKind("contact")}
             className={`flex items-center justify-center gap-2 rounded-lg py-2.5 px-3 text-xs font-bold tracking-wider uppercase transition cursor-pointer ${
               kind === "contact"
-                ? "bg-[#14100d] text-[#c9a15a] shadow-xs"
+                ? "bg-[#14100d] text-brand-gold shadow-xs"
                 : "text-[var(--wood-900)] hover:bg-white/70"
             }`}
           >
@@ -85,7 +85,7 @@ export function ContactForm() {
             onClick={() => setKind("quote")}
             className={`flex items-center justify-center gap-2 rounded-lg py-2.5 px-3 text-xs font-bold tracking-wider uppercase transition cursor-pointer ${
               kind === "quote"
-                ? "bg-[#14100d] text-[#c9a15a] shadow-xs"
+                ? "bg-[#14100d] text-brand-gold shadow-xs"
                 : "text-[var(--wood-900)] hover:bg-white/70"
             }`}
           >

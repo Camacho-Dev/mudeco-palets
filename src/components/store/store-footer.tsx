@@ -106,7 +106,7 @@ export function StoreFooter({
             <li className="pt-1">
               <Link
                 href="/catalogo"
-                className="text-[#c9a15a] transition hover:text-white"
+                className="text-brand-gold transition hover:text-white"
               >
                 Ver todas →
               </Link>
@@ -142,7 +142,7 @@ export function StoreFooter({
             href={wa}
             target="_blank"
             rel="noreferrer"
-            className="mt-6 inline-flex w-full items-center justify-center border border-[#c9a15a]/55 px-4 py-3.5 text-[0.68rem] font-semibold tracking-[0.14em] text-[#c9a15a] uppercase transition duration-300 hover:bg-[#c9a15a] hover:text-[#0a0a0a]"
+            className="mt-6 inline-flex w-full items-center justify-center border border-brand-gold/55 px-4 py-3.5 text-[0.68rem] font-semibold tracking-[0.14em] text-brand-gold uppercase transition duration-300 hover:bg-brand-gold hover:text-[#0a0a0a]"
           >
             Escríbenos por WhatsApp
           </a>
@@ -163,7 +163,7 @@ export function StoreFooter({
         <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 text-xs">
             <div className="flex items-start gap-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#c9a15a]/10 text-[#c9a15a] border border-[#c9a15a]/25">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-gold/10 text-brand-gold border border-brand-gold/25">
                 <ShieldCheck className="h-4 w-4" />
               </span>
               <div>
@@ -177,7 +177,7 @@ export function StoreFooter({
             </div>
 
             <div className="flex items-start gap-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#c9a15a]/10 text-[#c9a15a] border border-[#c9a15a]/25">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-gold/10 text-brand-gold border border-brand-gold/25">
                 <Truck className="h-4 w-4" />
               </span>
               <div>
@@ -191,7 +191,7 @@ export function StoreFooter({
             </div>
 
             <div className="flex items-start gap-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#c9a15a]/10 text-[#c9a15a] border border-[#c9a15a]/25">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-gold/10 text-brand-gold border border-brand-gold/25">
                 <CreditCard className="h-4 w-4" />
               </span>
               <div>
@@ -205,7 +205,7 @@ export function StoreFooter({
             </div>
 
             <div className="flex items-start gap-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#c9a15a]/10 text-[#c9a15a] border border-[#c9a15a]/25">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-gold/10 text-brand-gold border border-brand-gold/25">
                 <Ruler className="h-4 w-4" />
               </span>
               <div>
@@ -237,10 +237,10 @@ export function StoreFooter({
           </p>
 
           {/* Créditos del desarrollador */}
-          <div className="group flex items-center gap-3 rounded-full border border-white/[0.08] bg-white/[0.02] py-1.5 pl-1.5 pr-4 transition duration-300 hover:border-[#c9a15a]/40 hover:bg-[#c9a15a]/[0.04]">
+          <div className="group flex items-center gap-3 rounded-full border border-white/[0.08] bg-white/[0.02] py-1.5 pl-1.5 pr-4 transition duration-300 hover:border-brand-gold/40 hover:bg-brand-gold/[0.04]">
             <span
               aria-hidden="true"
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#e4c284] via-[#c9a15a] to-[#8a6a34] font-serif text-[0.68rem] font-bold tracking-tight text-[#0a0a0a] shadow-[0_0_0_3px_rgba(201,161,90,0.12)] transition duration-300 group-hover:shadow-[0_0_0_4px_rgba(201,161,90,0.22)]"
+              className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-[#e4c284] via-brand-gold to-[#8a6a34] font-serif text-[0.68rem] font-bold tracking-tight text-[#0a0a0a] shadow-[0_0_0_3px_rgba(201,161,90,0.12)] transition duration-300 group-hover:shadow-[0_0_0_4px_rgba(201,161,90,0.22)]"
             >
               BC
             </span>

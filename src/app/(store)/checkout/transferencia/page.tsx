@@ -31,7 +31,7 @@ export default async function CheckoutTransferenciaPage() {
         <BankAccountsGrid banks={banks} />
 
         <div className="mt-4 flex items-center gap-2.5 rounded-xl bg-[#fbf7f2] p-3.5 text-xs text-[var(--wood-800)] border border-[#e2d5c5]">
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-[#b0894f]" />
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-gold-strong" />
           <span>
             Adjunta el comprobante bancario directamente en este formulario para registrar y validar tu pedido al instante.
           </span>

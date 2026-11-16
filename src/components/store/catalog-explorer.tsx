@@ -38,6 +38,8 @@ type Props = {
 
 const formatCategoryName = formatStoreCategory;
 
+const PAGE_SIZE = 24;
+
 /** Monto compacto sin decimales para filtros: "RD$ 12,500" */
 function formatPrice(n: number) {
   return `RD$ ${Math.round(n).toLocaleString("es-DO")}`;
@@ -304,6 +306,25 @@ export function CatalogExplorer({
     popularSet,
   ]);
 
+  // Carga progresiva: se muestran PAGE_SIZE piezas y se reinicia al cambiar filtros
+  const filterKey = [
+    selectedCategory,
+    filterMode,
+    query,
+    availability,
+    priceRange[0],
+    priceRange[1],
+    sortBy,
+  ].join("|");
+  const [pageState, setPageState] = useState({ key: filterKey, count: PAGE_SIZE });
+  if (pageState.key !== filterKey) {
+    setPageState({ key: filterKey, count: PAGE_SIZE });
+  }
+  const visibleCount = pageState.key === filterKey ? pageState.count : PAGE_SIZE;
+  const totalCount = filteredAndSortedProducts.length;
+  const visibleProducts = filteredAndSortedProducts.slice(0, visibleCount);
+  const remainingCount = Math.max(0, totalCount - visibleProducts.length);
+
   const hasActiveFilters = Boolean(
     selectedCategory ||
       query.trim() ||
@@ -316,8 +337,8 @@ export function CatalogExplorer({
   const chipBase =
     "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border px-4 text-[13px] font-medium transition-colors duration-200 cursor-pointer";
   const chipIdle =
-    "border-[#e4ddd2] bg-white text-[#5c4f43] hover:border-[#c9a15a] hover:text-[#1b1511]";
-  const chipActive = "border-[#1b1511] bg-[#1b1511] text-white";
+    "border-[#e4ddd2] bg-white text-[#5c4f43] hover:border-brand-gold hover:text-brand-ink-soft";
+  const chipActive = "border-brand-ink-soft bg-brand-ink-soft text-white";
 
   const sortLabels: Record<SortOption, string> = {
     relevance: "Destacados",
@@ -365,7 +386,7 @@ export function CatalogExplorer({
     });
 
   const selectClass =
-    "h-11 w-full appearance-none rounded-xl border border-[#e4ddd2] bg-white pl-9 pr-9 text-[13px] font-medium text-[#1b1511] transition-colors hover:border-[#c9a15a] focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/20 focus:outline-none cursor-pointer";
+    "h-11 w-full appearance-none rounded-xl border border-[#e4ddd2] bg-white pl-9 pr-9 text-[13px] font-medium text-brand-ink-soft transition-colors hover:border-brand-gold focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 focus:outline-none cursor-pointer";
 
   return (
     <div className="space-y-6">
@@ -384,7 +405,7 @@ export function CatalogExplorer({
               }}
               placeholder="Buscar cama, mesa, comedor, repisa…"
               aria-label="Buscar en el catálogo"
-              className="h-11 w-full rounded-xl border border-[#e4ddd2] bg-[#faf8f5] pr-10 pl-10 text-sm text-[#1b1511] placeholder:text-[#a39483] transition-colors focus:border-[#c9a15a] focus:bg-white focus:ring-2 focus:ring-[#c9a15a]/20 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+              className="h-11 w-full rounded-xl border border-[#e4ddd2] bg-[#faf8f5] pr-10 pl-10 text-sm text-brand-ink-soft placeholder:text-[#a39483] transition-colors focus:border-brand-gold focus:bg-white focus:ring-2 focus:ring-brand-gold/20 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
             />
             {query ? (
               <button
@@ -393,7 +414,7 @@ export function CatalogExplorer({
                   setQuery("");
                   updateUrl(selectedCategory, "", filterMode);
                 }}
-                className="absolute top-1/2 right-3 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-[#a39483] transition hover:bg-black/5 hover:text-[#1b1511]"
+                className="absolute top-1/2 right-3 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-[#a39483] transition hover:bg-black/5 hover:text-brand-ink-soft"
                 aria-label="Borrar búsqueda"
               >
                 <X className="h-4 w-4" />
@@ -443,16 +464,16 @@ export function CatalogExplorer({
               aria-controls="catalog-price-panel"
               className={`col-span-2 flex h-11 items-center justify-between gap-2 rounded-xl border px-3.5 text-[13px] font-medium transition-colors sm:col-span-1 lg:w-auto lg:min-w-44 cursor-pointer ${
                 showPricePanel
-                  ? "border-[#1b1511] bg-[#1b1511] text-white"
+                  ? "border-brand-ink-soft bg-brand-ink-soft text-white"
                   : isPriceFiltered
-                    ? "border-[#c9a15a] bg-[#fbf7ef] text-[#1b1511]"
-                    : "border-[#e4ddd2] bg-white text-[#1b1511] hover:border-[#c9a15a]"
+                    ? "border-brand-gold bg-[#fbf7ef] text-brand-ink-soft"
+                    : "border-[#e4ddd2] bg-white text-brand-ink-soft hover:border-brand-gold"
               }`}
             >
               <span className="flex min-w-0 items-center gap-2">
                 <SlidersHorizontal
                   className={`h-3.5 w-3.5 shrink-0 ${
-                    showPricePanel ? "text-[#c9a15a]" : "text-[#a39483]"
+                    showPricePanel ? "text-brand-gold" : "text-[#a39483]"
                   }`}
                 />
                 <span className="truncate tabular-nums">
@@ -517,7 +538,7 @@ export function CatalogExplorer({
               <span
                 className={`text-[11px] tabular-nums ${
                   !selectedCategory && filterMode !== "popular"
-                    ? "text-[#c9a15a]"
+                    ? "text-brand-gold"
                     : "text-[#a39483]"
                 }`}
               >
@@ -534,13 +555,13 @@ export function CatalogExplorer({
               >
                 <Sparkles
                   className={`h-3.5 w-3.5 ${
-                    filterMode === "popular" ? "text-[#c9a15a]" : "text-[#b0894f]"
+                    filterMode === "popular" ? "text-brand-gold" : "text-brand-gold-strong"
                   }`}
                 />
                 Más vendidos
                 <span
                   className={`text-[11px] tabular-nums ${
-                    filterMode === "popular" ? "text-[#c9a15a]" : "text-[#a39483]"
+                    filterMode === "popular" ? "text-brand-gold" : "text-[#a39483]"
                   }`}
                 >
                   {popularIds.length}
@@ -566,7 +587,7 @@ export function CatalogExplorer({
                   {formatCategoryName(c)}
                   <span
                     className={`text-[11px] tabular-nums ${
-                      active ? "text-[#c9a15a]" : "text-[#a39483]"
+                      active ? "text-brand-gold" : "text-[#a39483]"
                     }`}
                   >
                     {count}
@@ -598,7 +619,7 @@ export function CatalogExplorer({
                     <button
                       type="button"
                       onClick={t.onRemove}
-                      className="flex h-5 w-5 items-center justify-center rounded-full text-[#8a7a6a] transition hover:bg-[#1b1511] hover:text-white cursor-pointer"
+                      className="flex h-5 w-5 items-center justify-center rounded-full text-[#8a7a6a] transition hover:bg-brand-ink-soft hover:text-white cursor-pointer"
                       aria-label={`Quitar filtro: ${t.label}`}
                     >
                       <X className="h-3 w-3" />
@@ -608,7 +629,7 @@ export function CatalogExplorer({
                 <button
                   type="button"
                   onClick={handleClearFilters}
-                  className="ml-auto text-xs font-semibold text-[#8a7a6a] underline-offset-4 transition hover:text-[#1b1511] hover:underline cursor-pointer"
+                  className="ml-auto text-xs font-semibold text-[#8a7a6a] underline-offset-4 transition hover:text-brand-ink-soft hover:underline cursor-pointer"
                 >
                   Limpiar todo
                 </button>
@@ -622,10 +643,16 @@ export function CatalogExplorer({
       <div aria-live="polite" aria-atomic="true" className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-1 text-xs text-[#8a7260]">
         <p>
           Mostrando{" "}
-          <span className="font-bold text-[#1b1511]">
-            {filteredAndSortedProducts.length}
-          </span>{" "}
-          {filteredAndSortedProducts.length === 1
+          <span className="font-bold text-brand-ink-soft">
+            {visibleProducts.length}
+          </span>
+          {remainingCount > 0 ? (
+            <>
+              {" "}de{" "}
+              <span className="font-bold text-brand-ink-soft">{totalCount}</span>
+            </>
+          ) : null}{" "}
+          {totalCount === 1
             ? "mueble"
             : "muebles"}
           {selectedCategory ? ` en ${formatCategoryName(selectedCategory)}` : ""}
@@ -676,13 +703,43 @@ export function CatalogExplorer({
           </div>
         </div>
       ) : (
-        <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-4">
-          {filteredAndSortedProducts.map((p, i) => (
-            <Reveal key={p.id} delay={Math.min(i * 0.02, 0.2)}>
-              <ProductCard product={p} badge={badges[p.id]} />
-            </Reveal>
-          ))}
-        </div>
+        <>
+          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-4">
+            {visibleProducts.map((p, i) =>
+              i < PAGE_SIZE ? (
+                <Reveal key={p.id} delay={Math.min(i * 0.02, 0.2)}>
+                  <ProductCard product={p} badge={badges[p.id]} />
+                </Reveal>
+              ) : (
+                <motion.div
+                  key={p.id}
+                  initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.35,
+                    ease: "easeOut",
+                    delay: Math.min((i % PAGE_SIZE) * 0.02, 0.2),
+                  }}
+                >
+                  <ProductCard product={p} badge={badges[p.id]} />
+                </motion.div>
+              ),
+            )}
+          </div>
+          {remainingCount > 0 ? (
+            <div className="flex justify-center pt-2">
+              <button
+                type="button"
+                onClick={() =>
+                  setPageState({ key: filterKey, count: visibleCount + PAGE_SIZE })
+                }
+                className="store-cta store-cta-outline-dark min-h-11 text-xs uppercase tracking-wider cursor-pointer"
+              >
+                Ver más ({remainingCount} restantes)
+              </button>
+            </div>
+          ) : null}
+        </>
       )}
     </div>
   );

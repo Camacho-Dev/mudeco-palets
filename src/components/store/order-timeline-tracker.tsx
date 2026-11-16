@@ -216,7 +216,7 @@ export function OrderTimelineTracker({
                 key={st.num}
                 type="button"
                 onClick={() => setActiveTab(activeTab === idx ? null : idx)}
-                className="group flex flex-col items-center rounded-xl p-1 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[#c9a15a]/60 cursor-pointer"
+                className="group flex flex-col items-center rounded-xl p-1 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-gold/60 cursor-pointer"
               >
                 {/* Nodo circular del paso */}
                 <motion.div
@@ -227,7 +227,7 @@ export function OrderTimelineTracker({
                     isCompleted
                       ? "border-emerald-500 bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-emerald-500/20"
                       : isInProgress
-                        ? "border-amber-400 bg-gradient-to-tr from-amber-500 to-yellow-500 text-white shadow-amber-500/30 ring-4 ring-amber-400/25 animate-pulse"
+                        ? "border-amber-500 bg-amber-500 text-white"
                         : "border-slate-200 bg-white text-slate-400 group-hover:border-slate-300 group-hover:text-slate-600"
                   }`}
                 >
@@ -236,7 +236,7 @@ export function OrderTimelineTracker({
                   {/* Indicador de pulso activo si está en progreso */}
                   {isInProgress && (
                     <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75 motion-reduce:animate-none motion-reduce:hidden" />
                       <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-amber-600 ring-2 ring-white" />
                     </span>
                   )}
@@ -266,7 +266,7 @@ export function OrderTimelineTracker({
       </div>
 
       {/* Tarjeta explicativa expandible del paso activo o seleccionado */}
-      <div className="mt-7 rounded-2xl border border-[#e2d5c5] bg-[#faf7f2]/80 p-4.5 text-xs shadow-2xs">
+      <div className="mt-7 rounded-2xl border border-[#e2d5c5] bg-brand-cream/80 p-4.5 text-xs shadow-2xs">
         <div className="flex items-start gap-3">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-700">
             <HelpCircle className="h-4 w-4" />

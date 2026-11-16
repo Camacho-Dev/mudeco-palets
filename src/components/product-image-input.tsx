@@ -78,7 +78,7 @@ export function ProductImageInput({
           )}
           {uploading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white">
-              <RefreshCw className="h-5 w-5 animate-spin text-[#c9a15a]" />
+              <RefreshCw className="h-5 w-5 animate-spin text-brand-gold" />
             </div>
           )}
         </div>
@@ -95,7 +95,7 @@ export function ProductImageInput({
               placeholder="/brand/cat-mesa.jpg o https://…"
             />
             <label className="btn btn-outline inline-flex cursor-pointer items-center gap-1.5 text-xs shrink-0">
-              <FolderOpen className="h-3.5 w-3.5 text-[#b0894f]" />
+              <FolderOpen className="h-3.5 w-3.5 text-brand-gold-strong" />
               <span>{uploading ? "Subiendo..." : "Subir archivo"}</span>
               <input
                 type="file"

@@ -35,7 +35,7 @@ export default function DashboardError({
     return (
       <div className="mx-auto max-w-md py-16 text-center">
         <div className="inline-flex items-center gap-2.5 rounded-2xl border border-stone-200 bg-white px-5 py-3.5 text-sm font-medium text-stone-700 shadow-xs">
-          <RefreshCw className="h-4 w-4 animate-spin text-[#b0894f]" />
+          <RefreshCw className="h-4 w-4 animate-spin text-brand-gold-strong" />
           <span>Sincronizando nueva actualización del panel...</span>
         </div>
       </div>

@@ -104,7 +104,7 @@ export default async function CotizacionDetailPage({
             </span>
           </p>
           {fromWeb ? (
-            <span className="rounded-full bg-[#b0894f]/20 px-2.5 py-0.5 text-[0.65rem] font-semibold tracking-wide text-[var(--wood-800)] uppercase">
+            <span className="rounded-full bg-brand-gold-strong/20 px-2.5 py-0.5 text-[0.65rem] font-semibold tracking-wide text-[var(--wood-800)] uppercase">
               Tienda web
             </span>
           ) : (

@@ -1,23 +1,25 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { ListSearchBar } from "@/components/invoice-search";
 
 import { formatCurrency } from "@/lib/format";
+import { Pagination, pageWindow, parsePage } from "@/components/pagination";
 
 export default async function ClientesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
   await requireSession();
-  const { q } = await searchParams;
+  const sp = await searchParams;
+  const { q } = sp;
   const query = (q || "").trim();
 
-  const customers = await prisma.customer.findMany({
-    where: query
+  const where: Prisma.CustomerWhereInput | undefined = query
       ? {
           OR: [
             { id: { contains: query, mode: "insensitive" } },
@@ -28,9 +30,15 @@ export default async function ClientesPage({
             { address: { contains: query, mode: "insensitive" } },
           ],
         }
-      : undefined,
+    : undefined;
+  const PAGE_SIZE = 25;
+  const total = await prisma.customer.count({ where });
+  const pg = pageWindow(parsePage(sp.page), total, PAGE_SIZE);
+  const customers = await prisma.customer.findMany({
+    where,
     orderBy: { name: "asc" },
-    take: 250,
+    skip: pg.skip,
+    take: pg.take,
     include: { _count: { select: { invoices: true } } },
   });
 
@@ -129,6 +137,7 @@ export default async function ClientesPage({
           </tbody>
         </table>
       </div>
+      <Pagination basePath="/clientes" searchParams={sp} page={pg.current} pageSize={PAGE_SIZE} total={total} />
     </div>
   );
 }

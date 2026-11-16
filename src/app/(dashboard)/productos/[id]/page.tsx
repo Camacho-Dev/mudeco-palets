@@ -33,7 +33,7 @@ export default async function EditarProductoPage({
                 href={`/producto/${product.id}`}
                 target="_blank"
                 rel="noreferrer"
-                className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+                className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-brand-gold-strong"
                 title="Ver producto en la tienda online"
               >
                 <span>Ver en la tienda web</span>

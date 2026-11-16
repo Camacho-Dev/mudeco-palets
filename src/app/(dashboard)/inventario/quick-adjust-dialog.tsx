@@ -99,7 +99,7 @@ export function QuickAdjustDialog({
           >
             <div className="flex items-start justify-between border-b border-[var(--border)] pb-4">
               <div>
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-[#b0894f]/15 px-2.5 py-0.5 text-[0.68rem] font-bold tracking-wider text-[#8a6a3a] uppercase">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-brand-gold-strong/15 px-2.5 py-0.5 text-[0.68rem] font-bold tracking-wider text-[#8a6a3a] uppercase">
                   Control de Stock
                 </div>
                 <h3 id="quick-adjust-title" className="font-display mt-1 text-2xl font-bold text-[var(--wood-950)]">
@@ -136,7 +136,7 @@ export function QuickAdjustDialog({
                 <select
                   value={productId}
                   onChange={(e) => setProductId(e.target.value)}
-                  className="w-full rounded-lg border border-[var(--border)] bg-white p-2.5 text-sm text-[var(--wood-950)] focus:border-[#b0894f] focus:outline-none"
+                  className="w-full rounded-lg border border-[var(--border)] bg-white p-2.5 text-sm text-[var(--wood-950)] focus:border-brand-gold-strong focus:outline-none"
                   required
                 >
                   {products.map((p) => (
@@ -147,7 +147,7 @@ export function QuickAdjustDialog({
                 </select>
                 {selected ? (
                   <p className="mt-1 text-xs text-[var(--muted)]">
-                    Categoría: <span className="font-medium text-stone-700">{selected.category}</span> · Stock actual en taller: <span className="font-bold text-[#b0894f]">{selected.stock} unid.</span>
+                    Categoría: <span className="font-medium text-stone-700">{selected.category}</span> · Stock actual en taller: <span className="font-bold text-brand-gold-strong">{selected.stock} unid.</span>
                   </p>
                 ) : null}
               </div>
@@ -204,7 +204,7 @@ export function QuickAdjustDialog({
                     step="1"
                     value={quantity}
                     onChange={(e) => setQuantity(Math.max(0, parseFloat(e.target.value) || 0))}
-                    className="w-full rounded-lg border border-[var(--border)] bg-white p-2.5 text-sm font-bold text-[var(--wood-950)] focus:border-[#b0894f] focus:outline-none"
+                    className="w-full rounded-lg border border-[var(--border)] bg-white p-2.5 text-sm font-bold text-[var(--wood-950)] focus:border-brand-gold-strong focus:outline-none"
                     required
                   />
                 </div>
@@ -216,7 +216,7 @@ export function QuickAdjustDialog({
                   <select
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    className="w-full rounded-lg border border-[var(--border)] bg-white p-2.5 text-sm text-[var(--wood-950)] focus:border-[#b0894f] focus:outline-none"
+                    className="w-full rounded-lg border border-[var(--border)] bg-white p-2.5 text-sm text-[var(--wood-950)] focus:border-brand-gold-strong focus:outline-none"
                     required
                   >
                     <option value="ADJUST">Conteo físico / Ajuste</option>
@@ -237,7 +237,7 @@ export function QuickAdjustDialog({
                   placeholder="Ej: Verificación en estantería B del taller..."
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
-                  className="w-full rounded-lg border border-[var(--border)] bg-white p-2.5 text-sm text-[var(--wood-950)] focus:border-[#b0894f] focus:outline-none"
+                  className="w-full rounded-lg border border-[var(--border)] bg-white p-2.5 text-sm text-[var(--wood-950)] focus:border-brand-gold-strong focus:outline-none"
                 />
               </div>
 

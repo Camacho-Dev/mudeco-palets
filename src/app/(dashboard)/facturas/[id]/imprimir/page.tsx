@@ -105,7 +105,8 @@ export default async function ImprimirFacturaPage({
           ) : null}
         </section>
 
-        <table className="data mb-6 w-full">
+        <div className="mb-6 overflow-x-auto print:overflow-visible">
+        <table className="data w-full">
           <thead>
             <tr>
               <th>Descripción</th>
@@ -127,6 +128,7 @@ export default async function ImprimirFacturaPage({
             ))}
           </tbody>
         </table>
+        </div>
 
         <dl className="ml-auto w-56 space-y-1 text-sm">
           <div className="flex justify-between text-[var(--muted)]">

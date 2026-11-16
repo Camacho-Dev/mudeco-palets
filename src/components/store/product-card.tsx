@@ -27,7 +27,7 @@ export function ProductCard({
     <Link
       href={`/producto/${product.id}`}
       prefetch={false}
-      className={`${dark ? "store-product-card-dark" : "store-product-card"} group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c9a15a] active:scale-[0.985] transition-transform`}
+      className={`${dark ? "store-product-card-dark" : "store-product-card"} group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-gold active:scale-[0.985] transition-transform`}
     >
       <div
         className={`relative aspect-[4/5] overflow-hidden ${
@@ -39,7 +39,7 @@ export function ProductCard({
             Agotado
           </span>
         ) : badge ? (
-          <span className="absolute top-3 left-3 z-10 rounded-md bg-[#16120f]/92 px-2.5 py-1 text-[0.58rem] font-bold tracking-[0.2em] text-[#d4af37] border border-[#d4af37]/45 uppercase shadow-md backdrop-blur-md">
+          <span className="absolute top-3 left-3 z-10 rounded-md bg-[#16120f]/92 px-2.5 py-1 text-[0.58rem] font-bold tracking-[0.2em] text-brand-gold border border-brand-gold/45 uppercase shadow-md backdrop-blur-md">
             {badge}
           </span>
         ) : null}
@@ -61,7 +61,7 @@ export function ProductCard({
           <span className="text-[0.65rem] font-semibold tracking-[0.16em] text-white/90 uppercase">
             Ver detalle
           </span>
-          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#c9a15a] text-black transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1">
+          <span className="flex h-6 w-6 items-center justify-center rounded-full bg-brand-gold text-black transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1">
             <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
           </span>
         </div>
@@ -70,7 +70,7 @@ export function ProductCard({
       <div className="space-y-1.5 px-4 py-4">
         <p
           className={`text-[0.62rem] font-semibold tracking-[0.18em] uppercase ${
-            dark ? "text-[#c9a15a]/85" : "text-[#8a7260]"
+            dark ? "text-brand-gold/85" : "text-[#8a7260]"
           }`}
         >
           {categoryLabel}
@@ -78,7 +78,7 @@ export function ProductCard({
         <h3
           className={`font-display text-xl leading-snug transition-colors duration-200 line-clamp-1 ${
             dark
-              ? "text-white group-hover:text-[#c9a15a]"
+              ? "text-white group-hover:text-brand-gold"
               : "text-[var(--wood-950)] group-hover:text-[#8a6a3a]"
           }`}
         >
@@ -91,7 +91,7 @@ export function ProductCard({
         >
           <p
             className={`text-sm font-bold tracking-wide tabular-nums ${
-              dark ? "text-[#c9a15a]" : "text-[var(--wood-800)]"
+              dark ? "text-brand-gold" : "text-[var(--wood-800)]"
             }`}
           >
             {formatCurrency(product.price)}
@@ -103,7 +103,7 @@ export function ProductCard({
           >
             <span
               className={`h-1.5 w-1.5 rounded-full ${
-                inStock ? "bg-emerald-500" : "bg-[#c9a15a]"
+                inStock ? "bg-emerald-500" : "bg-brand-gold"
               }`}
             />
             {inStock

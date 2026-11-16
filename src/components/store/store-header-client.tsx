@@ -117,7 +117,7 @@ export function StoreHeaderClient({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.25 }}
-                className="absolute inset-0 bg-black/75 backdrop-blur-sm cursor-pointer"
+                className="absolute inset-0 bg-black/85 cursor-pointer"
                 aria-label="Cerrar menú"
                 onClick={() => setOpen(false)}
               />
@@ -133,7 +133,7 @@ export function StoreHeaderClient({
               >
                 <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-5">
                   <div>
-                    <p className="text-[0.65rem] font-medium tracking-[0.22em] text-[#c9a15a] uppercase">
+                    <p className="text-[0.65rem] font-medium tracking-[0.22em] text-brand-gold uppercase">
                       Menú
                     </p>
                     <p className="mt-1 font-display text-xl text-white">
@@ -143,7 +143,7 @@ export function StoreHeaderClient({
                   <button
                     type="button"
                     onClick={() => setOpen(false)}
-                    className="flex h-10 w-10 items-center justify-center border border-white/15 transition hover:border-[#c9a15a]/50 hover:bg-white/5"
+                    className="flex h-10 w-10 items-center justify-center border border-white/15 transition hover:border-brand-gold/50 hover:bg-white/5"
                     aria-label="Cerrar"
                   >
                     <X className="h-5 w-5" strokeWidth={1.75} />
@@ -160,12 +160,12 @@ export function StoreHeaderClient({
                           onClick={() => setOpen(false)}
                           className={`flex items-center gap-3 px-4 py-3.5 transition-colors rounded-sm ${
                             active(item.href)
-                              ? "bg-white/[0.08] text-[#c9a15a] font-semibold border-l-2 border-[#c9a15a]"
+                              ? "bg-white/[0.08] text-brand-gold font-semibold border-l-2 border-brand-gold"
                               : "text-white/75 hover:bg-white/[0.04] hover:text-white"
                           }`}
                         >
                           <Icon
-                            className="h-4 w-4 shrink-0 text-[#c9a15a]"
+                            className="h-4 w-4 shrink-0 text-brand-gold"
                             strokeWidth={1.75}
                           />
                           <span className="flex-1 text-[0.8rem] font-medium tracking-[0.14em] uppercase">
@@ -199,7 +199,7 @@ export function StoreHeaderClient({
                     className="flex items-center gap-3 px-4 py-3.5 text-white/75 transition hover:bg-white/[0.04] hover:text-white"
                   >
                     <ShoppingBag
-                      className="h-4 w-4 text-[#c9a15a]"
+                      className="h-4 w-4 text-brand-gold"
                       strokeWidth={1.75}
                     />
                     <span className="text-[0.8rem] font-medium tracking-[0.14em] uppercase">
@@ -270,7 +270,7 @@ export function StoreHeaderClient({
                       <span>Catálogo</span>
                       <ChevronDown
                         className={`h-3.5 w-3.5 opacity-60 transition-transform duration-200 ${
-                          catsOpen ? "rotate-180 text-[#c9a15a] opacity-100" : ""
+                          catsOpen ? "rotate-180 text-brand-gold opacity-100" : ""
                         }`}
                       />
                     </Link>
@@ -284,7 +284,7 @@ export function StoreHeaderClient({
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 6, scale: 0.98 }}
                           transition={{ duration: 0.24, ease: LUXURY_EASE }}
-                          className="w-[450px] overflow-hidden rounded-2xl border border-white/[0.12] bg-[#141414]/98 p-4 shadow-[0_24px_60px_rgba(0,0,0,0.88)] backdrop-blur-2xl"
+                          className="w-[450px] overflow-hidden rounded-2xl border border-white/[0.12] bg-[#141414] p-4 shadow-[0_24px_60px_rgba(0,0,0,0.88)]"
                         >
                           {/* Cabecera compacta */}
                           <div className="mb-2.5 flex items-center justify-between border-b border-white/[0.08] pb-2.5 px-1">
@@ -294,7 +294,7 @@ export function StoreHeaderClient({
                             <Link
                               href="/catalogo"
                               onClick={() => setCatsOpen(false)}
-                              className="group inline-flex items-center gap-1.5 text-[0.68rem] font-semibold tracking-wider text-[#c9a15a] uppercase transition hover:text-[#e0be7e]"
+                              className="group inline-flex items-center gap-1.5 text-[0.68rem] font-semibold tracking-wider text-brand-gold uppercase transition hover:text-[#e0be7e]"
                             >
                               <span>Ver todo</span>
                               <ArrowRight className="h-3 w-3 transition-transform duration-200 ease-out group-hover:translate-x-1" />
@@ -314,10 +314,10 @@ export function StoreHeaderClient({
                                   className="group flex items-center justify-between rounded-xl px-3 py-2 text-[13px] text-white/80 transition-all duration-200 ease-out hover:bg-white/[0.07] hover:text-white active:scale-95"
                                 >
                                   <span className="flex items-center gap-2 truncate">
-                                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#c9a15a]/45 transition-colors group-hover:bg-[#c9a15a]" />
+                                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-gold/45 transition-colors group-hover:bg-brand-gold" />
                                     <span className="truncate">{formatted}</span>
                                   </span>
-                                  <ArrowRight className="h-3 w-3 shrink-0 text-[#c9a15a] opacity-0 transition-all duration-200 ease-out group-hover:translate-x-0.5 group-hover:opacity-100" />
+                                  <ArrowRight className="h-3 w-3 shrink-0 text-brand-gold opacity-0 transition-all duration-200 ease-out group-hover:translate-x-0.5 group-hover:opacity-100" />
                                 </Link>
                               );
                             })}
@@ -346,8 +346,8 @@ export function StoreHeaderClient({
               onClick={() => setSearchOpen((v) => !v)}
               className={`inline-flex h-11 w-11 sm:h-10 sm:w-10 items-center justify-center rounded-full border transition-colors duration-300 cursor-pointer active:scale-95 ${
                 searchOpen
-                  ? "border-[#d4af37] bg-[#1a1410] text-[#f5dfa8] shadow-[0_0_15px_rgba(212,175,55,0.3)]"
-                  : "border-white/15 bg-[#14100e]/80 text-white/80 hover:border-[#d4af37]/60 hover:text-[#f5dfa8] hover:bg-[#1a1410]"
+                  ? "border-brand-gold bg-[#1a1410] text-brand-gold-soft shadow-[0_0_15px_rgba(212,175,55,0.3)]"
+                  : "border-white/15 bg-[#14100e]/80 text-white/80 hover:border-brand-gold/60 hover:text-brand-gold-soft hover:bg-[#1a1410]"
               }`}
               aria-label="Buscar en el catálogo"
               aria-expanded={searchOpen}
@@ -361,7 +361,7 @@ export function StoreHeaderClient({
             </div>
             <button
               type="button"
-              className="inline-flex h-11 w-11 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-white/15 bg-[#14100e]/80 text-white/80 transition-colors duration-300 hover:border-[#d4af37]/60 hover:text-white lg:hidden active:scale-95"
+              className="inline-flex h-11 w-11 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-white/15 bg-[#14100e]/80 text-white/80 transition-colors duration-300 hover:border-brand-gold/60 hover:text-white lg:hidden active:scale-95"
               aria-label="Abrir menú"
               aria-expanded={open}
               onClick={() => setOpen((v) => !v)}
@@ -383,7 +383,7 @@ export function StoreHeaderClient({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.22, ease: LUXURY_EASE }}
-              className="border-t border-white/[0.08] bg-[#12100d]/95 px-4 py-3.5 backdrop-blur-2xl sm:px-8"
+              className="border-t border-white/[0.08] bg-[#12100d] px-4 py-3.5 sm:px-8"
             >
               <form
                 onSubmit={(e) => {
@@ -397,7 +397,7 @@ export function StoreHeaderClient({
                 className="mx-auto flex max-w-2xl items-center gap-2"
               >
                 <div className="relative flex-1">
-                  <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#c9a15a]" />
+                  <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-gold" />
                   <input
                     ref={searchInputRef}
                     type="search"
@@ -406,12 +406,12 @@ export function StoreHeaderClient({
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
                     placeholder="Buscar cama, mesa de comedor, gavetero, repisa…"
-                    className="h-10 w-full rounded-xl border border-white/15 bg-white/[0.05] pl-10 pr-4 text-xs sm:text-sm text-white placeholder:text-white/40 focus:border-[#c9a15a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a15a]"
+                    className="h-10 w-full rounded-xl border border-white/15 bg-white/[0.05] pl-10 pr-4 text-xs sm:text-sm text-white placeholder:text-white/40 focus:border-brand-gold focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-gold"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="h-10 rounded-xl bg-[#c9a15a] px-4 text-xs font-bold tracking-wider text-[#0f0f0f] uppercase transition hover:bg-[#d8b46c] cursor-pointer"
+                  className="h-10 rounded-xl bg-brand-gold px-4 text-xs font-bold tracking-wider text-[#0f0f0f] uppercase transition hover:bg-[#d8b46c] cursor-pointer"
                 >
                   Buscar
                 </button>

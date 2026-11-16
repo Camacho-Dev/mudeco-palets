@@ -88,7 +88,7 @@ export function AddToCartButton({
     <div className="flex flex-col gap-2">
       <div className="flex flex-wrap items-center gap-3">
         {showQuantity && (
-          <div className="flex items-center rounded-lg border border-[var(--border)] bg-[#faf6f1] p-1 shadow-2xs">
+          <div className="flex items-center rounded-lg border border-[var(--border)] bg-brand-cream-warm p-1 shadow-2xs">
             <button
               type="button"
               onClick={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -210,9 +210,9 @@ export function AddToCartButton({
                 <button
                   type="button"
                   onClick={addProductToCart}
-                  className="w-full flex items-start gap-3 rounded-xl border-2 border-[#c9a15a] bg-[#faf6f1] p-3.5 text-left transition hover:bg-[#f4ecdf] cursor-pointer"
+                  className="w-full flex items-start gap-3 rounded-xl border-2 border-brand-gold bg-brand-cream-warm p-3.5 text-left transition hover:bg-[#f4ecdf] cursor-pointer"
                 >
-                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#14100d] text-[#c9a15a]">
+                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#14100d] text-brand-gold">
                     <Hammer className="h-4 w-4" />
                   </span>
                   <div className="min-w-0">
@@ -228,9 +228,9 @@ export function AddToCartButton({
                 <Link
                   href={`/contacto?tipo=cotizar&pieza=${encodeURIComponent(product.name)}`}
                   onClick={() => setShowSoldOutModal(false)}
-                  className="w-full flex items-start gap-3 rounded-xl border border-[#e2d5c5] bg-white p-3.5 text-left transition hover:border-[#c9a15a] hover:bg-[#faf6f1]"
+                  className="w-full flex items-start gap-3 rounded-xl border border-[#e2d5c5] bg-white p-3.5 text-left transition hover:border-brand-gold hover:bg-brand-cream-warm"
                 >
-                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#faf6f1] text-[#8a6a3a] border border-[#e2d5c5]">
+                  <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-cream-warm text-[#8a6a3a] border border-[#e2d5c5]">
                     <Ruler className="h-4 w-4" />
                   </span>
                   <div className="min-w-0">

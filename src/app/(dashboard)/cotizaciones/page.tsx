@@ -103,7 +103,7 @@ export default async function CotizacionesPage({
                   <td className="font-medium text-[var(--wood-950)]">{quote.customer.name}</td>
                   <td>
                     {quote.source === "WEB" ? (
-                      <span className="rounded-full bg-[#b0894f]/20 px-2 py-0.5 text-[0.65rem] font-semibold text-[var(--wood-800)] uppercase">
+                      <span className="rounded-full bg-brand-gold-strong/20 px-2 py-0.5 text-[0.65rem] font-semibold text-[var(--wood-800)] uppercase">
                         Web
                       </span>
                     ) : (

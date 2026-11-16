@@ -21,6 +21,20 @@
   --muted: #64748b;
 }
 
+/* Brand palette (Mudeco). Use as text-brand-gold, bg-brand-cream/80, or var(--color-brand-gold). */
+@theme {
+  --color-brand-gold: #c9a15a;
+  --color-brand-gold-strong: #b0894f;
+  --color-brand-gold-soft: #f5dfa8;
+  --color-brand-brown: #3d2a1f;
+  --color-brand-brown-light: #5c4334;
+  --color-brand-brown-dark: #2c2219;
+  --color-brand-ink: #16120e;
+  --color-brand-ink-soft: #1b1511;
+  --color-brand-cream: #faf7f2;
+  --color-brand-cream-warm: #faf6f1;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -383,13 +397,13 @@ table.data tbody tr:nth-child(n + 9) { animation-delay: 0.2s; }
 .dark-autofill:-webkit-autofill:hover,
 .dark-autofill:-webkit-autofill:focus,
 .dark-autofill:-webkit-autofill:active {
-  -webkit-text-fill-color: #faf6f1 !important;
-  caret-color: #c9a15a !important;
+  -webkit-text-fill-color: var(--color-brand-cream-warm) !important;
+  caret-color: var(--color-brand-gold) !important;
   -webkit-box-shadow: 0 0 0 1000px #14120e inset !important;
   box-shadow: 0 0 0 1000px #14120e inset !important;
   background-color: #14120e !important;
   transition: background-color 99999s ease-in-out 0s;
-  color: #faf6f1 !important;
+  color: var(--color-brand-cream-warm) !important;
 }
 
 /* Custom modern scrollbars */

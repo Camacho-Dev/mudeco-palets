@@ -74,7 +74,7 @@ export function WoodBrandStamp({
         }}
         whileHover={{ scale: 1.02 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        className={`group relative mx-auto overflow-hidden rounded-2xl border border-[#c9a15a]/30 bg-gradient-to-b from-[#1c140d] via-[#140e09] to-[#0a0705] shadow-[0_25px_60px_rgba(0,0,0,0.85),0_0_35px_rgba(201,161,90,0.12)] ${sizeClasses} select-none cursor-pointer`}
+        className={`group relative mx-auto overflow-hidden rounded-2xl border border-brand-gold/30 bg-gradient-to-b from-[#1c140d] via-[#140e09] to-[#0a0705] shadow-[0_25px_60px_rgba(0,0,0,0.85),0_0_35px_rgba(201,161,90,0.12)] ${sizeClasses} select-none cursor-pointer`}
       >
         {/* Veta de Madera Simulada con SVG y Gradientes Orgánicos */}
         <div
@@ -101,10 +101,10 @@ export function WoodBrandStamp({
         <div className="pointer-events-none absolute inset-0 rounded-2xl border border-white/10 [box-shadow:inset_0_2px_4px_rgba(255,255,255,0.1),inset_0_-2px_6px_rgba(0,0,0,0.8)]" />
 
         {/* Clavos Rústicos en las 4 Esquinas del Bloque */}
-        <span className="absolute top-3 left-3 h-2 w-2 rounded-full bg-[#18110b] border border-[#c9a15a]/40 shadow-[inset_0_1px_2px_rgba(0,0,0,0.9),0_0_2px_rgba(201,161,90,0.4)]" />
-        <span className="absolute top-3 right-3 h-2 w-2 rounded-full bg-[#18110b] border border-[#c9a15a]/40 shadow-[inset_0_1px_2px_rgba(0,0,0,0.9),0_0_2px_rgba(201,161,90,0.4)]" />
-        <span className="absolute bottom-3 left-3 h-2 w-2 rounded-full bg-[#18110b] border border-[#c9a15a]/40 shadow-[inset_0_1px_2px_rgba(0,0,0,0.9),0_0_2px_rgba(201,161,90,0.4)]" />
-        <span className="absolute bottom-3 right-3 h-2 w-2 rounded-full bg-[#18110b] border border-[#c9a15a]/40 shadow-[inset_0_1px_2px_rgba(0,0,0,0.9),0_0_2px_rgba(201,161,90,0.4)]" />
+        <span className="absolute top-3 left-3 h-2 w-2 rounded-full bg-[#18110b] border border-brand-gold/40 shadow-[inset_0_1px_2px_rgba(0,0,0,0.9),0_0_2px_rgba(201,161,90,0.4)]" />
+        <span className="absolute top-3 right-3 h-2 w-2 rounded-full bg-[#18110b] border border-brand-gold/40 shadow-[inset_0_1px_2px_rgba(0,0,0,0.9),0_0_2px_rgba(201,161,90,0.4)]" />
+        <span className="absolute bottom-3 left-3 h-2 w-2 rounded-full bg-[#18110b] border border-brand-gold/40 shadow-[inset_0_1px_2px_rgba(0,0,0,0.9),0_0_2px_rgba(201,161,90,0.4)]" />
+        <span className="absolute bottom-3 right-3 h-2 w-2 rounded-full bg-[#18110b] border border-brand-gold/40 shadow-[inset_0_1px_2px_rgba(0,0,0,0.9),0_0_2px_rgba(201,161,90,0.4)]" />
 
         {/* Contenido Central: El Sello Grabado a Fuego */}
         <div
@@ -112,7 +112,7 @@ export function WoodBrandStamp({
           className="relative z-10 flex flex-col items-center justify-center text-center"
         >
           {/* Insignia Superior */}
-          <div className="mb-3 flex items-center gap-1.5 rounded-full border border-[#c9a15a]/35 bg-black/60 px-3 py-0.5 text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a] uppercase backdrop-blur-md">
+          <div className="mb-3 flex items-center gap-1.5 rounded-full border border-brand-gold/35 bg-black/60 px-3 py-0.5 text-[0.62rem] font-bold tracking-[0.2em] text-brand-gold uppercase backdrop-blur-md">
             <Flame className="h-3 w-3 text-amber-500 animate-pulse" />
             <span>Marca Oficial al Fuego</span>
           </div>
@@ -126,7 +126,7 @@ export function WoodBrandStamp({
                 scale: isHovered ? [1, 1.08, 1] : [1, 1.03, 1],
               }}
               transition={{ repeat: Infinity, duration: 2.4, ease: "easeInOut" }}
-              className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-600/30 via-[#c9a15a]/40 to-yellow-600/30 blur-xl"
+              className="absolute inset-0 rounded-full bg-gradient-to-r from-amber-600/30 via-brand-gold/40 to-yellow-600/30 blur-xl"
             />
 
             {/* Sello hundido en la madera (Inner Shadow & Incisión) */}
@@ -151,7 +151,7 @@ export function WoodBrandStamp({
                   className="h-full w-full"
                 >
                   <LogoMark
-                    className="h-16 w-16 text-[#c9a15a] mix-blend-color-dodge"
+                    className="h-16 w-16 text-brand-gold mix-blend-color-dodge"
                     color="#c9a15a"
                   />
                 </motion.div>
@@ -162,11 +162,11 @@ export function WoodBrandStamp({
           {/* Tipografía de la Marca Estampada */}
           <div className="mt-2 space-y-0.5">
             <h3
-              className="text-2xl font-black tracking-[0.28em] text-transparent bg-clip-text bg-gradient-to-b from-[#fcedc7] via-[#d4af37] to-[#8d6928] uppercase font-serif [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]"
+              className="text-2xl font-black tracking-[0.28em] text-transparent bg-clip-text bg-gradient-to-b from-[#fcedc7] via-brand-gold to-[#8d6928] uppercase font-serif [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]"
             >
               MUDECO
             </h3>
-            <p className="text-[0.68rem] font-bold tracking-[0.42em] text-[#c9a15a]/90 uppercase">
+            <p className="text-[0.68rem] font-bold tracking-[0.42em] text-brand-gold/90 uppercase">
               PALETS · EST. 2020
             </p>
           </div>
@@ -178,7 +178,7 @@ export function WoodBrandStamp({
           )}
 
           {/* Indicador de calidad y autenticidad */}
-          <div className="mt-4 flex items-center gap-2 pt-3 border-t border-[#c9a15a]/20 text-[0.62rem] text-[#c9a15a]/80 font-medium">
+          <div className="mt-4 flex items-center gap-2 pt-3 border-t border-brand-gold/20 text-[0.62rem] text-brand-gold/80 font-medium">
             <Sparkles className="h-3 w-3" />
             <span>Piezas 100% Auténticas y Garantizadas</span>
           </div>

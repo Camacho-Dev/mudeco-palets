@@ -27,7 +27,7 @@ export function BankAccountsGrid({ banks }: { banks: BankInfo[] }) {
 
   if (banks.length === 0) {
     return (
-      <div className="mt-8 rounded-2xl border border-[#e2d5c5] bg-[#faf7f2] p-6 text-center text-xs text-[var(--wood-800)]">
+      <div className="mt-8 rounded-2xl border border-[#e2d5c5] bg-brand-cream p-6 text-center text-xs text-[var(--wood-800)]">
         <p className="font-semibold text-sm text-[var(--wood-950)]">
           Coordinación directa de transferencia bancaria
         </p>
@@ -46,14 +46,14 @@ export function BankAccountsGrid({ banks }: { banks: BankInfo[] }) {
         return (
           <div
             key={b.bank}
-            className="relative overflow-hidden rounded-2xl border border-[#e2d5c5] bg-white p-5 shadow-xs transition hover:border-[#c9a15a] hover:shadow-md"
+            className="relative overflow-hidden rounded-2xl border border-[#e2d5c5] bg-white p-5 shadow-xs transition hover:border-brand-gold hover:shadow-md"
           >
             <div
               className="absolute inset-x-0 top-0 h-1.5"
-              style={{ backgroundColor: b.color || "#c9a15a" }}
+              style={{ backgroundColor: b.color || "var(--color-brand-gold)" }}
             />
             <div className="flex items-center gap-2.5 pt-1">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#e5d8c8] bg-[#faf6f1] text-[#b0894f]">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#e5d8c8] bg-brand-cream-warm text-brand-gold-strong">
                 <Building2 className="h-4 w-4" />
               </span>
               <div>
@@ -64,7 +64,7 @@ export function BankAccountsGrid({ banks }: { banks: BankInfo[] }) {
               </div>
             </div>
 
-            <div className="mt-4 flex items-center justify-between gap-2 rounded-xl border border-[#ebdfd1] bg-[#faf7f2] px-3.5 py-2.5">
+            <div className="mt-4 flex items-center justify-between gap-2 rounded-xl border border-[#ebdfd1] bg-brand-cream px-3.5 py-2.5">
               <div>
                 <p className="text-[10px] font-bold tracking-wider text-[var(--muted)] uppercase">
                   Número de cuenta
@@ -80,7 +80,7 @@ export function BankAccountsGrid({ banks }: { banks: BankInfo[] }) {
                   className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-[11px] font-bold transition cursor-pointer ${
                     isCopied
                       ? "bg-emerald-600 text-white"
-                      : "border border-[#d8c8b4] bg-white text-[var(--wood-900)] hover:border-[#c9a15a] hover:text-[#8a6a3a]"
+                      : "border border-[#d8c8b4] bg-white text-[var(--wood-900)] hover:border-brand-gold hover:text-[#8a6a3a]"
                   }`}
                   title="Copiar número de cuenta"
                 >

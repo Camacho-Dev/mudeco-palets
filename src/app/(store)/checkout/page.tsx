@@ -59,7 +59,7 @@ export default async function CheckoutHubPage({
   const options = baseOptions.filter((o) => !o.requiresStripe || stripeReady);
 
   return (
-    <div className="min-h-[75vh] bg-[#faf7f2]">
+    <div className="min-h-[75vh] bg-brand-cream">
       <CheckoutStepBanner
         step={2}
         badge="Finalizar Pedido"
@@ -80,17 +80,17 @@ export default async function CheckoutHubPage({
             prefetch={false}
             className={`group relative flex flex-col justify-between rounded-2xl border p-6 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:shadow-lg active:scale-[0.985] ${
               opt.featured
-                ? "border-[#c9a15a] bg-white shadow-xs ring-1 ring-[#c9a15a]/30"
-                : "border-[#e2d5c5] bg-white hover:border-[#c9a15a]"
+                ? "border-brand-gold bg-white shadow-xs ring-1 ring-brand-gold/30"
+                : "border-[#e2d5c5] bg-white hover:border-brand-gold"
             }`}
           >
             <div>
               <div className="flex items-center justify-between">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#faf6f1] border border-[#e5d8c8] text-[#b0894f]">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-cream-warm border border-[#e5d8c8] text-brand-gold-strong">
                   <opt.icon className="h-5 w-5" strokeWidth={1.75} />
                 </span>
                 {opt.featured ? (
-                  <span className="rounded-full bg-[#c9a15a]/20 px-2.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider text-[#8a6524]">
+                  <span className="rounded-full bg-brand-gold/20 px-2.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider text-[#8a6524]">
                     Recomendado
                   </span>
                 ) : null}

@@ -79,7 +79,7 @@ export default async function ContenidoWebPage() {
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/conexion-web"
-              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-brand-gold-strong"
               title="Centro de control y diagnóstico de la conexión web"
             >
               <Activity className="h-3.5 w-3.5 text-emerald-600 animate-pulse" />
@@ -87,19 +87,19 @@ export default async function ContenidoWebPage() {
             </Link>
             <Link
               href="/pedidos-web"
-              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-brand-gold-strong"
             >
-              <ShoppingBag className="h-3.5 w-3.5 text-[#b0894f]" />
+              <ShoppingBag className="h-3.5 w-3.5 text-brand-gold-strong" />
               <span>Pedidos web</span>
             </Link>
             <a
               href="/"
               target="_blank"
               rel="noreferrer"
-              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-brand-gold-strong"
               title="Abrir tienda en nueva pestaña"
             >
-              <Globe className="h-3.5 w-3.5 text-[#b0894f]" />
+              <Globe className="h-3.5 w-3.5 text-brand-gold-strong" />
               <span>Tienda pública</span>
               <ExternalLink className="h-3 w-3 opacity-60" />
             </a>

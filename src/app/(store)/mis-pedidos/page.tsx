@@ -99,12 +99,12 @@ export default async function MisPedidosPage() {
   }));
 
   return (
-    <div className="min-h-screen bg-[#f7f4ef] text-[#2c2219]">
+    <div className="min-h-screen bg-brand-cream text-brand-brown-dark">
       {/* Encabezado */}
-      <section className="border-b border-white/[0.06] bg-[#100d0b] text-[#faf6f1]">
+      <section className="border-b border-white/[0.06] bg-[#100d0b] text-brand-cream-warm">
         <div className="mx-auto flex max-w-[1240px] flex-col gap-5 px-4 pt-10 pb-24 sm:flex-row sm:items-end sm:justify-between sm:px-8 sm:pt-12 lg:px-10">
           <div>
-            <p className="text-[11px] font-semibold tracking-[0.24em] text-[#c9a15a] uppercase">
+            <p className="text-[11px] font-semibold tracking-[0.24em] text-brand-gold uppercase">
               Mi cuenta
             </p>
             <h1 className="mt-2 font-display text-3xl text-white sm:text-4xl">
@@ -116,10 +116,10 @@ export default async function MisPedidosPage() {
           </div>
           <Link
             href="/catalogo"
-            className="group inline-flex h-11 shrink-0 items-center gap-2 self-start rounded-full border border-white/20 px-5 text-sm font-medium text-white transition-colors hover:border-[#c9a15a] hover:bg-white/[0.04] sm:self-auto"
+            className="group inline-flex h-11 shrink-0 items-center gap-2 self-start rounded-full border border-white/20 px-5 text-sm font-medium text-white transition-colors hover:border-brand-gold hover:bg-white/[0.04] sm:self-auto"
           >
             Seguir comprando
-            <ArrowRight className="h-4 w-4 text-[#c9a15a] transition-transform group-hover:translate-x-0.5" />
+            <ArrowRight className="h-4 w-4 text-brand-gold transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
       </section>

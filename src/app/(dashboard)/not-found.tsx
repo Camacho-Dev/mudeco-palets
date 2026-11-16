@@ -4,11 +4,11 @@ import { FileText, LayoutDashboard, Search, Warehouse } from "lucide-react";
 export default function DashboardNotFound() {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#b0894f]/15 text-[#b0894f] border border-[#b0894f]/30 mb-6 shadow-inner">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-gold-strong/15 text-brand-gold-strong border border-brand-gold-strong/30 mb-6 shadow-inner">
         <Search className="h-8 w-8" />
       </div>
 
-      <span className="text-xs font-bold tracking-[0.2em] text-[#b0894f] uppercase">
+      <span className="text-xs font-bold tracking-[0.2em] text-brand-gold-strong uppercase">
         Error 404 · Registro no encontrado
       </span>
 

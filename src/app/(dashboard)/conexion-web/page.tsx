@@ -93,25 +93,25 @@ export default async function ConexionWebPage() {
               href="/"
               target="_blank"
               rel="noreferrer"
-              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-brand-gold-strong"
               title="Abrir tienda pública en una nueva pestaña"
             >
-              <Globe className="h-3.5 w-3.5 text-[#b0894f]" />
+              <Globe className="h-3.5 w-3.5 text-brand-gold-strong" />
               <span>Tienda pública</span>
               <ExternalLink className="h-3 w-3 opacity-60" />
             </a>
             <Link
               href="/contenido-web"
-              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-brand-gold-strong"
             >
-              <ImageIcon className="h-3.5 w-3.5 text-[#b0894f]" />
+              <ImageIcon className="h-3.5 w-3.5 text-brand-gold-strong" />
               <span>Fotos & Portadas</span>
             </Link>
             <Link
               href="/pedidos-web"
-              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-brand-gold-strong"
             >
-              <ShoppingBag className="h-3.5 w-3.5 text-[#b0894f]" />
+              <ShoppingBag className="h-3.5 w-3.5 text-brand-gold-strong" />
               <span>Bandeja de pedidos</span>
             </Link>
           </div>

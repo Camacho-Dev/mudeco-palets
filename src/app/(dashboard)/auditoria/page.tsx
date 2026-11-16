@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { formatDate } from "@/lib/format";
+import { Pagination, pageWindow, parsePage } from "@/components/pagination";
 
 const ACTION_LABELS: Record<string, string> = {
   LOGIN: "Inicio de sesión",
@@ -25,13 +27,12 @@ const ACTION_LABELS: Record<string, string> = {
 export default async function AuditoriaPage({
   searchParams,
 }: {
-  searchParams: Promise<{ user?: string; action?: string; q?: string }>;
+  searchParams: Promise<{ user?: string; action?: string; q?: string; page?: string }>;
 }) {
   await requireSession();
   const sp = await searchParams;
 
-  const logs = await prisma.auditLog.findMany({
-    where: {
+  const where: Prisma.AuditLogWhereInput = {
       AND: [
         sp.user ? { userEmail: { contains: sp.user, mode: "insensitive" } } : {},
         sp.action ? { action: sp.action } : {},
@@ -44,9 +45,15 @@ export default async function AuditoriaPage({
             }
           : {},
       ],
-    },
+  };
+  const PAGE_SIZE = 50;
+  const total = await prisma.auditLog.count({ where });
+  const pg = pageWindow(parsePage(sp.page), total, PAGE_SIZE);
+  const logs = await prisma.auditLog.findMany({
+    where,
     orderBy: { createdAt: "desc" },
-    take: 200,
+    skip: pg.skip,
+    take: pg.take,
   });
 
   const actions = Object.keys(ACTION_LABELS);
@@ -141,6 +148,7 @@ export default async function AuditoriaPage({
           </tbody>
         </table>
       </div>
+      <Pagination basePath="/auditoria" searchParams={sp} page={pg.current} pageSize={PAGE_SIZE} total={total} />
     </div>
   );
 }

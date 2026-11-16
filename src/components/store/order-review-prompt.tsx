@@ -68,7 +68,7 @@ export function OrderReviewPrompt({
     <div className="rounded-2xl border border-[#d6c4a8]/70 bg-gradient-to-b from-white to-[#faf6ef] p-6 shadow-xs sm:p-7">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200/80 pb-4">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#b0894f]/15 text-[#8c6734]">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-gold-strong/15 text-[#8c6734]">
             <MessageSquareHeart className="h-4.5 w-4.5" />
           </span>
           <div>
@@ -100,14 +100,14 @@ export function OrderReviewPrompt({
                 onClick={() => setRating(star)}
                 onMouseEnter={() => setHoverRating(star)}
                 onMouseLeave={() => setHoverRating(0)}
-                className="p-1 text-[#c9a15a] transition hover:scale-120"
+                className="p-1 text-brand-gold transition hover:scale-120"
                 title={`${star} estrellas`}
                 aria-label={`Calificar con ${star} ${star === 1 ? "estrella" : "estrellas"}`}
               >
                 <Star
                   className={`h-6 w-6 ${
                     (hoverRating || rating) >= star
-                      ? "fill-[#c9a15a] text-[#c9a15a]"
+                      ? "fill-brand-gold text-brand-gold"
                       : "fill-stone-200 text-stone-300"
                   }`}
                 />
@@ -129,7 +129,7 @@ export function OrderReviewPrompt({
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Ej. La atención por WhatsApp fue excelente y el proceso de pago fue muy claro. Espero con ansias ver el mueble en mi sala..."
-            className="w-full rounded-xl border border-stone-300 bg-white p-3 text-xs text-[var(--wood-950)] placeholder-stone-400 focus:border-[#b0894f] focus:outline-hidden transition"
+            className="w-full rounded-xl border border-stone-300 bg-white p-3 text-xs text-[var(--wood-950)] placeholder-stone-400 focus:border-brand-gold-strong focus:outline-hidden transition"
           />
         </div>
 

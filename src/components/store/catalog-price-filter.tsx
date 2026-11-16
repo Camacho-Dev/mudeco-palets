@@ -47,7 +47,7 @@ function AmountInput({
       >
         {label}
       </label>
-      <div className="flex h-11 items-center rounded-xl border border-[#e4ddd2] bg-white px-3.5 transition focus-within:border-[#c9a15a] focus-within:ring-2 focus-within:ring-[#c9a15a]/20">
+      <div className="flex h-11 items-center rounded-xl border border-[#e4ddd2] bg-white px-3.5 transition focus-within:border-brand-gold focus-within:ring-2 focus-within:ring-brand-gold/20">
         <span className="mr-2 text-xs font-medium text-[#a39483]">RD$</span>
         <input
           id={id}
@@ -61,7 +61,7 @@ function AmountInput({
               commit();
             }
           }}
-          className="w-full bg-transparent text-sm font-semibold text-[#1b1511] tabular-nums outline-none"
+          className="w-full bg-transparent text-sm font-semibold text-brand-ink-soft tabular-nums outline-none"
         />
       </div>
     </div>
@@ -125,13 +125,13 @@ export function CatalogPriceFilter({
     <div className="space-y-5">
       <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-semibold text-[#1b1511]">Rango de precio</p>
+          <p className="text-sm font-semibold text-brand-ink-soft">Rango de precio</p>
           <p className="mt-0.5 text-xs text-[#8a7a6a]">
             Precios del catálogo entre {formatRD(minLimit)} y {formatRD(maxLimit)}
           </p>
         </div>
         <p className="text-xs text-[#8a7a6a]">
-          <span className="font-semibold text-[#1b1511] tabular-nums">
+          <span className="font-semibold text-brand-ink-soft tabular-nums">
             {resultCount}
           </span>{" "}
           {resultCount === 1 ? "pieza" : "piezas"} en este rango
@@ -151,7 +151,7 @@ export function CatalogPriceFilter({
                 <div
                   key={i}
                   className={`flex-1 rounded-t-[3px] transition-colors duration-200 ${
-                    inRange ? "bg-[#c9a15a]" : "bg-[#e9e2d7]"
+                    inRange ? "bg-brand-gold" : "bg-[#e9e2d7]"
                   }`}
                   style={{ height: `${b.height}%` }}
                 />
@@ -162,7 +162,7 @@ export function CatalogPriceFilter({
           <div className="relative h-6">
             <div className="absolute top-1/2 left-0 h-[3px] w-full -translate-y-1/2 rounded-full bg-[#e9e2d7]" />
             <div
-              className="absolute top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-[#1b1511]"
+              className="absolute top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-brand-ink-soft"
               style={{ left: `${left}%`, width: `${Math.max(0, right - left)}%` }}
             />
             <input
@@ -210,8 +210,8 @@ export function CatalogPriceFilter({
                   onClick={() => onChange([p.min, p.max])}
                   className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
                     active
-                      ? "border-[#1b1511] bg-[#1b1511] text-white"
-                      : "border-[#e4ddd2] bg-white text-[#5c4f43] hover:border-[#c9a15a] hover:text-[#1b1511]"
+                      ? "border-brand-ink-soft bg-brand-ink-soft text-white"
+                      : "border-[#e4ddd2] bg-white text-[#5c4f43] hover:border-brand-gold hover:text-brand-ink-soft"
                   }`}
                 >
                   {p.label}

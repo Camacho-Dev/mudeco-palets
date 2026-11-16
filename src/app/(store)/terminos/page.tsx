@@ -44,10 +44,10 @@ export default async function TerminosPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#faf7f2]">
-      <div className="relative overflow-hidden border-b border-[#c9a15a]/25 bg-[#14100d] text-[#faf6f1]">
+    <div className="min-h-screen bg-brand-cream">
+      <div className="relative overflow-hidden border-b border-brand-gold/25 bg-[#14100d] text-brand-cream-warm">
         <div className="mx-auto max-w-5xl px-4 py-12 sm:px-8">
-          <p className="text-[0.65rem] font-bold tracking-[0.22em] text-[#c9a15a] uppercase">
+          <p className="text-[0.65rem] font-bold tracking-[0.22em] text-brand-gold uppercase">
             Marco Comercial · República Dominicana
           </p>
           <h1 className="font-display mt-2 text-3xl text-white sm:text-5xl">
@@ -71,7 +71,7 @@ export default async function TerminosPage() {
                   className="rounded-2xl border border-[#e5d8c8] bg-white p-6 shadow-xs sm:p-8"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#c9a15a]/35 bg-[#faf6f1] text-[#b0894f]">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-brand-gold/35 bg-brand-cream-warm text-brand-gold-strong">
                       <Icon className="h-5 w-5" />
                     </div>
                     <div>
@@ -90,7 +90,7 @@ export default async function TerminosPage() {
 
           <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#e5d8c8] bg-[#14100d] p-6 text-white">
             <div>
-              <p className="text-xs font-bold tracking-[0.16em] text-[#c9a15a] uppercase">
+              <p className="text-xs font-bold tracking-[0.16em] text-brand-gold uppercase">
                 ¿Tienes dudas sobre una medida o envío?
               </p>
               <p className="mt-1 text-xs text-white/75">
@@ -107,7 +107,7 @@ export default async function TerminosPage() {
               </Link>
               <Link
                 href="/contacto"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#c9a15a] px-5 py-2.5 text-xs font-bold tracking-wider text-[#0f0f0f] uppercase transition hover:bg-[#d4b06e]"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-brand-gold px-5 py-2.5 text-xs font-bold tracking-wider text-[#0f0f0f] uppercase transition hover:bg-brand-gold"
               >
                 Hablar con el taller
               </Link>

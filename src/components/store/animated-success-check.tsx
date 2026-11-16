@@ -42,6 +42,7 @@ export function AnimatedSuccessCheck({
         day: "numeric",
         hour: "2-digit",
         minute: "2-digit",
+        timeZone: "America/Santo_Domingo",
       })
     : null;
 
@@ -64,7 +65,7 @@ export function AnimatedSuccessCheck({
           }`}
         >
           {isProcessing ? (
-            <Clock className="h-10 w-10 text-white drop-shadow-md animate-pulse" strokeWidth={2.5} />
+            <Clock className="h-10 w-10 text-white drop-shadow-md" strokeWidth={2.5} />
           ) : (
             <svg
               className="h-10 w-10 text-white drop-shadow-md"
@@ -109,7 +110,7 @@ export function AnimatedSuccessCheck({
           <span className="relative flex h-2 w-2">
             <span
               className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                isProcessing ? "animate-ping bg-amber-500" : "bg-emerald-500"
+                isProcessing ? "animate-ping bg-amber-500 motion-reduce:animate-none" : "bg-emerald-500"
               }`}
             />
             <span

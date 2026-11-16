@@ -154,7 +154,7 @@ export default async function PedidoWebDetailPage({
         >
           {WEB_STATUS_LABEL[order.status] || order.status}
         </span>
-        <span className="rounded-full bg-[#b0894f]/20 px-2.5 py-0.5 text-[0.65rem] font-semibold tracking-wide text-[var(--wood-800)] uppercase">
+        <span className="rounded-full bg-brand-gold-strong/20 px-2.5 py-0.5 text-[0.65rem] font-semibold tracking-wide text-[var(--wood-800)] uppercase">
           Tienda web
         </span>
         {order.paymentMode ? (
@@ -186,7 +186,7 @@ export default async function PedidoWebDetailPage({
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.customerAddress)}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-[#b0894f] hover:underline mt-1"
+                className="inline-flex items-center gap-1 text-xs text-brand-gold-strong hover:underline mt-1"
               >
                 <MapPin className="h-3 w-3" />
                 <span>Abrir en Google Maps</span>
@@ -273,10 +273,10 @@ export default async function PedidoWebDetailPage({
           <div className="pt-2 border-t border-[var(--border)]">
             <Link
               href={fabHref}
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--wood-800)] hover:text-[#b0894f]"
+              className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--wood-800)] hover:text-brand-gold-strong"
               title="Abrir orden de fabricación precargada con este pedido"
             >
-              <Factory className="h-3.5 w-3.5 text-[#b0894f]" />
+              <Factory className="h-3.5 w-3.5 text-brand-gold-strong" />
               <span>Crear orden de fabricación en taller →</span>
             </Link>
           </div>
@@ -453,7 +453,7 @@ export default async function PedidoWebDetailPage({
                             href={`/producto/${it.product.id}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-[#b0894f] hover:underline inline-flex items-center gap-0.5"
+                            className="text-brand-gold-strong hover:underline inline-flex items-center gap-0.5"
                           >
                             <span>Ver en tienda</span>
                             <ExternalLink className="h-2.5 w-2.5" />

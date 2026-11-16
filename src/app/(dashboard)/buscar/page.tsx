@@ -206,7 +206,7 @@ export default async function BuscarPage({
             {webOrders.map((w) => (
               <li key={w.id} className="flex justify-between items-center border-b border-slate-100 pb-1.5 last:border-0">
                 <div>
-                  <Link href={`/pedidos-web/${w.id}`} className="font-medium hover:underline text-[#b0894f]">
+                  <Link href={`/pedidos-web/${w.id}`} className="font-medium hover:underline text-brand-gold-strong">
                     {w.number}
                   </Link>
                   <span className="ml-2 text-xs text-slate-500">· {w.customerName}</span>

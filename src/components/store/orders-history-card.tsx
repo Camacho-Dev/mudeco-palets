@@ -172,7 +172,7 @@ export function OrdersHistoryCard({ orders }: { orders: SerializedWebOrder[] }) 
       <div ref={listTopRef} className="scroll-mt-28 px-5 pt-6 sm:px-8 sm:pt-8">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 id="historial-title" className="font-display text-2xl text-[#16120e] sm:text-[28px]">
+            <h2 id="historial-title" className="font-display text-2xl text-brand-ink sm:text-[28px]">
               Mis pedidos
             </h2>
             <p className="mt-1 text-sm text-[#85776a]">
@@ -201,20 +201,20 @@ export function OrdersHistoryCard({ orders }: { orders: SerializedWebOrder[] }) 
                   disabled={disabled}
                   onClick={() => selectFilter(f.id)}
                   className={`relative inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-medium transition-colors cursor-pointer disabled:cursor-default disabled:opacity-40 ${
-                    active ? "text-white" : "text-[#5c4f43] hover:text-[#16120e]"
+                    active ? "text-white" : "text-[#5c4f43] hover:text-brand-ink"
                   }`}
                 >
                   {active ? (
                     <motion.span
                       layoutId="orders-filter-pill"
-                      className="absolute inset-0 rounded-full bg-[#16120e]"
+                      className="absolute inset-0 rounded-full bg-brand-ink"
                       transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 500, damping: 40 }}
                     />
                   ) : null}
                   <span className="relative">{f.label}</span>
                   <span
                     className={`relative text-[11px] tabular-nums ${
-                      active ? "text-[#c9a15a]" : "text-[#a39483]"
+                      active ? "text-brand-gold" : "text-[#a39483]"
                     }`}
                   >
                     {counts[f.id]}
@@ -257,8 +257,8 @@ export function OrdersHistoryCard({ orders }: { orders: SerializedWebOrder[] }) 
           className="flex flex-col items-center justify-between gap-3 border-t border-[#f1ebe2] px-5 py-4 sm:flex-row sm:px-8"
         >
           <p className="text-xs text-[#85776a]" aria-live="polite">
-            Mostrando <span className="font-semibold text-[#16120e] tabular-nums">{from}–{to}</span> de{" "}
-            <span className="font-semibold text-[#16120e] tabular-nums">{filtered.length}</span>
+            Mostrando <span className="font-semibold text-brand-ink tabular-nums">{from}–{to}</span> de{" "}
+            <span className="font-semibold text-brand-ink tabular-nums">{filtered.length}</span>
           </p>
           <div className="flex items-center gap-1">
             <PageButton
@@ -320,8 +320,8 @@ function PageButton({
       onClick={onClick}
       className={`flex h-9 min-w-9 items-center justify-center rounded-full px-2 text-[13px] font-medium tabular-nums transition-colors cursor-pointer active:scale-95 disabled:cursor-default disabled:opacity-35 disabled:active:scale-100 ${
         current
-          ? "bg-[#16120e] text-white"
-          : "text-[#5c4f43] hover:bg-[#f5f0e8] hover:text-[#16120e]"
+          ? "bg-brand-ink text-white"
+          : "text-[#5c4f43] hover:bg-[#f5f0e8] hover:text-brand-ink"
       }`}
     >
       {children}
@@ -348,7 +348,7 @@ function OrderRow({ order }: { order: SerializedWebOrder }) {
   const showQuote = Boolean(order.quote && !cancelled);
 
   return (
-    <li className="group relative transition-colors hover:bg-[#fbf8f3] focus-within:bg-[#fbf8f3]">
+    <li className="group relative transition-colors hover:bg-brand-cream focus-within:bg-brand-cream">
       <div className="flex items-center gap-4 px-5 py-4 sm:px-8">
         <span
           aria-hidden
@@ -363,7 +363,7 @@ function OrderRow({ order }: { order: SerializedWebOrder }) {
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <Link
               href={`/pedido/${order.id}`}
-              className="font-mono text-[13px] font-semibold text-[#16120e] outline-none after:absolute after:inset-0 after:content-[''] focus-visible:underline"
+              className="font-mono text-[13px] font-semibold text-brand-ink outline-none after:absolute after:inset-0 after:content-[''] focus-visible:underline"
             >
               {order.number}
             </Link>
@@ -400,9 +400,9 @@ function OrderRow({ order }: { order: SerializedWebOrder }) {
                   href={`/api/facturas/${order.invoice.id}/pdf?orderId=${order.id}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-[#6b5a48] hover:text-[#16120e] hover:underline"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-[#6b5a48] hover:text-brand-ink hover:underline"
                 >
-                  <FileDown className="h-3.5 w-3.5 text-[#b0894f]" />
+                  <FileDown className="h-3.5 w-3.5 text-brand-gold-strong" />
                   Factura {order.invoice.number}
                 </a>
               ) : null}
@@ -411,9 +411,9 @@ function OrderRow({ order }: { order: SerializedWebOrder }) {
                   href={`/api/cotizaciones/${order.quote.id}/pdf?orderId=${order.id}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs font-medium text-[#6b5a48] hover:text-[#16120e] hover:underline"
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-[#6b5a48] hover:text-brand-ink hover:underline"
                 >
-                  <FileDown className="h-3.5 w-3.5 text-[#b0894f]" />
+                  <FileDown className="h-3.5 w-3.5 text-brand-gold-strong" />
                   Cotización {order.quote.number}
                 </a>
               ) : null}
@@ -431,7 +431,7 @@ function OrderRow({ order }: { order: SerializedWebOrder }) {
           {order.total > 0 ? (
             <span
               className={`text-sm font-semibold tabular-nums ${
-                cancelled ? "text-[#a39483]" : "text-[#16120e]"
+                cancelled ? "text-[#a39483]" : "text-brand-ink"
               }`}
             >
               {formatCurrency(order.total)}
@@ -443,7 +443,7 @@ function OrderRow({ order }: { order: SerializedWebOrder }) {
 
         <ArrowRight
           aria-hidden
-          className="hidden h-4 w-4 shrink-0 text-[#c8bba8] transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-[#16120e] sm:block"
+          className="hidden h-4 w-4 shrink-0 text-[#c8bba8] transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-brand-ink sm:block"
         />
       </div>
     </li>
@@ -456,15 +456,15 @@ function EmptyState({ title, text, compact }: { title: string; text: string; com
       <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f5efe5] text-[#9a7a45]">
         <ShoppingBag className="h-6 w-6" strokeWidth={1.6} />
       </span>
-      <h3 className="mt-4 font-display text-2xl text-[#16120e]">{title}</h3>
+      <h3 className="mt-4 font-display text-2xl text-brand-ink">{title}</h3>
       <p className="mx-auto mt-1.5 max-w-sm text-sm leading-relaxed text-[#85776a]">{text}</p>
       {!compact ? (
         <Link
           href="/catalogo"
-          className="mt-6 inline-flex h-11 items-center gap-2 rounded-full bg-[#16120e] px-6 text-sm font-medium text-white transition-colors hover:bg-[#2a211b] active:scale-[0.98]"
+          className="mt-6 inline-flex h-11 items-center gap-2 rounded-full bg-brand-ink px-6 text-sm font-medium text-white transition-colors hover:bg-[#2a211b] active:scale-[0.98]"
         >
           Ver catálogo
-          <ArrowRight className="h-4 w-4 text-[#c9a15a]" />
+          <ArrowRight className="h-4 w-4 text-brand-gold" />
         </Link>
       ) : null}
     </div>

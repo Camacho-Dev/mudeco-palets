@@ -221,22 +221,22 @@ export function FinanzasView({ data }: { data: BusinessAnalytics }) {
 
       <FadeIn delay={0.35} className="mt-8">
         <div
-          className="rounded-2xl border border-[#5c4334] p-6 shadow-sm"
+          className="rounded-2xl border border-brand-brown-light p-6 shadow-sm"
           style={{
-            background: "linear-gradient(135deg, #3d2a1f 0%, #5c4334 100%)",
-            color: "#faf6f1",
+            background: "linear-gradient(135deg, var(--color-brand-brown) 0%, var(--color-brand-brown-light) 100%)",
+            color: "var(--color-brand-cream-warm)",
           }}
         >
-          <h2 className="font-display text-xl text-[#faf6f1]">
+          <h2 className="font-display text-xl text-brand-cream-warm">
             Fórmula rápida
           </h2>
-          <p className="mt-2 max-w-2xl text-sm text-[#faf6f1]/80">
-            <strong className="text-[#b0894f]">Utilidad estimada</strong> =
+          <p className="mt-2 max-w-2xl text-sm text-brand-cream-warm/80">
+            <strong className="text-brand-gold-strong">Utilidad estimada</strong> =
             Ventas totales − ITBIS − Costo de muebles vendidos. El inventario se
             valora aparte (al costo y a precio de venta). Lo por cobrar es dinero
             ya facturado que aún no entra a caja.
           </p>
-          <p className="mt-4 font-display text-2xl text-[#faf6f1]">
+          <p className="mt-4 font-display text-2xl text-brand-cream-warm">
             {formatCurrency(kpis.marginAll)}
           </p>
         </div>

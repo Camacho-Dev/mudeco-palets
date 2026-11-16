@@ -69,7 +69,7 @@ export function ConfirmDialog({
         aria-modal="true"
         aria-labelledby="confirm-dialog-title"
         aria-describedby="confirm-dialog-desc"
-        className="w-full max-w-md rounded-2xl border border-[#c9a15a]/30 bg-[#faf7f2] p-6 shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        className="w-full max-w-md rounded-2xl border border-brand-gold/30 bg-brand-cream p-6 shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -77,7 +77,7 @@ export function ConfirmDialog({
               className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-inner ${
                 isDestructive
                   ? "bg-rose-100/90 text-rose-700 border border-rose-200"
-                  : "bg-[#b0894f]/15 text-[#b0894f] border border-[#b0894f]/30"
+                  : "bg-brand-gold-strong/15 text-brand-gold-strong border border-brand-gold-strong/30"
               }`}
             >
               {isDestructive ? (

@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@prisma/client";
 import { requireSession } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
@@ -8,6 +9,7 @@ import { DateFilterBar } from "@/components/date-filter";
 import { InvoiceSearchBar } from "@/components/invoice-search";
 import { buildDateRange } from "@/lib/date-range";
 import { formatCurrency, formatDate } from "@/lib/format";
+import { Pagination, pageWindow, parsePage } from "@/components/pagination";
 
 export default async function FacturasPage({
   searchParams,
@@ -19,6 +21,7 @@ export default async function FacturasPage({
     from?: string;
     to?: string;
     q?: string;
+    page?: string;
   }>;
 }) {
   await requireSession();
@@ -27,8 +30,7 @@ export default async function FacturasPage({
   const query = (params.q || "").trim();
   const range = buildDateRange(params);
 
-  const invoices = await prisma.invoice.findMany({
-    where: {
+  const where: Prisma.InvoiceWhereInput = {
       ...(status ? { status } : {}),
       // Con búsqueda, no limitamos por periodo para encontrar cualquier factura
       ...(!query && range.from && range.to
@@ -53,13 +55,19 @@ export default async function FacturasPage({
             ],
           }
         : {}),
-    },
+  };
+  const PAGE_SIZE = 25;
+  const total = await prisma.invoice.count({ where });
+  const pg = pageWindow(parsePage(params.page), total, PAGE_SIZE);
+  const invoices = await prisma.invoice.findMany({
+    where,
     orderBy: { createdAt: "desc" },
     include: {
       customer: true,
       payments: true,
     },
-    take: query ? 100 : 200,
+    skip: pg.skip,
+    take: pg.take,
   });
 
   const filters = [
@@ -112,7 +120,7 @@ export default async function FacturasPage({
               href={statusHref(f.value)}
               className={`rounded-lg px-3 py-1.5 text-sm ${
                 active
-                  ? "bg-[#3d2a1f] text-white"
+                  ? "bg-brand-brown text-white"
                   : "border border-[var(--border)] bg-white text-[var(--muted)] hover:bg-[#fbf7f2]"
               }`}
             >
@@ -156,7 +164,7 @@ export default async function FacturasPage({
                   <td>{inv.customer.name}</td>
                   <td>
                     {inv.source === "WEB" ? (
-                      <span className="rounded-full bg-[#b0894f]/20 px-2 py-0.5 text-[0.65rem] font-semibold text-[var(--wood-800)] uppercase">
+                      <span className="rounded-full bg-brand-gold-strong/20 px-2 py-0.5 text-[0.65rem] font-semibold text-[var(--wood-800)] uppercase">
                         Web
                       </span>
                     ) : (
@@ -182,6 +190,7 @@ export default async function FacturasPage({
           </tbody>
         </table>
       </div>
+      <Pagination basePath="/facturas" searchParams={params} page={pg.current} pageSize={PAGE_SIZE} total={total} />
     </div>
   );
 }

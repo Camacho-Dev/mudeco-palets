@@ -3,57 +3,20 @@
 import { useMemo, useState, useTransition, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { formatCurrency, roundMoney } from "@/lib/format";
-import {
-  Printer,
-  Plus,
-  Trash2,
-  Search,
-  X,
-  Layers,
-  Edit2,
-  Check,
-} from "lucide-react";
-import { IconField } from "@/components/icon-field";
+import { Printer, Plus, Layers } from "lucide-react";
 import { CustomerSearchSelect } from "@/components/customer-search-select";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import type {
+  CartLine,
+  CustomerOption,
+  InvoiceDraft,
+  ProductOption,
+} from "./quick-sale-types";
+import { QuickSaleCatalog } from "./quick-sale-catalog";
+import { QuickSaleCartPanel } from "./quick-sale-cart-panel";
+import { QuickSaleDraftHeader, QuickSaleDraftTabs } from "./quick-sale-drafts";
 
-type ProductOption = {
-  id: string;
-  sku: string | null;
-  name: string;
-  price: number;
-  taxRate: number;
-  category: string;
-  stock: number;
-};
-
-type CustomerOption = {
-  id: string;
-  name: string;
-  taxId: string | null;
-  creditLimit?: number | null;
-};
-
-type CartLine = {
-  key: string;
-  productId: string;
-  sku: string | null;
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  taxRate: number;
-  stock: number;
-};
-
-export type InvoiceDraft = {
-  id: string;
-  name: string;
-  customerId: string;
-  cart: CartLine[];
-  delivery: boolean;
-  deliveryFee: string;
-  applyTax: boolean;
-};
+export type { InvoiceDraft } from "./quick-sale-types";
 
 export function QuickSale({
   customers,
@@ -490,251 +453,40 @@ export function QuickSale({
           </button>
         </div>
 
-        <div className="card p-4">
-          <div ref={searchWrapperRef}>
-          <IconField
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar mueble por nombre, SKU o categoría… (atajo: Ctrl+K)"
-            icon={<Search strokeWidth={2.25} />}
-          />
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => setQuery("")}
-              className={`rounded-full border px-3 py-1 text-xs transition ${
-                !query
-                  ? "border-[var(--wood-800)] bg-[var(--wood-800)] text-white font-medium"
-                  : "border-[var(--border)] bg-white text-[var(--muted)] hover:border-[var(--wood-700)]"
-              }`}
-            >
-              Todos
-            </button>
-            <button
-              type="button"
-              onClick={() => setQuery("comedor")}
-              className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
-                query === "comedor"
-                  ? "border-[var(--wood-800)] bg-[var(--wood-800)] text-white"
-                  : "border-[var(--brass)] bg-[#fbf7f2] text-[var(--wood-950)] hover:bg-[var(--brass)] hover:text-white"
-              }`}
-            >
-              Más pedidos
-            </button>
-            {categories.map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => setQuery(c)}
-                className={`rounded-full border px-3 py-1 text-xs transition ${
-                  query === c
-                    ? "border-[var(--wood-800)] bg-[var(--wood-800)] text-white"
-                    : "border-[var(--border)] bg-white text-[var(--muted)] hover:border-[var(--wood-700)] hover:text-[var(--wood-800)]"
-                }`}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2">
-          {filtered.length === 0 ? (
-            <div className="card col-span-full p-8 text-center">
-              <p className="text-sm font-medium text-[var(--wood-950)]">
-                No se encontraron productos para “{query}”
-              </p>
-              <button
-                type="button"
-                onClick={() => setQuery("")}
-                className="btn btn-secondary mt-3 text-xs"
-              >
-                Ver todos los productos
-              </button>
-            </div>
-          ) : (
-            filtered.map((p) => {
-            const outOfStock = p.sku !== "CUS-001" && p.stock <= 0;
-            return (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => addProduct(p)}
-                disabled={outOfStock}
-                className={`card group p-4 text-left transition ${
-                  outOfStock
-                    ? "cursor-not-allowed opacity-50"
-                    : "hover:border-[var(--wood-700)] hover:shadow-md"
-                }`}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="text-[0.65rem] font-semibold tracking-wider text-[var(--muted)] uppercase">
-                      {p.category}
-                      {p.sku ? ` · ${p.sku}` : ""}
-                    </p>
-                    <p className="mt-1 font-medium text-[var(--wood-950)] group-hover:text-[var(--wood-800)]">
-                      {p.name}
-                    </p>
-                  </div>
-                  {!outOfStock ? (
-                    <Plus className="h-4 w-4 shrink-0 text-[var(--brass)] opacity-0 transition group-hover:opacity-100" />
-                  ) : null}
-                </div>
-                <div className="mt-3 flex items-end justify-between">
-                  <p className="font-display text-lg">
-                    {p.price > 0 ? formatCurrency(p.price) : "A cotizar"}
-                  </p>
-                  <p
-                    className={`text-xs ${
-                      outOfStock
-                        ? "font-semibold text-rose-700"
-                        : p.stock <= 2
-                          ? "text-amber-700"
-                          : "text-[var(--muted)]"
-                    }`}
-                  >
-                    {outOfStock ? "Sin stock" : `Stock: ${p.stock}`}
-                  </p>
-                </div>
-              </button>
-            );
-          })
-          )}
-        </div>
+        <QuickSaleCatalog
+          query={query}
+          setQuery={setQuery}
+          categories={categories}
+          filtered={filtered}
+          addProduct={addProduct}
+          searchWrapperRef={searchWrapperRef}
+        />
       </div>
 
       {/* Columna Derecha: Pestañas de Facturas y Carrito Activo */}
       <div className="lg:col-span-2">
-        {/* Barra de Pestañas de Facturas */}
-        <div className="mb-2 flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-          {drafts.map((d, index) => {
-            const isActive = d.id === activeDraft.id;
-            const count = d.cart.reduce((s, i) => s + i.quantity, 0);
-            const customerObj = customers.find((c) => c.id === d.customerId);
-            const hasCustomCustomer =
-              customerObj && customerObj.id !== customers[0]?.id;
-
-            return (
-              <div
-                key={d.id}
-                onClick={() => {
-                  setError("");
-                  setActiveDraftId(d.id);
-                  setIsEditingName(false);
-                }}
-                className={`group relative flex cursor-pointer items-center gap-1.5 rounded-t-lg border-b-2 px-3 py-2 text-xs font-medium transition ${
-                  isActive
-                    ? "border-[var(--brass)] bg-[var(--wood-950)] text-[#faf6f1] shadow-sm"
-                    : "border-transparent bg-white/80 text-[var(--wood-950)] hover:bg-white"
-                }`}
-              >
-                <span className="max-w-[120px] truncate">
-                  {d.name || `Factura ${index + 1}`}
-                  {hasCustomCustomer
-                    ? ` · ${customerObj.name.split(" ")[0]}`
-                    : ""}
-                </span>
-
-                {count > 0 ? (
-                  <span
-                    className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
-                      isActive
-                        ? "bg-[var(--brass)] text-[var(--wood-950)]"
-                        : "bg-[var(--wood-950)]/10 text-[var(--wood-950)]"
-                    }`}
-                  >
-                    {count}
-                  </span>
-                ) : null}
-
-                {drafts.length > 1 ? (
-                  <button
-                    type="button"
-                    onClick={(e) => closeDraft(d.id, e)}
-                    className={`rounded p-0.5 transition ${
-                      isActive
-                        ? "text-white/60 hover:bg-white/20 hover:text-white"
-                        : "text-[var(--muted)] hover:bg-rose-100 hover:text-rose-700"
-                    }`}
-                    title="Cerrar esta factura"
-                    aria-label="Cerrar esta factura"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                ) : null}
-              </div>
-            );
-          })}
-
-          <button
-            type="button"
-            onClick={addNewDraft}
-            className="flex shrink-0 items-center gap-1 rounded-lg border border-dashed border-[var(--border)] bg-white px-2.5 py-1.5 text-xs font-semibold text-[var(--wood-950)] transition hover:border-[var(--wood-700)] hover:bg-[#fbf7f2]"
-            title="Abrir otra factura en simultáneo"
-          >
-            <Plus className="h-3.5 w-3.5 text-[var(--brass)]" />
-            <span>Nueva factura</span>
-          </button>
-        </div>
+        <QuickSaleDraftTabs
+          drafts={drafts}
+          activeDraft={activeDraft}
+          customers={customers}
+          setError={setError}
+          setActiveDraftId={setActiveDraftId}
+          setIsEditingName={setIsEditingName}
+          closeDraft={closeDraft}
+          addNewDraft={addNewDraft}
+        />
 
         {/* Tarjeta de Facturación */}
         <div className="card sticky top-6 overflow-visible">
-          <div className="border-b border-[var(--border)] bg-[var(--wood-950)] px-5 py-4 text-[#faf6f1]">
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-xs tracking-wide text-white/50 uppercase">
-                Factura simultánea
-              </p>
-
-              {/* Botón para renombrar pestaña */}
-              {!isEditingName ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setNameInput(activeDraft.name);
-                    setIsEditingName(true);
-                  }}
-                  className="flex items-center gap-1 text-[11px] text-white/60 hover:text-[var(--brass)]"
-                  title="Cambiar nombre de esta cuenta (ej: Mesa 3, Juan...)"
-                >
-                  <Edit2 className="h-3 w-3" />
-                  <span>Renombrar</span>
-                </button>
-              ) : null}
-            </div>
-
-            {isEditingName ? (
-              <div className="mt-1 flex items-center gap-2">
-                <input
-                  type="text"
-                  value={nameInput}
-                  onChange={(e) => setNameInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && saveCustomName()}
-                  className="rounded bg-white/10 px-2 py-1 text-sm font-medium text-white focus:outline-none focus:ring-1 focus:ring-[var(--brass)]"
-                  autoFocus
-                />
-                <button
-                  type="button"
-                  onClick={saveCustomName}
-                  className="rounded bg-[var(--brass)] p-1 text-[var(--wood-950)] hover:brightness-110"
-                >
-                  <Check className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setIsEditingName(false)}
-                  className="p-1 text-white/60 hover:text-white"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            ) : (
-              <p className="font-display text-xl">{activeDraft.name}</p>
-            )}
-
-            <p className="mt-1 text-sm text-white/60">Fecha: {todayLabel}</p>
-          </div>
+          <QuickSaleDraftHeader
+            activeDraft={activeDraft}
+            isEditingName={isEditingName}
+            setIsEditingName={setIsEditingName}
+            nameInput={nameInput}
+            setNameInput={setNameInput}
+            saveCustomName={saveCustomName}
+            todayLabel={todayLabel}
+          />
 
           <div className="space-y-4 p-5">
             <div>
@@ -756,142 +508,21 @@ export function QuickSale({
               ) : null}
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <p className="label">Artículos</p>
-                {cart.length > 0 ? (
-                  <button
-                    type="button"
-                    onClick={() => setClearCartConfirm(true)}
-                    className="text-xs text-[var(--muted)] hover:text-rose-700"
-                  >
-                    Vaciar carrito
-                  </button>
-                ) : null}
-              </div>
-
-              {cart.length === 0 ? (
-                <p className="rounded-lg border border-dashed border-[var(--border)] px-3 py-6 text-center text-sm text-[var(--muted)]">
-                  Toca un mueble del catálogo para agregarlo a {activeDraft.name}
-                </p>
-              ) : (
-                cart.map((line) => (
-                  <div
-                    key={line.key}
-                    className="rounded-lg border border-[var(--border)] bg-[#fbf7f2] p-3"
-                  >
-                    <div className="mb-2 flex items-start justify-between gap-2">
-                      <p className="text-sm font-medium">{line.description}</p>
-                      <button
-                        type="button"
-                        onClick={() => removeLine(line.key)}
-                        aria-label={`Quitar ${line.description}`}
-                        className="text-[var(--muted)] hover:text-rose-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label htmlFor={`qty-${line.key}`} className="label">Cant.</label>
-                        <input
-                          id={`qty-${line.key}`}
-                          type="number"
-                          min={0.01}
-                          step={1}
-                          value={line.quantity}
-                          onChange={(e) =>
-                            updateQty(line.key, Number(e.target.value) || 1)
-                          }
-                          className="input"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor={`price-${line.key}`} className="label">Precio</label>
-                        <input
-                          id={`price-${line.key}`}
-                          type="number"
-                          min={0}
-                          step={0.01}
-                          value={line.unitPrice}
-                          onChange={(e) =>
-                            updatePrice(line.key, Number(e.target.value) || 0)
-                          }
-                          className="input"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            <div className="space-y-3 rounded-lg border border-[var(--border)] bg-[#fbf7f2] p-3">
-              <label className="flex items-center gap-2 text-sm font-medium text-[var(--wood-950)]">
-                <input
-                  type="checkbox"
-                  checked={applyTax}
-                  onChange={(e) => setApplyTax(e.target.checked)}
-                />
-                Lleva ITBIS (18%)
-              </label>
-              <label className="flex items-center gap-2 text-sm font-medium text-[var(--wood-950)]">
-                <input
-                  type="checkbox"
-                  checked={delivery}
-                  onChange={(e) => {
-                    setDelivery(e.target.checked);
-                    if (!e.target.checked) setDeliveryFee("");
-                  }}
-                />
-                Esta factura es con delivery
-              </label>
-              {delivery ? (
-                <div>
-                  <label className="label" htmlFor="deliveryFee">
-                    Costo de delivery (lo pones tú)
-                  </label>
-                  <input
-                    id="deliveryFee"
-                    type="number"
-                    min={0}
-                    step={0.01}
-                    value={deliveryFee}
-                    onChange={(e) => setDeliveryFee(e.target.value)}
-                    className="input"
-                    placeholder="Ej. 300"
-                  />
-                </div>
-              ) : null}
-            </div>
-
-            <dl className="space-y-1 border-t border-[var(--border)] pt-3 text-sm">
-              <div className="flex justify-between text-[var(--muted)]">
-                <dt>Subtotal</dt>
-                <dd>{formatCurrency(totals.subtotal)}</dd>
-              </div>
-              {applyTax ? (
-                <div className="flex justify-between text-[var(--muted)]">
-                  <dt>ITBIS</dt>
-                  <dd>{formatCurrency(totals.tax)}</dd>
-                </div>
-              ) : (
-                <div className="flex justify-between text-[var(--muted)]">
-                  <dt>ITBIS</dt>
-                  <dd>Sin ITBIS</dd>
-                </div>
-              )}
-              {delivery ? (
-                <div className="flex justify-between text-[var(--muted)]">
-                  <dt>Delivery</dt>
-                  <dd>{formatCurrency(totals.deliveryFee)}</dd>
-                </div>
-              ) : null}
-              <div className="flex justify-between font-display text-xl text-[var(--wood-950)]">
-                <dt>Total</dt>
-                <dd>{formatCurrency(totals.total)}</dd>
-              </div>
-            </dl>
+            <QuickSaleCartPanel
+              cart={cart}
+              activeDraftName={activeDraft.name}
+              onClearCart={() => setClearCartConfirm(true)}
+              removeLine={removeLine}
+              updateQty={updateQty}
+              updatePrice={updatePrice}
+              applyTax={applyTax}
+              setApplyTax={setApplyTax}
+              delivery={delivery}
+              setDelivery={setDelivery}
+              deliveryFee={deliveryFee}
+              setDeliveryFee={setDeliveryFee}
+              totals={totals}
+            />
 
             {error ? (
               <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">

@@ -56,9 +56,9 @@ export default async function ContactoPage() {
   const maps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(company.address)}`;
 
   return (
-    <div className="bg-[#faf7f2]">
+    <div className="bg-brand-cream">
       {/* Banner principal con tono uniforme oscuro */}
-      <div className="relative overflow-hidden border-b border-[#c9a15a]/20 bg-[#14100d] text-[#faf6f1]">
+      <div className="relative overflow-hidden border-b border-brand-gold/20 bg-[#14100d] text-brand-cream-warm">
         <div
           className="absolute inset-0 opacity-20"
           style={{
@@ -70,7 +70,7 @@ export default async function ContactoPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-[#14100d] via-[#14100d]/90 to-[#14100d]/75" />
         <div className="relative mx-auto w-full max-w-[1920px] px-4 py-14 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <Reveal>
-            <div className="inline-flex items-center gap-2 rounded-full border border-[#c9a15a]/35 bg-[#c9a15a]/10 px-3.5 py-1 text-[0.62rem] font-bold tracking-[0.2em] text-[#c9a15a] uppercase">
+            <div className="inline-flex items-center gap-2 rounded-full border border-brand-gold/35 bg-brand-gold/10 px-3.5 py-1 text-[0.62rem] font-bold tracking-[0.2em] text-brand-gold uppercase">
               <Sparkles className="h-3 w-3" />
               Atención Personalizada
             </div>
@@ -94,10 +94,10 @@ export default async function ContactoPage() {
               href={wa}
               target="_blank"
               rel="noreferrer"
-              className="group flex flex-col justify-between rounded-xl border border-[var(--border)] bg-white p-5 transition hover:border-[#b0894f] hover:shadow-md"
+              className="group flex flex-col justify-between rounded-xl border border-[var(--border)] bg-white p-5 transition hover:border-brand-gold-strong hover:shadow-md"
             >
               <div className="flex items-center justify-between">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#fbf7f2] text-[#b0894f] border border-[#b0894f]/25 transition group-hover:bg-[#b0894f] group-hover:text-white">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#fbf7f2] text-brand-gold-strong border border-brand-gold-strong/25 transition group-hover:bg-brand-gold-strong group-hover:text-white">
                   <MessageCircle className="h-5 w-5" />
                 </span>
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[0.65rem] font-semibold text-emerald-700 border border-emerald-200">
@@ -107,7 +107,7 @@ export default async function ContactoPage() {
               <div className="mt-4">
                 <p className="font-semibold text-[var(--wood-950)] flex items-center justify-between">
                   <span>WhatsApp</span>
-                  <ArrowUpRight className="h-4 w-4 text-[var(--muted)] transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[#b0894f]" />
+                  <ArrowUpRight className="h-4 w-4 text-[var(--muted)] transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand-gold-strong" />
                 </p>
                 <p className="mt-1 text-sm text-[var(--muted)]">
                   {company.phone}
@@ -117,10 +117,10 @@ export default async function ContactoPage() {
 
             <a
               href={phoneHref}
-              className="group flex flex-col justify-between rounded-xl border border-[var(--border)] bg-white p-5 transition hover:border-[#b0894f] hover:shadow-md"
+              className="group flex flex-col justify-between rounded-xl border border-[var(--border)] bg-white p-5 transition hover:border-brand-gold-strong hover:shadow-md"
             >
               <div className="flex items-center justify-between">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#fbf7f2] text-[#b0894f] border border-[#b0894f]/25 transition group-hover:bg-[#b0894f] group-hover:text-white">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#fbf7f2] text-brand-gold-strong border border-brand-gold-strong/25 transition group-hover:bg-brand-gold-strong group-hover:text-white">
                   <Phone className="h-5 w-5" />
                 </span>
                 <span className="text-[0.65rem] font-medium tracking-wider text-[var(--muted)] uppercase">
@@ -130,7 +130,7 @@ export default async function ContactoPage() {
               <div className="mt-4">
                 <p className="font-semibold text-[var(--wood-950)] flex items-center justify-between">
                   <span>Teléfono</span>
-                  <ArrowUpRight className="h-4 w-4 text-[var(--muted)] transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[#b0894f]" />
+                  <ArrowUpRight className="h-4 w-4 text-[var(--muted)] transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand-gold-strong" />
                 </p>
                 <p className="mt-1 text-sm text-[var(--muted)]">
                   {company.phone}
@@ -140,10 +140,10 @@ export default async function ContactoPage() {
 
             <a
               href={`mailto:${company.email}`}
-              className="group flex flex-col justify-between rounded-xl border border-[var(--border)] bg-white p-5 transition hover:border-[#b0894f] hover:shadow-md"
+              className="group flex flex-col justify-between rounded-xl border border-[var(--border)] bg-white p-5 transition hover:border-brand-gold-strong hover:shadow-md"
             >
               <div className="flex items-center justify-between">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#fbf7f2] text-[#b0894f] border border-[#b0894f]/25 transition group-hover:bg-[#b0894f] group-hover:text-white">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#fbf7f2] text-brand-gold-strong border border-brand-gold-strong/25 transition group-hover:bg-brand-gold-strong group-hover:text-white">
                   <Mail className="h-5 w-5" />
                 </span>
                 <span className="text-[0.65rem] font-medium tracking-wider text-[var(--muted)] uppercase">
@@ -153,7 +153,7 @@ export default async function ContactoPage() {
               <div className="mt-4">
                 <p className="font-semibold text-[var(--wood-950)] flex items-center justify-between">
                   <span>Email</span>
-                  <ArrowUpRight className="h-4 w-4 text-[var(--muted)] transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[#b0894f]" />
+                  <ArrowUpRight className="h-4 w-4 text-[var(--muted)] transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand-gold-strong" />
                 </p>
                 <p className="mt-1 text-sm text-[var(--muted)] truncate">
                   {company.email}
@@ -165,10 +165,10 @@ export default async function ContactoPage() {
               href={STORE_SOCIAL.instagram}
               target="_blank"
               rel="noreferrer"
-              className="group flex flex-col justify-between rounded-xl border border-[var(--border)] bg-white p-5 transition hover:border-[#b0894f] hover:shadow-md"
+              className="group flex flex-col justify-between rounded-xl border border-[var(--border)] bg-white p-5 transition hover:border-brand-gold-strong hover:shadow-md"
             >
               <div className="flex items-center justify-between">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#fbf7f2] text-[#b0894f] border border-[#b0894f]/25 transition group-hover:bg-[#b0894f] group-hover:text-white">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#fbf7f2] text-brand-gold-strong border border-brand-gold-strong/25 transition group-hover:bg-brand-gold-strong group-hover:text-white">
                   <InstagramIcon className="h-5 w-5" />
                 </span>
                 <span className="text-[0.65rem] font-medium tracking-wider text-[var(--muted)] uppercase">
@@ -178,7 +178,7 @@ export default async function ContactoPage() {
               <div className="mt-4">
                 <p className="font-semibold text-[var(--wood-950)] flex items-center justify-between">
                   <span>Instagram</span>
-                  <ArrowUpRight className="h-4 w-4 text-[var(--muted)] transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-[#b0894f]" />
+                  <ArrowUpRight className="h-4 w-4 text-[var(--muted)] transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand-gold-strong" />
                 </p>
                 <p className="mt-1 text-sm text-[var(--muted)]">
                   @mudeco_palets
@@ -195,7 +195,7 @@ export default async function ContactoPage() {
               rel="noreferrer"
               className="group flex items-start gap-4 border-b border-[var(--border)] pb-5"
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#fbf7f2] text-[#b0894f] border border-[#b0894f]/25 transition group-hover:bg-[#b0894f] group-hover:text-white">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#fbf7f2] text-brand-gold-strong border border-brand-gold-strong/25 transition group-hover:bg-brand-gold-strong group-hover:text-white">
                 <MapPin className="h-5 w-5" />
               </span>
               <div className="flex-1">
@@ -203,7 +203,7 @@ export default async function ContactoPage() {
                   <p className="font-semibold text-[var(--wood-950)]">
                     Nuestra Ubicación
                   </p>
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#b0894f] group-hover:underline">
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-brand-gold-strong group-hover:underline">
                     Abrir en Google Maps
                     <ArrowUpRight className="h-3.5 w-3.5" />
                   </span>
@@ -215,7 +215,7 @@ export default async function ContactoPage() {
             </a>
 
             <div className="flex items-start gap-4">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#fbf7f2] text-[#b0894f] border border-[#b0894f]/25">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#fbf7f2] text-brand-gold-strong border border-brand-gold-strong/25">
                 <Clock className="h-5 w-5" />
               </span>
               <div className="flex-1">
@@ -248,11 +248,11 @@ export default async function ContactoPage() {
       </div>
 
       {/* Preguntas frecuentes para mayor confianza y profesionalismo */}
-      <div className="border-t border-[var(--border)] bg-[#faf6f1] py-16">
+      <div className="border-t border-[var(--border)] bg-brand-cream-warm py-16">
         <div className="mx-auto w-full max-w-[1920px] px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <Reveal>
             <div className="max-w-2xl mb-10">
-              <p className="text-[0.68rem] font-bold tracking-[0.2em] text-[#b0894f] uppercase">
+              <p className="text-[0.68rem] font-bold tracking-[0.2em] text-brand-gold-strong uppercase">
                 Atención & Asesoría
               </p>
               <h2 className="font-display mt-2 text-3xl text-[var(--wood-950)]">
@@ -295,7 +295,7 @@ export default async function ContactoPage() {
               <details key={faq.q} className="group py-4">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-lg font-medium text-[var(--wood-950)] transition-colors hover:text-[#8a6a3a]">
                   <span>{faq.q}</span>
-                  <span className="text-xl leading-none text-[#b0894f] transition-transform duration-200 group-open:rotate-45">
+                  <span className="text-xl leading-none text-brand-gold-strong transition-transform duration-200 group-open:rotate-45">
                     +
                   </span>
                 </summary>

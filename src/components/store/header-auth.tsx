@@ -103,10 +103,10 @@ export function HeaderAuth({
     return (
       <Link
         href="/login"
-        className="group relative inline-flex h-9 sm:h-10 items-center gap-2 rounded-full border border-[#d4af37]/60 bg-[#16120e]/90 px-4 sm:px-5 text-[11px] font-bold tracking-wider text-[#f5dfa8] uppercase shadow-[0_4px_16px_rgba(0,0,0,0.4)] backdrop-blur-md transition-all duration-300 hover:border-[#fbe3a8] hover:bg-[#d4af37] hover:text-[#0f0d0a] hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] active:scale-95 cursor-pointer"
+        className="group relative inline-flex h-9 sm:h-10 items-center gap-2 rounded-full border border-brand-gold/60 bg-brand-ink/90 px-4 sm:px-5 text-[11px] font-bold tracking-wider text-brand-gold-soft uppercase shadow-[0_4px_16px_rgba(0,0,0,0.4)] backdrop-blur-md transition-all duration-300 hover:border-[#fbe3a8] hover:bg-brand-gold hover:text-[#0f0d0a] hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] active:scale-95 cursor-pointer"
         title="Iniciar sesión o registrarse"
       >
-        <User className="h-3.5 w-3.5 text-[#d4af37] transition-transform group-hover:scale-110 group-hover:text-[#0f0d0a]" />
+        <User className="h-3.5 w-3.5 text-brand-gold transition-transform group-hover:scale-110 group-hover:text-[#0f0d0a]" />
         <span>Entrar</span>
       </Link>
     );
@@ -124,9 +124,9 @@ export function HeaderAuth({
 
   if (variant === "drawer") {
     return (
-      <div className="space-y-3 rounded-2xl border border-white/10 bg-[#16120e]/80 p-4">
+      <div className="space-y-3 rounded-2xl border border-white/10 bg-brand-ink/80 p-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#d4af37] bg-[#1a1410] text-xs font-bold text-[#f5dfa8] shadow-[0_0_12px_rgba(212,175,55,0.3)]">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-brand-gold bg-[#1a1410] text-xs font-bold text-brand-gold-soft shadow-[0_0_12px_rgba(212,175,55,0.3)]">
             {initials}
           </div>
           <div className="min-w-0 flex-1">
@@ -135,7 +135,7 @@ export function HeaderAuth({
                 {displayName}
               </p>
               {isAdminUser && (
-                <span className="rounded-full bg-[#d4af37]/20 border border-[#d4af37]/40 px-2 py-0.5 text-[9px] font-bold tracking-widest text-[#f5dfa8] uppercase">
+                <span className="rounded-full bg-brand-gold/20 border border-brand-gold/40 px-2 py-0.5 text-[9px] font-bold tracking-widest text-brand-gold-soft uppercase">
                   Admin
                 </span>
               )}
@@ -148,7 +148,7 @@ export function HeaderAuth({
           {isAdminUser && (
             <Link
               href="/panel"
-              className="flex items-center justify-between rounded-xl border border-[#d4af37]/40 bg-[#d4af37]/15 px-3.5 py-2.5 text-xs font-semibold tracking-wider text-[#f5dfa8] uppercase transition hover:bg-[#d4af37] hover:text-[#0a0a0a]"
+              className="flex items-center justify-between rounded-xl border border-brand-gold/40 bg-brand-gold/15 px-3.5 py-2.5 text-xs font-semibold tracking-wider text-brand-gold-soft uppercase transition hover:bg-brand-gold hover:text-[#0a0a0a]"
             >
               <span className="flex items-center gap-2">
                 <LayoutDashboard className="h-4 w-4" />
@@ -161,7 +161,7 @@ export function HeaderAuth({
           {isSellerUser && !isAdminUser && (
             <Link
               href="/vender"
-              className="flex items-center justify-between rounded-xl border border-[#d4af37]/40 bg-[#d4af37]/15 px-3.5 py-2.5 text-xs font-semibold tracking-wider text-[#f5dfa8] uppercase transition hover:bg-[#d4af37] hover:text-[#0a0a0a]"
+              className="flex items-center justify-between rounded-xl border border-brand-gold/40 bg-brand-gold/15 px-3.5 py-2.5 text-xs font-semibold tracking-wider text-brand-gold-soft uppercase transition hover:bg-brand-gold hover:text-[#0a0a0a]"
             >
               <span className="flex items-center gap-2">
                 <LayoutDashboard className="h-4 w-4" />
@@ -173,7 +173,7 @@ export function HeaderAuth({
 
           <Link
             href="/mis-pedidos"
-            className="flex items-center justify-between rounded-xl bg-gradient-to-r from-[#d4af37] to-[#e2c168] px-3.5 py-2.5 text-xs font-bold tracking-wider text-[#0f0d0a] uppercase transition hover:opacity-95"
+            className="flex items-center justify-between rounded-xl bg-gradient-to-r from-brand-gold to-[#e2c168] px-3.5 py-2.5 text-xs font-bold tracking-wider text-[#0f0d0a] uppercase transition hover:opacity-95"
           >
             <span className="flex items-center gap-2">
               <ShoppingBag className="h-4 w-4" />
@@ -207,19 +207,19 @@ export function HeaderAuth({
         title="Mi cuenta y pedidos"
         className={`group inline-flex h-9 sm:h-10 items-center gap-2 rounded-full border px-3 sm:px-3.5 text-xs font-semibold tracking-wide transition-all duration-300 cursor-pointer ${
           open
-            ? "border-[#d4af37] bg-[#1a1410] text-white shadow-[0_0_20px_rgba(212,175,55,0.3)]"
-            : "border-white/15 bg-[#14100e]/80 text-white/90 hover:border-[#d4af37]/60 hover:text-white hover:bg-[#1a1410]"
+            ? "border-brand-gold bg-[#1a1410] text-white shadow-[0_0_20px_rgba(212,175,55,0.3)]"
+            : "border-white/15 bg-[#14100e]/80 text-white/90 hover:border-brand-gold/60 hover:text-white hover:bg-[#1a1410]"
         }`}
       >
-        <span className="flex h-6 w-6 items-center justify-center rounded-full border border-[#d4af37] bg-[#1a1410] text-[10px] font-bold text-[#f5dfa8] shadow-[0_0_8px_rgba(212,175,55,0.4)]">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full border border-brand-gold bg-[#1a1410] text-[10px] font-bold text-brand-gold-soft shadow-[0_0_8px_rgba(212,175,55,0.4)]">
           {initials}
         </span>
-        <span className="max-w-[110px] truncate text-[11px] font-bold uppercase tracking-wider text-[#f5dfa8]">
+        <span className="max-w-[110px] truncate text-[11px] font-bold uppercase tracking-wider text-brand-gold-soft">
           Mi Cuenta
         </span>
         <ChevronDown
           className={`h-3 w-3 text-white/60 transition-transform duration-200 ${
-            open ? "rotate-180 text-[#d4af37]" : ""
+            open ? "rotate-180 text-brand-gold" : ""
           }`}
         />
       </button>
@@ -232,12 +232,12 @@ export function HeaderAuth({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.96 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 top-full z-50 mt-2 w-72 overflow-hidden rounded-2xl border border-[#d4af37]/30 bg-[#14100e]/95 text-white shadow-[0_24px_60px_rgba(0,0,0,0.85)] backdrop-blur-2xl ring-1 ring-white/10"
+            className="absolute right-0 top-full z-50 mt-2 w-72 overflow-hidden rounded-2xl border border-brand-gold/30 bg-[#14100e]/95 text-white shadow-[0_24px_60px_rgba(0,0,0,0.85)] backdrop-blur-2xl ring-1 ring-white/10"
           >
             {/* Cabecera limpia de la cuenta */}
             <div className="border-b border-white/10 bg-white/[0.02] px-4 py-3.5">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[#d4af37] bg-[#1a1410] font-display text-sm font-bold text-[#f5dfa8] shadow-[0_0_12px_rgba(212,175,55,0.4)]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-brand-gold bg-[#1a1410] font-display text-sm font-bold text-brand-gold-soft shadow-[0_0_12px_rgba(212,175,55,0.4)]">
                   {initials}
                 </div>
                 <div className="min-w-0 flex-1">
@@ -246,7 +246,7 @@ export function HeaderAuth({
                       {displayName}
                     </p>
                     {isAdminUser && (
-                      <span className="rounded-full bg-[#d4af37]/20 border border-[#d4af37]/40 px-1.5 py-0.2 text-[8px] font-bold tracking-wider text-[#f5dfa8] uppercase">
+                      <span className="rounded-full bg-brand-gold/20 border border-brand-gold/40 px-1.5 py-0.2 text-[8px] font-bold tracking-wider text-brand-gold-soft uppercase">
                         Admin
                       </span>
                     )}
@@ -263,7 +263,7 @@ export function HeaderAuth({
                   href="/panel"
                   className="flex items-center gap-2.5 rounded-xl px-3 py-2 font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
                 >
-                  <LayoutDashboard className="h-4 w-4 text-[#d4af37]" />
+                  <LayoutDashboard className="h-4 w-4 text-brand-gold" />
                   <span>Panel de Administración</span>
                 </Link>
               )}
@@ -273,16 +273,16 @@ export function HeaderAuth({
                   href="/vender"
                   className="flex items-center gap-2.5 rounded-xl px-3 py-2 font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
                 >
-                  <LayoutDashboard className="h-4 w-4 text-[#d4af37]" />
+                  <LayoutDashboard className="h-4 w-4 text-brand-gold" />
                   <span>Punto de Venta (POS)</span>
                 </Link>
               )}
 
               <Link
                 href="/mis-pedidos"
-                className="flex items-center gap-2.5 rounded-xl px-3 py-2 font-medium text-white/80 transition hover:bg-[#d4af37]/15 hover:text-[#f5dfa8]"
+                className="flex items-center gap-2.5 rounded-xl px-3 py-2 font-medium text-white/80 transition hover:bg-brand-gold/15 hover:text-brand-gold-soft"
               >
-                <ShoppingBag className="h-4 w-4 text-[#d4af37]" />
+                <ShoppingBag className="h-4 w-4 text-brand-gold" />
                 <span>Mi Perfil e Historial</span>
               </Link>
 

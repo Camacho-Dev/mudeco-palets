@@ -189,7 +189,7 @@ export function ReceiptUploader({
         {receipt && (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3.5 py-1 text-xs font-bold text-amber-800 border border-amber-300 shadow-2xs">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full motion-reduce:animate-none bg-amber-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-600" />
             </span>
             En proceso de validación
@@ -234,7 +234,7 @@ export function ReceiptUploader({
                   {receipt.name}
                 </p>
                 <p className="text-xs text-slate-500 mt-0.5 flex flex-wrap gap-2">
-                  <span>Subido el {new Date(receipt.uploadedAt).toLocaleString("es-DO")}</span>
+                  <span>Subido el {new Date(receipt.uploadedAt).toLocaleString("es-DO", { timeZone: "America/Santo_Domingo" })}</span>
                   {receipt.sizeBytes ? <span>· {formatFileSize(receipt.sizeBytes)}</span> : null}
                 </p>
               </div>
@@ -268,7 +268,7 @@ export function ReceiptUploader({
 
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-amber-50/60 border border-amber-200/80 p-4 text-xs text-slate-700">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+              <span className="flex h-2 w-2 rounded-full bg-amber-500" />
               <span>
                 Comprobante en revisión bancaria (validando ingreso en cuenta). También puedes avisar por WhatsApp:
               </span>
@@ -298,8 +298,8 @@ export function ReceiptUploader({
             onClick={() => fileInputRef.current?.click()}
             className={`group relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center cursor-pointer transition-all duration-300 ${
               dragActive
-                ? "border-[#b0894f] bg-[#fbf7f2] scale-[1.01] shadow-md"
-                : "border-stone-300 bg-stone-50/60 hover:border-[#b0894f] hover:bg-[#fffcf7] hover:shadow-xs"
+                ? "border-brand-gold-strong bg-[#fbf7f2] scale-[1.01] shadow-md"
+                : "border-stone-300 bg-stone-50/60 hover:border-brand-gold-strong hover:bg-[#fffcf7] hover:shadow-xs"
             }`}
           >
             <input
@@ -330,7 +330,7 @@ export function ReceiptUploader({
             </p>
 
             {localPreview && (
-              <div className="mt-4 relative h-32 w-32 overflow-hidden rounded-xl border-2 border-[#c9a15a] bg-white shadow-md">
+              <div className="mt-4 relative h-32 w-32 overflow-hidden rounded-xl border-2 border-brand-gold bg-white shadow-md">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={localPreview}
@@ -405,7 +405,7 @@ export function ReceiptUploader({
           role="dialog"
           aria-modal="true"
           onClick={() => setShowModal(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-xs"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -503,7 +503,7 @@ export function BankAccountCard({
             : {
                 border: "border-stone-300",
                 headerBg: "bg-gradient-to-r from-[#2c221e] to-[#45362f]",
-                accent: "text-[#d4af37]",
+                accent: "text-brand-gold",
                 badge: bank,
               };
 
@@ -519,14 +519,14 @@ export function BankAccountCard({
           <Building className={`h-4.5 w-4.5 ${bankTheme.accent}`} />
           <p className="font-bold text-xs tracking-wider uppercase">{bankTheme.badge}</p>
         </div>
-        <span className="text-[10px] font-bold tracking-wider uppercase text-white/90 rounded-md bg-white/20 px-2 py-0.5 backdrop-blur-xs">
+        <span className="text-[10px] font-bold tracking-wider uppercase text-white/90 rounded-md bg-black/50 px-2 py-0.5">
           {type}
         </span>
       </div>
 
       <div className="p-4 text-xs">
         {/* Número de cuenta con botón Copiar con micro-interacción */}
-        <div className="flex items-center justify-between gap-2 rounded-xl bg-[#faf7f2] p-3 border border-[#e2d5c5]">
+        <div className="flex items-center justify-between gap-2 rounded-xl bg-brand-cream p-3 border border-[#e2d5c5]">
           <div>
             <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500">
               Número de Cuenta

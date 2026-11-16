@@ -58,7 +58,7 @@ export function CartView() {
 
   if (!items.length) {
     return (
-      <div className="min-h-[calc(100vh-88px)] bg-[#faf7f2]">
+      <div className="min-h-[calc(100vh-88px)] bg-brand-cream">
         <CheckoutStepBanner
           step={1}
           badge="Carrito · Paso 1"
@@ -72,10 +72,10 @@ export function CartView() {
             transition={{ duration: 0.45, ease: LUXURY_EASE }}
             className="rounded-3xl border border-[#e2d5c5] bg-white p-8 sm:p-12 text-center shadow-[0_20px_50px_-20px_rgba(20,16,13,0.1)]"
           >
-            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl border border-[#c9a15a]/35 bg-[#faf7f2] shadow-inner">
-              <ShoppingBag className="h-8 w-8 text-[#b0894f]" strokeWidth={1.6} />
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl border border-brand-gold/35 bg-brand-cream shadow-inner">
+              <ShoppingBag className="h-8 w-8 text-brand-gold-strong" strokeWidth={1.6} />
             </div>
-            <p className="mt-6 text-[0.65rem] font-bold tracking-[0.22em] text-[#b0894f] uppercase">
+            <p className="mt-6 text-[0.65rem] font-bold tracking-[0.22em] text-brand-gold-strong uppercase">
               Selección vacía
             </p>
             <h2 className="font-display mt-2 text-3xl sm:text-4xl text-[#14100d]">
@@ -88,16 +88,16 @@ export function CartView() {
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
                 href="/catalogo"
-                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-[#14100d] px-7 py-3.5 text-xs font-bold tracking-[0.14em] text-[#f5dfa8] uppercase shadow-md transition hover:bg-[#261e18] active:scale-[0.98]"
+                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-[#14100d] px-7 py-3.5 text-xs font-bold tracking-[0.14em] text-brand-gold-soft uppercase shadow-md transition hover:bg-[#261e18] active:scale-[0.98]"
               >
                 <span>Explorar catálogo</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href="/contacto?tipo=medida"
-                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-[#e2d5c5] bg-[#faf7f2] px-6 py-3.5 text-xs font-bold tracking-[0.12em] text-[#403227] uppercase transition hover:border-[#c9a15a] hover:bg-white"
+                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full border border-[#e2d5c5] bg-brand-cream px-6 py-3.5 text-xs font-bold tracking-[0.12em] text-[#403227] uppercase transition hover:border-brand-gold hover:bg-white"
               >
-                <Hammer className="h-3.5 w-3.5 text-[#b0894f]" />
+                <Hammer className="h-3.5 w-3.5 text-brand-gold-strong" />
                 <span>Cotizar a medida</span>
               </Link>
             </div>
@@ -108,7 +108,7 @@ export function CartView() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-88px)] bg-[#faf7f2] pb-24 lg:pb-14">
+    <div className="min-h-[calc(100vh-88px)] bg-brand-cream pb-24 lg:pb-14">
       <CheckoutStepBanner
         step={1}
         badge="Carrito · Paso 1"
@@ -165,7 +165,7 @@ export function CartView() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, x: -20, scale: 0.96 }}
                     transition={{ duration: 0.28, ease: LUXURY_EASE }}
-                    className="group rounded-2xl border border-[#e2d5c5] bg-white p-4 sm:p-5 shadow-[0_8px_24px_-12px_rgba(20,16,13,0.08)] transition-colors hover:border-[#c9a15a]/55"
+                    className="group rounded-2xl border border-[#e2d5c5] bg-white p-4 sm:p-5 shadow-[0_8px_24px_-12px_rgba(20,16,13,0.08)] transition-colors hover:border-brand-gold/55"
                   >
                     <div className="flex gap-4 sm:gap-5">
                       <Link
@@ -185,7 +185,7 @@ export function CartView() {
                           <div className="min-w-0">
                             <Link
                               href={`/producto/${item.productId}`}
-                              className="font-display text-lg sm:text-xl font-medium text-[#14100d] transition-colors hover:text-[#b0894f] line-clamp-2 leading-snug"
+                              className="font-display text-lg sm:text-xl font-medium text-[#14100d] transition-colors hover:text-brand-gold-strong line-clamp-2 leading-snug"
                             >
                               {item.name}
                             </Link>
@@ -196,7 +196,7 @@ export function CartView() {
                               <span
                                 className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold tracking-wide uppercase border ${
                                   isMadeToOrder
-                                    ? "border-[#c9a15a]/40 bg-[#faf6f1] text-[#8a6a3a]"
+                                    ? "border-brand-gold/40 bg-brand-cream-warm text-[#8a6a3a]"
                                     : "border-emerald-200 bg-emerald-50 text-emerald-800"
                                 }`}
                               >
@@ -222,10 +222,10 @@ export function CartView() {
 
                         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#f3ece2]">
                           <div className="flex items-center gap-2.5">
-                            <div className="inline-flex items-center rounded-full border border-[#e2d5c5] bg-[#faf7f2] p-0.5">
+                            <div className="inline-flex items-center rounded-full border border-[#e2d5c5] bg-brand-cream p-0.5">
                               <button
                                 type="button"
-                                className="flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full text-[#403227] transition hover:bg-white hover:text-[#b0894f] active:scale-90 cursor-pointer"
+                                className="flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full text-[#403227] transition hover:bg-white hover:text-brand-gold-strong active:scale-90 cursor-pointer"
                                 aria-label={`Quitar una unidad de ${item.name}`}
                                 onClick={() =>
                                   setQty(item.productId, item.quantity - 1)
@@ -239,7 +239,7 @@ export function CartView() {
                               <button
                                 type="button"
                                 disabled={atMax}
-                                className="flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full text-[#403227] transition hover:bg-white hover:text-[#b0894f] active:scale-90 cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed"
+                                className="flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full text-[#403227] transition hover:bg-white hover:text-brand-gold-strong active:scale-90 cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed"
                                 aria-label={`Agregar una unidad de ${item.name}`}
                                 title={
                                   atMax
@@ -290,11 +290,11 @@ export function CartView() {
 
           {/* Columna derecha: Resumen estilo Atelier Noir */}
           <div className="lg:col-span-5">
-            <div className="sticky top-28 relative overflow-hidden rounded-3xl border border-[#c9a15a]/30 bg-[#14100d] p-6 sm:p-7 text-[#faf6f1] shadow-[0_24px_60px_-15px_rgba(20,16,13,0.35)]">
-              <div className="pointer-events-none absolute -top-16 -right-16 h-44 w-44 rounded-full bg-[#c9a15a]/15 blur-3xl" />
+            <div className="sticky top-28 relative overflow-hidden rounded-3xl border border-brand-gold/30 bg-[#14100d] p-6 sm:p-7 text-brand-cream-warm shadow-[0_24px_60px_-15px_rgba(20,16,13,0.35)]">
+              <div className="pointer-events-none absolute -top-16 -right-16 h-44 w-44 rounded-full bg-brand-gold/15 blur-3xl" />
 
               <div className="relative">
-                <p className="text-[0.65rem] font-bold tracking-[0.22em] text-[#c9a15a] uppercase">
+                <p className="text-[0.65rem] font-bold tracking-[0.22em] text-brand-gold uppercase">
                   Resumen de tu selección
                 </p>
                 <h2 className="font-display mt-1 text-2xl sm:text-3xl text-white">
@@ -318,16 +318,16 @@ export function CartView() {
                     <span className="text-sm font-semibold text-white">
                       Total estimado
                     </span>
-                    <span className="font-mono text-xl sm:text-2xl font-bold text-[#f5dfa8] tabular-nums">
+                    <span className="font-mono text-xl sm:text-2xl font-bold text-brand-gold-soft tabular-nums">
                       {formatCurrency(total)}
                     </span>
                   </div>
 
                   {split.hasMadeToOrder && (
-                    <div className="mt-3 rounded-2xl border border-[#c9a15a]/35 bg-white/[0.05] p-4 space-y-2 text-xs">
+                    <div className="mt-3 rounded-2xl border border-brand-gold/35 bg-white/[0.05] p-4 space-y-2 text-xs">
                       <div className="flex items-center justify-between font-bold text-white">
                         <span>Abono para iniciar ({depositPercent}%)</span>
-                        <span className="font-mono text-sm text-[#f5dfa8] tabular-nums">
+                        <span className="font-mono text-sm text-brand-gold-soft tabular-nums">
                           {formatCurrency(split.dueNow)}
                         </span>
                       </div>
@@ -337,7 +337,7 @@ export function CartView() {
                           {formatCurrency(split.balance)}
                         </span>
                       </div>
-                      <p className="pt-1.5 border-t border-white/10 text-[11px] text-[#d4af37] flex items-center gap-1.5">
+                      <p className="pt-1.5 border-t border-white/10 text-[11px] text-brand-gold flex items-center gap-1.5">
                         <Clock className="h-3.5 w-3.5 shrink-0" />
                         <span>Fabricación estimada: {leadTimeText}</span>
                       </p>
@@ -349,7 +349,7 @@ export function CartView() {
                   <Link
                     href="/checkout"
                     prefetch={false}
-                    className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#d4af37] via-[#e2c168] to-[#caa466] px-6 py-3.5 text-xs font-bold tracking-[0.14em] text-[#14100d] uppercase shadow-[0_8px_24px_rgba(212,175,55,0.3)] transition hover:brightness-105 active:scale-[0.98]"
+                    className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand-gold via-[#e2c168] to-brand-gold px-6 py-3.5 text-xs font-bold tracking-[0.14em] text-[#14100d] uppercase shadow-[0_8px_24px_rgba(212,175,55,0.3)] transition hover:brightness-105 active:scale-[0.98]"
                   >
                     <span>Continuar al checkout</span>
                     <ArrowRight className="h-4 w-4" />
@@ -359,7 +359,7 @@ export function CartView() {
                     <div className="text-center pt-1">
                       <Link
                         href="/login?callbackUrl=/checkout"
-                        className="text-xs font-medium text-white/70 transition hover:text-[#f5dfa8] underline underline-offset-4"
+                        className="text-xs font-medium text-white/70 transition hover:text-brand-gold-soft underline underline-offset-4"
                       >
                         ¿Ya tienes cuenta? Inicia sesión para autocompletar
                       </Link>
@@ -370,14 +370,14 @@ export function CartView() {
                 {/* Micro-garantías Atelier */}
                 <div className="mt-6 space-y-2.5 border-t border-white/10 pt-5 text-[11px] text-white/70">
                   <div className="flex items-center gap-2.5">
-                    <ShieldCheck className="h-4 w-4 shrink-0 text-[#c9a15a]" />
+                    <ShieldCheck className="h-4 w-4 shrink-0 text-brand-gold" />
                     <span>
                       Pagos verificados: Tarjeta, Transferencia (Popular,
                       Banreservas, BHD, APAP, Banesco) o Taller
                     </span>
                   </div>
                   <div className="flex items-center gap-2.5">
-                    <Sparkles className="h-4 w-4 shrink-0 text-[#c9a15a]" />
+                    <Sparkles className="h-4 w-4 shrink-0 text-brand-gold" />
                     <span>
                       Madera de pino 100% curada contra polilla y humedad
                     </span>
@@ -390,20 +390,20 @@ export function CartView() {
       </div>
 
       {/* Barra fija inferior en móvil */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[#c9a15a]/30 bg-[#14100d]/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] text-white backdrop-blur-xl lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-brand-gold/30 bg-[#14100d]/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] text-white backdrop-blur-xl lg:hidden">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
           <div>
             <p className="text-[10px] font-semibold tracking-wider text-white/60 uppercase">
               {split.hasMadeToOrder ? `Abono (${depositPercent}%)` : "Total"}
             </p>
-            <p className="font-mono text-base font-bold text-[#f5dfa8] tabular-nums">
+            <p className="font-mono text-base font-bold text-brand-gold-soft tabular-nums">
               {formatCurrency(split.hasMadeToOrder ? split.dueNow : total)}
             </p>
           </div>
           <Link
             href="/checkout"
             prefetch={false}
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#d4af37] via-[#e2c168] to-[#caa466] px-5 py-2.5 text-xs font-bold tracking-wider text-[#14100d] uppercase shadow-md active:scale-95"
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-gold via-[#e2c168] to-brand-gold px-5 py-2.5 text-xs font-bold tracking-wider text-[#14100d] uppercase shadow-md active:scale-95"
           >
             <span>Continuar</span>
             <ArrowRight className="h-3.5 w-3.5" />

@@ -145,13 +145,19 @@ export function CheckoutForm({
     [items, totals.total, mtoConfig.depositPercent],
   );
 
-  const readyDateLabel = useMemo(() => {
-    if (!split.hasMadeToOrder) return null;
-    return estimatedReadyDate(mtoConfig).toLocaleDateString("es-DO", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+  // Se calcula tras el montaje: depende de la hora actual y evita desajustes de hidratación
+  const [readyDateLabel, setReadyDateLabel] = useState<string | null>(null);
+  useEffect(() => {
+    setReadyDateLabel(
+      split.hasMadeToOrder
+        ? estimatedReadyDate(mtoConfig).toLocaleDateString("es-DO", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            timeZone: "America/Santo_Domingo",
+          })
+        : null,
+    );
   }, [split.hasMadeToOrder, mtoConfig]);
 
   const cartJson = JSON.stringify(
@@ -239,7 +245,7 @@ export function CheckoutForm({
     <form className="grid gap-8 lg:grid-cols-12" onSubmit={onSubmit}>
       <div className="space-y-5 rounded-2xl border border-[#e2d5c5] bg-white p-6 shadow-sm sm:p-8 lg:col-span-7">
         <div>
-          <span className="text-[0.68rem] font-bold tracking-[0.2em] text-[#b0894f] uppercase">
+          <span className="text-[0.68rem] font-bold tracking-[0.2em] text-brand-gold-strong uppercase">
             Datos del pedido
           </span>
           <h2 className="font-display mt-1 text-2xl sm:text-3xl text-[var(--wood-950)]">
@@ -257,7 +263,7 @@ export function CheckoutForm({
               className={`rounded-xl border px-4 py-3 text-left text-sm font-medium transition cursor-pointer ${
                 fulfillment === "pickup"
                   ? "border-[var(--wood-900)] bg-[var(--wood-900)] text-white shadow-xs"
-                  : "border-[var(--border)] bg-[#faf7f2] text-[var(--wood-900)] hover:border-[#b0894f]"
+                  : "border-[var(--border)] bg-brand-cream text-[var(--wood-900)] hover:border-brand-gold-strong"
               }`}
             >
               Retiro en taller
@@ -268,7 +274,7 @@ export function CheckoutForm({
               className={`rounded-xl border px-4 py-3 text-left text-sm font-medium transition cursor-pointer ${
                 fulfillment === "delivery"
                   ? "border-[var(--wood-900)] bg-[var(--wood-900)] text-white shadow-xs"
-                  : "border-[var(--border)] bg-[#faf7f2] text-[var(--wood-900)] hover:border-[#b0894f]"
+                  : "border-[var(--border)] bg-brand-cream text-[var(--wood-900)] hover:border-brand-gold-strong"
               }`}
             >
               Entrega a domicilio
@@ -374,11 +380,11 @@ export function CheckoutForm({
             ZONA DE COMPROBANTE OBLIGATORIO PARA TRANSFERENCIA O RETIRO EN TALLER
            ========================================================================= */}
         {isReceiptMandatory && (
-          <div className="rounded-2xl border-2 border-dashed border-[#c9a15a] bg-[#faf6f1] p-5">
+          <div className="rounded-2xl border-2 border-dashed border-brand-gold bg-brand-cream-warm p-5">
             <div className="flex items-start justify-between gap-3">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#c9a15a] text-xs font-bold text-[#0a0a0a]">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-brand-gold text-xs font-bold text-[#0a0a0a]">
                     *
                   </span>
                   <label className="text-sm font-bold text-[var(--wood-950)]">
@@ -391,15 +397,15 @@ export function CheckoutForm({
                     : "Para órdenes de retiro en taller, es obligatorio adjuntar el comprobante o foto de tu anticipo o depósito para reservar tus piezas."}
                 </p>
               </div>
-              <span className="rounded-md bg-[#c9a15a]/20 border border-[#c9a15a]/40 px-2 py-0.5 text-[0.62rem] font-bold text-[#8a6524] uppercase tracking-wider shrink-0">
+              <span className="rounded-md bg-brand-gold/20 border border-brand-gold/40 px-2 py-0.5 text-[0.62rem] font-bold text-[#8a6524] uppercase tracking-wider shrink-0">
                 Requerido
               </span>
             </div>
 
             <div className="mt-4">
               {!receiptFile ? (
-                <label className="group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#c9a15a]/50 bg-white p-6 text-center transition hover:border-[#c9a15a] hover:bg-[#fffdfa]">
-                  <Upload className="h-8 w-8 text-[#b0894f] transition group-hover:scale-110" />
+                <label className="group relative flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-brand-gold/50 bg-white p-6 text-center transition hover:border-brand-gold hover:bg-[#fffdfa]">
+                  <Upload className="h-8 w-8 text-brand-gold-strong transition group-hover:scale-110" />
                   <p className="mt-2 text-xs font-semibold text-[var(--wood-950)]">
                     Haz clic aquí para seleccionar tu comprobante
                   </p>
@@ -488,7 +494,7 @@ export function CheckoutForm({
           />
         </div>
 
-        <p className="rounded-xl border border-[#e5d8c8] bg-[#faf6f1] px-4 py-3 text-xs leading-relaxed text-[var(--wood-800)]">
+        <p className="rounded-xl border border-[#e5d8c8] bg-brand-cream-warm px-4 py-3 text-xs leading-relaxed text-[var(--wood-800)]">
           {STORE_LOGISTICS.payments} {STORE_LOGISTICS.leadTime}
         </p>
       </div>
@@ -524,7 +530,7 @@ export function CheckoutForm({
           </ul>
 
           {split.hasMadeToOrder && (
-            <div className="mt-3 rounded-xl border border-[#c9a15a]/45 bg-[#faf6f1] p-3.5 text-xs space-y-1.5">
+            <div className="mt-3 rounded-xl border border-brand-gold/45 bg-brand-cream-warm p-3.5 text-xs space-y-1.5">
               {mode !== "quote" && (
                 <>
                   <div className="flex justify-between font-bold text-[var(--wood-950)]">

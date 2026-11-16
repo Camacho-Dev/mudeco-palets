@@ -24,8 +24,8 @@ export type ShelfProduct = {
 
 function CraftBadge() {
   return (
-    <div className="flex items-center gap-1.5 text-[11px] text-[#c9a15a]/90 font-medium">
-      <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#c9a15a]" />
+    <div className="flex items-center gap-1.5 text-[11px] text-brand-gold/90 font-medium">
+      <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand-gold" />
       <span>Pino curado · Hecho a mano</span>
     </div>
   );
@@ -79,7 +79,7 @@ function ShelfCard({
 
       data-shelf-card="true"
     >
-      <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#14100e] transition-[border-color,transform,box-shadow] duration-300 sm:hover:-translate-y-1 hover:border-[#c9a15a]/40 hover:shadow-[0_18px_40px_rgba(0,0,0,0.55)]">
+      <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-[#14100e] transition-[border-color,transform,box-shadow] duration-300 sm:hover:-translate-y-1 hover:border-brand-gold/40 hover:shadow-[0_18px_40px_rgba(0,0,0,0.55)]">
         <Link
           href={`/producto/${product.id}`}
           className="relative block aspect-square overflow-hidden bg-[#181411]"
@@ -89,7 +89,7 @@ function ShelfCard({
               Agotado
             </span>
           ) : product.badge ? (
-            <span className="absolute top-3 left-3 z-10 rounded-full bg-gradient-to-r from-black/95 to-black/85 px-3 py-1 text-[0.6rem] font-bold tracking-widest text-[#f5dfa8] border border-[#d4af37]/40 uppercase shadow-md backdrop-blur-md">
+            <span className="absolute top-3 left-3 z-10 rounded-full bg-gradient-to-r from-black/95 to-black/85 px-3 py-1 text-[0.6rem] font-bold tracking-widest text-brand-gold-soft border border-brand-gold/40 uppercase shadow-md backdrop-blur-md">
               {product.badge}
             </span>
           ) : null}
@@ -104,17 +104,17 @@ function ShelfCard({
         </Link>
 
         <div className="space-y-2.5 p-4 sm:p-5">
-          <p className="text-[0.62rem] font-semibold tracking-[0.16em] text-[#d4af37] uppercase">
+          <p className="text-[0.62rem] font-semibold tracking-[0.16em] text-brand-gold uppercase">
             {formatStoreCategory(product.category)}
           </p>
           <Link href={`/producto/${product.id}`}>
-            <h3 className="line-clamp-2 min-h-[2.5rem] font-medium text-sm leading-snug text-white transition-colors duration-200 group-hover:text-[#f5dfa8]">
+            <h3 className="line-clamp-2 min-h-[2.5rem] font-medium text-sm leading-snug text-white transition-colors duration-200 group-hover:text-brand-gold-soft">
               {product.name}
             </h3>
           </Link>
           <CraftBadge />
           <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-white/10">
-            <p className="font-mono text-sm sm:text-base font-bold text-[#f5dfa8]">
+            <p className="font-mono text-sm sm:text-base font-bold text-brand-gold-soft">
               {formatCurrency(product.price)}
             </p>
             {isSoldOut ? (
@@ -122,7 +122,7 @@ function ShelfCard({
                 href={`/producto/${product.id}`}
                 aria-label={`Ver detalles de ${product.name}`}
                 title="Agotado · Ver opciones por encargo"
-                className="inline-flex h-11 w-11 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-neutral-300 transition-colors duration-300 hover:border-[#c9a15a]/45 hover:text-[#f5dfa8]"
+                className="inline-flex h-11 w-11 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-neutral-300 transition-colors duration-300 hover:border-brand-gold/45 hover:text-brand-gold-soft"
               >
                 <ArrowUpRight className="h-4 w-4" strokeWidth={1.8} />
               </Link>
@@ -137,7 +137,7 @@ function ShelfCard({
               className={`inline-flex h-11 w-11 sm:h-9 sm:w-9 items-center justify-center rounded-full border transition-colors duration-300 disabled:opacity-40 cursor-pointer ${
                 added
                   ? "border-emerald-500/70 bg-emerald-500/20 text-emerald-400"
-                  : "border-[#c9a15a]/45 bg-[#c9a15a]/10 text-[#f5dfa8] hover:bg-[#c9a15a] hover:text-[#0f0d0a]"
+                  : "border-brand-gold/45 bg-brand-gold/10 text-brand-gold-soft hover:bg-brand-gold hover:text-[#0f0d0a]"
               }`}
             >
               {added ? (
@@ -205,7 +205,7 @@ export function ProductShelf({
           {href ? (
             <Link
               href={href}
-              className="mr-1 text-[0.68rem] font-semibold tracking-[0.12em] text-[#c9a15a] uppercase transition hover:text-[#d4b06e]"
+              className="mr-1 text-[0.68rem] font-semibold tracking-[0.12em] text-brand-gold uppercase transition hover:text-brand-gold"
             >
               Ver más →
             </Link>
@@ -213,7 +213,7 @@ export function ProductShelf({
           <button
             type="button"
             onClick={() => scroll(-1)}
-            className="hidden h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition hover:border-[#c9a15a]/50 hover:text-white active:scale-95 sm:inline-flex"
+            className="hidden h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition hover:border-brand-gold/50 hover:text-white active:scale-95 sm:inline-flex"
             aria-label="Anterior"
           >
             <ChevronLeft className="h-4 w-4" />
@@ -221,7 +221,7 @@ export function ProductShelf({
           <button
             type="button"
             onClick={() => scroll(1)}
-            className="hidden h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition hover:border-[#c9a15a]/50 hover:text-white active:scale-95 sm:inline-flex"
+            className="hidden h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition hover:border-brand-gold/50 hover:text-white active:scale-95 sm:inline-flex"
             aria-label="Siguiente"
           >
             <ChevronRight className="h-4 w-4" />
@@ -241,7 +241,7 @@ export function ProductShelf({
       {/* Indicador de desplazamiento sutil */}
       <div className="mt-2 h-0.5 w-full bg-white/[0.05] rounded-full overflow-hidden">
         <div
-          className="h-full w-full bg-[#c9a15a]/60 transition-transform duration-150"
+          className="h-full w-full bg-brand-gold/60 transition-transform duration-150"
           style={{ transformOrigin: "left", transform: `scaleX(${Math.max(0.12, scrollProgress / 100)})` }}
         />
       </div>

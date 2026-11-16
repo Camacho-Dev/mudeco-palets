@@ -149,7 +149,7 @@ export function DateFilterBar({ label }: { label?: string }) {
             }}
             className={`rounded-lg px-3 py-1.5 text-sm transition ${
               kind === k
-                ? "bg-[#3d2a1f] text-[#faf6f1]"
+                ? "bg-brand-brown text-brand-cream-warm"
                 : "border border-[var(--border)] bg-white text-[var(--muted)] hover:border-[var(--wood-700)]"
             }`}
           >

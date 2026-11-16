@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { PageHeader } from "@/components/page-header";
 import { ListSearchBar } from "@/components/invoice-search";
 import { ConfirmForm } from "@/components/confirm-form";
+import { Pagination, pageWindow, parsePage } from "@/components/pagination";
+import type { Prisma } from "@prisma/client";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { whatsappLink } from "@/lib/store";
 import {
@@ -71,14 +73,14 @@ function buildHref(opts: {
 export default async function PedidosWebPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tipo?: string; estado?: string; q?: string }>;
+  searchParams: Promise<{ tipo?: string; estado?: string; q?: string; page?: string }>;
 }) {
   await requireSession();
-  const { tipo, estado, q } = await searchParams;
+  const sp = await searchParams;
+  const { tipo, estado, q } = sp;
   const query = (q || "").trim();
 
-  const orders = await prisma.webOrder.findMany({
-    where: { ...(query
+  const where: Prisma.WebOrderWhereInput = { ...(query
       ? {
           OR: [
             { number: { contains: query, mode: "insensitive" } },
@@ -101,9 +103,29 @@ export default async function PedidosWebPage({
         : estado
           ? { status: estado }
           : {}),
-    },
+  };
+  const PAGE_SIZE = 25;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const and = (extra: Prisma.WebOrderWhereInput) => ({ AND: [where, extra] });
+  // KPIs sobre todos los pedidos que cumplen los filtros (no solo la página).
+  const [total, pendingCount, inProgressCount, quotedCount, salesCount, todayCount] =
+    await Promise.all([
+      prisma.webOrder.count({ where }),
+      prisma.webOrder.count({
+        where: and({ status: { in: ["PENDING", "AWAITING_PAYMENT", "QUOTED", "IN_PROGRESS"] } }),
+      }),
+      prisma.webOrder.count({ where: and({ status: "IN_PROGRESS" }) }),
+      prisma.webOrder.count({ where: and({ status: "QUOTED" }) }),
+      prisma.webOrder.count({ where: and({ type: "SALE" }) }),
+      prisma.webOrder.count({ where: and({ createdAt: { gte: today } }) }),
+    ]);
+  const pg = pageWindow(parsePage(sp.page), total, PAGE_SIZE);
+  const orders = await prisma.webOrder.findMany({
+    where,
     orderBy: { createdAt: "desc" },
-    take: 200,
+    skip: pg.skip,
+    take: pg.take,
     include: {
       invoice: { select: { id: true, number: true, status: true } },
       quote: { select: { id: true, number: true, status: true } },
@@ -133,13 +155,6 @@ export default async function PedidosWebPage({
     return true;
   });
 
-  const pendingCount = orders.filter((o) => isWebOrderPending(o.status)).length;
-  const inProgressCount = orders.filter((o) => o.status === "IN_PROGRESS").length;
-  const quotedCount = orders.filter((o) => o.status === "QUOTED").length;
-  const salesCount = orders.filter((o) => o.type === "SALE").length;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayCount = orders.filter((o) => o.createdAt >= today).length;
 
   return (
     <div>
@@ -154,7 +169,7 @@ export default async function PedidosWebPage({
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/conexion-web"
-              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-brand-gold-strong"
               title="Centro de control y diagnóstico de la conexión web"
             >
               <Activity className="h-3.5 w-3.5 text-emerald-600 animate-pulse" />
@@ -164,27 +179,27 @@ export default async function PedidosWebPage({
               href="/"
               target="_blank"
               rel="noreferrer"
-              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-brand-gold-strong"
               title="Abrir tienda en nueva pestaña"
             >
-              <Globe className="h-3.5 w-3.5 text-[#b0894f]" />
+              <Globe className="h-3.5 w-3.5 text-brand-gold-strong" />
               <span>Tienda pública</span>
               <ExternalLink className="h-3 w-3 opacity-60" />
             </a>
             <Link
               href="/contenido-web"
-              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-brand-gold-strong"
             >
-              <ImageIcon className="h-3.5 w-3.5 text-[#b0894f]" />
+              <ImageIcon className="h-3.5 w-3.5 text-brand-gold-strong" />
               <span>Fotos & Portadas</span>
             </Link>
             <a
               href="/api/export/pedidos-web"
               download
-              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-[#b0894f]"
+              className="btn btn-secondary inline-flex items-center gap-1.5 text-xs text-[var(--wood-800)] hover:border-brand-gold-strong"
               title="Descargar pedidos en formato CSV para Excel"
             >
-              <Download className="h-3.5 w-3.5 text-[#b0894f]" />
+              <Download className="h-3.5 w-3.5 text-brand-gold-strong" />
               <span>Exportar CSV</span>
             </a>
           </div>
@@ -277,7 +292,7 @@ export default async function PedidosWebPage({
             <span className="font-mono text-3xl font-extrabold tracking-tight text-slate-900">
               {salesCount}
             </span>
-            <span className="text-xs text-slate-400 font-medium">/ {orders.length} total</span>
+            <span className="text-xs text-slate-400 font-medium">/ {total} total</span>
           </div>
           <p className="mt-1 text-xs text-slate-500">
             En listado reciente registrado
@@ -622,6 +637,7 @@ export default async function PedidosWebPage({
           </tbody>
         </table>
       </div>
+      <Pagination basePath="/pedidos-web" searchParams={sp} page={pg.current} pageSize={PAGE_SIZE} total={total} />
     </div>
   </div>
   );

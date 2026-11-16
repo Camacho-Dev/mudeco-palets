@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Building2, Plus, Trash2, Check, Loader2, CreditCard, ShieldCheck } from "lucide-react";
 import { saveBankAccounts } from "@/app/(dashboard)/configuracion/actions";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 
 export interface BankAccountItem {
   bank: string;
@@ -44,6 +45,7 @@ export function BankAccountsManager({
 
   const [isPending, startTransition] = useTransition();
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [pendingRemove, setPendingRemove] = useState<number | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Formulario de nueva cuenta
@@ -112,7 +114,7 @@ export function BankAccountsManager({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-stone-200/80 pb-4">
         <div>
           <h3 className="text-base font-bold text-[var(--wood-950)] flex items-center gap-2">
-            <Building2 className="h-5 w-5 text-[#b0894f]" />
+            <Building2 className="h-5 w-5 text-brand-gold-strong" />
             Cuentas Bancarias Oficiales (Para Transferencias en la Tienda)
           </h3>
           <p className="text-xs text-[var(--muted)] mt-1">
@@ -171,7 +173,7 @@ export function BankAccountsManager({
               >
                 <div
                   className="absolute inset-x-0 top-0 h-1.5"
-                  style={{ backgroundColor: acc.color || "#b0894f" }}
+                  style={{ backgroundColor: acc.color || "var(--color-brand-gold-strong)" }}
                 />
                 <div className="flex items-start justify-between gap-2 pt-1">
                   <div>
@@ -182,7 +184,8 @@ export function BankAccountsManager({
                   </div>
                   <button
                     type="button"
-                    onClick={() => removeAccount(idx)}
+                    onClick={() => setPendingRemove(idx)}
+                    aria-label={`Eliminar cuenta ${acc.bank}`}
                     className="text-stone-400 hover:text-rose-600 p-1 transition cursor-pointer"
                     title="Eliminar cuenta"
                   >
@@ -216,7 +219,7 @@ export function BankAccountsManager({
       {/* Formulario para agregar una nueva cuenta */}
       <div className="rounded-2xl border border-stone-200 bg-[#fbf9f6] p-4.5 space-y-4">
         <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--wood-900)] flex items-center gap-1.5">
-          <Plus className="h-4 w-4 text-[#b0894f]" />
+          <Plus className="h-4 w-4 text-brand-gold-strong" />
           Agregar Nueva Cuenta Bancaria
         </h4>
 
@@ -295,6 +298,26 @@ export function BankAccountsManager({
           </div>
         </div>
       </div>
+      <ConfirmDialog
+        isOpen={pendingRemove !== null}
+        onClose={() => setPendingRemove(null)}
+        onConfirm={() => {
+          if (pendingRemove !== null) removeAccount(pendingRemove);
+          setPendingRemove(null);
+        }}
+        title="Eliminar cuenta bancaria"
+        description="¿Quitar esta cuenta de la lista? Dejará de mostrarse a los clientes al guardar los cambios."
+        confirmLabel="Sí, eliminar"
+        isDestructive
+        itemDetails={
+          pendingRemove !== null && accounts[pendingRemove]
+            ? {
+                name: accounts[pendingRemove].bank,
+                subtitle: accounts[pendingRemove].accountNumber,
+              }
+            : undefined
+        }
+      />
     </div>
   );
 }

@@ -15,7 +15,7 @@ export default async function BackupPage() {
       {/* Sección 1: Descargar Copia */}
       <div className="card space-y-4 p-6">
         <div className="flex items-center gap-2">
-          <Download className="h-5 w-5 text-[#b0894f]" />
+          <Download className="h-5 w-5 text-brand-gold-strong" />
           <h2 className="text-lg font-semibold text-[var(--wood-950)]">
             Exportar copia de seguridad
           </h2>

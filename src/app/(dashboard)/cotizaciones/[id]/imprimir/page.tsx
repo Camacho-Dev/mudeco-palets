@@ -81,7 +81,8 @@ export default async function ImprimirCotizacionPage({
           ) : null}
         </section>
 
-        <table className="data mb-6 w-full">
+        <div className="mb-6 overflow-x-auto print:overflow-visible">
+        <table className="data w-full">
           <thead>
             <tr>
               <th>Descripción</th>
@@ -103,6 +104,7 @@ export default async function ImprimirCotizacionPage({
             ))}
           </tbody>
         </table>
+        </div>
 
         <div className="flex justify-end">
           <div className="w-64 space-y-2 text-sm">
@@ -124,7 +126,7 @@ export default async function ImprimirCotizacionPage({
         </div>
 
         {quote.notes ? (
-          <div className="mt-8 rounded-lg border border-[var(--border)] bg-[#faf6f1] p-4 text-xs text-[var(--wood-800)]">
+          <div className="mt-8 rounded-lg border border-[var(--border)] bg-brand-cream-warm p-4 text-xs text-[var(--wood-800)]">
             <p className="mb-1 font-semibold uppercase tracking-wider text-[var(--muted)]">
               Términos y Notas del Proyecto
             </p>

@@ -28,7 +28,7 @@ export function DashboardSearch() {
       <form onSubmit={handleSubmit} className="relative flex items-center gap-2">
         <div className="relative flex-1">
           <Search
-            className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#b0894f]"
+            className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-brand-gold-strong"
             strokeWidth={2}
             aria-hidden
           />
@@ -40,7 +40,7 @@ export function DashboardSearch() {
               if (e.key === "Escape") setQuery("");
             }}
             placeholder="Buscar por cliente, RNC, número de factura, SKU o pedido web…"
-            className="h-12 w-full rounded-xl border border-slate-200 bg-[#fbf7f2]/50 pl-12 pr-10 text-sm text-[var(--wood-950)] placeholder:text-slate-400 outline-none transition focus:border-[#b0894f] focus:bg-white focus:ring-4 focus:ring-[#b0894f]/15"
+            className="h-12 w-full rounded-xl border border-slate-200 bg-[#fbf7f2]/50 pl-12 pr-10 text-sm text-[var(--wood-950)] placeholder:text-slate-400 outline-none transition focus:border-brand-gold-strong focus:bg-white focus:ring-4 focus:ring-brand-gold-strong/15"
             aria-label="Buscador del panel"
           />
           {query ? (
@@ -72,9 +72,9 @@ export function DashboardSearch() {
           <Link
             key={item.href}
             href={item.href}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-slate-700 hover:border-[#b0894f] hover:text-[var(--wood-950)] transition"
+            className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-slate-700 hover:border-brand-gold-strong hover:text-[var(--wood-950)] transition"
           >
-            <item.icon className="h-3.5 w-3.5 text-[#b0894f]" />
+            <item.icon className="h-3.5 w-3.5 text-brand-gold-strong" />
             <span>{item.label}</span>
           </Link>
         ))}

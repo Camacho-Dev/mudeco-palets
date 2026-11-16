@@ -59,12 +59,12 @@ export function AccountSettingsCard({
         <div className="flex items-center gap-4">
           <div
             aria-hidden
-            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[#16120e] font-display text-lg tracking-wide text-[#e9cf96]"
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-brand-ink font-display text-lg tracking-wide text-brand-gold-soft"
           >
             {initials}
           </div>
           <div className="min-w-0">
-            <h2 className="truncate font-display text-xl text-[#16120e]">{initialName}</h2>
+            <h2 className="truncate font-display text-xl text-brand-ink">{initialName}</h2>
             <p className="truncate text-sm text-[#85776a]" title={email}>
               {email}
             </p>
@@ -82,11 +82,11 @@ export function AccountSettingsCard({
               className={`rounded-2xl bg-[#f7f3ec] px-3.5 py-3 ${"wide" in stat && stat.wide ? "col-span-2" : ""}`}
             >
               <dt className="flex items-center gap-1 text-[11px] text-[#85776a]">
-                <stat.icon className="h-3 w-3 text-[#b0894f]" aria-hidden />
+                <stat.icon className="h-3 w-3 text-brand-gold-strong" aria-hidden />
                 {stat.label}
               </dt>
               <dd
-                className="mt-1 truncate text-[15px] font-semibold text-[#16120e] tabular-nums"
+                className="mt-1 truncate text-[15px] font-semibold text-brand-ink tabular-nums"
                 title={stat.value}
               >
                 {stat.value}
@@ -100,19 +100,19 @@ export function AccountSettingsCard({
         <dl className="space-y-3 text-sm">
           <div className="flex items-start gap-3">
             <dt className="flex w-24 shrink-0 items-center gap-2 text-[#85776a]">
-              <Phone className="h-3.5 w-3.5 text-[#b0894f]" aria-hidden />
+              <Phone className="h-3.5 w-3.5 text-brand-gold-strong" aria-hidden />
               Teléfono
             </dt>
-            <dd className={initialPhone ? "text-[#16120e]" : "text-[#a39483]"}>
+            <dd className={initialPhone ? "text-brand-ink" : "text-[#a39483]"}>
               {initialPhone || "Sin registrar"}
             </dd>
           </div>
           <div className="flex items-start gap-3">
             <dt className="flex w-24 shrink-0 items-center gap-2 text-[#85776a]">
-              <MapPin className="h-3.5 w-3.5 text-[#b0894f]" aria-hidden />
+              <MapPin className="h-3.5 w-3.5 text-brand-gold-strong" aria-hidden />
               Dirección
             </dt>
-            <dd className={initialAddress ? "text-[#16120e]" : "text-[#a39483]"}>
+            <dd className={initialAddress ? "text-brand-ink" : "text-[#a39483]"}>
               {initialAddress || "Sin registrar"}
             </dd>
           </div>
@@ -124,7 +124,7 @@ export function AccountSettingsCard({
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
-            className="group/btn flex h-11 w-full items-center justify-center gap-2 rounded-full border border-[#e4ddd2] bg-white px-5 text-sm font-medium text-[#16120e] transition-colors duration-200 hover:border-[#c9a15a] hover:bg-[#fbf8f3] active:scale-[0.99] cursor-pointer"
+            className="group/btn flex h-11 w-full items-center justify-center gap-2 rounded-full border border-[#e4ddd2] bg-white px-5 text-sm font-medium text-brand-ink transition-colors duration-200 hover:border-brand-gold hover:bg-brand-cream active:scale-[0.99] cursor-pointer"
           >
             {open ? (
               <>
@@ -133,9 +133,9 @@ export function AccountSettingsCard({
               </>
             ) : (
               <>
-                <Pencil className="h-3.5 w-3.5 text-[#b0894f]" />
+                <Pencil className="h-3.5 w-3.5 text-brand-gold-strong" />
                 <span>Editar datos o contraseña</span>
-                <span className="text-[#caa466] text-xs transition-transform group-hover/btn:translate-x-0.5">
+                <span className="text-brand-gold text-xs transition-transform group-hover/btn:translate-x-0.5">
                   &gt;
                 </span>
               </>
@@ -198,7 +198,7 @@ export function AccountSettingsCard({
                   minLength={2}
                   maxLength={100}
                   placeholder="Tu nombre y apellido"
-                  className="w-full rounded-xl border border-[#d8ccbb] bg-white px-3.5 py-2.5 text-xs text-[#1f1915] shadow-inner transition focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/20 focus:outline-none"
+                  className="w-full rounded-xl border border-[#d8ccbb] bg-white px-3.5 py-2.5 text-xs text-[#1f1915] shadow-inner transition focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 focus:outline-none"
                 />
               </div>
 
@@ -212,7 +212,7 @@ export function AccountSettingsCard({
                   defaultValue={initialPhone}
                   maxLength={40}
                   placeholder="Ej. 809-555-0123"
-                  className="w-full rounded-xl border border-[#d8ccbb] bg-white px-3.5 py-2.5 text-xs text-[#1f1915] shadow-inner transition focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/20 focus:outline-none"
+                  className="w-full rounded-xl border border-[#d8ccbb] bg-white px-3.5 py-2.5 text-xs text-[#1f1915] shadow-inner transition focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 focus:outline-none"
                 />
               </div>
 
@@ -227,13 +227,13 @@ export function AccountSettingsCard({
                   defaultValue={initialAddress}
                   maxLength={200}
                   placeholder="Sector, calle, número, ciudad..."
-                  className="w-full rounded-xl border border-[#d8ccbb] bg-white px-3.5 py-2.5 text-xs text-[#1f1915] shadow-inner transition focus:border-[#c9a15a] focus:ring-2 focus:ring-[#c9a15a]/20 focus:outline-none resize-none"
+                  className="w-full rounded-xl border border-[#d8ccbb] bg-white px-3.5 py-2.5 text-xs text-[#1f1915] shadow-inner transition focus:border-brand-gold focus:ring-2 focus:ring-brand-gold/20 focus:outline-none resize-none"
                 />
               </div>
 
               <div className="rounded-xl border border-[#e4d8c7] bg-white/70 p-3.5 space-y-3">
                 <p className="flex items-center gap-1.5 text-[11px] font-bold text-[#1f1915]">
-                  <Lock className="h-3 w-3 text-[#b0894f]" />
+                  <Lock className="h-3 w-3 text-brand-gold-strong" />
                   <span>Cambiar contraseña (opcional)</span>
                 </p>
                 <input
@@ -242,7 +242,7 @@ export function AccountSettingsCard({
                   type="password"
                   autoComplete="current-password"
                   placeholder="Contraseña actual"
-                  className="w-full rounded-lg border border-[#d8ccbb] bg-white px-3 py-2 text-xs text-[#1f1915] focus:border-[#c9a15a] focus:outline-none"
+                  className="w-full rounded-lg border border-[#d8ccbb] bg-white px-3 py-2 text-xs text-[#1f1915] focus:border-brand-gold focus:outline-none"
                 />
                 <input
                   aria-label="Nueva contraseña"
@@ -252,7 +252,7 @@ export function AccountSettingsCard({
                   minLength={6}
                   maxLength={128}
                   placeholder="Nueva contraseña (mín. 6 caracteres)"
-                  className="w-full rounded-lg border border-[#d8ccbb] bg-white px-3 py-2 text-xs text-[#1f1915] focus:border-[#c9a15a] focus:outline-none"
+                  className="w-full rounded-lg border border-[#d8ccbb] bg-white px-3 py-2 text-xs text-[#1f1915] focus:border-brand-gold focus:outline-none"
                 />
               </div>
 
@@ -276,7 +276,7 @@ export function AccountSettingsCard({
               <button
                 type="submit"
                 disabled={pending}
-                className="w-full rounded-full bg-gradient-to-r from-[#171310] via-[#251e18] to-[#171310] px-5 py-3 text-xs font-bold tracking-wider text-[#d4af37] uppercase shadow-lg transition-all hover:scale-[1.01] hover:shadow-[0_8px_20px_rgba(212,175,55,0.2)] disabled:opacity-50 cursor-pointer"
+                className="w-full rounded-full bg-gradient-to-r from-[#171310] via-[#251e18] to-[#171310] px-5 py-3 text-xs font-bold tracking-wider text-brand-gold uppercase shadow-lg transition-all hover:scale-[1.01] hover:shadow-[0_8px_20px_rgba(212,175,55,0.2)] disabled:opacity-50 cursor-pointer"
               >
                 {pending ? "Guardando cambios..." : "Guardar cambios"}
               </button>

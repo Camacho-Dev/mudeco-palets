@@ -80,7 +80,7 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
         <div
           className={`group relative flex items-center rounded-full border bg-[#14120e]/95 p-1.5 sm:p-2 backdrop-blur-xl ring-1 ring-white/10 transition-[border-color,box-shadow] duration-200 ${
             isFocused || isOpen
-              ? "border-[#d4af37]/90 shadow-[0_0_35px_rgba(212,175,55,0.28),0_20px_50px_rgba(0,0,0,0.85)]"
+              ? "border-brand-gold/90 shadow-[0_0_35px_rgba(212,175,55,0.28),0_20px_50px_rgba(0,0,0,0.85)]"
               : "border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.7)]"
           }`}
         >
@@ -126,7 +126,7 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
             type="submit"
             whileHover={{ scale: 1.03, boxShadow: "0 0 24px rgba(212, 175, 55, 0.5)" }}
             whileTap={{ scale: 0.97 }}
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#d4af37] via-[#e2c168] to-[#caa466] px-5 sm:px-6 py-2.5 sm:py-3 text-xs font-bold text-[#0f0d0a] uppercase tracking-wider shadow-md transition-all shrink-0 cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-gold via-[#e2c168] to-brand-gold px-5 sm:px-6 py-2.5 sm:py-3 text-xs font-bold text-[#0f0d0a] uppercase tracking-wider shadow-md transition-all shrink-0 cursor-pointer"
             title="Buscar en catálogo"
           >
             <Search className="h-3.5 w-3.5 text-[#0f0d0a]" strokeWidth={2.2} />
@@ -144,11 +144,11 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.98 }}
             transition={{ duration: 0.18 }}
-            className="absolute left-0 right-0 top-full z-[100] mt-2 overflow-hidden rounded-2xl border border-[#c9a15a]/40 bg-[#12110e]/98 backdrop-blur-2xl shadow-[0_30px_80px_rgba(0,0,0,0.98),0_0_40px_rgba(201,161,90,0.25)] text-white"
+            className="absolute left-0 right-0 top-full z-[100] mt-2 overflow-hidden rounded-2xl border border-brand-gold/40 bg-[#12110e]/98 backdrop-blur-2xl shadow-[0_30px_80px_rgba(0,0,0,0.98),0_0_40px_rgba(201,161,90,0.25)] text-white"
           >
             {/* Cabecera del panel de búsqueda */}
             <div className="flex items-center justify-between border-b border-white/[0.08] px-4 py-2.5 bg-white/[0.02]">
-              <span className="text-[0.68rem] font-semibold uppercase tracking-wider text-[#c9a15a] flex items-center gap-1.5">
+              <span className="text-[0.68rem] font-semibold uppercase tracking-wider text-brand-gold flex items-center gap-1.5">
                 <Sparkles className="h-3 w-3" />
                 {query.trim()
                   ? `Resultados para "${query.trim()}"`
@@ -181,10 +181,10 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
                         />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="text-[0.6rem] font-semibold uppercase tracking-wider text-[#c9a15a]">
+                        <p className="text-[0.6rem] font-semibold uppercase tracking-wider text-brand-gold">
                           {p.category}
                         </p>
-                        <h4 className="truncate text-xs sm:text-sm font-medium text-white group-hover:text-[#c9a15a] transition-colors">
+                        <h4 className="truncate text-xs sm:text-sm font-medium text-white group-hover:text-brand-gold transition-colors">
                           {p.name}
                         </h4>
                         <div className="mt-0.5 flex items-center gap-2">
@@ -197,7 +197,7 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
                           </span>
                         </div>
                       </div>
-                      <ChevronRight className="h-4 w-4 shrink-0 text-white/30 transition-transform group-hover:translate-x-1 group-hover:text-[#c9a15a]" />
+                      <ChevronRight className="h-4 w-4 shrink-0 text-white/30 transition-transform group-hover:translate-x-1 group-hover:text-brand-gold" />
                     </Link>
                   );
                 })}
@@ -213,7 +213,7 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
                 <Link
                   href="/contacto"
                   onClick={() => setIsOpen(false)}
-                  className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[#c9a15a]/40 bg-[#c9a15a]/10 px-3.5 py-2 text-xs font-semibold text-[#c9a15a] hover:bg-[#c9a15a] hover:text-[#0a0a0a] transition"
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-brand-gold/40 bg-brand-gold/10 px-3.5 py-2 text-xs font-semibold text-brand-gold hover:bg-brand-gold hover:text-[#0a0a0a] transition"
                 >
                   <span>Solicitar cotización a medida</span>
                   <ArrowRight className="h-3 w-3" />
@@ -225,7 +225,7 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
             <Link
               href={query.trim() ? `/catalogo?q=${encodeURIComponent(query.trim())}` : "/catalogo"}
               onClick={() => setIsOpen(false)}
-              className="flex items-center justify-between border-t border-white/[0.08] bg-[#0c0c0c] px-4 py-2.5 text-xs font-semibold text-[#c9a15a] transition hover:bg-[#c9a15a] hover:text-[#0a0a0a]"
+              className="flex items-center justify-between border-t border-white/[0.08] bg-[#0c0c0c] px-4 py-2.5 text-xs font-semibold text-brand-gold transition hover:bg-brand-gold hover:text-[#0a0a0a]"
             >
               <span>Ver todos los muebles en catálogo →</span>
               <span className="text-[10px] uppercase tracking-wider text-white/40">

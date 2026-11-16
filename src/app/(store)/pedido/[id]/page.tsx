@@ -199,7 +199,7 @@ export default async function PedidoPage({
     : "Retiro en taller";
 
   return (
-    <div className="min-h-screen bg-[#faf7f2] py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen bg-brand-cream py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Resplandor superior suave */}
       <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-96 w-[700px] rounded-full bg-amber-400/10 blur-3xl" />
 
@@ -482,6 +482,7 @@ export default async function PedidoPage({
                         day: "numeric",
                         month: "long",
                         year: "numeric",
+                        timeZone: "America/Santo_Domingo",
                       })}
                     </p>
                   )}

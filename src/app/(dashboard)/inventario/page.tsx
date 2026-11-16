@@ -12,14 +12,16 @@ import {
 } from "@/lib/format";
 import { ExternalLink, ArrowUpRight } from "lucide-react";
 import { QuickAdjustDialog } from "./quick-adjust-dialog";
+import { Pagination, pageWindow, parsePage } from "@/components/pagination";
 
 export default async function InventarioPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
   await requireSession();
-  const { q } = await searchParams;
+  const sp = await searchParams;
+  const { q } = sp;
   const query = (q || "").trim();
 
   const searchFilter = query
@@ -34,11 +36,31 @@ export default async function InventarioPage({
       }
     : {};
 
+  const productWhere = { active: true, kind: "FINISHED" as const, ...searchFilter };
+  const PAGE_SIZE = 25;
+  // Lista completa (campos mínimos) para KPIs, categorías y el diálogo de ajuste.
+  const allProducts = await prisma.product.findMany({
+    where: productWhere,
+    orderBy: [{ category: "asc" }, { name: "asc" }],
+    select: {
+      id: true,
+      name: true,
+      sku: true,
+      stock: true,
+      minStock: true,
+      cost: true,
+      price: true,
+      category: true,
+    },
+  });
+  const total = allProducts.length;
+  const pg = pageWindow(parsePage(sp.page), total, PAGE_SIZE);
   const [products, moves] = await Promise.all([
     prisma.product.findMany({
-      where: { active: true, kind: "FINISHED", ...searchFilter },
+      where: productWhere,
       orderBy: [{ category: "asc" }, { name: "asc" }],
-      take: 250,
+      skip: pg.skip,
+      take: pg.take,
     }),
     prisma.stockMovement.findMany({
       where: {
@@ -53,12 +75,12 @@ export default async function InventarioPage({
     }),
   ]);
 
-  const low = products.filter(
+  const low = allProducts.filter(
     (p) => p.stock <= p.minStock && p.sku !== "CUS-001",
   );
-  const outOfStock = products.filter((p) => p.stock <= 0 && p.sku !== "CUS-001");
-  const inventoryValue = products.reduce((s, p) => s + p.stock * p.cost, 0);
-  const inventoryRetail = products.reduce((s, p) => s + p.stock * p.price, 0);
+  const outOfStock = allProducts.filter((p) => p.stock <= 0 && p.sku !== "CUS-001");
+  const inventoryValue = allProducts.reduce((s, p) => s + p.stock * p.cost, 0);
+  const inventoryRetail = allProducts.reduce((s, p) => s + p.stock * p.price, 0);
   const potentialMargin = inventoryRetail - inventoryValue;
   const potentialMarginPct =
     inventoryRetail > 0 ? (potentialMargin / inventoryRetail) * 100 : 0;
@@ -75,7 +97,7 @@ export default async function InventarioPage({
         action={
           <div className="flex flex-wrap gap-2">
             <QuickAdjustDialog
-              products={products.map((p) => ({
+              products={allProducts.map((p) => ({
                 id: p.id,
                 name: p.name,
                 sku: p.sku,
@@ -118,7 +140,7 @@ export default async function InventarioPage({
         >
           Todas
         </Link>
-        {Array.from(new Set(products.map((p) => p.category)))
+        {Array.from(new Set(allProducts.map((p) => p.category)))
           .sort((a, b) => a.localeCompare(b, "es"))
           .map((cat) => {
             const active = query.toLowerCase() === cat.toLowerCase();
@@ -144,7 +166,7 @@ export default async function InventarioPage({
             Muebles en catálogo
           </p>
           <p className="font-display mt-1 text-3xl text-[var(--wood-950)]">
-            {products.length}
+            {allProducts.length}
           </p>
           <p className="mt-1 text-xs text-[var(--muted)]">
             Activos en sistema ERP y tienda
@@ -265,7 +287,7 @@ export default async function InventarioPage({
                     <td className="text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-1.5">
                         <QuickAdjustDialog
-                          products={products.map((pr) => ({
+                          products={allProducts.map((pr) => ({
                             id: pr.id,
                             name: pr.name,
                             sku: pr.sku,
@@ -280,13 +302,13 @@ export default async function InventarioPage({
                             category: p.category,
                           }}
                           triggerLabel="Ajustar"
-                          className="rounded border border-[var(--border)] bg-white px-2 py-1 text-xs font-medium text-[var(--wood-800)] hover:border-[#b0894f] hover:bg-[#fbf7f2] inline-flex items-center gap-1 cursor-pointer"
+                          className="rounded border border-[var(--border)] bg-white px-2 py-1 text-xs font-medium text-[var(--wood-800)] hover:border-brand-gold-strong hover:bg-[#fbf7f2] inline-flex items-center gap-1 cursor-pointer"
                         />
                         <a
                           href={`/producto/${p.id}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center gap-1 rounded border border-[var(--border)] bg-[#fbf7f2] px-2 py-1 text-xs text-[var(--wood-800)] hover:border-[#b0894f] hover:bg-white"
+                          className="inline-flex items-center gap-1 rounded border border-[var(--border)] bg-[#fbf7f2] px-2 py-1 text-xs text-[var(--wood-800)] hover:border-brand-gold-strong hover:bg-white"
                           title="Ver cómo se ve en la tienda online"
                         >
                           <span>Ver web</span>
@@ -308,6 +330,7 @@ export default async function InventarioPage({
           </tbody>
         </table>
       </div>
+      <Pagination basePath="/inventario" searchParams={sp} page={pg.current} pageSize={PAGE_SIZE} total={total} />
 
       <div className="mt-10 mb-3 flex items-center justify-between">
         <div>
@@ -372,7 +395,7 @@ export default async function InventarioPage({
                         {m.refType === "Invoice" && m.refId ? (
                           <Link
                             href={`/facturas/${m.refId}`}
-                            className="inline-flex items-center gap-0.5 text-xs text-[#b0894f] hover:underline mt-0.5 font-medium"
+                            className="inline-flex items-center gap-0.5 text-xs text-brand-gold-strong hover:underline mt-0.5 font-medium"
                           >
                             <span>Ver factura</span>
                             <ArrowUpRight className="h-2.5 w-2.5" />
@@ -380,7 +403,7 @@ export default async function InventarioPage({
                         ) : m.refType === "WorkOrder" ? (
                           <Link
                             href="/fabricacion"
-                            className="inline-flex items-center gap-0.5 text-xs text-[#b0894f] hover:underline mt-0.5 font-medium"
+                            className="inline-flex items-center gap-0.5 text-xs text-brand-gold-strong hover:underline mt-0.5 font-medium"
                           >
                             <span>Ver orden taller</span>
                             <ArrowUpRight className="h-2.5 w-2.5" />
@@ -388,7 +411,7 @@ export default async function InventarioPage({
                         ) : m.refType === "Purchase" && m.refId ? (
                           <Link
                             href={`/compras/${m.refId}`}
-                            className="inline-flex items-center gap-0.5 text-xs text-[#b0894f] hover:underline mt-0.5 font-medium"
+                            className="inline-flex items-center gap-0.5 text-xs text-brand-gold-strong hover:underline mt-0.5 font-medium"
                           >
                             <span>Ver compra</span>
                             <ArrowUpRight className="h-2.5 w-2.5" />
@@ -396,7 +419,7 @@ export default async function InventarioPage({
                         ) : m.refType === "CreditNote" ? (
                           <Link
                             href="/notas-credito"
-                            className="inline-flex items-center gap-0.5 text-xs text-[#b0894f] hover:underline mt-0.5 font-medium"
+                            className="inline-flex items-center gap-0.5 text-xs text-brand-gold-strong hover:underline mt-0.5 font-medium"
                           >
                             <span>Ver nota de crédito</span>
                             <ArrowUpRight className="h-2.5 w-2.5" />

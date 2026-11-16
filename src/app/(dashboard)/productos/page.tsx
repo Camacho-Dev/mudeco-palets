@@ -8,20 +8,21 @@ import { formatCurrency } from "@/lib/format";
 import { productImage } from "@/lib/product-image";
 import { formatStoreCategory } from "@/lib/store-brand";
 import { ExternalLink } from "lucide-react";
+import type { Prisma } from "@prisma/client";
+import { Pagination, pageWindow, parsePage } from "@/components/pagination";
 
 export default async function ProductosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; cat?: string }>;
+  searchParams: Promise<{ q?: string; cat?: string; page?: string }>;
 }) {
   await requireSession();
-  const { q, cat } = await searchParams;
+  const sp = await searchParams;
+  const { q, cat } = sp;
   const query = (q || "").trim();
   const categoryFilter = (cat || "").trim();
 
-  const [products, allCategoryRows] = await Promise.all([
-    prisma.product.findMany({
-      where: {
+  const where: Prisma.ProductWhereInput = {
         kind: "FINISHED",
         ...(categoryFilter
           ? { category: { equals: categoryFilter, mode: "insensitive" } }
@@ -37,9 +38,19 @@ export default async function ProductosPage({
               ],
             }
           : {}),
-      },
+  };
+  const PAGE_SIZE = 25;
+  const [total, activeCount] = await Promise.all([
+    prisma.product.count({ where }),
+    prisma.product.count({ where: { kind: "FINISHED", active: true } }),
+  ]);
+  const pg = pageWindow(parsePage(sp.page), total, PAGE_SIZE);
+  const [products, allCategoryRows] = await Promise.all([
+    prisma.product.findMany({
+      where,
       orderBy: [{ active: "desc" }, { category: "asc" }, { name: "asc" }],
-      take: 250,
+      skip: pg.skip,
+      take: pg.take,
     }),
     prisma.product.findMany({
       where: { kind: "FINISHED" },
@@ -61,7 +72,7 @@ export default async function ProductosPage({
         description={
           query || categoryFilter
             ? `Resultados filtrados${categoryFilter ? ` · ${formatStoreCategory(categoryFilter)}` : ""}${query ? ` · “${query}”` : ""}`
-            : `${products.filter((p) => p.active).length} muebles activos visibles en la tienda online`
+            : `${activeCount} muebles activos visibles en la tienda online`
         }
         action={{ href: "/productos/nuevo", label: "Nuevo mueble" }}
       />
@@ -189,7 +200,7 @@ export default async function ProductosPage({
                             href={`/producto/${p.id}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1 rounded border border-[var(--border)] bg-[#fbf7f2] px-2 py-1 text-xs text-[var(--wood-800)] hover:border-[#b0894f] hover:bg-white"
+                            className="inline-flex items-center gap-1 rounded border border-[var(--border)] bg-[#fbf7f2] px-2 py-1 text-xs text-[var(--wood-800)] hover:border-brand-gold-strong hover:bg-white"
                             title="Ver cómo se ve en la tienda online"
                           >
                             <span>Ver web</span>
@@ -211,6 +222,7 @@ export default async function ProductosPage({
           </tbody>
         </table>
       </div>
+      <Pagination basePath="/productos" searchParams={sp} page={pg.current} pageSize={PAGE_SIZE} total={total} />
     </div>
   );
 }

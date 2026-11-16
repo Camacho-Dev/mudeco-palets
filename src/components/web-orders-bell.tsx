@@ -54,14 +54,14 @@ export function WebOrdersBell({
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--border)] bg-white text-[var(--wood-900)] shadow-sm transition hover:border-[#b0894f] hover:bg-[#fbf7f2]"
+        className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--border)] bg-white text-[var(--wood-900)] shadow-sm transition hover:border-brand-gold-strong hover:bg-[#fbf7f2]"
         title="Notificaciones de pedidos web"
         aria-label="Notificaciones de pedidos web"
         aria-expanded={open}
       >
         <Bell className="h-4 w-4" />
         {count > 0 ? (
-          <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#b0894f] px-1 text-[10px] font-bold text-[#2c1d14] shadow-sm">
+          <span className="absolute -top-1 -right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-gold-strong px-1 text-[10px] font-bold text-[#2c1d14] shadow-sm">
             {count > 9 ? "9+" : count}
           </span>
         ) : null}
@@ -71,13 +71,13 @@ export function WebOrdersBell({
         <div className="fixed inset-x-3 top-14 sm:inset-auto sm:absolute sm:right-0 sm:top-auto sm:mt-2 sm:w-96 rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl z-50 animate-rise">
           <div className="flex items-center justify-between border-b border-[var(--border)] pb-3">
             <div className="flex items-center gap-2">
-              <Globe className="h-4 w-4 text-[#b0894f]" />
+              <Globe className="h-4 w-4 text-brand-gold-strong" />
               <span className="font-semibold text-sm text-[var(--wood-950)]">
                 Pedidos Web Recientes
               </span>
             </div>
             {count > 0 ? (
-              <span className="rounded-full bg-[#b0894f]/15 px-2 py-0.5 text-[0.68rem] font-bold text-[#8a652f]">
+              <span className="rounded-full bg-brand-gold-strong/15 px-2 py-0.5 text-[0.68rem] font-bold text-[#8a652f]">
                 {count} por atender
               </span>
             ) : null}
@@ -98,10 +98,10 @@ export function WebOrdersBell({
                     key={o.id}
                     href={`/pedidos-web/${o.id}`}
                     onClick={() => setOpen(false)}
-                    className="group block rounded-xl border border-[var(--border)] bg-[#fbf7f2]/50 p-3 text-xs transition hover:border-[#b0894f] hover:bg-white hover:shadow-sm"
+                    className="group block rounded-xl border border-[var(--border)] bg-[#fbf7f2]/50 p-3 text-xs transition hover:border-brand-gold-strong hover:bg-white hover:shadow-sm"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-mono font-bold text-[var(--wood-950)] group-hover:text-[#b0894f]">
+                      <span className="font-mono font-bold text-[var(--wood-950)] group-hover:text-brand-gold-strong">
                         {o.number}
                       </span>
                       <span className="rounded bg-white border border-[var(--border)] px-1.5 py-0.2 text-[0.65rem] text-[var(--muted)]">
@@ -123,7 +123,7 @@ export function WebOrdersBell({
                         <Clock className="h-3 w-3 opacity-60" />
                         {formatDate(o.createdAt)}
                       </span>
-                      <span className="text-[#b0894f] font-semibold group-hover:underline flex items-center gap-0.5">
+                      <span className="text-brand-gold-strong font-semibold group-hover:underline flex items-center gap-0.5">
                         Ver orden <ArrowUpRight className="h-2.5 w-2.5" />
                       </span>
                     </div>
@@ -137,7 +137,7 @@ export function WebOrdersBell({
             <Link
               href="/pedidos-web"
               onClick={() => setOpen(false)}
-              className="text-xs font-semibold text-[#b0894f] hover:underline"
+              className="text-xs font-semibold text-brand-gold-strong hover:underline"
             >
               Ver bandeja completa de pedidos web →
             </Link>

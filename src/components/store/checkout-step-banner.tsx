@@ -18,11 +18,11 @@ export function CheckoutStepBanner({
   subtitle: string;
 }) {
   return (
-    <div className="relative overflow-hidden border-b border-[#c9a15a]/25 bg-[#14100d] text-[#faf6f1]">
+    <div className="relative overflow-hidden border-b border-brand-gold/25 bg-[#14100d] text-brand-cream-warm">
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div>
-            <p className="text-[0.65rem] font-bold tracking-[0.22em] text-[#c9a15a] uppercase">
+            <p className="text-[0.65rem] font-bold tracking-[0.22em] text-brand-gold uppercase">
               {badge}
             </p>
             <h1 className="font-display mt-2 text-3xl text-white sm:text-4xl">
@@ -43,7 +43,7 @@ export function CheckoutStepBanner({
                         done
                           ? "bg-emerald-500 text-black"
                           : current
-                            ? "bg-[#c9a15a] text-[#0f0f0f] ring-4 ring-[#c9a15a]/20"
+                            ? "bg-brand-gold text-[#0f0f0f] ring-4 ring-brand-gold/20"
                             : "border border-white/20 bg-white/[0.04] text-white/45"
                       }`}
                     >
@@ -52,7 +52,7 @@ export function CheckoutStepBanner({
                     <span
                       className={`text-xs font-semibold tracking-wider uppercase ${
                         current
-                          ? "text-[#c9a15a]"
+                          ? "text-brand-gold"
                           : done
                             ? "text-white/85"
                             : "text-white/40"
