@@ -46,6 +46,13 @@ export async function updateMyAccountAction(formData: FormData): Promise<{
   const currentPassword = String(formData.get("currentPassword") || "");
   const newPassword = String(formData.get("newPassword") || "");
 
+  if (phone && (phone.includes("@") || phone.replace(/\D/g, "").length < 7)) {
+    return {
+      ok: false,
+      error: "Ingresa un teléfono válido (ej. 809-555-0123), no un correo.",
+    };
+  }
+
   if (!name || name.length < 2 || name.length > 100) {
     return { ok: false, error: "Ingresa un nombre válido (2 a 100 caracteres)." };
   }

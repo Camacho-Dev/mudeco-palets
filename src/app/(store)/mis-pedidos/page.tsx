@@ -9,6 +9,7 @@ import {
   SerializedWebOrder,
 } from "@/components/store/orders-history-card";
 import { ArrowRight } from "lucide-react";
+import { GoldWave } from "@/components/store/gold-wave";
 
 export const metadata = {
   title: "Mi Perfil e Historial de Compras",
@@ -101,8 +102,8 @@ export default async function MisPedidosPage() {
   return (
     <div className="min-h-screen bg-[#f7f4ef] text-[#2c2219]">
       {/* Encabezado */}
-      <section className="border-b border-white/[0.06] bg-[#100d0b] text-[#faf6f1]">
-        <div className="mx-auto flex max-w-[1240px] flex-col gap-5 px-4 pt-10 pb-24 sm:flex-row sm:items-end sm:justify-between sm:px-8 sm:pt-12 lg:px-10">
+      <section className="relative overflow-hidden bg-[#100d0b] text-[#faf6f1]">
+        <div className="relative z-10 mx-auto flex max-w-[1240px] flex-col gap-5 px-4 pt-10 pb-28 sm:flex-row sm:items-end sm:justify-between sm:px-8 sm:pt-12 sm:pb-28 lg:px-10 lg:pb-32">
           <div>
             <p className="text-[11px] font-semibold tracking-[0.24em] text-[#c9a15a] uppercase">
               Mi cuenta
@@ -122,10 +123,11 @@ export default async function MisPedidosPage() {
             <ArrowRight className="h-4 w-4 text-[#c9a15a] transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
+        <GoldWave fill="#f7f4ef" />
       </section>
 
       {/* CUERPO PRINCIPAL: LAYOUT DE 2 COLUMNAS (FICHA DE CLIENTE + HISTORIAL) */}
-      <main className="relative -mt-16 mx-auto max-w-[1240px] px-4 pb-20 sm:px-8 sm:pb-28 lg:px-10">
+      <main className="relative -mt-4 mx-auto max-w-[1240px] sm:-mt-6 px-4 pb-20 sm:px-8 sm:pb-28 lg:px-10">
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-8">
           {/* Columna Izquierda: Ficha de Cliente (Sticky) */}
           <div className="min-w-0 lg:col-span-4 lg:sticky lg:top-28">
