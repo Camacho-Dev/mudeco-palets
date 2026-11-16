@@ -348,6 +348,7 @@ export function CartView() {
                 <div className="mt-6 space-y-3">
                   <Link
                     href="/checkout"
+                    prefetch={false}
                     className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#d4af37] via-[#e2c168] to-[#caa466] px-6 py-3.5 text-xs font-bold tracking-[0.14em] text-[#14100d] uppercase shadow-[0_8px_24px_rgba(212,175,55,0.3)] transition hover:brightness-105 active:scale-[0.98]"
                   >
                     <span>Continuar al checkout</span>
@@ -401,6 +402,7 @@ export function CartView() {
           </div>
           <Link
             href="/checkout"
+            prefetch={false}
             className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#d4af37] via-[#e2c168] to-[#caa466] px-5 py-2.5 text-xs font-bold tracking-wider text-[#14100d] uppercase shadow-md active:scale-95"
           >
             <span>Continuar</span>

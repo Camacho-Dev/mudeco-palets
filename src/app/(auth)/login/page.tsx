@@ -1,7 +1,7 @@
 "use client";
 
 import { getSession, signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import {
@@ -60,7 +60,7 @@ function getPasswordStrength(p: string) {
 }
 
 function LoginForm() {
-  const router = useRouter();
+
   const params = useSearchParams();
   const reduceMotion = useReducedMotion();
   const easeOutExpo = [0.16, 1, 0.3, 1] as const;
@@ -146,16 +146,10 @@ function LoginForm() {
     const session = await getSession();
     const role = session?.user?.role;
 
-    if (safeCallback) {
-      router.push(safeCallback);
-    } else if (role === "ADMIN") {
-      router.push("/panel");
-    } else if (role === "VENDEDOR") {
-      router.push("/vender");
-    } else {
-      router.push("/");
-    }
-    router.refresh();
+    const target =
+      safeCallback ||
+      (role === "ADMIN" ? "/panel" : role === "VENDEDOR" ? "/vender" : "/");
+    window.location.assign(target);
   }
 
   async function handleGoogleSignIn() {
@@ -232,8 +226,7 @@ function LoginForm() {
         return;
       }
 
-      router.push(safeCallback || "/");
-      router.refresh();
+      window.location.assign(safeCallback || "/");
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error inesperado";
       setError("Error al registrarse: " + msg);

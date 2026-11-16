@@ -7,6 +7,7 @@ import { StoreProviders } from "@/components/store/store-providers";
 import { CartProvider } from "@/components/store/cart-context";
 import { StoreConfigProvider } from "@/components/store/store-config";
 import { getStoreCompany } from "@/lib/store";
+import { auth } from "@/lib/auth";
 import { siteUrl } from "@/lib/store-info";
 import "@/components/store/store.css";
 
@@ -65,7 +66,10 @@ export default async function StoreLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const company = await getStoreCompany();
+  const [company, session] = await Promise.all([
+    getStoreCompany(),
+    auth().catch(() => null),
+  ]);
   const orgJsonLd = {
     "@context": "https://schema.org",
     "@type": "FurnitureStore",
@@ -86,7 +90,7 @@ export default async function StoreLayout({
   };
 
   return (
-    <StoreProviders>
+    <StoreProviders session={session}>
       <StoreConfigProvider config={company.madeToOrder} phone={company.phone}>
       <CartProvider>
         <div
