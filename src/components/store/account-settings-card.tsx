@@ -193,6 +193,7 @@ export function AccountSettingsCard({
                 <input
                   id="account-name"
                   name="name"
+                  autoComplete="name"
                   defaultValue={initialName}
                   required
                   minLength={2}
@@ -209,6 +210,9 @@ export function AccountSettingsCard({
                 <input
                   id="account-phone"
                   name="phone"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
                   defaultValue={initialPhone}
                   maxLength={40}
                   placeholder="Ej. 809-555-0123"
@@ -223,6 +227,7 @@ export function AccountSettingsCard({
                 <textarea
                   id="account-address"
                   name="address"
+                  autoComplete="street-address"
                   rows={2}
                   defaultValue={initialAddress}
                   maxLength={200}
@@ -236,6 +241,16 @@ export function AccountSettingsCard({
                   <Lock className="h-3 w-3 text-brand-gold-strong" />
                   <span>Cambiar contraseña (opcional)</span>
                 </p>
+                {/* Usuario para el gestor de contraseñas: evita que autocomplete
+                    el correo guardado dentro del campo de teléfono */}
+                <input
+                  type="email"
+                  name="username"
+                  autoComplete="username"
+                  value={email}
+                  readOnly
+                  hidden
+                />
                 <input
                   aria-label="Contraseña actual"
                   name="currentPassword"
