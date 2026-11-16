@@ -57,7 +57,7 @@ const securityHeaders = [
   },
   {
     key: "X-XSS-Protection",
-    value: "1; mode=block",
+    value: "0",
   },
   {
     key: "Content-Security-Policy",
@@ -73,6 +73,7 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 86400,
+    remotePatterns: [{ protocol: "https", hostname: "**" }],
   },
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion", "date-fns"],

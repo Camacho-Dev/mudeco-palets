@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import { StoreHeader } from "@/components/store/store-header";
 import { StoreFooter } from "@/components/store/store-footer";
@@ -11,8 +11,8 @@ import { siteUrl } from "@/lib/store-info";
 import "@/components/store/store.css";
 
 // Revalidación dinámica instantánea de la tienda
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const viewport: Viewport = { themeColor: "#0f0f0f" };
+
 
 const storeDisplay = Cormorant_Garamond({
   variable: "--font-store-display",
@@ -98,8 +98,14 @@ export default async function StoreLayout({
               __html: JSON.stringify(orgJsonLd).replace(/</g, "\\u003c"),
             }}
           />
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[200] focus:rounded-full focus:bg-[#c9a15a] focus:px-4 focus:py-2 focus:text-xs focus:font-bold focus:text-[#0f0d0a] focus:shadow-lg"
+          >
+            Saltar al contenido principal
+          </a>
           <StoreHeader />
-          <main className="flex-1">{children}</main>
+          <main id="main-content" tabIndex={-1} className="flex-1 outline-none">{children}</main>
           <StoreFooter company={company} />
           <WhatsappFloating phone={company.phone} />
         </div>

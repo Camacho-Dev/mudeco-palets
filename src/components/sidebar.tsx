@@ -143,7 +143,7 @@ export async function Sidebar() {
   const admin = isAdmin(session?.user?.role);
 
   return (
-    <aside className="no-print sticky top-0 hidden h-screen w-64 shrink-0 flex-col overflow-y-auto bg-[#0a0f1d] border-r border-slate-800/80 text-slate-100 md:flex transition-colors">
+    <aside className="no-print sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto bg-[#0a0f1d] border-r border-slate-800/80 text-slate-100 md:flex transition-colors">
       <div className="border-b border-white/[0.08] px-5 py-5 bg-gradient-to-b from-white/[0.03] to-transparent">
         <BrandLogo
           width={200}

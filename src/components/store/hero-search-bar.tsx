@@ -77,15 +77,12 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
     <div ref={containerRef} className="relative w-full max-w-xl">
       {/* Buscador minimalista de alta gama con animación de focus */}
       <form onSubmit={handleSearch} className="relative">
-        <motion.div
-          animate={{
-            borderColor: isFocused || isOpen ? "rgba(212, 175, 55, 0.9)" : "rgba(255, 255, 255, 0.16)",
-            boxShadow: isFocused || isOpen
-              ? "0 0 35px rgba(212, 175, 55, 0.28), 0 20px 50px rgba(0,0,0,0.85)"
-              : "0 20px 50px rgba(0,0,0,0.7)",
-          }}
-          transition={{ duration: 0.25 }}
-          className="group relative flex items-center rounded-full border bg-[#14120e]/95 p-1.5 sm:p-2 backdrop-blur-xl ring-1 ring-white/10"
+        <div
+          className={`group relative flex items-center rounded-full border bg-[#14120e]/95 p-1.5 sm:p-2 backdrop-blur-xl ring-1 ring-white/10 transition-[border-color,box-shadow] duration-200 ${
+            isFocused || isOpen
+              ? "border-[#d4af37]/90 shadow-[0_0_35px_rgba(212,175,55,0.28),0_20px_50px_rgba(0,0,0,0.85)]"
+              : "border-white/15 shadow-[0_20px_50px_rgba(0,0,0,0.7)]"
+          }`}
         >
           <input
             type="text"
@@ -105,23 +102,25 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
             className="w-full bg-transparent px-4 text-xs sm:text-sm text-white placeholder:text-white/45 focus:outline-none"
           />
 
-          {query ? (
-            <motion.button
-              type="button"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              onClick={() => {
-                setQuery("");
-                setIsOpen(true);
-              }}
-              className="p-1.5 text-white/40 hover:text-white transition shrink-0 mr-1 cursor-pointer"
-              title="Borrar búsqueda"
-              aria-label="Borrar búsqueda"
-            >
-              <X className="h-4 w-4" />
-            </motion.button>
-          ) : null}
+          <AnimatePresence>
+            {query ? (
+              <motion.button
+                type="button"
+                initial={{ opacity: 0, scale: 0.92 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.92 }}
+                onClick={() => {
+                  setQuery("");
+                  setIsOpen(true);
+                }}
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center text-white/40 hover:text-white transition shrink-0 mr-1 cursor-pointer"
+                title="Borrar búsqueda"
+                aria-label="Borrar búsqueda"
+              >
+                <X className="h-4 w-4" />
+              </motion.button>
+            ) : null}
+          </AnimatePresence>
 
           <motion.button
             type="submit"
@@ -133,13 +132,14 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
             <Search className="h-3.5 w-3.5 text-[#0f0d0a]" strokeWidth={2.2} />
             <span>Buscar</span>
           </motion.button>
-        </motion.div>
+        </div>
       </form>
 
       {/* Menú desplegable interactivo de productos disponibles */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            style={{ transformOrigin: "top center" }}
             initial={{ opacity: 0, y: -6, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.98 }}

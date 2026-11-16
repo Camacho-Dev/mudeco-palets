@@ -619,7 +619,7 @@ export function CatalogExplorer({
       </div>
 
       {/* Contador de resultados */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-1 text-xs text-[#8a7260]">
+      <div aria-live="polite" aria-atomic="true" className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-1 text-xs text-[#8a7260]">
         <p>
           Mostrando{" "}
           <span className="font-bold text-[#1b1511]">
@@ -637,6 +637,7 @@ export function CatalogExplorer({
         </p>
       </div>
 
+      <h2 className="sr-only">Piezas disponibles</h2>
       {/* Cuadrícula de productos */}
       {filteredAndSortedProducts.length === 0 ? (
         <div className="rounded-2xl border border-[#e4d8cb] bg-white px-6 py-16 text-center shadow-sm">
@@ -650,7 +651,7 @@ export function CatalogExplorer({
             <button
               type="button"
               onClick={handleClearFilters}
-              className="btn btn-primary text-xs uppercase tracking-wider cursor-pointer"
+              className="store-cta store-cta-primary text-xs uppercase tracking-wider cursor-pointer"
             >
               Ver todo el catálogo
             </button>
@@ -667,7 +668,7 @@ export function CatalogExplorer({
               )}
               target="_blank"
               rel="noreferrer"
-              className="btn btn-secondary text-xs uppercase tracking-wider inline-flex items-center gap-2"
+              className="store-cta store-cta-outline-dark text-xs uppercase tracking-wider inline-flex items-center gap-2"
             >
               <MessageCircle className="h-4 w-4" />
               Cotizar a medida por WhatsApp

@@ -27,7 +27,7 @@ export function ProductCard({
     <Link
       href={`/producto/${product.id}`}
       prefetch={false}
-      className={dark ? "store-product-card-dark group" : "store-product-card group"}
+      className={`${dark ? "store-product-card-dark" : "store-product-card"} group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c9a15a] active:scale-[0.985] transition-transform`}
     >
       <div
         className={`relative aspect-[4/5] overflow-hidden ${
@@ -50,19 +50,19 @@ export function ProductCard({
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
           unoptimized={src.startsWith("data:")}
-          className={`object-cover transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105 ${
+          className={`object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105 ${
             isSoldOut
               ? "grayscale brightness-90 group-hover:grayscale-[35%] group-hover:brightness-100"
               : ""
           }`}
         />
 
-        <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/85 via-black/40 to-transparent p-4 pt-14 opacity-0 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:opacity-100">
+        <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/85 via-black/40 to-transparent p-4 pt-14 opacity-0 transition-opacity duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:opacity-100">
           <span className="text-[0.65rem] font-semibold tracking-[0.16em] text-white/90 uppercase">
             Ver detalle
           </span>
           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#c9a15a] text-black transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-1">
-            <ArrowRight className="h-3.5 w-3.5" />
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
           </span>
         </div>
       </div>
@@ -90,7 +90,7 @@ export function ProductCard({
           }`}
         >
           <p
-            className={`text-sm font-bold tracking-wide ${
+            className={`text-sm font-bold tracking-wide tabular-nums ${
               dark ? "text-[#c9a15a]" : "text-[var(--wood-800)]"
             }`}
           >

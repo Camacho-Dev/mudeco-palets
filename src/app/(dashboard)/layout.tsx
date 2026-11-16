@@ -11,7 +11,7 @@ export default async function DashboardLayout({
   await requireSession();
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-dvh overflow-hidden">
       <Sidebar />
       <MobileNav>
         <SidebarMobilePanel />

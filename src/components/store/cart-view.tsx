@@ -163,7 +163,7 @@ export function CartView() {
                     layout
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -24, height: 0, marginBottom: 0, overflow: "hidden" }}
+                    exit={{ opacity: 0, x: -20, scale: 0.96 }}
                     transition={{ duration: 0.28, ease: LUXURY_EASE }}
                     className="group rounded-2xl border border-[#e2d5c5] bg-white p-4 sm:p-5 shadow-[0_8px_24px_-12px_rgba(20,16,13,0.08)] transition-colors hover:border-[#c9a15a]/55"
                   >
@@ -225,7 +225,7 @@ export function CartView() {
                             <div className="inline-flex items-center rounded-full border border-[#e2d5c5] bg-[#faf7f2] p-0.5">
                               <button
                                 type="button"
-                                className="flex h-8 w-8 items-center justify-center rounded-full text-[#403227] transition hover:bg-white hover:text-[#b0894f] active:scale-90 cursor-pointer"
+                                className="flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full text-[#403227] transition hover:bg-white hover:text-[#b0894f] active:scale-90 cursor-pointer"
                                 aria-label={`Quitar una unidad de ${item.name}`}
                                 onClick={() =>
                                   setQty(item.productId, item.quantity - 1)
@@ -239,7 +239,7 @@ export function CartView() {
                               <button
                                 type="button"
                                 disabled={atMax}
-                                className="flex h-8 w-8 items-center justify-center rounded-full text-[#403227] transition hover:bg-white hover:text-[#b0894f] active:scale-90 cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed"
+                                className="flex h-10 w-10 sm:h-8 sm:w-8 items-center justify-center rounded-full text-[#403227] transition hover:bg-white hover:text-[#b0894f] active:scale-90 cursor-pointer disabled:opacity-35 disabled:cursor-not-allowed"
                                 aria-label={`Agregar una unidad de ${item.name}`}
                                 title={
                                   atMax
@@ -389,7 +389,7 @@ export function CartView() {
       </div>
 
       {/* Barra fija inferior en móvil */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[#c9a15a]/30 bg-[#14100d]/95 px-4 py-3 text-white backdrop-blur-xl lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-[#c9a15a]/30 bg-[#14100d]/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] text-white backdrop-blur-xl lg:hidden">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
           <div>
             <p className="text-[10px] font-semibold tracking-wider text-white/60 uppercase">

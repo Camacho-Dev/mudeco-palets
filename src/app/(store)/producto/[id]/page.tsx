@@ -120,11 +120,31 @@ export default async function ProductoPage({
           __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
         }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              { "@type": "ListItem", position: 1, name: "Inicio", item: siteUrl() },
+              { "@type": "ListItem", position: 2, name: "Catálogo", item: `${siteUrl()}/catalogo` },
+              {
+                "@type": "ListItem",
+                position: 3,
+                name: formatStoreCategory(product.category),
+                item: `${siteUrl()}/catalogo?cat=${encodeURIComponent(product.category)}`,
+              },
+              { "@type": "ListItem", position: 4, name: product.name },
+            ],
+          }).replace(/</g, "\\u003c"),
+        }}
+      />
 
       {/* Franja superior editorial con migas de pan */}
       <div className="border-b border-[#c9a15a]/25 bg-[#14100d] text-white">
         <div className="mx-auto flex max-w-[1560px] flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-8 lg:px-12 xl:px-16">
-          <div className="flex items-center gap-2 text-[0.72rem] font-medium tracking-[0.14em] text-white/65 uppercase">
+          <nav aria-label="Migas de pan" className="flex items-center gap-2 text-[0.72rem] font-medium tracking-[0.14em] text-white/65 uppercase">
             <Link href="/catalogo" className="transition hover:text-white">
               ← Catálogo
             </Link>
@@ -136,10 +156,10 @@ export default async function ProductoPage({
               {formatStoreCategory(product.category)}
             </Link>
             <span className="hidden text-white/30 sm:inline">/</span>
-            <span className="hidden truncate max-w-[260px] text-white/85 sm:inline">
+            <span aria-current="page" className="hidden truncate max-w-[260px] text-white/85 sm:inline">
               {product.name}
             </span>
-          </div>
+          </nav>
           {product.sku ? (
             <span className="rounded-md border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[11px] text-white/70">
               SKU · {product.sku}
@@ -189,12 +209,12 @@ export default async function ProductoPage({
             ) : null}
           </div>
 
-          <h1 className="font-display mt-2 text-3xl sm:text-4xl lg:text-5xl leading-tight text-[var(--wood-950)]">
+          <h1 className="font-display text-balance mt-2 text-3xl sm:text-4xl lg:text-5xl leading-tight text-[var(--wood-950)]">
             {product.name}
           </h1>
 
           <div className="mt-4 flex items-baseline gap-4">
-            <span className="text-3xl font-bold tracking-tight text-[#8a6a3a]">
+            <span className="text-3xl font-bold tracking-tight text-[#8a6a3a] tabular-nums">
               {formatCurrency(product.price)}
             </span>
             <div className="flex items-center gap-1.5 text-xs">

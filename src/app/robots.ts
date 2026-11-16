@@ -43,6 +43,7 @@ export default function robots(): MetadataRoute.Robots {
           "/configuracion/",
           "/auditoria/",
           "/login",
+          "/carrito",
           "/checkout/",
           "/pedido/",
           "/mis-pedidos/",

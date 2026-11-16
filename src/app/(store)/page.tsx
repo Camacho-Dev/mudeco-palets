@@ -16,7 +16,7 @@ import { withDbRetry } from "@/lib/prisma";
 import { STORE_SOCIAL } from "@/lib/store-brand";
 import { getScoredProducts } from "@/lib/recommendations";
 import { getStoreCompany } from "@/lib/store";
-import { storeWhatsApp } from "@/lib/store-info";
+import { siteUrl, storeWhatsApp } from "@/lib/store-info";
 import { HeroSearchBar } from "@/components/store/hero-search-bar";
 
 const TRUST = [
@@ -93,8 +93,8 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   );
 }
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 60;
+
 
 export default async function StoreHomePage() {
   const [company, scoredProducts] = await Promise.all([
@@ -255,7 +255,7 @@ export default async function StoreHomePage() {
               <t.icon className="mt-0.5 h-5 w-5 shrink-0 text-[#c9a15a] sm:mt-0" strokeWidth={1.6} />
               <div>
                 <h2 className="text-[0.78rem] font-semibold text-white">{t.title}</h2>
-                <p className="mt-0.5 text-xs leading-snug text-white/50">{t.desc}</p>
+                <p className="mt-0.5 text-xs leading-snug text-white/70">{t.desc}</p>
               </div>
             </Reveal>
           ))}
@@ -396,7 +396,7 @@ export default async function StoreHomePage() {
               <Reveal key={t.author} delay={idx * 0.08}>
                 <figure className="flex h-full flex-col justify-between rounded-2xl border border-white/[0.07] bg-[#111] p-7">
                   <div>
-                    <div className="flex gap-0.5 text-[#c9a15a]" aria-label="5 de 5 estrellas">
+                    <div className="flex gap-0.5 text-[#c9a15a]" role="img" aria-label="5 de 5 estrellas">
                       {[0, 1, 2, 3, 4].map((i) => (
                         <Star key={i} className="h-3.5 w-3.5 fill-current" aria-hidden />
                       ))}
@@ -407,7 +407,7 @@ export default async function StoreHomePage() {
                   </div>
                   <figcaption className="mt-6 border-t border-white/[0.06] pt-5">
                     <p className="text-sm font-semibold text-white">{t.author}</p>
-                    <p className="mt-0.5 text-xs text-white/45">{t.role}</p>
+                    <p className="mt-0.5 text-xs text-white/70">{t.role}</p>
                   </figcaption>
                 </figure>
               </Reveal>
@@ -446,7 +446,7 @@ export default async function StoreHomePage() {
               </a>
               <Link href="/contacto" className="store-cta store-cta-ghost">
                 <Ruler className="h-4 w-4" />
-                Formulario
+                Solicitar presupuesto
               </Link>
             </div>
           </div>
@@ -460,13 +460,13 @@ export default async function StoreHomePage() {
             "@context": "https://schema.org",
             "@type": "WebSite",
             name: company.name,
-            url: process.env.NEXT_PUBLIC_SITE_URL || "https://mudecopalets.com",
+            url: siteUrl(),
             potentialAction: {
               "@type": "SearchAction",
-              target: `${process.env.NEXT_PUBLIC_SITE_URL || "https://mudecopalets.com"}/catalogo?q={search_term_string}`,
+              target: `${siteUrl()}/catalogo?q={search_term_string}`,
               "query-input": "required name=search_term_string",
             },
-          }),
+          }).replace(/</g, "\\u003c"),
         }}
       />
       {/* —— Galería —— */}

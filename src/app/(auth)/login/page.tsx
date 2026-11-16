@@ -486,12 +486,13 @@ function LoginForm() {
                         <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9b8a77]" />
                         <input
                           id="login-email"
-                          type="text"
+                          type="email"
+                          inputMode="email"
                           autoComplete="email"
                           value={loginEmail}
                           onChange={(e) => setLoginEmail(e.target.value)}
                           placeholder="tu@correo.com"
-                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-3.5 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none"
+                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-3.5 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a15a]"
                         />
                       </div>
                     </div>
@@ -587,7 +588,7 @@ function LoginForm() {
                           value={regName}
                           onChange={(e) => setRegName(e.target.value)}
                           placeholder="Tu nombre"
-                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-3.5 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none"
+                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-3.5 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a15a]"
                         />
                       </div>
                     </div>
@@ -608,7 +609,7 @@ function LoginForm() {
                           value={regEmail}
                           onChange={(e) => setRegEmail(e.target.value)}
                           placeholder="tu@correo.com"
-                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-3.5 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none"
+                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-3.5 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a15a]"
                         />
                       </div>
                     </div>
@@ -629,7 +630,7 @@ function LoginForm() {
                           value={regPhone}
                           onChange={(e) => setRegPhone(e.target.value)}
                           placeholder="809-555-0123"
-                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-3.5 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none"
+                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-3.5 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a15a]"
                         />
                       </div>
                     </div>

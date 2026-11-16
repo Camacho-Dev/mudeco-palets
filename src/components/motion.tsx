@@ -44,7 +44,7 @@ export function AnimatedNumber({
   }, [value, duration, reduce]);
 
   return (
-    <span className={className}>
+    <span className={`tabular-nums ${className}`}>
       {currency ? formatCurrency(display) : Math.round(display).toLocaleString("es-DO")}
     </span>
   );

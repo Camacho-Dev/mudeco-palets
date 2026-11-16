@@ -122,7 +122,7 @@ function ShelfCard({
                 href={`/producto/${product.id}`}
                 aria-label={`Ver detalles de ${product.name}`}
                 title="Agotado · Ver opciones por encargo"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-neutral-300 transition-colors duration-300 hover:border-[#c9a15a]/45 hover:text-[#f5dfa8]"
+                className="inline-flex h-11 w-11 sm:h-9 sm:w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 text-neutral-300 transition-colors duration-300 hover:border-[#c9a15a]/45 hover:text-[#f5dfa8]"
               >
                 <ArrowUpRight className="h-4 w-4" strokeWidth={1.8} />
               </Link>
@@ -130,11 +130,11 @@ function ShelfCard({
             <motion.button
               type="button"
               disabled={!canAdd}
-              whileTap={{ scale: 0.9 }}
+              whileTap={{ scale: 0.96 }}
               whileHover={{ scale: 1.08 }}
-              aria-label="Agregar al carrito"
+              aria-label={`Agregar ${product.name} al carrito`}
               onClick={handleAdd}
-              className={`inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors duration-300 disabled:opacity-40 cursor-pointer ${
+              className={`inline-flex h-11 w-11 sm:h-9 sm:w-9 items-center justify-center rounded-full border transition-colors duration-300 disabled:opacity-40 cursor-pointer ${
                 added
                   ? "border-emerald-500/70 bg-emerald-500/20 text-emerald-400"
                   : "border-[#c9a15a]/45 bg-[#c9a15a]/10 text-[#f5dfa8] hover:bg-[#c9a15a] hover:text-[#0f0d0a]"
@@ -241,8 +241,8 @@ export function ProductShelf({
       {/* Indicador de desplazamiento sutil */}
       <div className="mt-2 h-0.5 w-full bg-white/[0.05] rounded-full overflow-hidden">
         <div
-          className="h-full bg-[#c9a15a]/60 transition-all duration-150"
-          style={{ width: `${Math.max(12, scrollProgress)}%` }}
+          className="h-full w-full bg-[#c9a15a]/60 transition-transform duration-150"
+          style={{ transformOrigin: "left", transform: `scaleX(${Math.max(0.12, scrollProgress / 100)})` }}
         />
       </div>
     </section>

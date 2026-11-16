@@ -150,7 +150,7 @@ export function StoreHeaderClient({
                   </button>
                 </div>
 
-                <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
+                <nav aria-label="Navegación móvil" className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
                   {primaryNav.map((item) => {
                     const Icon = item.icon;
                     return (
@@ -241,7 +241,7 @@ export function StoreHeaderClient({
             />
           </Link>
 
-          <nav className="hidden h-full flex-1 items-center justify-center gap-0.5 lg:flex xl:gap-2">
+          <nav aria-label="Navegación principal" className="hidden h-full flex-1 items-center justify-center gap-0.5 lg:flex xl:gap-2">
             {primaryNav.map((item) =>
               item.hasCats ? (
                 <div
@@ -254,7 +254,17 @@ export function StoreHeaderClient({
                     <Link
                       href="/catalogo"
                       className="store-nav-link inline-flex items-center gap-1.5 px-3 py-2"
+                      aria-haspopup="true"
+                      aria-expanded={catsOpen}
                       aria-current={active(item.href) ? "page" : undefined}
+                      onKeyDown={(e) => {
+                        if (e.key === "ArrowDown") {
+                          e.preventDefault();
+                          openCatsMenu();
+                        } else if (e.key === "Escape") {
+                          setCatsOpen(false);
+                        }
+                      }}
                       onClick={() => setCatsOpen(false)}
                     >
                       <span>Catálogo</span>
@@ -269,6 +279,7 @@ export function StoreHeaderClient({
                     {catsOpen && (
                       <div className="absolute top-full left-1/2 z-50 pt-2 -translate-x-1/2">
                         <motion.div
+                          style={{ transformOrigin: "top center" }}
                           initial={{ opacity: 0, y: 10, scale: 0.97 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 6, scale: 0.98 }}
@@ -333,7 +344,7 @@ export function StoreHeaderClient({
             <button
               type="button"
               onClick={() => setSearchOpen((v) => !v)}
-              className={`inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border transition-all duration-300 cursor-pointer active:scale-95 ${
+              className={`inline-flex h-11 w-11 sm:h-10 sm:w-10 items-center justify-center rounded-full border transition-colors duration-300 cursor-pointer active:scale-95 ${
                 searchOpen
                   ? "border-[#d4af37] bg-[#1a1410] text-[#f5dfa8] shadow-[0_0_15px_rgba(212,175,55,0.3)]"
                   : "border-white/15 bg-[#14100e]/80 text-white/80 hover:border-[#d4af37]/60 hover:text-[#f5dfa8] hover:bg-[#1a1410]"
@@ -350,7 +361,7 @@ export function StoreHeaderClient({
             </div>
             <button
               type="button"
-              className="inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-white/15 bg-[#14100e]/80 text-white/80 transition-all duration-300 hover:border-[#d4af37]/60 hover:text-white lg:hidden active:scale-95"
+              className="inline-flex h-11 w-11 sm:h-10 sm:w-10 items-center justify-center rounded-full border border-white/15 bg-[#14100e]/80 text-white/80 transition-colors duration-300 hover:border-[#d4af37]/60 hover:text-white lg:hidden active:scale-95"
               aria-label="Abrir menú"
               aria-expanded={open}
               onClick={() => setOpen((v) => !v)}
@@ -390,10 +401,12 @@ export function StoreHeaderClient({
                   <input
                     ref={searchInputRef}
                     type="search"
+                    name="q"
+                    aria-label="Buscar en la tienda"
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
-                    placeholder="Buscar cama, mesa de comedor, gavetero, repisa..."
-                    className="h-10 w-full rounded-xl border border-white/15 bg-white/[0.05] pl-10 pr-4 text-xs sm:text-sm text-white placeholder:text-white/40 focus:border-[#c9a15a] focus:outline-none"
+                    placeholder="Buscar cama, mesa de comedor, gavetero, repisa…"
+                    className="h-10 w-full rounded-xl border border-white/15 bg-white/[0.05] pl-10 pr-4 text-xs sm:text-sm text-white placeholder:text-white/40 focus:border-[#c9a15a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a15a]"
                   />
                 </div>
                 <button

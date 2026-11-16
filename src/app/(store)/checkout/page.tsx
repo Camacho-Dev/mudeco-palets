@@ -5,7 +5,10 @@ import { isStripeConfigured } from "@/lib/stripe";
 import { CheckoutStepBanner } from "@/components/store/checkout-step-banner";
 import { CreditCard, Store, FileText, Landmark } from "lucide-react";
 
-export const metadata = { title: "Checkout" };
+export const metadata = {
+  title: "Checkout",
+  robots: { index: false, follow: false },
+};
 
 const baseOptions = [
   {

@@ -26,7 +26,7 @@ export function MobileNav({ children }: { children: React.ReactNode }) {
     <>
       <button
         type="button"
-        className="no-print fixed top-2 left-3 z-40 flex h-9 w-9 items-center justify-center rounded-lg bg-[#0a0f1d] text-white shadow-sm transition-transform active:scale-95 md:hidden cursor-pointer"
+        className="no-print fixed top-[max(0.5rem,env(safe-area-inset-top))] left-3 z-40 flex h-11 w-11 items-center justify-center rounded-lg bg-[#0a0f1d] text-white shadow-sm transition-transform active:scale-95 md:hidden cursor-pointer"
         onClick={() => setOpen(true)}
         aria-label="Abrir menú"
         aria-expanded={open}
