@@ -1,6 +1,6 @@
 import type { NextAuthConfig } from "next-auth";
 import { NextResponse } from "next/server";
-import { isAdminPath, isPublicPath } from "@/lib/sensitive";
+import { isAdminPath, isCustomerPath, isPublicPath } from "@/lib/sensitive";
 import { isAdmin, isStaff } from "@/lib/rbac";
 
 const isProd = process.env.NODE_ENV === "production";
@@ -76,6 +76,12 @@ export const authConfig = {
       }
 
       if (isPublicPath(pathname) || isLogin) {
+        return true;
+      }
+
+      // Cuenta del cliente: con sesión entra cualquier rol (también CLIENTE);
+      // sin sesión cae en la redirección al login de abajo.
+      if (isCustomerPath(pathname) && isLoggedIn) {
         return true;
       }
 
