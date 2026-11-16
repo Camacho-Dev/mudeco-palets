@@ -233,17 +233,26 @@ export function GoogleSetupModal({
         <button
           type="button"
           onClick={onClose}
+          aria-label="Cerrar"
           className="rounded-lg p-1 text-[#8c7b68] hover:bg-[#f4eee5]"
         >
           <X className="h-4 w-4" />
         </button>
       </div>
-      <p className="text-xs leading-relaxed text-[#6f5d4b]">
-        El inicio de sesión con Google requiere configurar{" "}
-        <code>AUTH_GOOGLE_ID</code> y <code>AUTH_GOOGLE_SECRET</code> en el
-        entorno. Mientras tanto, puedes ingresar o crear tu cuenta con tu correo
-        electrónico.
-      </p>
+      {process.env.NODE_ENV === "production" ? (
+        <p className="text-xs leading-relaxed text-[#6f5d4b]">
+          El acceso con Google no está disponible en este momento. Puedes
+          ingresar o crear tu cuenta con tu correo electrónico.
+        </p>
+      ) : (
+        // Solo en desarrollo: indica qué variables faltan (las que lee src/lib/auth.ts)
+        <p className="text-xs leading-relaxed text-[#6f5d4b]">
+          Google no está configurado en este entorno. Agrega{" "}
+          <code>GOOGLE_CLIENT_ID</code> y <code>GOOGLE_CLIENT_SECRET</code> al
+          archivo <code>.env</code> y reinicia el servidor. Mientras tanto,
+          puedes ingresar con tu correo electrónico.
+        </p>
+      )}
       <button
         type="button"
         onClick={onClose}
