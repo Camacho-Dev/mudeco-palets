@@ -8,6 +8,7 @@ export const STORE_CATEGORIES = [
   "REPISA DE TV",
   "BANCO",
   "REPISA DE ENTRADA",
+  "CAVA DE VINOS",
 ] as const;
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -19,6 +20,7 @@ const CATEGORY_LABELS: Record<string, string> = {
   "REPISA DE TV": "Repisas de TV",
   BANCO: "Bancos",
   "REPISA DE ENTRADA": "Repisas de Entrada",
+  "CAVA DE VINOS": "Cavas de Vinos",
 };
 
 export function formatStoreCategory(cat: string): string {
