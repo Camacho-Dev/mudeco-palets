@@ -384,7 +384,7 @@ function LoginForm() {
                     key={item}
                     type="button"
                     onClick={() => switchTab(item)}
-                    className={`relative z-10 rounded-lg py-2 transition-colors cursor-pointer ${
+                    className={`relative z-10 min-h-[44px] rounded-lg py-2 transition-colors cursor-pointer ${
                       active
                         ? "text-[#14100d]"
                         : "text-[#6f5d4b] hover:text-[#14100d]"
@@ -411,10 +411,12 @@ function LoginForm() {
             <AnimatePresence>
               {error && (
                 <motion.div
+                  key="login-error"
+                  role="alert"
                   initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.16 }}
                   className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-2.5 text-xs font-medium text-rose-700"
                 >
                   {error}
@@ -422,10 +424,12 @@ function LoginForm() {
               )}
               {successMsg && (
                 <motion.div
+                  key="login-success"
+                  role="status"
                   initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.16 }}
                   className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-xs font-medium text-emerald-700"
                 >
                   {successMsg}
@@ -440,16 +444,15 @@ function LoginForm() {
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.18 }}
+                  transition={{ duration: 0.13 }}
                   className="mt-6 space-y-5"
                 >
                   <motion.button
                     type="button"
-                    whileHover={{ y: -1 }}
-                    whileTap={{ scale: 0.985 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={handleGoogleSignIn}
                     disabled={googleLoading || loading}
-                    className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-[#dfd3c2] bg-white px-4 py-2.5 text-sm font-medium text-[#14100d] transition hover:border-[#b0894f] hover:bg-[#faf7f2] disabled:opacity-60 cursor-pointer"
+                    className="flex min-h-[46px] w-full items-center justify-center gap-2.5 rounded-xl border border-[#dfd3c2] bg-white px-4 py-2.5 text-sm font-medium text-[#14100d] transition sm:hover:-translate-y-0.5 hover:border-[#b0894f] hover:bg-[#faf7f2] disabled:opacity-60 cursor-pointer"
                   >
                     <GoogleIcon />
                     <span>
@@ -520,7 +523,7 @@ function LoginForm() {
                           value={loginPassword}
                           onChange={(e) => setLoginPassword(e.target.value)}
                           placeholder="••••••••"
-                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-10 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none"
+                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-12 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a15a]"
                         />
                         <button
                           type="button"
@@ -530,7 +533,7 @@ function LoginForm() {
                               ? "Ocultar contraseña"
                               : "Mostrar contraseña"
                           }
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9b8a77] hover:text-[#14100d] cursor-pointer"
+                          className="absolute right-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-[#9b8a77] hover:text-[#14100d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a15a] cursor-pointer"
                         >
                           {showPassword ? (
                             <EyeOff className="h-4 w-4" />
@@ -543,10 +546,9 @@ function LoginForm() {
 
                     <motion.button
                       type="submit"
-                      whileHover={{ y: -1 }}
-                      whileTap={{ scale: 0.985 }}
+                      whileTap={{ scale: 0.98 }}
                       disabled={loading || googleLoading}
-                      className="group flex w-full items-center justify-center gap-2 rounded-xl bg-[#14100d] px-4 py-3 text-sm font-semibold text-[#faf6f1] transition hover:bg-[#2a211a] disabled:opacity-60 cursor-pointer"
+                      className="group flex min-h-[46px] w-full items-center justify-center gap-2 rounded-xl bg-[#14100d] px-4 py-3 text-sm font-semibold text-[#faf6f1] transition sm:hover:-translate-y-0.5 hover:bg-[#2a211a] disabled:opacity-60 cursor-pointer"
                     >
                       <span>{loading ? "Entrando…" : "Iniciar sesión"}</span>
                       {!loading && (
@@ -561,7 +563,7 @@ function LoginForm() {
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.18 }}
+                  transition={{ duration: 0.13 }}
                   className="mt-6"
                 >
                   <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
@@ -619,6 +621,7 @@ function LoginForm() {
                         <input
                           id="reg-phone"
                           type="tel"
+                          inputMode="tel"
                           required
                           value={regPhone}
                           onChange={(e) => setRegPhone(e.target.value)}
@@ -645,7 +648,7 @@ function LoginForm() {
                           value={regPassword}
                           onChange={(e) => setRegPassword(e.target.value)}
                           placeholder="Mínimo 6 caracteres"
-                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-10 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none"
+                          className="w-full rounded-xl border border-[#dfd3c2] bg-[#fcfaf7] py-2.5 pl-10 pr-12 text-sm text-[#14100d] placeholder:text-[#a69787] focus:border-[#b0894f] focus:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a15a]"
                         />
                         <button
                           type="button"
@@ -655,7 +658,7 @@ function LoginForm() {
                               ? "Ocultar contraseña"
                               : "Mostrar contraseña"
                           }
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9b8a77] hover:text-[#14100d] cursor-pointer"
+                          className="absolute right-1 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-[#9b8a77] hover:text-[#14100d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c9a15a] cursor-pointer"
                         >
                           {showRegPassword ? (
                             <EyeOff className="h-4 w-4" />
