@@ -538,59 +538,95 @@
   transform: scale(1.08);
 }
 
-/* ——— Fondo animado del inicio (taller + logo en madera) ——— */
-.hero-kenburns {
-  animation: hero-kenburns 26s ease-in-out infinite alternate;
+/* ——— Portada animada del inicio (taller + logo en madera) ——— */
+
+/* Fondo difuminado: deriva lenta */
+.hero-backdrop-drift {
+  animation: hero-backdrop-drift 30s ease-in-out infinite alternate;
   will-change: transform;
 }
 
-@keyframes hero-kenburns {
+@keyframes hero-backdrop-drift {
+  from {
+    transform: translate3d(-2%, -1%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(2%, 1.5%, 0) scale(1.06);
+  }
+}
+
+/* Entrada del marco: telón que se abre + la foto se asienta */
+.hero-reveal {
+  animation: hero-reveal 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+}
+
+@keyframes hero-reveal {
+  from {
+    clip-path: inset(0 0 0 100% round 28px);
+    transform: translate3d(24px, 0, 0);
+    opacity: 0.4;
+  }
+  to {
+    clip-path: inset(0 0 0 0 round 28px);
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Cámara: entra con zoom y luego se acerca y aleja despacio hacia el logo */
+.hero-camera {
+  transform-origin: 68% 62%;
+  animation:
+    hero-camera-in 1.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both,
+    hero-camera 14s ease-in-out 2s infinite alternate;
+  will-change: transform;
+}
+
+@keyframes hero-camera-in {
+  from {
+    transform: scale(1.18);
+  }
+  to {
+    transform: scale(1.02);
+  }
+}
+
+@keyframes hero-camera {
   from {
     transform: scale(1.02) translate3d(0, 0, 0);
   }
   to {
-    transform: scale(1.1) translate3d(-2.2%, -1.2%, 0);
+    transform: scale(1.12) translate3d(-1.5%, -1%, 0);
   }
 }
 
+/* Destello que cruza la madera */
 .hero-sweep {
   opacity: 0;
-  animation: hero-sweep 9s cubic-bezier(0.45, 0, 0.25, 1) 2s infinite;
+  animation: hero-sweep 7s cubic-bezier(0.45, 0, 0.25, 1) 1.8s infinite;
   will-change: transform, opacity;
 }
 
 @keyframes hero-sweep {
   0% {
-    transform: translate3d(-120%, 0, 0) skewX(-12deg);
+    transform: translate3d(-130%, 0, 0) skewX(-14deg);
     opacity: 0;
   }
-  8% {
+  6% {
     opacity: 1;
   }
-  38% {
-    transform: translate3d(330%, 0, 0) skewX(-12deg);
-    opacity: 0.9;
+  40% {
+    transform: translate3d(480%, 0, 0) skewX(-14deg);
+    opacity: 1;
   }
-  44%,
+  46%,
   100% {
-    transform: translate3d(330%, 0, 0) skewX(-12deg);
+    transform: translate3d(480%, 0, 0) skewX(-14deg);
     opacity: 0;
   }
 }
 
-.hero-glow {
-  animation: hero-glow 7s ease-in-out infinite alternate;
-}
-
-@keyframes hero-glow {
-  from {
-    opacity: 0.55;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
+/* Polvo dorado */
 .hero-dust {
   opacity: 0;
   animation-name: hero-dust;
@@ -604,18 +640,18 @@
     transform: translate3d(0, 0, 0);
     opacity: 0;
   }
-  15% {
-    opacity: 0.7;
+  12% {
+    opacity: 0.85;
   }
   50% {
-    transform: translate3d(14px, -90px, 0);
-    opacity: 0.45;
+    transform: translate3d(18px, -110px, 0);
+    opacity: 0.55;
   }
-  85% {
-    opacity: 0.6;
+  88% {
+    opacity: 0.7;
   }
   100% {
-    transform: translate3d(-8px, -190px, 0);
+    transform: translate3d(-10px, -220px, 0);
     opacity: 0;
   }
 }
@@ -631,17 +667,17 @@
     scroll-behavior: auto !important;
   }
 
-  /* El fondo del inicio queda como foto fija */
-  .hero-kenburns {
+  /* La portada queda como foto fija */
+  .hero-backdrop-drift,
+  .hero-camera,
+  .hero-reveal {
     animation: none !important;
-    transform: scale(1.02);
+    clip-path: none;
+    transform: none;
+    opacity: 1;
   }
   .hero-sweep,
   .hero-dust {
     display: none;
-  }
-  .hero-glow {
-    animation: none !important;
-    opacity: 0.8;
   }
 }

@@ -1,100 +1,113 @@
 /**
- * Fondo animado del inicio: foto del taller con el bloque de palet y el logo
- * grabado, con efecto "video":
- *  1. Movimiento de cámara lento (Ken Burns)
- *  2. Destello de luz que cruza la madera cada pocos segundos
- *  3. Brillo cálido de las ventanas que "respira"
- *  4. Polvo de aserrín flotando en la luz
+ * Portada animada del inicio (sin JavaScript, solo CSS):
  *
- * Solo anima transform y opacity (GPU), y todo se detiene con
- * "reducir movimiento" (ver store.css). Componente de servidor: sin JS.
+ * - <WorkshopHeroBackdrop>: la misma foto, difuminada y oscurecida, cubre todo
+ *   el fondo y deriva despacio. Al estar difuminada no se nota que se estira.
+ * - <WorkshopHeroShowcase>: la foto nítida, completa y en su tamaño real dentro
+ *   de un marco (el bloque de palet con el logo siempre entero), con entrada
+ *   tipo "telón", movimiento de cámara, destello de luz y polvo dorado.
+ *
+ * Solo anima transform, opacity y clip-path. Con "reducir movimiento" todo
+ * queda quieto (ver store.css).
  */
 
-// Posiciones fijas (no aleatorias) para que el HTML sea idéntico en servidor y cliente
+// Posiciones fijas (no aleatorias): HTML idéntico en servidor y cliente
 const DUST = [
-  { l: 8, t: 72, s: 3, d: 14, dl: 0 },
-  { l: 14, t: 58, s: 2, d: 18, dl: 3 },
-  { l: 22, t: 80, s: 4, d: 16, dl: 6 },
-  { l: 29, t: 64, s: 2, d: 20, dl: 1.5 },
-  { l: 35, t: 76, s: 3, d: 15, dl: 8 },
-  { l: 41, t: 52, s: 2, d: 19, dl: 4.5 },
-  { l: 47, t: 70, s: 3, d: 17, dl: 10 },
-  { l: 52, t: 60, s: 2, d: 21, dl: 2 },
-  { l: 57, t: 84, s: 4, d: 14, dl: 7 },
-  { l: 61, t: 48, s: 2, d: 22, dl: 11 },
-  { l: 66, t: 74, s: 3, d: 16, dl: 5 },
-  { l: 71, t: 56, s: 2, d: 19, dl: 9 },
-  { l: 76, t: 68, s: 3, d: 18, dl: 0.5 },
-  { l: 81, t: 50, s: 2, d: 20, dl: 6.5 },
-  { l: 86, t: 78, s: 4, d: 15, dl: 3.5 },
-  { l: 91, t: 62, s: 2, d: 21, dl: 12 },
-  { l: 18, t: 45, s: 2, d: 23, dl: 13 },
-  { l: 44, t: 40, s: 2, d: 24, dl: 2.5 },
-  { l: 68, t: 42, s: 3, d: 22, dl: 14 },
-  { l: 95, t: 46, s: 2, d: 25, dl: 5.5 },
+  { l: 6, t: 78, s: 3, d: 9, dl: 0 },
+  { l: 12, t: 62, s: 4, d: 11, dl: 2 },
+  { l: 19, t: 84, s: 3, d: 10, dl: 4.5 },
+  { l: 26, t: 70, s: 5, d: 12, dl: 1 },
+  { l: 33, t: 88, s: 3, d: 9.5, dl: 6 },
+  { l: 40, t: 66, s: 4, d: 11.5, dl: 3 },
+  { l: 47, t: 80, s: 3, d: 10.5, dl: 7.5 },
+  { l: 54, t: 58, s: 5, d: 12.5, dl: 0.5 },
+  { l: 61, t: 86, s: 3, d: 9, dl: 5 },
+  { l: 68, t: 64, s: 4, d: 11, dl: 8 },
+  { l: 75, t: 82, s: 3, d: 10, dl: 2.5 },
+  { l: 82, t: 60, s: 5, d: 12, dl: 6.5 },
+  { l: 89, t: 76, s: 3, d: 9.5, dl: 1.5 },
+  { l: 94, t: 68, s: 4, d: 11, dl: 4 },
+  { l: 30, t: 50, s: 2, d: 13, dl: 9 },
+  { l: 72, t: 48, s: 2, d: 13.5, dl: 3.5 },
 ] as const;
 
-export function WorkshopHeroBackground({ src }: { src: string }) {
+export function WorkshopHeroBackdrop({ src }: { src: string }) {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden bg-[#120d09]">
-      {/* 1. Cámara lenta */}
-      <div className="hero-kenburns absolute inset-[-4%]">
+    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden bg-[#0d0a07]">
+      <div className="hero-backdrop-drift absolute inset-[-8%]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={src}
-          alt=""
-          fetchPriority="high"
-          className="h-full w-full object-cover object-[80%_center] sm:object-[70%_center] lg:object-[center_60%]"
-        />
+        <img src={src} alt="" className="h-full w-full scale-110 object-cover blur-2xl" />
       </div>
-
-      {/* 3. Brillo cálido de las ventanas */}
-      <div
-        className="hero-glow absolute inset-0 mix-blend-screen"
-        style={{
-          background:
-            "radial-gradient(ellipse 45% 55% at 38% 18%, rgba(255,196,120,0.28), transparent 70%)",
-        }}
-      />
-
-      {/* 2. Destello que cruza la madera */}
-      <div className="absolute inset-0 overflow-hidden mix-blend-soft-light">
-        <div
-          className="hero-sweep absolute -inset-y-1/4 left-0 w-1/3"
-          style={{
-            background:
-              "linear-gradient(100deg, transparent 0%, rgba(255,226,170,0.55) 50%, transparent 100%)",
-          }}
-        />
-      </div>
-
-      {/* 4. Aserrín flotando */}
-      <div className="absolute inset-0">
-        {DUST.map((p, i) => (
-          <span
-            key={i}
-            className="hero-dust absolute rounded-full bg-[#ffe2a8]"
-            style={{
-              left: `${p.l}%`,
-              top: `${p.t}%`,
-              width: p.s,
-              height: p.s,
-              animationDuration: `${p.d}s`,
-              animationDelay: `-${p.dl}s`,
-              boxShadow: "0 0 6px rgba(255,214,140,0.8)",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Legibilidad: oscuro a la izquierda (texto), claro a la derecha (logo) */}
+      {/* Oscurecer para el texto, con un halo cálido detrás del marco */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(90deg, rgba(10,8,6,0.92) 0%, rgba(10,8,6,0.78) 34%, rgba(10,8,6,0.28) 64%, rgba(10,8,6,0.08) 100%), linear-gradient(0deg, rgba(10,8,6,0.75) 0%, transparent 30%), linear-gradient(180deg, rgba(10,8,6,0.45) 0%, transparent 22%)",
+            "radial-gradient(ellipse 55% 70% at 72% 50%, rgba(201,161,90,0.18), transparent 65%), linear-gradient(90deg, rgba(10,8,6,0.94) 0%, rgba(10,8,6,0.82) 45%, rgba(10,8,6,0.6) 100%)",
         }}
       />
+      {/* Fundido arriba (ventanas claras) y hacia la franja de abajo */}
+      <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#0d0a07] to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-[#0a0a0a] to-transparent" />
     </div>
+  );
+}
+
+export function WorkshopHeroShowcase({ src }: { src: string }) {
+  return (
+    <figure className="hero-reveal relative overflow-hidden rounded-[28px] border border-[#c9a15a]/30 bg-[#120d09] shadow-[0_40px_90px_-30px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.04)]">
+      <div className="relative aspect-[16/10] overflow-hidden">
+        {/* Cámara: acercamiento lento hacia el logo */}
+        <div className="hero-camera absolute inset-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={src}
+            alt="Bloque de madera de palet con el logo de Mudeco Palets grabado a fuego, en el taller"
+            fetchPriority="high"
+            className="h-full w-full object-cover object-[70%_60%]"
+          />
+        </div>
+
+        {/* Destello de luz que cruza la madera */}
+        <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden mix-blend-screen">
+          <div
+            className="hero-sweep absolute -inset-y-1/4 left-0 w-1/4"
+            style={{
+              background:
+                "linear-gradient(100deg, transparent 0%, rgba(255,214,150,0.32) 50%, transparent 100%)",
+            }}
+          />
+        </div>
+
+        {/* Polvo dorado flotando en la luz */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          {DUST.map((p, i) => (
+            <span
+              key={i}
+              className="hero-dust absolute rounded-full bg-[#ffe2a8]"
+              style={{
+                left: `${p.l}%`,
+                top: `${p.t}%`,
+                width: p.s,
+                height: p.s,
+                animationDuration: `${p.d}s`,
+                animationDelay: `-${p.dl}s`,
+                boxShadow: "0 0 8px 1px rgba(255,210,130,0.9)",
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Viñeta sutil para dar profundidad */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(ellipse 85% 85% at 60% 55%, transparent 55%, rgba(8,6,4,0.55) 100%)",
+          }}
+        />
+      </div>
+    </figure>
   );
 }

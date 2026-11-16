@@ -11,7 +11,10 @@ import {
   Star,
 } from "lucide-react";
 import { FadeUp, Reveal } from "@/components/store/store-motion";
-import { WorkshopHeroBackground } from "@/components/store/workshop-hero-background";
+import {
+  WorkshopHeroBackdrop,
+  WorkshopHeroShowcase,
+} from "@/components/store/workshop-hero-background";
 import { ProductShelf } from "@/components/store/product-shelf";
 import { withDbRetry } from "@/lib/prisma";
 import { STORE_SOCIAL } from "@/lib/store-brand";
@@ -188,41 +191,43 @@ export default async function StoreHomePage() {
     <div className="bg-[#0a0a0a] text-white">
       {/* —— Hero —— */}
       <section className="relative z-20 w-full border-b border-white/[0.06]">
-        <WorkshopHeroBackground src={heroImage} />
+        <WorkshopHeroBackdrop src={heroImage} />
 
         <div
-          className={`${WRAP} relative z-20 flex min-h-[560px] flex-col justify-center py-14 sm:min-h-[620px] lg:min-h-[700px]`}
+          className={`${WRAP} relative z-20 grid items-center gap-10 py-14 sm:py-16 lg:min-h-[680px] lg:grid-cols-12 lg:gap-12 xl:gap-16`}
         >
-          <div className="max-w-2xl">
-            <div>
-              <FadeUp>
-                <Eyebrow>{company.heroBadge || "Taller artesanal · República Dominicana"}</Eyebrow>
-              </FadeUp>
-              <FadeUp delay={0.08}>
-                <h1 className="font-display mt-4 max-w-2xl text-[clamp(2.3rem,4.2vw,4.2rem)] leading-[1.05] text-white">
-                  {company.heroTitle}
-                </h1>
-              </FadeUp>
-              <FadeUp delay={0.16}>
-                <p className="mt-5 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg">
-                  {company.heroSubtitle}
-                </p>
-              </FadeUp>
-              <FadeUp delay={0.24}>
-                <div className="mt-8 flex flex-wrap items-center gap-3">
-                  <Link href="/catalogo" className="store-cta store-cta-primary group">
-                    Ver catálogo
-                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                  </Link>
-                  <Link href="/contacto" className="store-cta store-cta-ghost">
-                    Cotizar a medida
-                  </Link>
-                </div>
-              </FadeUp>
-              <FadeUp delay={0.32} className="relative z-30 mt-8 max-w-xl">
-                <HeroSearchBar products={availableForSearch} />
-              </FadeUp>
-            </div>
+          <div className="lg:col-span-6 xl:col-span-5">
+            <FadeUp>
+              <Eyebrow>{company.heroBadge || "Taller artesanal · República Dominicana"}</Eyebrow>
+            </FadeUp>
+            <FadeUp delay={0.08}>
+              <h1 className="font-display mt-4 text-[clamp(2.3rem,4vw,4rem)] leading-[1.05] text-white">
+                {company.heroTitle}
+              </h1>
+            </FadeUp>
+            <FadeUp delay={0.16}>
+              <p className="mt-5 max-w-xl text-base leading-relaxed text-white/75 sm:text-lg">
+                {company.heroSubtitle}
+              </p>
+            </FadeUp>
+            <FadeUp delay={0.24}>
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Link href="/catalogo" className="store-cta store-cta-primary group">
+                  Ver catálogo
+                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </Link>
+                <Link href="/contacto" className="store-cta store-cta-ghost">
+                  Cotizar a medida
+                </Link>
+              </div>
+            </FadeUp>
+            <FadeUp delay={0.32} className="relative z-30 mt-8 max-w-xl">
+              <HeroSearchBar products={availableForSearch} />
+            </FadeUp>
+          </div>
+
+          <div className="lg:col-span-6 xl:col-span-7">
+            <WorkshopHeroShowcase src={heroImage} />
           </div>
         </div>
       </section>
