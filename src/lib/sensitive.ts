@@ -32,10 +32,22 @@ export const PUBLIC_PREFIXES = [
   "/carrito",
   "/checkout",
   "/pedido",
-  "/mis-pedidos",
   "/privacidad",
   "/terminos",
 ] as const;
+
+/**
+ * Rutas de la cuenta del cliente: requieren sesión, pero cualquier rol
+ * (también CLIENTE) puede entrar. El proxy redirige al login sin sesión,
+ * antes de renderizar nada.
+ */
+export const CUSTOMER_PREFIXES = ["/mis-pedidos"] as const;
+
+export function isCustomerPath(pathname: string) {
+  return CUSTOMER_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+}
 
 export function isAdminPath(pathname: string) {
   return ADMIN_PREFIXES.some(
@@ -43,11 +55,15 @@ export function isAdminPath(pathname: string) {
   );
 }
 
-/** Archivos de metadatos (SEO / PWA) que buscadores y navegadores leen sin sesión */
+/**
+ * Archivos y endpoints que se leen sin sesión: metadatos (SEO / PWA) y el
+ * chequeo de salud que usan los monitores externos (no expone datos).
+ */
 const PUBLIC_FILES = new Set([
   "/robots.txt",
   "/sitemap.xml",
   "/manifest.webmanifest",
+  "/api/health",
 ]);
 
 export function isPublicPath(pathname: string) {
