@@ -73,10 +73,13 @@ export async function GET(
   const { type } = await ctx.params;
   let rows: Record<string, unknown>[] = [];
 
+  try {
   if (type === "facturas") {
     const data = await prisma.invoice.findMany({
+      where: dateFilter ? { issueDate: dateFilter } : undefined,
       include: { customer: true },
       orderBy: { issueDate: "desc" },
+      take: 5000,
     });
     rows = data.map((i) => ({
       number: i.number,
@@ -123,8 +126,10 @@ export async function GET(
     }));
   } else if (type === "pagos") {
     const data = await prisma.payment.findMany({
+      where: dateFilter ? { paidAt: dateFilter } : undefined,
       include: { invoice: true },
       orderBy: { paidAt: "desc" },
+      take: 5000,
     });
     rows = data.map((p) => ({
       invoice: p.invoice.number,
@@ -135,7 +140,9 @@ export async function GET(
     }));
   } else if (type === "pedidos-web") {
     const data = await prisma.webOrder.findMany({
+      where: dateFilter ? { createdAt: dateFilter } : undefined,
       orderBy: { createdAt: "desc" },
+      take: 5000,
     });
     rows = data.map((o) => ({
       number: o.number,
@@ -156,8 +163,10 @@ export async function GET(
     }));
   } else if (type === "cotizaciones") {
     const data = await prisma.quote.findMany({
+      where: dateFilter ? { issueDate: dateFilter } : undefined,
       include: { customer: true },
       orderBy: { issueDate: "desc" },
+      take: 5000,
     });
     rows = data.map((q) => ({
       number: q.number,
@@ -291,6 +300,26 @@ export async function GET(
         FORMA_DE_PAGO: "01",
       };
     });
+  } else if (type === "dgii-608") {
+    const voided = await prisma.invoice.findMany({
+      where: {
+        status: "VOIDED",
+        ncf: { not: null },
+        ...(dateFilter ? { issueDate: dateFilter } : {}),
+      },
+      orderBy: { issueDate: "asc" },
+    });
+    rows = voided
+      .filter((i) => i.ncf && !i.ncf.startsWith("PENDING:"))
+      .map((i) => {
+        const yyyymmdd = i.issueDate.toISOString().slice(0, 10).replace(/-/g, "");
+        return {
+          NUMERO_COMPROBANTE_FISCAL: i.ncf,
+          FECHA_ANULACION: yyyymmdd,
+          TIPO_ANULACION: "04",
+          FACTURA_INTERNA: i.number,
+        };
+      });
   } else {
     return NextResponse.json({ error: "Tipo inválido" }, { status: 400 });
   }
@@ -300,7 +329,10 @@ export async function GET(
     entity: "Export",
     summary: `Exportación CSV (${type}): ${rows.length} registros`,
     details: { type, count: rows.length, month: monthParam || null },
-  });
+    userId: session.user.id,
+    userEmail: session.user.email,
+    userName: session.user.name,
+  }).catch(() => undefined);
 
   const body = toCsv(rows);
   return new NextResponse(body, {
@@ -311,4 +343,11 @@ export async function GET(
       "X-Content-Type-Options": "nosniff",
     },
   });
+  } catch (err) {
+    console.error("Error exportando CSV:", err);
+    return NextResponse.json(
+      { error: "No se pudo generar la exportación" },
+      { status: 500 },
+    );
+  }
 }

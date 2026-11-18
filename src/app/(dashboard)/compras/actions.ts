@@ -80,49 +80,52 @@ export async function receivePurchase(id: string) {
     throw new Error("Solo se pueden recibir compras en estado Ordenada o Borrador");
   }
 
-  for (const item of purchase.items) {
-    const existingProduct = await prisma.product.findUnique({
-      where: { id: item.productId },
-      select: { stock: true, cost: true },
-    });
+  await prisma.$transaction(async (tx) => {
+    for (const item of purchase.items) {
+      const existingProduct = await tx.product.findUnique({
+        where: { id: item.productId },
+        select: { stock: true, cost: true },
+      });
 
-    await applyStockChange({
-      productId: item.productId,
-      qtyDelta: item.quantity,
-      reason: "PURCHASE",
-      refType: "Purchase",
-      refId: id,
-      note: purchase.number,
-      allowNegative: true,
-    });
+      await applyStockChange({
+        productId: item.productId,
+        qtyDelta: item.quantity,
+        reason: "PURCHASE",
+        refType: "Purchase",
+        refId: id,
+        note: purchase.number,
+        allowNegative: true,
+        tx,
+      });
 
-    // Calcular costo promedio ponderado si ya había stock positivo y costo previo
-    let nextCost =
-      item.unitCost > 0
-        ? item.unitCost
-        : (existingProduct?.cost ?? 0);
-    if (
-      existingProduct &&
-      existingProduct.stock > 0 &&
-      existingProduct.cost > 0 &&
-      item.unitCost > 0
-    ) {
-      const totalValue =
-        existingProduct.stock * existingProduct.cost +
-        item.quantity * item.unitCost;
-      const totalQty = existingProduct.stock + item.quantity;
-      nextCost = Math.round((totalValue / totalQty) * 100) / 100;
+      // Calcular costo promedio ponderado si ya había stock positivo y costo previo
+      let nextCost =
+        item.unitCost > 0
+          ? item.unitCost
+          : (existingProduct?.cost ?? 0);
+      if (
+        existingProduct &&
+        existingProduct.stock > 0 &&
+        existingProduct.cost > 0 &&
+        item.unitCost > 0
+      ) {
+        const totalValue =
+          existingProduct.stock * existingProduct.cost +
+          item.quantity * item.unitCost;
+        const totalQty = existingProduct.stock + item.quantity;
+        nextCost = Math.round((totalValue / totalQty) * 100) / 100;
+      }
+
+      await tx.product.update({
+        where: { id: item.productId },
+        data: { cost: nextCost },
+      });
     }
 
-    await prisma.product.update({
-      where: { id: item.productId },
-      data: { cost: nextCost },
+    await tx.purchase.update({
+      where: { id },
+      data: { status: "RECEIVED", receivedAt: new Date() },
     });
-  }
-
-  await prisma.purchase.update({
-    where: { id },
-    data: { status: "RECEIVED", receivedAt: new Date() },
   });
 
   await writeAudit({

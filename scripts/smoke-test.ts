@@ -9,6 +9,8 @@ import {
 import { formatCurrency, roundMoney } from "../src/lib/format";
 import { checkRateLimit } from "../src/lib/rate-limit";
 import { isAdmin, isStaff, canVoidInvoice, homeForRole } from "../src/lib/rbac";
+import { splitPayment } from "../src/lib/made-to-order";
+import { isPublicPath, isAdminPath } from "../src/lib/sensitive";
 
 function testTotals() {
   const t = calcInvoiceTotals([
@@ -71,9 +73,26 @@ function testRateLimit() {
   assert.equal(checkRateLimit(keyB, 2, 60_000).ok, true);
 }
 
+function testMadeToOrderAndRoutes() {
+  const split = splitPayment(
+    [{ quantity: 1, unitPrice: 1000, taxRate: 0, madeToOrder: true }],
+    1000,
+    50,
+  );
+  assert.equal(split.hasMadeToOrder, true);
+  assert.equal(split.dueNow, 500);
+  assert.equal(split.balance, 500);
+
+  assert.equal(isPublicPath("/api/health"), true);
+  assert.equal(isPublicPath("/catalogo"), true);
+  assert.equal(isAdminPath("/finanzas"), true);
+  assert.equal(isAdminPath("/auditoria"), true);
+}
+
 testTotals();
 testMoneyHelpers();
 testPaymentStatus();
 testRbac();
 testRateLimit();
+testMadeToOrderAndRoutes();
 console.log("OK smoke tests");

@@ -39,31 +39,74 @@ export async function POST(req: NextRequest) {
     const webOrderId =
       session.metadata?.webOrderId || session.client_reference_id || "";
     if (webOrderId) {
-      const order = await finalizeOnlinePaidOrder(webOrderId);
-      if (order.invoiceId) {
-        try {
-          await sendInvoiceEmail(order.invoiceId);
-        } catch (err) {
-          console.error("Email factura falló:", err);
-          await prisma.webOrder.update({
-            where: { id: webOrderId },
-            data: {
-              notes: [
-                order.notes,
-                "Pago OK; el correo de factura no se pudo enviar (revisa SMTP).",
-              ]
-                .filter(Boolean)
-                .join(" | "),
-            },
+      const existing = await prisma.webOrder.findUnique({
+        where: { id: webOrderId },
+        select: { status: true },
+      });
+      if (!existing) {
+        return NextResponse.json({ received: true });
+      }
+      const wasAlreadyPaid = existing.status === "PAID";
+
+      try {
+        const order = await finalizeOnlinePaidOrder(webOrderId);
+        if (!wasAlreadyPaid && order.invoiceId) {
+          try {
+            await sendInvoiceEmail(order.invoiceId);
+          } catch (err) {
+            console.error("Email factura falló:", err);
+            await prisma.webOrder.update({
+              where: { id: webOrderId },
+              data: {
+                notes: [
+                  order.notes,
+                  "Pago OK; el correo de factura no se pudo enviar (revisa SMTP).",
+                ]
+                  .filter(Boolean)
+                  .join(" | "),
+              },
+            });
+          }
+        }
+        revalidatePath("/pedidos-web");
+        revalidatePath("/facturas");
+        revalidatePath("/pagos");
+        revalidatePath("/panel");
+        revalidatePath("/");
+        revalidatePath("/catalogo");
+      } catch (err) {
+        console.error("Webhook Stripe finalizeOnlinePaidOrder error:", err);
+        return NextResponse.json({ received: true, warning: "order_finalize_failed" });
+      }
+    }
+  } else if (event.type === "checkout.session.expired") {
+    const session = event.data.object as {
+      metadata?: { webOrderId?: string };
+      client_reference_id?: string | null;
+    };
+    const webOrderId =
+      session.metadata?.webOrderId || session.client_reference_id || "";
+    if (webOrderId) {
+      await prisma.$transaction(async (tx) => {
+        const order = await tx.webOrder.findUnique({
+          where: { id: webOrderId },
+          select: { id: true, status: true, invoiceId: true },
+        });
+        if (!order || order.status !== "AWAITING_PAYMENT") return;
+        await tx.webOrder.update({
+          where: { id: order.id },
+          data: { status: "CANCELLED" },
+        });
+        if (order.invoiceId) {
+          await tx.invoice.updateMany({
+            where: { id: order.invoiceId, status: "DRAFT" },
+            data: { status: "VOIDED" },
           });
         }
-      }
+      });
       revalidatePath("/pedidos-web");
       revalidatePath("/facturas");
-      revalidatePath("/pagos");
-      revalidatePath("/panel");
-      revalidatePath("/");
-      revalidatePath("/catalogo");
+      revalidatePath("/mis-pedidos");
     }
   }
 

@@ -15,6 +15,7 @@ import { productImage } from "@/lib/product-image";
 import { extractReceiptFromNotes } from "@/lib/order-receipt";
 import { ReceiptUploader, BankAccountCard } from "@/components/store/receipt-uploader";
 import { AnimatedSuccessCheck } from "@/components/store/animated-success-check";
+import { cancelPendingWebOrderAction, retryStripeCheckoutAction } from "./actions";
 import { OrderReviewPrompt } from "@/components/store/order-review-prompt";
 import { OrderTimelineTracker } from "@/components/store/order-timeline-tracker";
 import {
@@ -458,7 +459,7 @@ export default async function PedidoPage({
                 <span className="font-mono">{formatCurrency(order.subtotal)}</span>
               </div>
               <div className="flex justify-between text-slate-500">
-                <span>ITBIS (18%)</span>
+                <span>ITBIS</span>
                 <span className="font-mono">{formatCurrency(order.tax)}</span>
               </div>
               <div className="flex justify-between text-base font-bold text-slate-900 border-t border-slate-200 pt-3">
@@ -500,12 +501,37 @@ export default async function PedidoPage({
             customerName={order.customerName}
             customerEmail={order.customerEmail}
             productName={order.items[0]?.description}
-            city="Santo Domingo"
+            city={company.address?.split(",").pop()?.trim() || "Santo Domingo"}
           />
         )}
 
         {/* ACCIONES Y BOTONES FINALES */}
         <div className="flex flex-wrap items-center justify-center gap-3.5 pt-4">
+          {order.status === "AWAITING_PAYMENT" && isAuthorizedViewer ? (
+            <>
+              {isStripeConfigured() ? (
+                <form action={retryStripeCheckoutAction}>
+                  <input type="hidden" name="orderId" value={order.id} />
+                  <button
+                    type="submit"
+                    className="inline-flex items-center gap-2 rounded-2xl bg-[#14100d] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#2a211b] active:scale-95 cursor-pointer"
+                  >
+                    <span>Completar pago con tarjeta</span>
+                  </button>
+                </form>
+              ) : null}
+              <form action={cancelPendingWebOrderAction}>
+                <input type="hidden" name="orderId" value={order.id} />
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-bold text-rose-700 shadow-2xs transition hover:bg-rose-100 active:scale-95 cursor-pointer"
+                >
+                  <span>Cancelar pedido pendiente</span>
+                </button>
+              </form>
+            </>
+          ) : null}
+
           {order.invoice && isAuthorizedViewer ? (
             isPaid ? (
               <a

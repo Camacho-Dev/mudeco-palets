@@ -6,6 +6,7 @@ import {
   nextWebOrderNumber,
 } from "@/lib/invoice-number";
 import { deductStock } from "@/lib/stock";
+import { allocateNcf } from "@/lib/ncf";
 import { roundMoney } from "@/lib/format";
 import { serviceKindFromRequest } from "@/lib/web-order-labels";
 import { notifyStaffNewWebOrder } from "@/lib/mail";
@@ -528,10 +529,44 @@ export async function finalizeOnlinePaidOrder(webOrderId: string) {
       });
     }
 
+    const allocatedNcf =
+      transitionedFromDraft && !inv.ncf
+        ? await allocateNcf("B02", tx).catch(() => null)
+        : null;
+
     await tx.invoice.update({
       where: { id: inv.id },
-      data: { status: isPartial ? "PARTIAL" : "PAID" },
+      data: {
+        status: isPartial ? "PARTIAL" : "PAID",
+        ...(allocatedNcf ? { ncf: allocatedNcf } : {}),
+      },
     });
+
+    if (transitionedFromDraft && order.madeToOrder) {
+      for (let i = 0; i < inv.items.length; i++) {
+        const line = inv.items[i];
+        if (!line.productId) continue;
+        const otNumber =
+          inv.items.length === 1
+            ? `OT-${order.number}`
+            : `OT-${order.number}-${i + 1}`;
+        const exists = await tx.workOrder.findUnique({
+          where: { number: otNumber },
+          select: { id: true },
+        });
+        if (!exists) {
+          await tx.workOrder.create({
+            data: {
+              number: otNumber,
+              productId: line.productId,
+              quantity: Math.max(1, Math.round(line.quantity)),
+              status: "PENDING",
+              notes: `Generada automáticamente desde pedido web ${order.number} (${order.customerName})`,
+            },
+          });
+        }
+      }
+    }
 
     return tx.webOrder.update({
       where: { id: order.id },

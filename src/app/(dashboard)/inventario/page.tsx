@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { requireSession } from "@/lib/session";
+import { requireAdmin } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { ListSearchBar } from "@/components/invoice-search";
 import {
@@ -19,7 +19,7 @@ export default async function InventarioPage({
 }: {
   searchParams: Promise<{ q?: string; page?: string }>;
 }) {
-  await requireSession();
+  await requireAdmin();
   const sp = await searchParams;
   const { q } = sp;
   const query = (q || "").trim();

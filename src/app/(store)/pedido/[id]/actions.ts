@@ -6,6 +6,9 @@ import { attachReceiptToNotes } from "@/lib/order-receipt";
 import { processReceiptFile } from "@/lib/order-receipt-server";
 import { writeAudit } from "@/lib/audit";
 import { getVerifiedApiSession } from "@/lib/session";
+import { getStripe, isStripeConfigured } from "@/lib/stripe";
+import { siteUrl } from "@/lib/store-info";
+import { redirect } from "next/navigation";
 
 import { checkDualRateLimit } from "@/lib/rate-limit";
 
@@ -102,4 +105,113 @@ export async function uploadOrderReceiptAction(orderId: string, formData: FormDa
       error: "Error inesperado al subir el comprobante",
     };
   }
+}
+
+export async function retryStripeCheckoutAction(formData: FormData) {
+  const orderId = String(formData.get("orderId") || "");
+  if (!orderId || !isStripeConfigured()) return;
+
+  const session = await getVerifiedApiSession().catch(() => null);
+  const order = await prisma.webOrder.findUnique({
+    where: { id: orderId },
+    include: { items: true },
+  });
+  if (
+    !order ||
+    order.status !== "AWAITING_PAYMENT" ||
+    !session?.user?.email ||
+    order.customerEmail.toLowerCase() !== session.user.email.toLowerCase()
+  ) {
+    return;
+  }
+
+  const stripe = getStripe();
+  const base = siteUrl();
+
+  if (order.stripeSessionId) {
+    try {
+      const existing = await stripe.checkout.sessions.retrieve(order.stripeSessionId);
+      if (existing.status === "open" && existing.url) {
+        redirect(existing.url);
+      }
+    } catch {
+      /* crear nueva sesión si la anterior expiró */
+    }
+  }
+
+  const payNow =
+    order.madeToOrder && order.amountDueNow != null
+      ? order.amountDueNow
+      : order.total;
+
+  const checkout = await stripe.checkout.sessions.create({
+    mode: "payment",
+    customer_email: order.customerEmail,
+    client_reference_id: order.id,
+    metadata: {
+      webOrderId: order.id,
+      invoiceId: order.invoiceId || "",
+      madeToOrder: order.madeToOrder ? "1" : "0",
+    },
+    line_items: [
+      {
+        price_data: {
+          currency: "dop",
+          product_data: {
+            name: order.madeToOrder
+              ? `Abono inicial pedido ${order.number}`
+              : `Pedido ${order.number} · Mudeco Palets`,
+          },
+          unit_amount: Math.round(payNow * 100),
+        },
+        quantity: 1,
+      },
+    ],
+    success_url: `${base}/pedido/${order.id}?ok=1`,
+    cancel_url: `${base}/pedido/${order.id}?cancel=1`,
+  });
+
+  await prisma.webOrder.update({
+    where: { id: order.id },
+    data: { stripeSessionId: checkout.id },
+  });
+
+  if (checkout.url) redirect(checkout.url);
+}
+
+export async function cancelPendingWebOrderAction(formData: FormData) {
+  const orderId = String(formData.get("orderId") || "");
+  if (!orderId) return;
+
+  const session = await getVerifiedApiSession().catch(() => null);
+  const order = await prisma.webOrder.findUnique({
+    where: { id: orderId },
+    select: { id: true, status: true, customerEmail: true, invoiceId: true },
+  });
+  if (
+    !order ||
+    order.status !== "AWAITING_PAYMENT" ||
+    !session?.user?.email ||
+    order.customerEmail.toLowerCase() !== session.user.email.toLowerCase()
+  ) {
+    return;
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.webOrder.update({
+      where: { id: order.id },
+      data: { status: "CANCELLED" },
+    });
+    if (order.invoiceId) {
+      await tx.invoice.updateMany({
+        where: { id: order.invoiceId, status: "DRAFT" },
+        data: { status: "VOIDED" },
+      });
+    }
+  });
+
+  revalidatePath(`/pedido/${orderId}`);
+  revalidatePath("/mis-pedidos");
+  revalidatePath("/pedidos-web");
+  revalidatePath("/facturas");
 }

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { Prisma } from "@prisma/client";
-import { requireSession } from "@/lib/session";
+import { requireAdmin } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { formatDate } from "@/lib/format";
 import { Pagination, pageWindow, parsePage } from "@/components/pagination";
@@ -29,7 +29,7 @@ export default async function AuditoriaPage({
 }: {
   searchParams: Promise<{ user?: string; action?: string; q?: string; page?: string }>;
 }) {
-  await requireSession();
+  await requireAdmin();
   const sp = await searchParams;
 
   const where: Prisma.AuditLogWhereInput = {

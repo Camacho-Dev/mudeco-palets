@@ -51,16 +51,45 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (status === "loading") return;
     try {
       const raw = localStorage.getItem(storageKey);
-      if (raw) {
-        setItems(JSON.parse(raw) as CartItem[]);
-      } else {
-        setItems([]);
+      const existing = raw ? (JSON.parse(raw) as CartItem[]) : [];
+
+      if (userEmail) {
+        const guestKey = `${BASE_KEY}:guest`;
+        const guestRaw = localStorage.getItem(guestKey);
+        if (guestRaw) {
+          const guestItems = JSON.parse(guestRaw) as CartItem[];
+          if (Array.isArray(guestItems) && guestItems.length > 0) {
+            const merged = [...existing];
+            for (const g of guestItems) {
+              const idx = merged.findIndex((m) => m.productId === g.productId);
+              if (idx >= 0) {
+                const limit = merged[idx].maxQty ?? g.maxQty;
+                const combined = merged[idx].quantity + g.quantity;
+                merged[idx] = {
+                  ...merged[idx],
+                  quantity: limit != null ? Math.min(combined, limit) : combined,
+                  maxQty: limit,
+                };
+              } else {
+                merged.push(g);
+              }
+            }
+            localStorage.setItem(storageKey, JSON.stringify(merged));
+            localStorage.removeItem(guestKey);
+            setItems(merged);
+            setLoadedKey(storageKey);
+            return;
+          }
+          localStorage.removeItem(guestKey);
+        }
       }
+
+      setItems(existing);
     } catch {
       setItems([]);
     }
     setLoadedKey(storageKey);
-  }, [storageKey, status]);
+  }, [storageKey, status, userEmail]);
 
   useEffect(() => {
     if (loadedKey !== storageKey) return;

@@ -55,6 +55,7 @@ export async function runCatalogDiagnostics() {
   await requireAdmin();
 
   const products = await prisma.product.findMany({
+    where: { kind: "FINISHED" },
     orderBy: { name: "asc" },
   });
 

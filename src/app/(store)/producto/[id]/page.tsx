@@ -37,6 +37,7 @@ export async function generateMetadata({
   const product = await getProduct(id);
   if (!product) return { title: "Producto" };
   const img = productImage(product);
+  const ogImg = img.startsWith("data:") ? `${siteUrl()}/brand/logo.png` : img;
   const url = `${siteUrl()}/producto/${id}`;
   return {
     title: product.name,
@@ -49,12 +50,12 @@ export async function generateMetadata({
       description: product.description || undefined,
       url,
       type: "website",
-      images: [{ url: img, alt: product.name }],
+      images: [{ url: ogImg, alt: product.name }],
     },
     twitter: {
       card: "summary_large_image",
       title: product.name,
-      images: [img],
+      images: [ogImg],
     },
   };
 }
@@ -95,7 +96,11 @@ export default async function ProductoPage({
       `${product.name} fabricado artesanalmente en madera recuperada por ${company.name}.`,
     sku: product.sku,
     category: formatStoreCategory(product.category),
-    image: src.startsWith("http") ? src : `${siteUrl()}${src}`,
+    image: src.startsWith("data:")
+      ? `${siteUrl()}/brand/logo.png`
+      : src.startsWith("http")
+        ? src
+        : `${siteUrl()}${src}`,
     brand: {
       "@type": "Brand",
       name: company.name,

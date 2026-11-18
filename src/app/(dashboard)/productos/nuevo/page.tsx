@@ -2,11 +2,11 @@ import Link from "next/link";
 import { createProduct } from "../actions";
 import { PageHeader } from "@/components/page-header";
 import { ProductImageInput } from "@/components/product-image-input";
-import { requireSession } from "@/lib/session";
+import { requireAdmin } from "@/lib/session";
 import { SubmitButton } from "@/components/submit-button";
 
 export default async function NuevoProductoPage() {
-  await requireSession();
+  await requireAdmin();
 
   return (
     <div>

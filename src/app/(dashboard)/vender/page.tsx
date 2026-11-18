@@ -9,7 +9,7 @@ export default async function VenderPage() {
   await requireSession();
 
   const [customers, products] = await Promise.all([
-    prisma.customer.findMany({ orderBy: { name: "asc" } }),
+    prisma.customer.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     prisma.product.findMany({
       where: { active: true, kind: "FINISHED" },
       orderBy: [{ category: "asc" }, { name: "asc" }],

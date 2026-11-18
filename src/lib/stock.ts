@@ -169,6 +169,7 @@ export async function deductStock(
 export async function restoreStock(
   lines: { productId?: string | null; quantity: number }[],
   ref?: { refType: string; refId: string },
+  options?: { tx?: Prisma.TransactionClient },
 ) {
   for (const line of lines) {
     if (!line.productId || line.quantity <= 0) continue;
@@ -179,6 +180,7 @@ export async function restoreStock(
       refType: ref?.refType,
       refId: ref?.refId,
       allowNegative: true,
+      tx: options?.tx,
     });
   }
 }
@@ -191,16 +193,18 @@ export async function restoreInvoiceNetStock(
   invoiceId: string,
   fallbackItems: { productId?: string | null; quantity: number }[],
   ref?: { refType: string; refId: string },
+  options?: { tx?: Prisma.TransactionClient },
 ) {
+  const db = options?.tx ?? prisma;
   const [saleMovements, creditNotes] = await Promise.all([
-    prisma.stockMovement.findMany({
+    db.stockMovement.findMany({
       where: {
         refType: "Invoice",
         refId: invoiceId,
         reason: "SALE",
       },
     }),
-    prisma.creditNote.findMany({
+    db.creditNote.findMany({
       where: { invoiceId },
       include: { items: true },
     }),
@@ -244,5 +248,5 @@ export async function restoreInvoiceNetStock(
     }
   }
 
-  await restoreStock(netLines, ref ?? { refType: "Invoice", refId: invoiceId });
+  await restoreStock(netLines, ref ?? { refType: "Invoice", refId: invoiceId }, options);
 }

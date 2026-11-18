@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { requireSession } from "@/lib/session";
+import { requireAdmin } from "@/lib/session";
 import { writeAudit } from "@/lib/audit";
 import { canDeactivateProduct, canAdjustStock } from "@/lib/rbac";
 import { revalidatePath } from "next/cache";
@@ -76,7 +76,7 @@ function revalidateProducts(productId?: string) {
 }
 
 export async function createProduct(fd: FormData) {
-  await requireSession();
+  await requireAdmin();
   const data = formDataToProduct(fd);
   if (data.sku) {
     const skuExists = await prisma.product.findFirst({
@@ -130,7 +130,7 @@ export async function createProduct(fd: FormData) {
 }
 
 export async function updateProduct(id: string, fd: FormData) {
-  const session = await requireSession();
+  const session = await requireAdmin();
   const before = await prisma.product.findUnique({ where: { id } });
   if (!before) throw new Error("Producto no encontrado");
   const data = formDataToProduct(fd);
@@ -202,7 +202,7 @@ export async function updateProduct(id: string, fd: FormData) {
 }
 
 export async function deleteProduct(id: string) {
-  const session = await requireSession();
+  const session = await requireAdmin();
   if (!canDeactivateProduct(session.user.role)) {
     throw new Error("Solo el administrador puede desactivar productos");
   }

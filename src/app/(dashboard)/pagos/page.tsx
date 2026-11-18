@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
-import { requireSession } from "@/lib/session";
+import { requireAdmin } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { DateFilterBar } from "@/components/date-filter";
 import { ListSearchBar } from "@/components/invoice-search";
@@ -23,7 +23,7 @@ export default async function PagosPage({
     q?: string;
   }>;
 }) {
-  await requireSession();
+  await requireAdmin();
   const params = await searchParams;
   const query = (params.q || "").trim();
   const range = buildDateRange(params);

@@ -55,6 +55,8 @@ export function QuickSale({
   const [error, setError] = useState("");
   const [draftToDiscard, setDraftToDiscard] = useState<InvoiceDraft | null>(null);
   const [clearCartConfirm, setClearCartConfirm] = useState(false);
+  const [ncfType, setNcfType] = useState<string>("");
+  const [paymentMethod, setPaymentMethod] = useState<string>("CASH");
   const searchWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -364,6 +366,8 @@ export function QuickSale({
       fd.set("deliveryFee", String(Number(deliveryFee) || 0));
     }
     fd.set("applyTax", applyTax ? "true" : "false");
+    if (ncfType) fd.set("ncfType", ncfType);
+    if (paymentMethod) fd.set("paymentMethod", paymentMethod);
     for (const line of cart) {
       fd.append("productId", line.productId);
       fd.append("description", line.description);
@@ -523,6 +527,40 @@ export function QuickSale({
               setDeliveryFee={setDeliveryFee}
               totals={totals}
             />
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="label" htmlFor="pos-ncf-type">
+                  Comprobante (NCF)
+                </label>
+                <select
+                  id="pos-ncf-type"
+                  value={ncfType}
+                  onChange={(e) => setNcfType(e.target.value)}
+                  className="input"
+                >
+                  <option value="">Sin NCF (Interna)</option>
+                  <option value="B02">B02 · Consumidor Final</option>
+                  <option value="B01">B01 · Crédito Fiscal</option>
+                </select>
+              </div>
+              <div>
+                <label className="label" htmlFor="pos-payment-method">
+                  Cobro en caja
+                </label>
+                <select
+                  id="pos-payment-method"
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className="input"
+                >
+                  <option value="CASH">Efectivo (Pagada)</option>
+                  <option value="CARD">Tarjeta (Pagada)</option>
+                  <option value="TRANSFER">Transferencia (Pagada)</option>
+                  <option value="">Crédito / Pendiente</option>
+                </select>
+              </div>
+            </div>
 
             {error ? (
               <p className="rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-700">

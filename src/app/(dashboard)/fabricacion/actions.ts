@@ -84,9 +84,8 @@ export async function completeWorkOrder(id: string) {
     totalMaterialCost += (mat.cost || 0) * totalRequired;
   }
 
-  // 2. Descontar materiales con mecanismo de rollback si ocurre un error inesperado
-  const deducted: { productId: string; qty: number }[] = [];
-  try {
+  // 2. Descontar materiales y sumar mueble terminado en transacción atómica
+  await prisma.$transaction(async (tx) => {
     for (const item of wo.items) {
       await applyStockChange({
         productId: item.productId,
@@ -95,8 +94,8 @@ export async function completeWorkOrder(id: string) {
         refType: "WorkOrder",
         refId: id,
         note: wo.number,
+        tx,
       });
-      deducted.push({ productId: item.productId, qty: item.quantity });
     }
 
     await applyStockChange({
@@ -107,36 +106,24 @@ export async function completeWorkOrder(id: string) {
       refId: id,
       note: wo.number,
       allowNegative: true,
+      tx,
     });
 
-    // Si el mueble terminado tenía costo 0 y los materiales tenían costo, actualizar su costo unitario de fabricación
-    if (wo.product.cost <= 0 && totalMaterialCost > 0 && wo.quantity > 0) {
+    // Actualizar costo unitario de fabricación cuando hay costo de materiales
+    if (totalMaterialCost > 0 && wo.quantity > 0) {
       const unitManufacturedCost =
         Math.round((totalMaterialCost / wo.quantity) * 100) / 100;
-      await prisma.product.update({
+      await tx.product.update({
         where: { id: wo.productId },
         data: { cost: unitManufacturedCost },
       });
     }
 
-    await prisma.workOrder.update({
+    await tx.workOrder.update({
       where: { id },
       data: { status: "DONE", completedAt: new Date() },
     });
-  } catch (err) {
-    for (const d of deducted) {
-      await applyStockChange({
-        productId: d.productId,
-        qtyDelta: d.qty,
-        reason: "ADJUST",
-        refType: "WorkOrder",
-        refId: id,
-        note: `Reversión por error en orden ${wo.number}`,
-        allowNegative: true,
-      }).catch(() => undefined);
-    }
-    throw err;
-  }
+  });
 
   await writeAudit({
     action: "COMPLETE",

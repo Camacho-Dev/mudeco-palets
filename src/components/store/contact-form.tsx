@@ -17,7 +17,8 @@ export function ContactForm() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
-    if (params.get("tipo") === "cotizar") setKind("quote");
+    const tipo = params.get("tipo");
+    if (tipo === "cotizar" || tipo === "medida") setKind("quote");
     const pieza = params.get("pieza");
     if (pieza) setPiece(pieza);
   }, []);

@@ -52,65 +52,73 @@ export async function createPayment(invoiceId: string, fd: FormData) {
     throw new Error("La factura no admite pagos");
   }
 
-  const balance = calcInvoiceBalance(
-    invoice.total,
-    invoice.payments,
-    invoice.creditNotes,
-  );
-  if (data.amount > balance + 0.001) {
-    throw new Error("El monto supera el saldo pendiente");
-  }
-
-  await prisma.payment.create({
-    data: {
-      invoiceId,
-      amount: data.amount,
-      method: data.method,
-      paidAt: data.paidAt ? new Date(data.paidAt) : new Date(),
-      notes: data.notes,
-    },
-  });
-
-  const [payments, creditNotes] = await Promise.all([
-    prisma.payment.findMany({ where: { invoiceId } }),
-    prisma.creditNote.findMany({ where: { invoiceId } }),
-  ]);
-  const paid = paidAmount(payments);
-  const credited = creditNotesAmount(creditNotes);
-  const status = resolveInvoiceStatusWithCredits(
-    invoice.total,
-    paid,
-    credited,
-    invoice.status,
-  );
-
-  await prisma.invoice.update({
-    where: { id: invoiceId },
-    data: { status },
-  });
-
-  // Si la factura quedó saldada, actualizar automáticamente cualquier Pedido Web vinculado y notificar al cliente
-  if (status === "PAID") {
-    const linkedOrders = await prisma.webOrder.findMany({
-      where: {
-        invoiceId,
-        status: { in: ["PENDING", "AWAITING_PAYMENT"] },
-      },
-      select: { id: true },
-    });
-    if (linkedOrders.length > 0) {
-      await prisma.webOrder.updateMany({
-        where: {
-          id: { in: linkedOrders.map((o) => o.id) },
-        },
-        data: { status: "PAID" },
-      });
-      for (const wo of linkedOrders) {
-        void notifyCustomerWebOrderStatus(wo.id, "PAID");
-        revalidatePath(`/pedido/${wo.id}`);
-      }
-      void sendInvoiceEmail(invoiceId).catch(() => undefined);
+  const { status, linkedOrders } = await prisma.$transaction(async (tx) => {
+    const [currentPayments, currentCredits] = await Promise.all([
+      tx.payment.findMany({ where: { invoiceId } }),
+      tx.creditNote.findMany({ where: { invoiceId } }),
+    ]);
+    const currentBalance = calcInvoiceBalance(
+      invoice.total,
+      currentPayments,
+      currentCredits,
+    );
+    if (data.amount > currentBalance + 0.001) {
+      throw new Error("El monto supera el saldo pendiente");
     }
+
+    const createdPay = await tx.payment.create({
+      data: {
+        invoiceId,
+        amount: data.amount,
+        method: data.method,
+        paidAt: data.paidAt ? new Date(data.paidAt) : new Date(),
+        notes: data.notes,
+      },
+    });
+
+    const nextPayments = [...currentPayments, createdPay];
+    const paid = paidAmount(nextPayments);
+    const credited = creditNotesAmount(currentCredits);
+    const nextStatus = resolveInvoiceStatusWithCredits(
+      invoice.total,
+      paid,
+      credited,
+      invoice.status,
+    );
+
+    await tx.invoice.update({
+      where: { id: invoiceId },
+      data: { status: nextStatus },
+    });
+
+    let ordersToNotify: { id: string }[] = [];
+    if (nextStatus === "PAID") {
+      ordersToNotify = await tx.webOrder.findMany({
+        where: {
+          invoiceId,
+          status: { in: ["PENDING", "AWAITING_PAYMENT"] },
+        },
+        select: { id: true },
+      });
+      if (ordersToNotify.length > 0) {
+        await tx.webOrder.updateMany({
+          where: {
+            id: { in: ordersToNotify.map((o) => o.id) },
+          },
+          data: { status: "PAID" },
+        });
+      }
+    }
+
+    return { status: nextStatus, linkedOrders: ordersToNotify };
+  });
+
+  if (status === "PAID" && linkedOrders.length > 0) {
+    for (const wo of linkedOrders) {
+      void notifyCustomerWebOrderStatus(wo.id, "PAID");
+      revalidatePath(`/pedido/${wo.id}`);
+    }
+    void sendInvoiceEmail(invoiceId).catch(() => undefined);
   }
 
   await writeAudit({
@@ -140,35 +148,37 @@ export async function deletePayment(paymentId: string) {
     throw new Error("No se puede modificar una factura anulada");
   }
 
-  await prisma.payment.delete({ where: { id: paymentId } });
+  await prisma.$transaction(async (tx) => {
+    await tx.payment.delete({ where: { id: paymentId } });
 
-  const [payments, creditNotes] = await Promise.all([
-    prisma.payment.findMany({ where: { invoiceId: payment.invoiceId } }),
-    prisma.creditNote.findMany({ where: { invoiceId: payment.invoiceId } }),
-  ]);
-  const paid = paidAmount(payments);
-  const credited = creditNotesAmount(creditNotes);
-  const status = resolveInvoiceStatusWithCredits(
-    payment.invoice.total,
-    paid,
-    credited,
-    payment.invoice.status,
-  );
-  await prisma.invoice.update({
-    where: { id: payment.invoiceId },
-    data: { status },
-  });
-
-  // Si la factura dejó de estar pagada, revertir el estado del Pedido Web si estaba en PAID
-  if (status !== "PAID") {
-    await prisma.webOrder.updateMany({
-      where: {
-        invoiceId: payment.invoiceId,
-        status: "PAID",
-      },
-      data: { status: "PENDING" },
+    const [payments, creditNotes] = await Promise.all([
+      tx.payment.findMany({ where: { invoiceId: payment.invoiceId } }),
+      tx.creditNote.findMany({ where: { invoiceId: payment.invoiceId } }),
+    ]);
+    const paid = paidAmount(payments);
+    const credited = creditNotesAmount(creditNotes);
+    const status = resolveInvoiceStatusWithCredits(
+      payment.invoice.total,
+      paid,
+      credited,
+      payment.invoice.status,
+    );
+    await tx.invoice.update({
+      where: { id: payment.invoiceId },
+      data: { status },
     });
-  }
+
+    // Si la factura dejó de estar pagada, revertir el estado del Pedido Web si estaba en PAID
+    if (status !== "PAID") {
+      await tx.webOrder.updateMany({
+        where: {
+          invoiceId: payment.invoiceId,
+          status: "PAID",
+        },
+        data: { status: "PENDING" },
+      });
+    }
+  });
 
   await writeAudit({
     action: "DELETE",

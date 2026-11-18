@@ -46,6 +46,7 @@ export default async function ConexionWebPage() {
       select: { total: true },
     }),
     prisma.product.findMany({
+      where: { kind: "FINISHED" },
       select: { id: true, active: true, stock: true, imageUrl: true },
     }),
     prisma.webOrder.findMany({

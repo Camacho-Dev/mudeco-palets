@@ -7,26 +7,15 @@ export const dynamic = "force-dynamic";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteUrl();
 
-  const [products, categories] = await Promise.all([
-    withDbRetry(
-      () =>
-        prisma.product.findMany({
-          where: { active: true, kind: "FINISHED" },
-          select: { id: true, updatedAt: true },
-          orderBy: { updatedAt: "desc" },
-        }),
-      { fallback: [] },
-    ),
-    withDbRetry(
-      () =>
-        prisma.product.findMany({
-          where: { active: true, kind: "FINISHED" },
-          select: { category: true },
-          distinct: ["category"],
-        }),
-      { fallback: [] },
-    ),
-  ]);
+  const products = await withDbRetry(
+    () =>
+      prisma.product.findMany({
+        where: { active: true, kind: "FINISHED" },
+        select: { id: true, updatedAt: true },
+        orderBy: { updatedAt: "desc" },
+      }),
+    { fallback: [] },
+  );
 
   const productEntries: MetadataRoute.Sitemap = products.map((p) => ({
     url: `${base}/producto/${p.id}`,
@@ -34,15 +23,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     changeFrequency: "weekly" as const,
     priority: 0.8,
   }));
-
-  const categoryEntries: MetadataRoute.Sitemap = categories
-    .map((c) => c.category)
-    .filter(Boolean)
-    .map((cat) => ({
-      url: `${base}/catalogo?cat=${encodeURIComponent(cat)}`,
-      changeFrequency: "weekly" as const,
-      priority: 0.75,
-    }));
 
   const staticEntries: MetadataRoute.Sitemap = [
     {
@@ -77,5 +57,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  return [...staticEntries, ...categoryEntries, ...productEntries];
+  return [...staticEntries, ...productEntries];
 }

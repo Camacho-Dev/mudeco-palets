@@ -113,7 +113,8 @@ ${panelUrl}
     if (previewUrl) {
       console.info(`[SMTP Preview - Pedido ${order.number}]: ${previewUrl}`);
     }
-  } catch {
+  } catch (err) {
+    console.error("Error enviando correo SMTP:", err);
     /* SMTP opcional: no romper el pedido */
   }
 
@@ -186,7 +187,8 @@ Gracias por confiar en nuestro taller artesanal.`,
         <p style="font-size:12px;color:#6e5a4f;margin-top:20px">Si elegiste pago por transferencia bancaria, puedes adjuntar tu comprobante directamente desde el enlace anterior.</p>
       </div>`,
     });
-  } catch {
+  } catch (err) {
+    console.error("Error enviando correo SMTP:", err);
     /* No interrumpir flujo si falla el correo */
   }
 }
@@ -246,7 +248,8 @@ Equipo ${companyName}`,
         </div>
       </div>`,
     });
-  } catch {
+  } catch (err) {
+    console.error("Error enviando correo SMTP:", err);
     /* No bloquear la operación del panel si SMTP falla */
   }
 }
