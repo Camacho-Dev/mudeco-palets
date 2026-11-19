@@ -5,7 +5,8 @@ import { requireAdmin } from "@/lib/session";
 import { PageHeader } from "@/components/page-header";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { WhatsAppShareButton } from "@/components/whatsapp-share-button";
-import { ArrowLeft, Printer, FileText, CheckCircle2 } from "lucide-react";
+import { PrintActionButton } from "@/components/print-action-button";
+import { ArrowLeft, FileText, CheckCircle2 } from "lucide-react";
 
 export default async function NotaCreditoDetallePage({
   params,
@@ -67,17 +68,7 @@ export default async function NotaCreditoDetallePage({
             invoiceNumber={note.invoice.number}
             companyName={company?.name || "Mudeco Palets"}
           />
-          <button
-            type="button"
-            onClick={undefined}
-            className="btn btn-secondary inline-flex items-center gap-1.5 text-xs"
-            id="print-nc-btn"
-          >
-            <Printer className="h-4 w-4" />
-            <a href={`javascript:window.print()`} className="contents">
-              Imprimir
-            </a>
-          </button>
+          <PrintActionButton className="btn btn-secondary inline-flex items-center gap-1.5 text-xs" />
         </div>
       </div>
 
