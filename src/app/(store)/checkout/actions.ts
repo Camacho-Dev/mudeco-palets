@@ -54,14 +54,24 @@ function parseCustomer(fd: FormData): CheckoutCustomer {
 
 function parseCart(fd: FormData): CartLineInput[] {
   const raw = String(fd.get("cartJson") || "[]");
-  const parsed = JSON.parse(raw) as CartLineInput[];
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error("El carrito contiene datos inválidos. Recarga la página e intenta de nuevo.");
+  }
   if (!Array.isArray(parsed) || !parsed.length) {
     throw new Error("El carrito está vacío");
   }
-  return parsed.map((l) => ({
-    productId: String(l.productId),
-    quantity: Number(l.quantity),
-  }));
+  return parsed.map((l) => {
+    const item = l as { productId?: unknown; quantity?: unknown };
+    const productId = String(item?.productId || "").trim();
+    const quantity = Number(item?.quantity);
+    if (!productId || !Number.isFinite(quantity) || quantity <= 0) {
+      throw new Error("Artículo o cantidad inválida en el carrito");
+    }
+    return { productId, quantity };
+  });
 }
 
 import { getVerifiedApiSession } from "@/lib/session";

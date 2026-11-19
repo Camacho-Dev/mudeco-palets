@@ -54,7 +54,7 @@ export function WebOrdersBell({
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="relative flex h-9 w-9 items-center justify-center rounded-xl border border-[var(--border)] bg-white text-[var(--wood-900)] shadow-sm transition hover:border-brand-gold-strong hover:bg-[#fbf7f2]"
+        className="relative flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--border)] bg-white text-[var(--wood-900)] shadow-sm transition hover:border-brand-gold-strong hover:bg-[#fbf7f2] cursor-pointer"
         title="Notificaciones de pedidos web"
         aria-label="Notificaciones de pedidos web"
         aria-expanded={open}

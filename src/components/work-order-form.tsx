@@ -223,14 +223,15 @@ export function WorkOrderForm({
                       Total: {totalNeeded} {m.unit}
                     </span>
                   ) : (
-                    <span className="text-[0.7rem] text-slate-400">Total: -</span>
+                    <span className="text-[0.7rem] text-slate-600">Total: -</span>
                   )}
                   {rows.length > 1 ? (
                     <button
                       type="button"
                       onClick={() => removeRow(index)}
-                      className="p-1 text-slate-400 hover:text-rose-600 transition"
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-600 hover:bg-rose-50 hover:text-rose-600 transition cursor-pointer"
                       title="Eliminar insumo"
+                      aria-label="Eliminar insumo"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

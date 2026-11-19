@@ -121,8 +121,17 @@ export function WhatsAppShareButton({
 
       {/* Modal para ingresar o editar teléfono si el cliente no lo tenía */}
       {modalOpen ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-sm rounded-2xl border border-[var(--border)] bg-white p-6 shadow-2xl">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Compartir por WhatsApp"
+          onClick={() => setModalOpen(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm rounded-2xl border border-[var(--border)] bg-white p-6 shadow-2xl"
+          >
             <div className="mb-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
@@ -140,7 +149,8 @@ export function WhatsAppShareButton({
               <button
                 type="button"
                 onClick={() => setModalOpen(false)}
-                className="rounded-lg p-1 text-[var(--muted)] hover:bg-stone-100"
+                aria-label="Cerrar modal"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-[var(--muted)] hover:bg-stone-100 cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>

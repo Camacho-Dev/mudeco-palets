@@ -71,9 +71,14 @@ export function StoreHeaderClient({
     setSearchOpen(false);
   }, [pathname]);
   useEffect(() => {
-    if (searchOpen) {
-      setTimeout(() => searchInputRef.current?.focus(), 50);
-    }
+    return () => {
+      if (catsTimerRef.current) clearTimeout(catsTimerRef.current);
+    };
+  }, []);
+  useEffect(() => {
+    if (!searchOpen) return;
+    const t = setTimeout(() => searchInputRef.current?.focus(), 50);
+    return () => clearTimeout(t);
   }, [searchOpen]);
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";

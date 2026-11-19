@@ -13,15 +13,16 @@ export default async function ImprimirCotizacionPage({
   await requireSession();
   const { id } = await params;
 
-  const quote = await prisma.quote.findUnique({
-    where: { id },
-    include: { customer: true, items: true },
-  });
+  const [quote, company] = await Promise.all([
+    prisma.quote.findUnique({
+      where: { id },
+      include: { customer: true, items: true },
+    }),
+    prisma.companySettings.findUnique({
+      where: { id: "default" },
+    }),
+  ]);
   if (!quote) notFound();
-
-  const company = await prisma.companySettings.findUnique({
-    where: { id: "default" },
-  });
 
   return (
     <div className="mx-auto max-w-3xl">

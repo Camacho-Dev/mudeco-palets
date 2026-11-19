@@ -58,7 +58,8 @@ export const getCachedPendingWebOrders = cache(async () => {
       { fallback: [0, []] as [number, PendingWebOrderSummary[]] },
     );
     return { count, recent };
-  } catch {
+  } catch (err) {
+    console.error("Error cargando pedidos web pendientes:", err);
     return { count: 0, recent: [] };
   }
 });

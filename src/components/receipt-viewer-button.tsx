@@ -59,6 +59,7 @@ export function ReceiptViewerButton({
         <div
           role="dialog"
           aria-modal="true"
+          aria-label={`Comprobante ${name}`}
           onClick={() => setModalOpen(false)}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-xs"
         >
@@ -69,7 +70,8 @@ export function ReceiptViewerButton({
             <button
               type="button"
               onClick={() => setModalOpen(false)}
-              className="absolute right-3 top-3 z-10 rounded-full bg-black/60 p-1.5 text-white hover:bg-black transition cursor-pointer"
+              aria-label="Cerrar visor"
+              className="absolute right-3 top-3 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-black/65 text-white hover:bg-black transition cursor-pointer"
             >
               <X className="h-4 w-4" />
             </button>

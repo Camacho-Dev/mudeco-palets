@@ -171,6 +171,9 @@ export function AddToCartButton({
       <AnimatePresence>
         {showSoldOutModal && (
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-label="¿Deseas pedirlo al taller?"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

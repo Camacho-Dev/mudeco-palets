@@ -50,7 +50,7 @@ export function BrandPanel() {
         </p>
       </div>
 
-      <p className="relative z-10 text-xs text-white/40">
+      <p className="relative z-10 text-xs text-white/70">
         © {new Date().getFullYear()} Mudeco Palets · Taller artesanal
       </p>
     </aside>

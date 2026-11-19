@@ -38,29 +38,20 @@ export default async function InventarioPage({
 
   const productWhere = { active: true, kind: "FINISHED" as const, ...searchFilter };
   const PAGE_SIZE = 25;
-  // Lista completa (campos mínimos) para KPIs, categorías y el diálogo de ajuste.
-  const allProducts = await prisma.product.findMany({
-    where: productWhere,
-    orderBy: [{ category: "asc" }, { name: "asc" }],
-    select: {
-      id: true,
-      name: true,
-      sku: true,
-      stock: true,
-      minStock: true,
-      cost: true,
-      price: true,
-      category: true,
-    },
-  });
-  const total = allProducts.length;
-  const pg = pageWindow(parsePage(sp.page), total, PAGE_SIZE);
-  const [products, moves] = await Promise.all([
+  const [allProducts, moves] = await Promise.all([
     prisma.product.findMany({
       where: productWhere,
       orderBy: [{ category: "asc" }, { name: "asc" }],
-      skip: pg.skip,
-      take: pg.take,
+      select: {
+        id: true,
+        name: true,
+        sku: true,
+        stock: true,
+        minStock: true,
+        cost: true,
+        price: true,
+        category: true,
+      },
     }),
     prisma.stockMovement.findMany({
       where: {
@@ -74,6 +65,9 @@ export default async function InventarioPage({
       include: { product: true },
     }),
   ]);
+  const total = allProducts.length;
+  const pg = pageWindow(parsePage(sp.page), total, PAGE_SIZE);
+  const products = allProducts.slice(pg.skip, pg.skip + pg.take);
 
   const low = allProducts.filter(
     (p) => p.stock <= p.minStock && p.sku !== "CUS-001",

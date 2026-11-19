@@ -13,15 +13,16 @@ export default async function ImprimirFacturaPage({
   await requireSession();
   const { id } = await params;
 
-  const invoice = await prisma.invoice.findUnique({
-    where: { id },
-    include: { customer: true, items: true },
-  });
+  const [invoice, company] = await Promise.all([
+    prisma.invoice.findUnique({
+      where: { id },
+      include: { customer: true, items: true },
+    }),
+    prisma.companySettings.findUnique({
+      where: { id: "default" },
+    }),
+  ]);
   if (!invoice) notFound();
-
-  const company = await prisma.companySettings.findUnique({
-    where: { id: "default" },
-  });
 
   const hasIssuedNcf = Boolean(invoice.ncf && !invoice.ncf.startsWith("PENDING:"));
   const ncfPrefix = hasIssuedNcf ? invoice.ncf!.trim().slice(0, 3).toUpperCase() : "";
