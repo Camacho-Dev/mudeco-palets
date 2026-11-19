@@ -204,7 +204,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         try {
           const dbUser = await prisma.user.findUnique({
             where: { id: token.id as string },
-            select: { id: true, active: true, role: true, name: true, email: true },
+            select: {
+              id: true,
+              active: true,
+              role: true,
+              name: true,
+              email: true,
+              createdAt: true,
+            },
           });
           if (!dbUser || !dbUser.active) {
             return {
@@ -217,6 +224,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           session.user.role = dbUser.role;
           session.user.name = dbUser.name;
           session.user.email = dbUser.email;
+          (session.user as { createdAt?: string }).createdAt =
+            dbUser.createdAt.toISOString();
         } catch {
           session.user.id = token.id as string;
           session.user.role = (token.role as string) || "CLIENTE";

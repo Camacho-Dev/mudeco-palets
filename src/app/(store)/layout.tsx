@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Inter } from "next/font/google";
 import { StoreHeader } from "@/components/store/store-header";
 import { StoreFooter } from "@/components/store/store-footer";
 import { WhatsappFloating } from "@/components/store/whatsapp-floating";
+import { NewUserWelcome } from "@/components/store/new-user-welcome";
 import { StoreProviders } from "@/components/store/store-providers";
 import { CartProvider } from "@/components/store/cart-context";
 import { StoreConfigProvider } from "@/components/store/store-config";
@@ -112,6 +113,7 @@ export default async function StoreLayout({
           <main id="main-content" tabIndex={-1} className="flex-1 outline-none">{children}</main>
           <StoreFooter company={company} />
           <WhatsappFloating phone={company.phone} />
+          <NewUserWelcome />
         </div>
       </CartProvider>
       </StoreConfigProvider>

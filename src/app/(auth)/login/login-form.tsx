@@ -224,7 +224,11 @@ export function LoginForm() {
         return;
       }
 
-      window.location.assign(safeCallback || "/");
+      const dest =
+        !safeCallback || safeCallback === "/"
+          ? "/?bienvenido=1"
+          : safeCallback;
+      window.location.assign(dest);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error inesperado";
       setError("Error al registrarse: " + msg);
