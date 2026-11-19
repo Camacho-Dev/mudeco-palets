@@ -43,11 +43,20 @@ export function AddProductModal({
   handleCreateNewProduct: (e: React.FormEvent) => Promise<void>;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-      <div className="relative w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="add-product-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+      onClick={() => setShowAddModal(false)}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200"
+      >
         <div className="flex items-center justify-between border-b border-border pb-3">
           <div>
-            <h3 className="font-semibold text-foreground text-base">
+            <h3 id="add-product-modal-title" className="font-semibold text-foreground text-base">
               Agregar Nuevo Mueble a la Tienda Web
             </h3>
             <p className="text-xs text-muted-foreground">
@@ -57,7 +66,8 @@ export function AddProductModal({
           <button
             type="button"
             onClick={() => setShowAddModal(false)}
-            className="rounded-lg p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+            aria-label="Cerrar modal"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground cursor-pointer"
           >
             <X className="h-4 w-4" />
           </button>

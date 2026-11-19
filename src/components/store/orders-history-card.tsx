@@ -318,7 +318,7 @@ function PageButton({
       aria-current={current ? "page" : undefined}
       disabled={disabled}
       onClick={onClick}
-      className={`flex h-9 min-w-9 items-center justify-center rounded-full px-2 text-[13px] font-medium tabular-nums transition-colors cursor-pointer active:scale-95 disabled:cursor-default disabled:opacity-35 disabled:active:scale-100 ${
+      className={`flex h-11 min-w-11 items-center justify-center rounded-full px-2 text-[13px] font-medium tabular-nums transition-colors cursor-pointer active:scale-95 disabled:cursor-default disabled:opacity-35 disabled:active:scale-100 ${
         current
           ? "bg-brand-ink text-white"
           : "text-[#5c4f43] hover:bg-[#f5f0e8] hover:text-brand-ink"

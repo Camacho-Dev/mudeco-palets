@@ -61,7 +61,7 @@ export function StoreFooter({
           </div>
         </div>
         <div>
-          <p className="mb-4 text-[0.65rem] font-semibold tracking-[0.18em] text-white/40 uppercase">
+          <p className="mb-4 text-[0.65rem] font-semibold tracking-[0.18em] text-white/70 uppercase">
             Navegación
           </p>
           <ul className="space-y-3 text-sm text-white/70">
@@ -88,7 +88,7 @@ export function StoreFooter({
           </ul>
         </div>
         <div>
-          <p className="mb-4 text-[0.65rem] font-semibold tracking-[0.18em] text-white/40 uppercase">
+          <p className="mb-4 text-[0.65rem] font-semibold tracking-[0.18em] text-white/70 uppercase">
             Categorías
           </p>
           <ul className="space-y-2 text-sm text-white/70">
@@ -114,7 +114,7 @@ export function StoreFooter({
           </ul>
         </div>
         <div>
-          <p className="mb-4 text-[0.65rem] font-semibold tracking-[0.18em] text-white/40 uppercase">
+          <p className="mb-4 text-[0.65rem] font-semibold tracking-[0.18em] text-white/70 uppercase">
             Contacto
           </p>
           <ul className="space-y-3 text-sm text-white/70">
@@ -146,7 +146,7 @@ export function StoreFooter({
           >
             Escríbenos por WhatsApp
           </a>
-          <p className="mt-6 text-[0.65rem] font-semibold tracking-[0.18em] text-white/40 uppercase">
+          <p className="mt-6 text-[0.65rem] font-semibold tracking-[0.18em] text-white/70 uppercase">
             Horario
           </p>
           <ul className="mt-2 space-y-1 text-sm text-white/60">

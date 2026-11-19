@@ -30,59 +30,74 @@ export async function quickStockAdjust(fd: FormData) {
     note: String(fd.get("note") || "") || undefined,
   });
 
-  const product = await prisma.product.findUnique({
-    where: { id: parsed.productId },
-  });
+  const result = await prisma.$transaction(async (tx) => {
+    const product = await tx.product.findUnique({
+      where: { id: parsed.productId },
+    });
 
-  if (!product) {
-    throw new Error("El mueble o material no existe");
-  }
+    if (!product) {
+      throw new Error("El mueble o material no existe");
+    }
 
-  const currentStock = product.stock;
-  let nextStock = currentStock;
-  let moveQty = 0;
+    const currentStock = product.stock;
+    let computedNext = currentStock;
+    let delta = 0;
 
-  if (parsed.adjustmentType === "ADD") {
-    nextStock = currentStock + parsed.quantity;
-    moveQty = parsed.quantity;
-  } else if (parsed.adjustmentType === "REMOVE") {
-    nextStock = Math.max(0, currentStock - parsed.quantity);
-    moveQty = -Math.min(currentStock, parsed.quantity);
-  } else if (parsed.adjustmentType === "SET") {
-    nextStock = parsed.quantity;
-    moveQty = nextStock - currentStock;
-  }
+    if (parsed.adjustmentType === "ADD") {
+      computedNext = currentStock + parsed.quantity;
+      delta = parsed.quantity;
+    } else if (parsed.adjustmentType === "REMOVE") {
+      computedNext = Math.max(0, currentStock - parsed.quantity);
+      delta = -Math.min(currentStock, parsed.quantity);
+    } else if (parsed.adjustmentType === "SET") {
+      computedNext = parsed.quantity;
+      delta = computedNext - currentStock;
+    }
 
-  if (moveQty === 0 && parsed.adjustmentType !== "SET") {
-    return { ok: true, message: "Sin cambios en el stock" };
-  }
+    if (delta === 0 && parsed.adjustmentType !== "SET") {
+      return { nextStock: currentStock, moveQty: 0, productName: product.name };
+    }
 
-  await prisma.$transaction(async (tx) => {
     await tx.product.update({
       where: { id: product.id },
-      data: { stock: nextStock },
+      data: { stock: computedNext },
     });
 
     await tx.stockMovement.create({
       data: {
         productId: product.id,
-        qty: moveQty,
-        balance: nextStock,
+        qty: delta,
+        balance: computedNext,
         reason: parsed.reason,
         note: parsed.note || `Ajuste rápido desde inventario (${parsed.adjustmentType})`,
         userId: session.user.id,
       },
     });
+
+    return {
+      productId: product.id,
+      productName: product.name,
+      currentStock,
+      nextStock: computedNext,
+      moveQty: delta,
+    };
   });
+
+  const { productId, productName, currentStock, nextStock, moveQty } = result;
+  void productId;
+
+  if (moveQty === 0 && parsed.adjustmentType !== "SET") {
+    return { ok: true, message: "Sin cambios en el stock" };
+  }
 
   await writeAudit({
     action: "STOCK",
     entity: "Product",
-    entityId: product.id,
-    summary: `Ajuste rápido en inventario (${product.name}): ${currentStock} → ${nextStock} (${moveQty >= 0 ? "+" : ""}${moveQty})`,
+    entityId: productId,
+    summary: `Ajuste rápido en inventario (${productName}): ${currentStock} → ${nextStock} (${moveQty >= 0 ? "+" : ""}${moveQty})`,
     details: {
-      productId: product.id,
-      productName: product.name,
+      productId,
+      productName,
       previousStock: currentStock,
       newStock: nextStock,
       diff: moveQty,
@@ -96,7 +111,7 @@ export async function quickStockAdjust(fd: FormData) {
   revalidatePath("/productos");
   revalidatePath("/vender");
   revalidatePath("/catalogo");
-  revalidatePath(`/producto/${product.id}`);
+  revalidatePath(`/producto/${productId}`);
 
   return { ok: true, stock: nextStock };
 }

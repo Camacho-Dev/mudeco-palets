@@ -113,7 +113,7 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
                   setQuery("");
                   setIsOpen(true);
                 }}
-                className="flex min-h-[44px] min-w-[44px] items-center justify-center text-white/40 hover:text-white transition shrink-0 mr-1 cursor-pointer"
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center text-white/70 hover:text-white transition shrink-0 mr-1 cursor-pointer"
                 title="Borrar búsqueda"
                 aria-label="Borrar búsqueda"
               >
@@ -207,7 +207,7 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
                 <p className="text-sm text-white/70">
                   No encontramos muebles para &quot;{query}&quot;
                 </p>
-                <p className="mt-1 text-xs text-white/40">
+                <p className="mt-1 text-xs text-white/70">
                   Fabricamos cualquier mueble a medida en nuestro taller.
                 </p>
                 <Link
@@ -228,7 +228,7 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
               className="flex items-center justify-between border-t border-white/[0.08] bg-[#0c0c0c] px-4 py-2.5 text-xs font-semibold text-brand-gold transition hover:bg-brand-gold hover:text-[#0a0a0a]"
             >
               <span>Ver todos los muebles en catálogo →</span>
-              <span className="text-[10px] uppercase tracking-wider text-white/40">
+              <span className="text-[10px] uppercase tracking-wider text-white/70">
                 Catálogo completo
               </span>
             </Link>

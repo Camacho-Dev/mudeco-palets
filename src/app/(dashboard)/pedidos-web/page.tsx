@@ -132,28 +132,7 @@ export default async function PedidosWebPage({
     },
   });
 
-  const filtered = orders.filter((o) => {
-    if (tipo === "sale" && o.type !== "SALE") return false;
-    if (tipo === "cart_quote" && !(o.type === "QUOTE" && !o.serviceKind))
-      return false;
-    if (
-      tipo &&
-      tipo !== "sale" &&
-      tipo !== "cart_quote" &&
-      o.serviceKind !== tipo
-    )
-      return false;
-
-    if (estado === "pending" && !isWebOrderPending(o.status)) return false;
-    if (
-      estado &&
-      estado !== "pending" &&
-      o.status !== estado
-    )
-      return false;
-
-    return true;
-  });
+  const filtered = orders;
 
 
   return (

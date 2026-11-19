@@ -6,9 +6,10 @@ import { leadTimeLabel } from "@/lib/made-to-order";
 import { ShieldCheck, Scale, Truck, Hammer, CreditCard, ArrowLeft } from "lucide-react";
 
 export const metadata = {
-  title: "Términos y Condiciones de Compra · Mudeco Palets",
+  title: "Términos y Condiciones de Compra",
   description:
     "Condiciones comerciales, garantías artesanales, tiempos de fabricación, envíos y facturación fiscal NCF en República Dominicana.",
+  alternates: { canonical: "/terminos" },
 };
 
 export default async function TerminosPage() {

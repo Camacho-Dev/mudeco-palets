@@ -70,17 +70,18 @@ export function CheckoutForm({
 
   const isReceiptMandatory = mode === "transfer";
 
-  // Auto-fill name/email when session loads asynchronously
+  // Auto-fill name/email only once when session loads asynchronously
   useEffect(() => {
     if (
       session?.user?.name &&
-      session.user.name.trim().toLowerCase() !== "administrador" &&
-      !name
+      session.user.name.trim().toLowerCase() !== "administrador"
     ) {
-      setName(session.user.name);
+      setName((prev) => prev || session.user?.name || "");
     }
-    if (session?.user?.email && !email) setEmail(session.user.email);
-  }, [session?.user?.name, session?.user?.email, name, email]);
+    if (session?.user?.email) {
+      setEmail((prev) => prev || session.user?.email || "");
+    }
+  }, [session?.user?.name, session?.user?.email]);
 
   // Restaurar borrador de campos en sessionStorage para no perder datos al cambiar de modalidad
   useEffect(() => {
@@ -416,7 +417,6 @@ export function CheckoutForm({
                     type="file"
                     accept="image/jpeg,image/png,image/webp,application/pdf"
                     className="sr-only"
-                    required
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (!file) return;
@@ -468,8 +468,9 @@ export function CheckoutForm({
                       setReceiptFile(null);
                       setReceiptPreview(null);
                     }}
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-emerald-300 text-emerald-800 transition hover:bg-emerald-100 cursor-pointer"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-emerald-300 text-emerald-800 transition hover:bg-emerald-100 cursor-pointer"
                     title="Cambiar archivo"
+                    aria-label="Quitar comprobante seleccionado"
                   >
                     <X className="h-4 w-4" />
                   </button>

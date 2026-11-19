@@ -27,12 +27,15 @@ export async function getBusinessAnalytics(range?: DateRange) {
   const now = new Date();
   const startOfYear = new Date(now.getFullYear(), 0, 1);
   const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1);
-  const minQueryDate = range?.from
-    ? new Date(Math.min(range.from.getTime(), startOfYear.getTime(), sixMonthsAgo.getTime()))
+  const effectiveFrom = period.from ?? (period.kind === "all" ? null : startOfYear);
+  const minQueryDate = effectiveFrom
+    ? new Date(Math.min(effectiveFrom.getTime(), startOfYear.getTime(), sixMonthsAgo.getTime()))
     : null;
 
   const [
     invoices,
+    allInvoiceSum,
+    allCreditSum,
     payments,
     products,
     materials,
@@ -43,7 +46,17 @@ export async function getBusinessAnalytics(range?: DateRange) {
   ] = await withDbRetry(() =>
     Promise.all([
       prisma.invoice.findMany({
-        where: { status: { in: [...SOLD_STATUSES] } },
+        where: {
+          status: { in: [...SOLD_STATUSES] },
+          ...(minQueryDate
+            ? {
+                OR: [
+                  { issueDate: { gte: minQueryDate } },
+                  { status: { in: ["ISSUED", "PARTIAL"] } },
+                ],
+              }
+            : {}),
+        },
         select: {
           id: true,
           number: true,
@@ -86,6 +99,14 @@ export async function getBusinessAnalytics(range?: DateRange) {
           },
         },
         orderBy: { issueDate: "asc" },
+      }),
+      prisma.invoice.aggregate({
+        where: { status: { in: [...SOLD_STATUSES] } },
+        _sum: { total: true },
+      }),
+      prisma.creditNote.aggregate({
+        where: { invoice: { status: { in: [...SOLD_STATUSES] } } },
+        _sum: { total: true },
       }),
       prisma.payment.findMany({
         where: {
@@ -179,7 +200,12 @@ export async function getBusinessAnalytics(range?: DateRange) {
     return Math.max(0, inv.tax - creditedTax);
   }
 
-  const salesAll = roundMoney(invoices.reduce((s, i) => s + netInvoiceTotal(i), 0));
+  const salesAll = roundMoney(
+    Math.max(
+      0,
+      (allInvoiceSum._sum.total || 0) - (allCreditSum._sum.total || 0),
+    ),
+  );
   const salesYear = roundMoney(
     invoices
       .filter((i) => i.issueDate >= startOfYear)

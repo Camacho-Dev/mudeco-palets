@@ -1,5 +1,7 @@
 "use client";
 
+import { SubmitButton } from "@/components/submit-button";
+
 export function PaymentForm({
   action,
   maxAmount,
@@ -55,9 +57,12 @@ export function PaymentForm({
         </label>
         <input id="notes" name="notes" className="input" />
       </div>
-      <button type="submit" className="btn btn-primary w-full">
+      <SubmitButton
+        pendingLabel="Registrando pago..."
+        className="btn btn-primary w-full"
+      >
         Registrar pago
-      </button>
+      </SubmitButton>
     </form>
   );
 }

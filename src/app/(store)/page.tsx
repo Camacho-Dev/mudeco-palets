@@ -80,6 +80,10 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
 
 export const revalidate = 60;
 
+export const metadata = {
+  alternates: { canonical: "/" },
+};
+
 
 export default async function StoreHomePage() {
   const [company, scoredProducts, testimonials, topRatedIds, ratings] = await Promise.all([

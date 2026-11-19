@@ -4,9 +4,10 @@ import { getStoreCompany } from "@/lib/store";
 import { Lock, UserCheck, Database, MailCheck, ArrowLeft } from "lucide-react";
 
 export const metadata = {
-  title: "Política de Privacidad · Mudeco Palets",
+  title: "Política de Privacidad",
   description:
     "Tratamiento responsable y protección de datos personales de nuestros clientes en República Dominicana.",
+  alternates: { canonical: "/privacidad" },
 };
 
 export default async function PrivacidadPage() {

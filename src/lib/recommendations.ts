@@ -1,7 +1,27 @@
 import { prisma } from "@/lib/prisma";
-import type { Product } from "@prisma/client";
 
-export type ProductWithRecommendation = Product & {
+export type PublicProduct = {
+  id: string;
+  sku: string | null;
+  name: string;
+  description: string | null;
+  category: string;
+  price: number;
+  taxRate: number;
+  stock: number;
+  imageUrl: string | null;
+  widthCm: number | null;
+  heightCm: number | null;
+  depthCm: number | null;
+  active: boolean;
+  madeToOrderOnly: boolean;
+  kind: string;
+  unit: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type ProductWithRecommendation = PublicProduct & {
   score: number;
   totalSold: number;
   totalWebOrdered: number;
@@ -31,6 +51,26 @@ export async function getScoredProducts(): Promise<ProductWithRecommendation[]> 
   const [products, invoiceItems, webItems] = await Promise.all([
     prisma.product.findMany({
       where: { active: true, kind: "FINISHED" },
+      select: {
+        id: true,
+        sku: true,
+        name: true,
+        description: true,
+        category: true,
+        price: true,
+        taxRate: true,
+        stock: true,
+        imageUrl: true,
+        widthCm: true,
+        heightCm: true,
+        depthCm: true,
+        active: true,
+        madeToOrderOnly: true,
+        kind: true,
+        unit: true,
+        createdAt: true,
+        updatedAt: true,
+      },
       orderBy: [{ category: "asc" }, { name: "asc" }],
     }),
     prisma.invoiceItem.groupBy({

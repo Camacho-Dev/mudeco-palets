@@ -4,6 +4,7 @@ import { StoreHeader } from "@/components/store/store-header";
 import { StoreFooter } from "@/components/store/store-footer";
 import { WhatsappFloating } from "@/components/store/whatsapp-floating";
 import { NewUserWelcome } from "@/components/store/new-user-welcome";
+import { NetworkStatusBanner } from "@/components/network-status-banner";
 import { StoreProviders } from "@/components/store/store-providers";
 import { CartProvider } from "@/components/store/cart-context";
 import { StoreConfigProvider } from "@/components/store/store-config";
@@ -110,6 +111,7 @@ export default async function StoreLayout({
             Saltar al contenido principal
           </a>
           <StoreHeader />
+          <NetworkStatusBanner />
           <main id="main-content" tabIndex={-1} className="flex-1 outline-none">{children}</main>
           <StoreFooter company={company} />
           <WhatsappFloating phone={company.phone} />

@@ -50,6 +50,13 @@
       "skillPath": "agent-skills/web-design/build-awwwards-quality-sites/SKILL.md",
       "computedHash": "8a661b539323c08d28ece1b242de7285403469bfc0a09028f783cfc9338dcae6"
     },
+    "code-review": {
+      "source": "mattpocock/skills",
+      "commit": "abeeaf95660ba9e8b7c753eb38f441ca707a8823",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/code-review/SKILL.md",
+      "computedHash": "ce86b40a3d1648a0018b712f0c70704e6c2316b2a9b9e915ab116916a31273dc"
+    },
     "codebase-architecture": {
       "source": "mblode/agent-skills",
       "commit": "7df4b7edff1dc1c991331061373d4ba42ecacdbe",
@@ -169,6 +176,13 @@
       "skillPath": "skills/login-flow/SKILL.md",
       "computedHash": "80a73f15ac14dbea126ac20b53618ec8edca2a1954d51f8a5fa608c175fd68ab"
     },
+    "owasp-top-10-testing": {
+      "source": "usestrix/strix",
+      "commit": "8db295a5b3564be2b430bb3a9afdb4db7850fa24",
+      "sourceType": "github",
+      "skillPath": "skills/owasp-top-10-testing/SKILL.md",
+      "computedHash": "dc3518dd62ce6b048dad7a969adfe88ea8e4d8bb8fd9c8a1627b443c8a508996"
+    },
     "performance": {
       "source": "addyosmani/web-quality-skills",
       "commit": "afa8da942115f2961fdbfa80807ea0b232ff6c00",
@@ -182,6 +196,13 @@
       "sourceType": "github",
       "skillPath": "playwright-best-practices/SKILL.md",
       "computedHash": "111e9d3e9d63dea34814120fb6583c0b28ee45371662801d8e8d8bdf4b05dcb0"
+    },
+    "prisma-postgres": {
+      "source": "prisma/skills",
+      "commit": "a6f192959cf43b08aa330fe1ffca090267215812",
+      "sourceType": "github",
+      "skillPath": "prisma-postgres/SKILL.md",
+      "computedHash": "bc15ea262db09a5372b2308d08d553d1437398b8eaf282d6c811db9b22524d85"
     },
     "responsive-design": {
       "source": "wshobson/agents",

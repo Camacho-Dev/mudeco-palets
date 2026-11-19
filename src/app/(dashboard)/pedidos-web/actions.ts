@@ -8,6 +8,7 @@ import { writeAudit } from "@/lib/audit";
 import { nextInvoiceNumber } from "@/lib/invoice-number";
 import { calcInvoiceBalance, calcInvoiceTotals } from "@/lib/invoice-calc";
 import { deductStock, restoreInvoiceNetStock } from "@/lib/stock";
+import { canVoidInvoice } from "@/lib/rbac";
 import { notifyCustomerWebOrderStatus, sendInvoiceEmail } from "@/lib/mail";
 
 const ALLOWED = new Set([
@@ -165,24 +166,36 @@ export async function cancelWebOrder(id: string) {
   });
   if (!existing) throw new Error("Pedido no encontrado");
 
-  // Si tenía factura emitida/pagada y dedujo stock, anular la factura, eliminar pagos y devolver el inventario neto
-  if (existing.invoice && ["ISSUED", "PARTIAL", "PAID"].includes(existing.invoice.status)) {
-    await restoreInvoiceNetStock(existing.invoice.id, existing.invoice.items, {
-      refType: "WebOrderCancel",
-      refId: id,
-    });
-    await prisma.$transaction([
-      prisma.payment.deleteMany({ where: { invoiceId: existing.invoice.id } }),
-      prisma.invoice.update({
-        where: { id: existing.invoice.id },
-        data: { status: "VOIDED" },
-      }),
-    ]);
+  const hasFiscalOrPaidInvoice = Boolean(
+    existing.invoice &&
+      ["ISSUED", "PARTIAL", "PAID"].includes(existing.invoice.status),
+  );
+  if (hasFiscalOrPaidInvoice && !canVoidInvoice(session.user.role)) {
+    throw new Error(
+      "Solo el administrador puede cancelar pedidos con factura emitida o pagada",
+    );
   }
 
-  const order = await prisma.webOrder.update({
-    where: { id },
-    data: { status: "CANCELLED" },
+  // Si tenía factura emitida/pagada y dedujo stock, anular factura, pagos, stock y pedido en transacción atómica
+  const order = await prisma.$transaction(async (tx) => {
+    if (existing.invoice && hasFiscalOrPaidInvoice) {
+      await restoreInvoiceNetStock(
+        existing.invoice.id,
+        existing.invoice.items,
+        { refType: "WebOrderCancel", refId: id },
+        { tx },
+      );
+      await tx.payment.deleteMany({ where: { invoiceId: existing.invoice.id } });
+      await tx.invoice.update({
+        where: { id: existing.invoice.id },
+        data: { status: "VOIDED" },
+      });
+    }
+
+    return tx.webOrder.update({
+      where: { id },
+      data: { status: "CANCELLED" },
+    });
   });
 
   await writeAudit({

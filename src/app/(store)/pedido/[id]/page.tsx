@@ -17,6 +17,8 @@ import { ReceiptUploader, BankAccountCard } from "@/components/store/receipt-upl
 import { AnimatedSuccessCheck } from "@/components/store/animated-success-check";
 import { cancelPendingWebOrderAction, retryStripeCheckoutAction } from "./actions";
 import { OrderReviewPrompt } from "@/components/store/order-review-prompt";
+import { SubmitButton } from "@/components/submit-button";
+import { ConfirmForm } from "@/components/confirm-form";
 import { OrderTimelineTracker } from "@/components/store/order-timeline-tracker";
 import {
   Building2,
@@ -32,7 +34,7 @@ import {
   Clock,
 } from "lucide-react";
 
-export const metadata = { title: "Confirmación de Pedido · Mudeco Palets" };
+export const metadata = { title: "Confirmación de Pedido" };
 
 function maskEmail(email: string) {
   const [user, domain] = email.split("@");
@@ -512,23 +514,28 @@ export default async function PedidoPage({
               {isStripeConfigured() ? (
                 <form action={retryStripeCheckoutAction}>
                   <input type="hidden" name="orderId" value={order.id} />
-                  <button
-                    type="submit"
-                    className="inline-flex items-center gap-2 rounded-2xl bg-[#14100d] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#2a211b] active:scale-95 cursor-pointer"
+                  <SubmitButton
+                    pendingLabel="Abriendo pasarela…"
+                    className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl bg-[#14100d] px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#2a211b] active:scale-95 disabled:opacity-60 cursor-pointer"
                   >
-                    <span>Completar pago con tarjeta</span>
-                  </button>
+                    Completar pago con tarjeta
+                  </SubmitButton>
                 </form>
               ) : null}
-              <form action={cancelPendingWebOrderAction}>
-                <input type="hidden" name="orderId" value={order.id} />
+              <ConfirmForm
+                action={cancelPendingWebOrderAction}
+                hiddenFields={{ orderId: order.id }}
+                title="¿Cancelar este pedido pendiente?"
+                message="El pedido quedará cancelado y su factura en borrador será anulada."
+                confirmLabel="Sí, cancelar pedido"
+              >
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-bold text-rose-700 shadow-2xs transition hover:bg-rose-100 active:scale-95 cursor-pointer"
+                  className="inline-flex min-h-[44px] items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-bold text-rose-700 shadow-2xs transition hover:bg-rose-100 active:scale-95 cursor-pointer"
                 >
                   <span>Cancelar pedido pendiente</span>
                 </button>
-              </form>
+              </ConfirmForm>
             </>
           ) : null}
 

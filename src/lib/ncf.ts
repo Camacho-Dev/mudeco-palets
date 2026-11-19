@@ -24,6 +24,9 @@ export async function allocateNcf(
     data: { nextSeq: { increment: 1 } },
   });
   const seq = updated.nextSeq - 1;
+  if (seq > series.maxSeq) {
+    throw new Error(`Serie NCF ${type} agotada`);
+  }
 
   return `${series.prefix}${String(seq).padStart(8, "0")}`;
 }

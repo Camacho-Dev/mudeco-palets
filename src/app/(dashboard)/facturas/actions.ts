@@ -370,10 +370,13 @@ export async function issueInvoice(id: string) {
       allocatedNcf = pendingType ? await allocateNcf(pendingType, tx) : null;
     }
 
-    await tx.invoice.update({
-      where: { id },
+    const claim = await tx.invoice.updateMany({
+      where: { id, status: "DRAFT" },
       data: { status: "ISSUED", issueDate: new Date(), ncf: allocatedNcf },
     });
+    if (claim.count === 0) {
+      throw new Error("Esta factura ya fue emitida");
+    }
 
     await deductStock(inv.items, { refType: "Invoice", refId: id }, { tx });
   });

@@ -11,12 +11,11 @@ import Link from "next/link";
 export const metadata = { title: "Transferencia bancaria" };
 
 export default async function CheckoutTransferenciaPage() {
-  const session = await auth();
+  const [session, company] = await Promise.all([auth(), getStoreCompany()]);
   if (!session?.user) {
     redirect("/login?callbackUrl=/checkout/transferencia");
   }
 
-  const company = await getStoreCompany();
   const banks = getDominicanBanks(company);
 
   return (

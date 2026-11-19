@@ -55,7 +55,7 @@ export function CheckoutStepBanner({
                           ? "text-brand-gold"
                           : done
                             ? "text-white/85"
-                            : "text-white/40"
+                            : "text-white/70"
                       }`}
                     >
                       {s.label}

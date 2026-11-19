@@ -18,6 +18,7 @@ import { issueInvoice, voidInvoice } from "../actions";
 import { PaymentForm } from "@/components/payment-form";
 import { createPayment, deletePayment } from "../../pagos/actions";
 import { ConfirmForm } from "@/components/confirm-form";
+import { SubmitButton } from "@/components/submit-button";
 import { isAdmin } from "@/lib/rbac";
 
 import { WhatsAppShareButton } from "@/components/whatsapp-share-button";
@@ -130,9 +131,12 @@ export default async function FacturaDetallePage({
                 Editar
               </Link>
               <form action={issue}>
-                <button type="submit" className="btn btn-primary">
+                <SubmitButton
+                  pendingLabel="Emitiendo..."
+                  className="btn btn-primary"
+                >
                   Emitir
-                </button>
+                </SubmitButton>
               </form>
             </>
           ) : null}
