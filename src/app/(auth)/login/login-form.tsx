@@ -132,6 +132,14 @@ export function LoginForm() {
       return;
     }
     const role = session.user.role;
+    const loggedEmail = session.user.email?.trim().toLowerCase();
+    if (loggedEmail) {
+      try {
+        sessionStorage.removeItem(`mudeco_returning_greeted:${loggedEmail}`);
+      } catch {
+        /* ignore */
+      }
+    }
 
     const target =
       safeCallback ||
