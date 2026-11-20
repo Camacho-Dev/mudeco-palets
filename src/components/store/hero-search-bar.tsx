@@ -98,7 +98,7 @@ export function HeroSearchBar({ products = [] }: HeroSearchBarProps) {
               setQuery(e.target.value);
               setIsOpen(true);
             }}
-            placeholder="¿Qué mueble buscas? (ej. comedor, repisa TV, cama)..."
+            placeholder="¿Qué mueble buscas?"
             className="w-full bg-transparent px-4 text-xs sm:text-sm text-white placeholder:text-white/45 focus:outline-none"
           />
 

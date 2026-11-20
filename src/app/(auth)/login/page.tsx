@@ -3,6 +3,11 @@ import { BrandPanel, MobileTopBar } from "./brand-panel";
 import { LoginForm } from "./login-form";
 
 export default function LoginPage() {
+  // Solo se muestra "Continuar con Google" si el servidor tiene las credenciales
+  const googleEnabled = Boolean(
+    process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim(),
+  );
+
   return (
     <div className="min-h-dvh w-full bg-brand-cream text-[#14100d] lg:grid lg:grid-cols-12">
       <BrandPanel />
@@ -19,7 +24,7 @@ export default function LoginPage() {
               </div>
             }
           >
-            <LoginForm />
+            <LoginForm googleEnabled={googleEnabled} />
           </Suspense>
         </div>
 

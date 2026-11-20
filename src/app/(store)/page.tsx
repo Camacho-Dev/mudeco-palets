@@ -132,31 +132,31 @@ export default async function StoreHomePage() {
       title: "Mesas de comedor",
       text: "Pino curado de 6 a 8 puestos",
       href: "/catalogo?cat=MESA%20DE%20COMEDOR",
-      image: company.promoMesaImage || "/uploads/mueble_b2_021.jpeg",
+      image: company.promoMesaImage || "/uploads/mueble_b2_015.jpeg",
     },
     {
       title: "Mesas de centro",
       text: "Diseños artesanales",
       href: "/catalogo?cat=MESA%20DE%20CENTRO",
-      image: "/uploads/mueble_b2_036.jpeg",
+      image: "/uploads/mueble_b2_067.jpeg",
     },
     {
-      title: "Gaveteros y cómodas",
+      title: "Gaveteros y aparadores",
       text: "Almacenamiento rústico",
       href: "/catalogo?cat=GAVETEROS",
-      image: "/uploads/mueble_b2_061.jpeg",
+      image: "/uploads/mueble_b2_036.jpeg",
     },
     {
       title: "Centros y repisas TV",
       text: "Madera maciza",
       href: "/catalogo?cat=REPISA%20DE%20TV",
-      image: company.promoTvImage || "/uploads/mueble_b2_073.jpeg",
+      image: company.promoTvImage || "/uploads/mueble_b2_052.jpeg",
     },
     {
       title: "Proyectos a medida",
       text: "Tu diseño, nuestras manos",
       href: "/contacto",
-      image: "/uploads/mueble_b2_090.jpeg",
+      image: "/uploads/mueble_b2_072.jpeg",
     },
   ];
 

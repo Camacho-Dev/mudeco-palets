@@ -38,11 +38,11 @@ export function ProductCard({
         }`}
       >
         {isSoldOut ? (
-          <span className="absolute top-3 left-3 z-10 rounded-md bg-neutral-900/90 px-2.5 py-1 text-[0.58rem] font-bold tracking-[0.2em] text-neutral-200 border border-white/25 uppercase shadow-md backdrop-blur-md">
+          <span className="absolute top-2 left-2 z-10 rounded-md bg-neutral-900/90 px-2 py-1 sm:top-3 sm:left-3 sm:px-2.5 text-[0.58rem] font-bold tracking-[0.2em] text-neutral-200 border border-white/25 uppercase shadow-md backdrop-blur-md">
             Agotado
           </span>
         ) : badge ? (
-          <span className="absolute top-3 left-3 z-10 rounded-md bg-[#16120f]/92 px-2.5 py-1 text-[0.58rem] font-bold tracking-[0.2em] text-brand-gold border border-brand-gold/45 uppercase shadow-md backdrop-blur-md">
+          <span className="absolute top-2 left-2 z-10 rounded-md bg-[#16120f]/92 px-2 py-1 sm:top-3 sm:left-3 sm:px-2.5 text-[0.58rem] font-bold tracking-[0.2em] text-brand-gold border border-brand-gold/45 uppercase shadow-md backdrop-blur-md">
             {badge}
           </span>
         ) : null}
@@ -51,7 +51,7 @@ export function ProductCard({
           src={src}
           alt={product.name}
           fill
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          sizes="(max-width: 1024px) 50vw, 25vw"
           unoptimized={src.startsWith("data:")}
           className={`object-cover transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105 ${
             isSoldOut
@@ -70,7 +70,7 @@ export function ProductCard({
         </div>
       </div>
 
-      <div className="space-y-1.5 px-4 py-4">
+      <div className="space-y-1.5 px-3 py-3 sm:px-4 sm:py-4">
         <p
           className={`text-[0.62rem] font-semibold tracking-[0.18em] uppercase ${
             dark ? "text-brand-gold/85" : "text-[#8a7260]"
@@ -79,7 +79,7 @@ export function ProductCard({
           {categoryLabel}
         </p>
         <h3
-          className={`font-display text-xl leading-snug transition-colors duration-200 line-clamp-1 ${
+          className={`font-display text-base leading-snug transition-colors duration-200 line-clamp-2 min-h-[2.75em] sm:text-xl ${
             dark
               ? "text-white group-hover:text-brand-gold"
               : "text-[var(--wood-950)] group-hover:text-[#8a6a3a]"
@@ -96,7 +96,7 @@ export function ProductCard({
           </p>
         ) : null}
         <div
-          className={`flex items-center justify-between gap-3 pt-2 border-t ${
+          className={`flex flex-col items-start gap-1 pt-2 border-t sm:flex-row sm:items-center sm:justify-between sm:gap-3 ${
             dark ? "border-white/[0.08]" : "border-black/[0.06]"
           }`}
         >

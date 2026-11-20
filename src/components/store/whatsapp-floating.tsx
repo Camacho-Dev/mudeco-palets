@@ -26,13 +26,14 @@ export function WhatsappFloating({
     >
       <a
         href={url}
+        aria-label="Escríbenos por WhatsApp"
         target="_blank"
         rel="noreferrer"
-        className="group relative flex items-center gap-2.5 rounded-full border border-[#25D366]/40 bg-[#14100e]/95 py-2 pl-2.5 pr-4 text-white shadow-[0_12px_36px_rgba(0,0,0,0.35)] backdrop-blur-xl ring-1 ring-white/10 transition-all duration-300 hover:border-[#25D366] hover:bg-[#1a1512] hover:-translate-y-0.5 active:scale-95 cursor-pointer"
+        className="group relative flex items-center gap-2.5 rounded-full border border-[#25D366]/40 bg-[#14100e]/95 p-2 text-white sm:py-2 sm:pl-2.5 sm:pr-4 shadow-[0_12px_36px_rgba(0,0,0,0.35)] backdrop-blur-xl ring-1 ring-white/10 transition-all duration-300 hover:border-[#25D366] hover:bg-[#1a1512] hover:-translate-y-0.5 active:scale-95 cursor-pointer"
       >
         <svg
           viewBox="0 0 32 32"
-          className="h-7 w-7 shrink-0 drop-shadow-sm"
+          className="h-9 w-9 shrink-0 drop-shadow-sm sm:h-7 sm:w-7"
           aria-hidden="true"
         >
           <circle cx="16" cy="16" r="16" fill="#25D366" />
@@ -46,10 +47,10 @@ export function WhatsappFloating({
           />
         </svg>
 
-        <span className="text-xs font-semibold tracking-wide text-white">
+        <span className="hidden text-xs font-semibold tracking-wide text-white sm:inline">
           WhatsApp
         </span>
-        <ArrowRight className="h-3.5 w-3.5 text-[#25D366] transition-transform group-hover:translate-x-0.5" />
+        <ArrowRight className="hidden h-3.5 w-3.5 text-[#25D366] sm:block transition-transform group-hover:translate-x-0.5" />
       </a>
     </motion.aside>
   );

@@ -3,10 +3,11 @@ import { BrandLogo } from "@/components/logo";
 import { STORE_HOURS, storeWhatsApp } from "@/lib/store-info";
 import { STORE_CATEGORIES, STORE_SOCIAL, formatStoreCategory } from "@/lib/store-brand";
 import { ShieldCheck, Truck, CreditCard, Ruler } from "lucide-react";
+import { getStoreCategories } from "@/lib/store";
 
 const formatCategory = formatStoreCategory;
 
-export function StoreFooter({
+export async function StoreFooter({
   company,
 }: {
   company: {
@@ -18,6 +19,18 @@ export function StoreFooter({
     taxId?: string | null;
   };
 }) {
+  // Solo categorías con piezas activas, en el orden de la tienda
+  const withProducts = new Set(await getStoreCategories());
+  const footerCategories =
+    withProducts.size > 0
+      ? [
+          ...STORE_CATEGORIES.filter((c) => withProducts.has(c)),
+          ...[...withProducts].filter(
+            (c) => !(STORE_CATEGORIES as readonly string[]).includes(c),
+          ),
+        ]
+      : [...STORE_CATEGORIES];
+
   const wa = storeWhatsApp(company.phone);
 
   return (
@@ -92,7 +105,7 @@ export function StoreFooter({
             Categorías
           </p>
           <ul className="space-y-2 text-sm text-white/70">
-            {STORE_CATEGORIES.map((cat) => (
+            {footerCategories.map((cat) => (
               <li key={cat}>
                 <Link
                   href={`/catalogo?cat=${encodeURIComponent(cat)}`}

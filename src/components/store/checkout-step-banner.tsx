@@ -51,6 +51,8 @@ export function CheckoutStepBanner({
                     </span>
                     <span
                       className={`text-xs font-semibold tracking-wider uppercase ${
+                        current ? "" : "hidden sm:inline"
+                      } ${
                         current
                           ? "text-brand-gold"
                           : done

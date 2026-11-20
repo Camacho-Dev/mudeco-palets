@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/logo";
+import type { Metadata } from "next";
 import { Home, ShoppingBag } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Página no encontrada · Mudeco Palets",
+};
 
 export default function NotFound() {
   return (
@@ -18,7 +23,7 @@ export default function NotFound() {
             Pieza o página no encontrada
           </h1>
           <p className="text-sm text-stone-600 sm:text-base">
-            El enlace que seguiste no existe o fue reubicado en nuestro taller. Puedes volver a navegar por las áreas principales del sistema:
+            El enlace que seguiste no existe o fue reubicado en nuestro taller. Puedes volver al inicio o explorar el catálogo.
           </p>
         </div>
 
@@ -35,7 +40,7 @@ export default function NotFound() {
             className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-brand-brown/20 bg-white px-5 py-3 text-sm font-semibold text-brand-brown shadow-sm hover:bg-stone-50 transition"
           >
             <ShoppingBag className="h-4 w-4" />
-            <span>Ver Catálogo Web</span>
+            <span>Ver catálogo</span>
           </Link>
         </div>
 

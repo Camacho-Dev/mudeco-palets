@@ -446,7 +446,7 @@ export function CatalogExplorer({
                 aria-label="Disponibilidad"
                 className={selectClass}
               >
-                <option value="all">Toda disponibilidad</option>
+                <option value="all">Disponibilidad</option>
                 <option value="in-stock">Listos para entrega</option>
                 <option value="custom">Por encargo</option>
               </select>
@@ -718,7 +718,7 @@ export function CatalogExplorer({
         </div>
       ) : (
         <>
-          <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-3 lg:grid-cols-4">
             {visibleProducts.map((p, i) =>
               i < PAGE_SIZE ? (
                 <Reveal key={p.id} delay={Math.min(i * 0.02, 0.2)}>

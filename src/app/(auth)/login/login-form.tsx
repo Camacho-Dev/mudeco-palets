@@ -46,7 +46,7 @@ function getPasswordStrength(p: string) {
   return score;
 }
 
-export function LoginForm() {
+export function LoginForm({ googleEnabled = true }: { googleEnabled?: boolean }) {
 
   const params = useSearchParams();
   const reduceMotion = useReducedMotion();
@@ -278,7 +278,9 @@ export function LoginForm() {
             </AnimatePresence>
             <p className="text-xs text-[#6f5d4b]">
               {tab === "login"
-                ? "Ingresa con tu correo o continúa con Google."
+                ? googleEnabled
+                  ? "Ingresa con tu correo o continúa con Google."
+                  : "Ingresa con tu correo y contraseña."
                 : "Regístrate en segundos para gestionar tus pedidos."}
             </p>
           </div>
@@ -355,6 +357,8 @@ export function LoginForm() {
                 transition={{ duration: 0.13 }}
                 className="mt-6 space-y-5"
               >
+                {googleEnabled && (
+                  <>
                 <motion.button
                   type="button"
                   whileTap={{ scale: 0.98 }}
@@ -377,6 +381,9 @@ export function LoginForm() {
                   </span>
                   <div className="grow border-t border-[#ece3d6]" />
                 </div>
+
+                  </>
+                )}
 
                 <form onSubmit={handleLoginSubmit} className="space-y-4">
                   <div>

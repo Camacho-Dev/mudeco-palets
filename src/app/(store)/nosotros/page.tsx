@@ -105,7 +105,7 @@ export default async function NosotrosPage() {
               <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-tight text-white">
                 Transformando el descarte en arte con valor perdurable
               </h2>
-              <p className="text-base leading-relaxed text-white/75">
+              <p className="mt-5 text-base leading-relaxed text-white/75">
                 {STORE_BRAND.about}
               </p>
 

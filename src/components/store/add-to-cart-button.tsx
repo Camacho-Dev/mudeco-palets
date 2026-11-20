@@ -116,7 +116,7 @@ export function AddToCartButton({
         <motion.button
           type="button"
           whileTap={{ scale: 0.96 }}
-          className={`store-cta store-cta-primary transition-all duration-300 ${
+          className={`store-cta store-cta-primary flex-1 justify-center sm:flex-none transition-all duration-300 ${
             added
               ? "!bg-emerald-600 !text-white !border-emerald-500/60 shadow-[0_0_24px_rgba(16,185,129,0.35)]"
               : ""

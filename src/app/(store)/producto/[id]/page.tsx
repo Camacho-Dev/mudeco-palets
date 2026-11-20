@@ -386,7 +386,7 @@ export default async function ProductoPage({
               Piezas relacionadas
             </h2>
           </Reveal>
-          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
             {related.map((p, i) => (
               <Reveal key={p.id} delay={Math.min(i * 0.05, 0.2)}>
                 <ProductCard product={p} badge={p.badge} />
