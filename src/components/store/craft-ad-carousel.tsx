@@ -14,25 +14,25 @@ type CraftSlide = {
 const SLIDES: CraftSlide[] = [
   {
     src: "/brand/craft-ad-1.jpg",
-    alt: "Selección y curado artesanal de madera de pino recuperada en el taller Mudeco Palets",
-    eyebrow: "01 · Taller artesanal",
+    alt: "Mueble artesanal publicado en @mudeco_palets en madera de pino recuperada",
+    eyebrow: "01 · Taller @mudeco_palets",
     title: "Pino noble seleccionado a mano",
   },
   {
     src: "/brand/craft-ad-2.jpg",
-    alt: "Mesa de centro en madera de palet con acabado satinado y detalles dorados Mudeco Palets",
+    alt: "Pieza artesanal en madera de palet publicada en @mudeco_palets",
     eyebrow: "02 · Diseño a medida",
     title: "Piezas con carácter para tu hogar",
   },
   {
     src: "/brand/craft-ad-3.jpg",
-    alt: "Vinera y barra artesanal en madera recuperada iluminada Mudeco Palets",
+    alt: "Trabajo terminado en madera recuperada de @mudeco_palets",
     eyebrow: "03 · Espacios únicos",
-    title: "Vineras y barras hechas para durar",
+    title: "Mobiliario hecho para durar",
   },
   {
     src: "/brand/craft-ad-4.jpg",
-    alt: "Aplicación de aceite natural satinado sobre madera de pino recuperada Mudeco Palets",
+    alt: "Acabado artesanal en madera curada de @mudeco_palets",
     eyebrow: "04 · Acabado satinado",
     title: "Aceite natural y sellado protector",
   },
