@@ -167,7 +167,7 @@ export async function retryStripeCheckoutAction(formData: FormData) {
         quantity: 1,
       },
     ],
-    success_url: `${base}/pedido/${order.id}?ok=1`,
+    success_url: `${base}/pedido/${order.id}?ok=online`,
     cancel_url: `${base}/pedido/${order.id}?cancel=1`,
   });
 

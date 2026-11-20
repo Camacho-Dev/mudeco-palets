@@ -9,6 +9,7 @@ import { nextInvoiceNumber } from "@/lib/invoice-number";
 import { calcInvoiceBalance, calcInvoiceTotals } from "@/lib/invoice-calc";
 import { deductStock, restoreInvoiceNetStock } from "@/lib/stock";
 import { canVoidInvoice } from "@/lib/rbac";
+import { allocateNcf } from "@/lib/ncf";
 import { notifyCustomerWebOrderStatus, sendInvoiceEmail } from "@/lib/mail";
 
 const ALLOWED = new Set([
@@ -42,48 +43,69 @@ export async function updateWebOrderStatus(id: string, fd: FormData) {
   });
   if (!existing) throw new Error("Pedido no encontrado");
 
-  // Si se marca como PAID y tiene factura abierta o en borrador, registrar el cobro y sincronizar factura
-  if (status === "PAID" && existing.invoice) {
-    const inv = existing.invoice;
-    if (inv.status === "DRAFT") {
-      await deductStock(
-        inv.items.map((l) => ({ productId: l.productId, quantity: l.quantity })),
-        { refType: "Invoice", refId: inv.id },
-        { allowBackorder: true },
-      );
-      await prisma.invoice.update({
-        where: { id: inv.id },
-        data: { status: "ISSUED", issueDate: new Date() },
-      });
-    }
-    if (["DRAFT", "ISSUED", "PARTIAL"].includes(inv.status)) {
-      const balance = calcInvoiceBalance(
-        inv.total,
-        inv.payments,
-        inv.creditNotes,
-      );
-      if (balance > 0.001) {
-        await prisma.payment.create({
+  // Si se marca como PAID y tiene factura abierta o en borrador, registrar el cobro y sincronizar factura en transacción atómica
+  const order = await prisma.$transaction(async (tx) => {
+    if (status === "PAID" && existing.invoice) {
+      const inv = existing.invoice;
+      let allocatedNcf = inv.ncf;
+      if (inv.status === "DRAFT") {
+        await deductStock(
+          inv.items.map((l) => ({ productId: l.productId, quantity: l.quantity })),
+          { refType: "Invoice", refId: inv.id },
+          { allowBackorder: true, tx },
+        );
+        if (!allocatedNcf || allocatedNcf.startsWith("PENDING:")) {
+          allocatedNcf = await allocateNcf("B02", tx).catch(() => null);
+        }
+        await tx.invoice.update({
+          where: { id: inv.id },
           data: {
-            invoiceId: inv.id,
-            amount: balance,
-            method: existing.paymentMode === "ONLINE" ? "CARD" : "TRANSFER",
-            notes: `Pago confirmado desde Pedido Web ${existing.number}`,
+            status: "ISSUED",
+            issueDate: new Date(),
+            ...(allocatedNcf ? { ncf: allocatedNcf } : {}),
           },
         });
       }
-      await prisma.invoice.update({
-        where: { id: inv.id },
-        data: { status: "PAID" },
-      });
-      void sendInvoiceEmail(inv.id).catch(() => undefined);
+      if (["DRAFT", "ISSUED", "PARTIAL"].includes(inv.status)) {
+        const [currentPayments, currentCredits] = await Promise.all([
+          tx.payment.findMany({ where: { invoiceId: inv.id } }),
+          tx.creditNote.findMany({ where: { invoiceId: inv.id } }),
+        ]);
+        const balance = calcInvoiceBalance(
+          inv.total,
+          currentPayments,
+          currentCredits,
+        );
+        if (balance > 0.001) {
+          await tx.payment.create({
+            data: {
+              invoiceId: inv.id,
+              amount: balance,
+              method: existing.paymentMode === "ONLINE" ? "CARD" : "TRANSFER",
+              notes: `Pago confirmado desde Pedido Web ${existing.number}`,
+            },
+          });
+        }
+        await tx.invoice.update({
+          where: { id: inv.id },
+          data: { status: "PAID" },
+        });
+      }
     }
-  }
 
-  const order = await prisma.webOrder.update({
-    where: { id },
-    data: { status },
+    return tx.webOrder.update({
+      where: { id },
+      data: { status },
+    });
   });
+
+  if (
+    status === "PAID" &&
+    existing.invoice &&
+    ["DRAFT", "ISSUED", "PARTIAL"].includes(existing.invoice.status)
+  ) {
+    void sendInvoiceEmail(existing.invoice.id).catch(() => undefined);
+  }
 
   await writeAudit({
     action: "WEB_ORDER_STATUS",

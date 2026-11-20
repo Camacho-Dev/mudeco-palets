@@ -72,12 +72,14 @@ export function NewUserWelcome() {
     }
 
     if (!alreadyGreetedInSession) {
-      try {
-        sessionStorage.setItem(`${RETURNING_SESSION_PREFIX}${email}`, "1");
-      } catch {
-        /* ignore */
-      }
-      const showTimer = window.setTimeout(() => setReturningOpen(true), 120);
+      const showTimer = window.setTimeout(() => {
+        try {
+          sessionStorage.setItem(`${RETURNING_SESSION_PREFIX}${email}`, "1");
+        } catch {
+          /* ignore */
+        }
+        setReturningOpen(true);
+      }, 120);
       const hideTimer = window.setTimeout(
         () => setReturningOpen(false),
         120 + RETURNING_TOAST_MS,

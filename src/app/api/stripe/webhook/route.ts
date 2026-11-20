@@ -81,6 +81,7 @@ export async function POST(req: NextRequest) {
     }
   } else if (event.type === "checkout.session.expired") {
     const session = event.data.object as {
+      id?: string;
       metadata?: { webOrderId?: string };
       client_reference_id?: string | null;
     };
@@ -90,9 +91,16 @@ export async function POST(req: NextRequest) {
       await prisma.$transaction(async (tx) => {
         const order = await tx.webOrder.findUnique({
           where: { id: webOrderId },
-          select: { id: true, status: true, invoiceId: true },
+          select: { id: true, status: true, invoiceId: true, stripeSessionId: true },
         });
         if (!order || order.status !== "AWAITING_PAYMENT") return;
+        if (
+          order.stripeSessionId &&
+          session.id &&
+          order.stripeSessionId !== session.id
+        ) {
+          return;
+        }
         await tx.webOrder.update({
           where: { id: order.id },
           data: { status: "CANCELLED" },
