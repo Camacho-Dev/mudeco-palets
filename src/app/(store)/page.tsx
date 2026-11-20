@@ -319,50 +319,64 @@ export default async function StoreHomePage() {
       </div>
 
       {/* —— Proceso + taller —— */}
-      <section className="border-b border-white/[0.06] bg-[#0d0d0d] py-16 sm:py-20">
+      <section className="border-b border-white/[0.06] bg-[#0d0d0d] py-16 sm:py-24">
         <div className={WRAP}>
-          <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
-            <div className="lg:col-span-5">
-              <Reveal>
-                <Eyebrow>Oficio y sostenibilidad</Eyebrow>
-                <h2 className="font-display mt-3 text-3xl leading-tight text-white sm:text-4xl lg:text-5xl">
-                  Del palet a tu hogar
-                </h2>
-                <p className="mt-4 max-w-md text-base leading-relaxed text-white/65">
-                  Transformamos madera de pino recuperada en muebles de alta
-                  resistencia, con acabados satinados al aceite natural.
-                </p>
-                <Link
-                  href="/nosotros"
-                  className="group mt-6 inline-flex items-center gap-2 text-sm font-semibold text-brand-gold transition hover:text-brand-gold"
-                >
-                  Conoce nuestra historia
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Link>
-              </Reveal>
-              <Reveal delay={0.1} className="mt-8">
-                <CraftAdCarousel />
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-stretch lg:gap-12">
+            {/* Columna izquierda: carrusel visual del taller */}
+            <div className="lg:col-span-5 flex flex-col justify-between">
+              <Reveal className="h-full">
+                <div className="relative h-full overflow-hidden rounded-3xl border border-[#c9a15a]/20 bg-[#14100d] p-2 shadow-[0_24px_70px_rgba(0,0,0,0.55)]">
+                  <CraftAdCarousel />
+                </div>
               </Reveal>
             </div>
 
-            <div className="grid gap-px overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.06] sm:grid-cols-2 lg:col-span-7">
-              {CRAFT_STEPS.map((step, idx) => (
-                <Reveal
-                  key={step.step}
-                  delay={idx * 0.08}
-                  className="bg-[#0d0d0d] p-7 sm:p-8"
-                >
+            {/* Columna derecha: encabezado editorial + 4 fases del oficio */}
+            <div className="lg:col-span-7 flex flex-col justify-between gap-8">
+              <Reveal>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-white/[0.08] pb-7">
                   <div>
-                    <span className="store-step-num">{step.step}</span>
-                    <h3 className="font-display mt-4 text-2xl text-white">
-                      {step.title}
-                    </h3>
-                    <p className="mt-2 text-sm leading-relaxed text-white/55">
-                      {step.desc}
+                    <Eyebrow>Oficio y sostenibilidad</Eyebrow>
+                    <h2 className="font-display mt-2.5 text-3xl leading-[1.08] text-white sm:text-4xl lg:text-5xl text-balance">
+                      Del palet a tu hogar
+                    </h2>
+                    <p className="mt-3 max-w-xl text-sm sm:text-base leading-relaxed text-white/75 text-pretty">
+                      Transformamos madera de pino recuperada en muebles de alta
+                      resistencia, con acabados satinados al aceite natural.
                     </p>
                   </div>
-                </Reveal>
-              ))}
+                  <Link
+                    href="/nosotros"
+                    className="group inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-full border border-[#c9a15a]/35 bg-[#c9a15a]/10 px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-[#c9a15a] transition hover:border-[#c9a15a] hover:bg-[#c9a15a] hover:text-[#0f0d0a]"
+                  >
+                    <span>Nuestra historia</span>
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                </div>
+              </Reveal>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                {CRAFT_STEPS.map((step, idx) => (
+                  <Reveal
+                    key={step.step}
+                    delay={idx * 0.06}
+                    className="group relative rounded-2xl border border-white/[0.08] bg-[#13110e] p-6 transition-colors duration-300 hover:border-[#c9a15a]/35 hover:bg-[#171410]"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-xs font-semibold tracking-[0.18em] text-[#c9a15a] tabular-nums">
+                        {step.step}
+                      </span>
+                      <span aria-hidden className="h-px flex-1 bg-white/[0.08] transition-colors group-hover:bg-[#c9a15a]/30" />
+                    </div>
+                    <h3 className="font-display mt-4 text-2xl font-normal tracking-tight text-white">
+                      {step.title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-relaxed text-white/70 text-pretty">
+                      {step.desc}
+                    </p>
+                  </Reveal>
+                ))}
+              </div>
             </div>
           </div>
         </div>
