@@ -13,25 +13,25 @@ type CraftSlide = {
 
 const SLIDES: CraftSlide[] = [
   {
-    src: "/brand/craft-ad-1.jpg",
+    src: "/brand/ig-taller-1.jpg",
     alt: "Mueble artesanal publicado en @mudeco_palets en madera de pino recuperada",
     eyebrow: "01 · Taller @mudeco_palets",
     title: "Pino noble seleccionado a mano",
   },
   {
-    src: "/brand/craft-ad-2.jpg",
+    src: "/brand/ig-taller-2.jpg",
     alt: "Pieza artesanal en madera de palet publicada en @mudeco_palets",
     eyebrow: "02 · Diseño a medida",
     title: "Piezas con carácter para tu hogar",
   },
   {
-    src: "/brand/craft-ad-3.jpg",
+    src: "/brand/ig-taller-3.jpg",
     alt: "Trabajo terminado en madera recuperada de @mudeco_palets",
     eyebrow: "03 · Espacios únicos",
     title: "Mobiliario hecho para durar",
   },
   {
-    src: "/brand/craft-ad-4.jpg",
+    src: "/brand/ig-taller-4.jpg",
     alt: "Acabado artesanal en madera curada de @mudeco_palets",
     eyebrow: "04 · Acabado satinado",
     title: "Aceite natural y sellado protector",
