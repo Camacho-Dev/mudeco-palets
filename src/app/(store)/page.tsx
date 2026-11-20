@@ -23,6 +23,7 @@ import { StarRating } from "@/components/store/star-rating";
 import { getStoreCompany } from "@/lib/store";
 import { siteUrl, storeWhatsApp } from "@/lib/store-info";
 import { HeroSearchBar } from "@/components/store/hero-search-bar";
+import { CraftAdCarousel } from "@/components/store/craft-ad-carousel";
 
 const TRUST = [
   { icon: Leaf, title: "Madera recuperada", desc: "Pino curado contra plagas y humedad" },
@@ -340,15 +341,7 @@ export default async function StoreHomePage() {
                 </Link>
               </Reveal>
               <Reveal delay={0.1} className="mt-8">
-                <div className="group relative aspect-[4/3] overflow-hidden rounded-2xl">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={company.craftImage || "/brand/brand-wood-stamp.jpg"}
-                    alt="Madera de palet con el logo de Mudeco Palets grabado a fuego"
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                </div>
+                <CraftAdCarousel />
               </Reveal>
             </div>
 
